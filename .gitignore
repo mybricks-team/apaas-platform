@@ -18,3 +18,4 @@ _nodejs/config/*
 mybricks
 mybricks.zip
 !_apps/package.json
+./package.json
