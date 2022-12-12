@@ -121,6 +121,10 @@ async function installApplication() {
             if(!fs.existsSync(destAppDir)) {
               fs.mkdirSync(destAppDir)
               fs.writeFileSync(existedAppPkgPath, JSON.stringify({}), 'utf-8')
+            } else {
+              fs.removeSync(destAppDir)
+              fs.mkdirSync(destAppDir)
+              fs.writeFileSync(existedAppPkgPath, JSON.stringify({}), 'utf-8')
             }
             cp.execSync(`cd ${destAppDir} && npm i --registry=https://registry.npm.taobao.org ${npmPkg}`)
             console.log(`【install】: 应用加载完毕 ${npmPkg} `)
