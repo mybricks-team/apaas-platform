@@ -1,0 +1,173 @@
+﻿@import '../reset.less';
+@import '../theme.less';
+//@import "../node_modules/antd/dist/antd.compact.min.css";
+
+body {
+  //overflow: hidden;
+}
+
+:global {
+  .hljs {
+    font-size: 20px;
+    line-height: 20px;
+    //text-align: center;
+  }
+
+  .language-jsx {
+    margin: auto;
+    width: 1000px;
+    position: relative !important;
+  }
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  //overflow: hidden;
+
+  .groupQR {
+    position: fixed;
+    z-index: 1000;
+    bottom: 300px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    border: 1px solid #DDD;
+    background-color: #FFF;
+    padding: 5px 5px 5px 5px;
+    box-shadow: rgb(0 0 0 / 13%) 2px 2px 40px;
+
+    img {
+      max-width: 130px;
+    }
+  }
+
+  .chat {
+    position: fixed;
+    z-index: 1000;
+    bottom: 100px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    border: 1px solid #DDD;
+    background-color: #FFF;
+    padding: 10px 10px 5px 10px;
+    box-shadow: rgb(0 0 0 / 13%) 2px 2px 40px;
+
+    img {
+      max-width: 120px;
+    }
+  }
+
+  .slogan {
+    text-align: center;
+    display: block;
+    font-size: 46px;
+    font-weight: 600;
+    margin: 60px 0 30px 0;
+
+    p {
+      font-size: 24px;
+      margin-top: 28px;
+      color: rgb(136, 136, 136);
+      font-weight: 200;
+    }
+  }
+
+  .btns {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 80px 0;
+
+    .github {
+      //position: absolute;
+      //top: 66px;
+      //right: 32px;
+      margin: 0 10px;
+      background: #222;
+      padding: 12px 35px;
+      border-radius: 5px;
+      color: #FFF;
+      cursor: pointer;
+      height: 25px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+
+      svg {
+        max-width: 24px;
+        margin-right: 10px;
+
+        path {
+          fill: #FFF;
+        }
+      }
+    }
+
+    .vscode {
+      //position: absolute;
+      //top: 66px;
+      //right: 32px;
+      margin: 0 10px;
+      background: #2596e7;
+      padding: 12px 35px;
+      border-radius: 5px;
+      color: #FFF;
+      cursor: pointer;
+      height: 25px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+
+      svg {
+        max-width: 24px;
+        margin-right: 10px;
+
+        path {
+          fill: #FFF;
+        }
+      }
+    }
+  }
+
+  .showPic {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 60px;
+
+    img {
+      max-width: 900px;
+      box-shadow: rgb(0 0 0 / 13%) 2px 2px 40px;
+    }
+  }
+
+  .copyrights {
+    //margin-top: 100px;
+    //background: #EBECEE;
+    display: flex;
+    //border-top: 1px solid #CCC;
+    justify-content: flex-end;
+    padding-right: 20px;
+    align-items: center;
+    height: 100px;
+    color: #555;
+
+    a {
+      margin-left: 20px;
+      font-size: 12px;
+    }
+
+    a:first-child {
+      color: @color-primary;
+    }
+
+    .gov {
+      color: #999;
+    }
+  }
+}

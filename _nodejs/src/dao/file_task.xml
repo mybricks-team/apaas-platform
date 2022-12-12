@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fileTask">
+  <select id="query">
+    select id,name,type,meta_info,creator_id,creator_name
+    ws_file_task where
+    status = 1
+    <if test="fileId">
+      and file_id = #{fileId}
+    </if>
+    <if test="id">
+      and id = #{id}
+    </if>
+    <if test="type">
+      and type = #{type}
+    </if>
+    and status = 1
+  </select>
+
+  <select id="queryAll">
+    select id,name,type,meta_info,file_id,running_status,creator_id,creator_name,create_time
+    from ws_file_task
+    where
+    <if test="creatorId != null">
+      creator_id = #{creatorId} and
+    </if>
+    <if test="name">
+      name like #{name} and
+    </if>
+    <if test="fileId">
+      file_id = #{fileId} and
+    </if>
+    status = 1
+    limit #{limit} offset #{offset}
+  </select>
+
+  <select id="queryById">
+    select id,name,type,meta_info,creator_id,creator_name
+    from ws_file_task where
+    id = #{id} and
+    status != -1
+  </select>
+
+  <select id="queryRunningTaskByFileId">
+    select id,name,type,running_status,file_id,meta_info,creator_id,creator_name
+    from ws_file_task where
+    file_id = #{fileId} and
+    status != -1 and
+    running_status = 1
+  </select>
+
+  <select id="queryContentById">
+    select id,name,type,meta_info,content,creator_id,creator_name
+    from ws_file_task where
+    id = #{id} and
+    status != -1
+  </select>
+
+  <insert id="create">
+    insert into ws_file_task
+    (
+    file_id,
+    name,
+    type,
+    meta_info,
+    content,
+    creator_id,
+    creator_name,
+    create_time,
+    running_status,
+    status
+    )
+    values
+    (
+    #{fileId},
+    #{name},
+    #{type},
+    #{metaInfo},
+    #{content},
+    #{creatorId},
+    #{creatorName},
+    #{createTime},
+    #{runningStatus},
+    #{status}
+    )
+  </insert>
+
+  <update id="delete">
+    update ws_file_task
+    set
+    status = -1,
+    running_status = -1,
+    update_time = #{updateTime},
+    updator_id = #{updatorId},
+    updator_name = #{updatorName}
+    <if test="id">
+      where id = #{id}
+    </if>
+  </update>
+
+
+  <update id="update">
+    update ws_file_task
+    set
+    <if test="name">
+      name = #{name},
+    </if>
+    <if test="content != null">
+      content = #{content},
+    </if>
+    <if test="runningStatus">
+      running_status = #{runningStatus},
+    </if>
+    <if test="updatorId">
+      updator_id = #{updatorId},
+    </if>
+    <if test="updatorName">
+      updator_name = #{updatorName},
+    </if>
+    update_time = #{updateTime}
+    where id = #{id}
+  </update>
+</mapper>

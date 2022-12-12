@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="material">
+    <select id="getMaterials">
+        select
+        *
+        from
+        material
+        where
+        1 = 1
+        <choose>
+            <when test="status">
+                and material.status in
+                <foreach collection="status" item="item" open="( " separator="," close=" )" index="index">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                and material.status in (1)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="type">
+                and material.type in
+                <foreach collection="type" item="item" open="( " separator="," close=" )" index="index">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                and material.type in ('component', 'com_lib')
+            </otherwise>
+        </choose>
+        <if test="scopeStatus">
+            <foreach collection="scopeStatus" item="scope" open="and ( " separator=" or " close=" )" index="index">
+                <choose>
+                    <when test="scope == -1">
+                        (creator_id = #{userId})
+                    </when>
+                    <otherwise>
+                        (material.scope_status = #{scope})
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+        <if test="keyword">
+            and (title like '%${keyword}%' or description like '%${keyword}%' or namespace like '%${keyword}%')
+        </if>
+        order by update_time DESC
+        limit #{pageSize} offset #{offset};
+    </select>
+
+    <select id="getMaterialsTotal">
+        select
+        count(*) as total
+        from
+        material
+        where
+        1 = 1
+        <choose>
+            <when test="status">
+                and material.status in
+                <foreach collection="status" item="item" open="( " separator="," close=" )" index="index">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                and material.status in (1)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="type">
+                and material.type in
+                <foreach collection="type" item="item" open="( " separator="," close=" )" index="index">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                and material.type in ('component', 'com_lib')
+            </otherwise>
+        </choose>
+        <if test="scopeStatus">
+            <foreach collection="scopeStatus" item="scope" open="and ( " separator=" or " close=" )" index="index">
+                <choose>
+                    <when test="scope == -1">
+                        (creator_id = #{userId})
+                    </when>
+                    <otherwise>
+                        (material.scope_status = #{scope})
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+        <if test="keyword">
+            and (title like '%${keyword}%' or description like '%${keyword}%' or namespace like '%${keyword}%')
+        </if>
+    </select>
+
+    <insert id="batchCreate">
+        insert into material
+        (
+        namespace,
+        version,
+        icon,
+        preview_img,
+        title,
+        description,
+        type,
+        scope_status,
+        status,
+        creator_id,
+        creator_name,
+        create_time,
+        updator_id,
+        updator_name,
+        update_time,
+        meta
+        )
+        <foreach collection="materials" item="item" open="values " separator="," close="" index="index">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.namespace},
+                #{item.version},
+                #{item.icon},
+                #{item.previewImg},
+                #{item.title},
+                #{item.description},
+                #{item.type},
+                #{item.scopeStatus},
+                #{item.status},
+                #{item.creatorId},
+                #{item.creatorName},
+                #{item.createTime},
+                #{item.creatorId},
+                #{item.creatorName},
+                #{item.createTime},
+                <choose>
+                    <when test="item.meta">
+                        #{item.meta},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+            </trim>
+        </foreach>
+    </insert>
+
+    <select id="getMaterialListByMaterialId">
+        select material.id as material_id, material.* from material where id in
+        <foreach collection="materialIds" item="item" open="( " separator="," close=" )" index="index">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getMaterialContent">
+        select
+        material.id as material_id,
+        material.namespace,
+        material.version,
+        material.icon,
+        material.docs,
+        material.preview_img,
+        material.title,
+        material.description,
+        material.type,
+        material.creator_id,
+        material.creator_name,
+        material.create_time,
+        material.updator_id,
+        material.updator_name,
+        material.update_time,
+        material_pub.content,
+        material_pub.commit_info
+        from material, material_pub
+        where material.id in
+        <foreach collection="materialIds" item="item" open="( " separator="," close=" )" index="index">
+            #{item}
+        </foreach>
+        and material_pub.version = material.version
+        and material_pub.material_id = material.id
+    </select>
+
+    <select id="getMaterialsByNamespace_Version">
+        select
+        material_pub.*,
+        material.type,
+        material.namespace
+        from
+        material, material_pub
+        where
+        material_pub.material_id = material.id
+        and ${query}
+    </select>
+
+    <update id="update">
+        update material
+        set
+        <if test="nextInfo.title != undefined">
+            title = #{nextInfo.title},
+        </if>
+        <if test="nextInfo.icon != undefined">
+            title = #{nextInfo.icon},
+        </if>
+        <if test="nextInfo.version != undefined">
+            version = #{nextInfo.version},
+        </if>
+        <if test="nextInfo.description != undefined">
+            title = #{nextInfo.description},
+        </if>
+        <if test="nextInfo.previewImg != undefined">
+            preview_img = #{nextInfo.previewImg},
+        </if>
+        <if test="nextInfo.status != undefined">
+            status = #{nextInfo.status},
+        </if>
+        <if test="nextInfo.scopeStatus != undefined">
+            scope_status = #{nextInfo.scopeStatus},
+        </if>
+        update_time = #{nextInfo.updateTime},
+        updator_id = #{nextInfo.updatorId},
+        updator_name = #{nextInfo.updatorName}
+        where
+        id = #{query.id}
+    </update>
+
+    <select id="getLatestMaterialsByNamespace">
+        select
+        material.*,
+        <if test="needContent">
+            material_pub.content,
+        </if>
+        material_pub.material_id
+        from
+        material, material_pub
+        where
+        namespace in
+        <foreach collection="namespaces" item="item" open="( " separator="," close=" )" index="index">
+            #{item}
+        </foreach>
+        <if test="status != undefined">
+            and status = #{status}
+        </if>
+        and material_pub.material_id = material.id
+        and material_pub.version = material.version
+    </select>
+
+    <select id="getContentByNamespace_Version">
+        select
+        material.*,
+        material_pub.material_id,
+        material_pub.content
+        from
+        material_pub,
+        material
+        where
+        material.id = material_pub.material_id
+        and material.namespace = #{namespace}
+        and material_pub.version = #{version}
+    </select>
+
+    <insert id="createPub">
+        insert into material_pub
+        (
+        material_id,
+        commit_info,
+        version,
+        creator_id,
+        creator_name,
+        status,
+        create_time,
+        updator_id,
+        updator_name,
+        update_time,
+        content
+        )
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{materialId},
+            #{commitInfo},
+            #{version},
+            #{creatorId},
+            #{creatorName},
+            #{status},
+            #{createTime},
+            #{creatorId},
+            #{creatorName},
+            #{createTime},
+            #{content}
+        </trim>
+    </insert>
+
+    <insert id="batchCreatePub">
+        insert into material_pub
+        (
+        material_id,
+        commit_info,
+        version,
+        creator_id,
+        creator_name,
+        status,
+        create_time,
+        updator_id,
+        updator_name,
+        update_time,
+        content
+        )
+        <foreach collection="materialPubs" item="item" open="values " separator="," close="" index="index">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.materialId},
+                #{item.commitInfo},
+                #{item.version},
+                #{item.creatorId},
+                #{item.creatorName},
+                #{item.status},
+                #{item.createTime},
+                #{item.creatorId},
+                #{item.creatorName},
+                #{item.createTime},
+                #{item.content}
+            </trim>
+        </foreach>
+    </insert>
+
+    <update id="updatePub">
+        update material_pub
+        set
+        <if test="nextInfo.content != null">
+            content = #{nextInfo.content},
+        </if>
+        <if test="nextInfo.commitInfo">
+            commit_info = #{nextInfo.commitInfo},
+        </if>
+        <if test="nextInfo.status">
+            status = #{nextInfo.status},
+        </if>
+        update_time = #{nextInfo.updateTime},
+        updator_id = #{nextInfo.updatorId},
+        updator_name = #{nextInfo.updatorName}
+        where 1 = 1
+        <if test="query.id">
+            and id = #{query.id}
+        </if>
+        <if test="query.version">
+            and version = #{query.version}
+        </if>
+        <if test="query.materialId">
+            and material_id = #{query.materialId}
+        </if>
+    </update>
+
+    <select id="getMaterialContentByNamespaces">
+        select
+        material.id,
+        material.namespace,
+        material_pub.version,
+        material.icon,
+        material.preview_img,
+        material.title,
+        material.description,
+        material.type,
+        material.creator_id,
+        material.creator_name,
+        material.create_time,
+        material.updator_id,
+        material.updator_name,
+        material.update_time,
+        material_pub.id as material_pub_id,
+        material_pub.material_id,
+        material_pub.content,
+        material_pub.commit_info
+        from
+        material,
+        material_pub
+        where
+        material.id = material_pub.material_id
+        <foreach collection="components" item="item" open="and ( " separator=" or " close=" )" index="index">
+            (material.namespace = #{item.namespace} and material_pub.version = #{item.version})
+        </foreach>
+        and material.status = 1
+        and material.type = 'component';
+    </select>
+
+    <select id="getMaterialVersions">
+        select
+        material.id,
+        material.namespace,
+        material.title,
+        material.description,
+        material.type,
+        material_pub.version,
+        material_pub.creator_id,
+        material_pub.creator_name,
+        material_pub.create_time,
+        material_pub.id as material_pub_id,
+        material_pub.material_id,
+        material_pub.commit_info
+        from
+        material,
+        material_pub
+        where
+        material.id = material_pub.material_id
+        and material.status = 1
+        <if test="namespace">
+            and material.namespace = #{namespace}
+        </if>
+        <if test="materialId">
+            and material.id = #{materialId}
+        </if>
+        order by create_time desc;
+    </select>
+</mapper>

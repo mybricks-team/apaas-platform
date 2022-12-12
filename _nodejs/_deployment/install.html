@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="dns-prefetch" href="//f2.eckwai.com" />
+    <link rel="dns-prefetch" href="//w2.eckwai.com" />
+    <link rel="dns-prefetch" href="//ali-ec.static.yximgs.com" />
+    <link
+      rel="shortcut icon"
+      href="//f2.eckwai.com/udata/pkg/fe/favicon.70ff1fcc.ico"
+      type="image/x-icon"
+    />
+    <title>测试</title>
+    <link
+      rel="shortcut icon"
+      href="https://f2.eckwai.com/udata/pkg/fe/favicon.70ff1fcc.ico"
+      type="image/x-icon"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/m-ui/1.11.1/m-ui.variable.min.css"
+    />
+    <!--dynamiccss-->
+    <style>
+      #appview {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+    <style>
+      .cdmTpt_slot {
+        width: 100%;
+        height: 100% !important;
+        position: relative !important;
+      }
+      .cdmTpt_lyFlexColumn {
+        display: flex;
+        flex-direction: column;
+      }
+      .cdmTpt_lyFlexRow {
+        display: flex;
+        flex-direction: row;
+      }
+      .cdmTpt_justifyContentFlexStart {
+        justify-content: flex-start;
+      }
+      .cdmTpt_justifyContentFlexCenter {
+        justify-content: center;
+      }
+      .cdmTpt_justifyContentFlexFlexEnd {
+        justify-content: flex-end;
+      }
+      .cdmTpt_justifyContentFlexSpaceAround {
+        justify-content: space-around;
+      }
+      .cdmTpt_justifyContentFlexSpaceBetween {
+        justify-content: space-between;
+      }
+      .cdmTpt_alignItemsFlexStart {
+        align-items: flex-start;
+      }
+      .cdmTpt_alignItemsFlexCenter {
+        align-items: center;
+      }
+      .cdmTpt_alignItemsFlexFlexEnd {
+        align-items: flex-end;
+      }
+      .cdmTpt_debugFocus {
+        outline: 1px dashed red;
+        outline-offset: -3px;
+      }
+      .cdmTpt_com {
+        flex-shrink: 0;
+      }
+      .cdmTpt_flex {
+        flex: 1;
+        min-height: 0;
+      }
+      .cdmTpt_flex > * {
+        height: 100%;
+      }
+      .cdmTpt_h5flex {
+        flex: 1;
+        min-height: 0;
+        position: relative;
+      }
+      .cdmTpt_h5flex > div {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+      }
+      .cdmTpt_h5flex > * {
+        height: 100%;
+      }
+      .cdmTpt_error {
+        font-size: 12px;
+        color: #f5222d;
+        overflow: hidden;
+      }
+      .cdmTpt_errorRT {
+        padding: 5px;
+        border: 1px dashed #f5222d;
+      }
+      .cdmTpt_errorRT .cdmTpt_tt {
+        font-size: 12px;
+        color: #f5222d;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .cdmTpt_errorRT .cdmTpt_info {
+        color: #f5222d;
+        margin-bottom: 5px;
+      }
+    </style>
+    <link
+      href="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/react@17.0.2/umd/react.production.min.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/react-dom@17.0.2/umd/react-dom.production.min.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/moment-2.9.1/moment.min.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://f2.eckwai.com/kos/nlav10749/m-ui-icons/dist/index.umd.min.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://f2.eckwai.com/kos/nlav10749/@m-ui/react@1.11.5-alpha.3/dist/@m-ui/react.min.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/ant-design/charts-1.2.14/charts.min.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/formily/2.0.0-rc.13/formily.min.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/axios/axios.min.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/lodash/4.17.21/lodash.min.js"
+      rel="preload"
+      as="script"
+    />
+    <!--dynamicjslink-->
+    <link href="https://f2.eckwai.com/kos/nlav12333/fangzhou/pub/core-1c3af048.js" rel="preload" crossorigin as="script" />
+  </head>
+
+  <body>
+    <div id="appview"></div>
+    <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/react@17.0.2/umd/react.production.min.js"></script>
+    <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/moment-2.9.1/moment.min.js"></script>
+    <script src="https://f2.eckwai.com/kos/nlav10749/m-ui-icons/dist/index.umd.min.js"></script>
+    <script src="https://f2.eckwai.com/kos/nlav10749/@m-ui/react@1.11.5-alpha.3/dist/@m-ui/react.min.js"></script>
+    <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/ant-design/charts-1.2.14/charts.min.js"></script>
+    <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/m-ui/1.11.1/locale/zh_CN.js"></script>
+    <script>
+      if (window['@m-ui/react']) {
+        window['m-ui'] = Object.assign(
+          {},
+          window['m-ui'],
+          window['@m-ui/react'],
+        );
+      }
+      if (!window.antd) {
+        window.antd = window['m-ui'];
+      }
+    </script>
+    <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/axios/axios.min.js"></script>
+    <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/lodash/4.17.21/lodash.min.js"></script>
+    <script crossorigin="anonymous" src="https://f2.eckwai.com/kos/nlav12333/fangzhou/pub/core-1c3af048.js"></script>
+    <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/compiler-js/0.0.15/index.min.js"></script>
+    <!--dynamicjs-->
+    <script>
+      if (window.Vue && window.veaury && window.Vue.use === undefined) {
+        window.__VueUseComponents = window.__VueUseComponents || [];
+        window.Vue.use = function (com) {
+          if (window.__VueUseComponents.indexOf(com) === -1) {
+            window.__VueUseComponents.push(com);
+            window.veaury.setVeauryOptions({
+              beforeVueAppMount: function (app) {
+                for (var i = 0; i < window.__VueUseComponents.length; i++) {
+                  app.use(window.__VueUseComponents[i]);
+                }
+              },
+            });
+          }
+        };
+      }
+    </script>
+    <script src="https://f2.eckwai.com/kos/nlav12333/fangzhou/pub/pcspa-desn/26850-bundle-1670504173083.js"></script>
+  </body>
+</html>

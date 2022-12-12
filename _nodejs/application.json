@@ -1,0 +1,9 @@
+{
+  "installApps": [
+    {
+      "type": "npm",
+      "name": "app-pc-page",
+      "path": "mybricks-pc-page@0.0.28"
+    }
+  ]
+}

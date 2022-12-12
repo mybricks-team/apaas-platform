@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fileTaskLog">
+  <insert id="create">
+    insert into ws_file_task_log
+    (
+    file_taskid,
+    content,
+    create_time
+    )
+    values
+    (
+    #{fileTaskId},
+    #{content},
+    #{createTime}
+    )
+  </insert>
+
+  <select id="queryByFileTaskId">
+    select content, create_time
+    from ws_file_task_log
+    where file_taskid = #{fileTaskId}
+  </select>
+
+  <select id="queryByFileTaskIdOfPage">
+    select id, content, create_time
+    from ws_file_task_log
+    where
+    <if test="fileTaskIds != null">
+        file_taskid in
+        <foreach collection="fileTaskIds" open="(" close=")" separator="," item="fileTaskId" index="i">
+            #{fileTaskId}
+        </foreach>
+    </if>
+    ORDER BY id DESC LIMIT #{limit} OFFSET #{offset}
+  </select>
+
+  <select id="queryTotalCountOfFileTaskIds">
+    select count(*) as count
+    from ws_file_task_log
+    where
+    <if test="fileTaskIds != null">
+        file_taskid in
+        <foreach collection="fileTaskIds" open="(" close=")" separator="," item="fileTaskId" index="i">
+            #{fileTaskId}
+        </foreach>
+    </if>
+  </select>
+</mapper>

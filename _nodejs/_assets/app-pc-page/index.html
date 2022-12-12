@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="zh-CN" class="no-js"><head><meta charset="UTF-8"><title>MyBricks-免费开放的无代码开发平台</title><link rel="shortcut icon" href="/favicon.ico"><link rel="stylesheet" href="https://ali-ec.static.yximgs.com/udata/pkg/eshop/fangzhou/pub/pkg/antd-4.21.6/antd.min.css"><link href="./css/theme.css" rel="stylesheet"><link href="./css/global.css" rel="stylesheet"><script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/reat-18.0.0/react.production.min.js"></script><script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/react-dom-18.0.0/react-dom.production.min.js"></script><script src="//f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/axios/axios.min.js"></script><script src="https://ali2.a.kwimgs.com/udata/pkg/eshop/fangzhou/pub/pkg/moment-2.9.1/moment.min.js"></script><script src="https://ali2.a.kwimgs.com/udata/pkg/eshop/fangzhou/pub/pkg/@ant-design/icons-4.7.0/index.umd.min.js"></script><script src="https://ali-ec.static.yximgs.com/udata/pkg/eshop/fangzhou/pub/pkg/antd-4.21.6/antd.min.js"></script><script defer="defer" src="js/index-9e3779e9305d6edf49b2.js"></script><script>
+  var oldxhr=window.XMLHttpRequest
+  function newobj(){}
+  window.XMLHttpRequest=function(){
+      let tagetobk=new newobj();
+      tagetobk.oldxhr=new oldxhr();
+      let handle={
+          get: function(target, prop, receiver) {
+              if(prop==='oldxhr'){
+                  return Reflect.get(target,prop);
+              }
+              if(typeof Reflect.get(target.oldxhr,prop)==='function')
+              {
+                  if(Reflect.get(target.oldxhr,prop+'proxy')===undefined)
+                  {
+                      target.oldxhr[prop+'proxy']=function(...funcargs){
+                          let newArgs = [...funcargs]
+                          try {
+                              if (["GET", "POST"].indexOf(newArgs[0]) !== -1) {
+                                  if(newArgs[1].indexOf("http") !== 0) {
+                                    const pathname = newArgs[1];
+                                    let needProxy = true;
+                                    ['.js', '.css', '.html'].forEach(function (item) {
+                                        if(pathname.indexOf(item) !== -1) {
+                                            needProxy = false
+                                        }
+                                    })
+                                    if(needProxy) {
+                                        newArgs[1] = '/app-pc-page' + newArgs[1]
+                                    }
+                                }
+                              }
+                          } catch (e) {}
+                          let result=target.oldxhr[prop].call(target.oldxhr,...newArgs)
+                          return result;
+                      }
+                  }
+                  return Reflect.get(target.oldxhr,prop+'proxy')
+              }
+              if(prop.indexOf('response')!==-1)
+              {
+                  return Reflect.get(target.oldxhr,prop)
+              }
+              return Reflect.get(target.oldxhr,prop);
+          },
+          set(target, prop, value) {
+              return Reflect.set(target.oldxhr, prop, value);
+          },
+          has(target, key) {
+              // debugger;
+              return Reflect.has(target.oldxhr,key);
+          }
+      }
+      let ret = new Proxy(tagetobk, handle);
+      return ret;
+  };
+  </script></head><body><div id="root"></div><script>var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?d2ecca39b1c8b9e556bc0051744065bf";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();</script></body></html>

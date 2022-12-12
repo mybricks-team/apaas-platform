@@ -1,0 +1,22 @@
+CREATE TABLE `ws_file` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` bigint DEFAULT NULL,
+  `group_id` bigint DEFAULT NULL,
+  `name` varchar(256) CHARACTER SET utf8mb4  NOT NULL,
+  `namespace` varchar(256) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `version` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `ext_name` varchar(128) CHARACTER SET utf8mb4  NOT NULL,
+  `path` varchar(256) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `icon` mediumtext CHARACTER SET utf8mb4 ,
+  `creator_id` varchar(128) CHARACTER SET utf8mb4  NOT NULL,
+  `creator_name` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `create_time` bigint NOT NULL,
+  `update_time` bigint DEFAULT NULL,
+  `updator_id` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `updator_name` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `description` varchar(256) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `type` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT 'ExtName 相同时标识类型',
+  `share_type` int DEFAULT NULL,
+  `status` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

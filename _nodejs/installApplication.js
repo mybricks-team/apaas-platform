@@ -1,0 +1,247 @@
+const cp = require('child_process');
+const fs = require('fs-extra');
+const path = require('path')
+const parse5 = require('parse5');
+const mysql = require('mysql2');
+const config = require('config')
+
+let MYSQL_CONNECTION = null
+const APPS_BASE_FOLDER = path.join(process.cwd(), `../_apps`);
+
+function injectScript({ nameSpace }) {
+  const placeholder = '_NAME_SPACE_'
+  const rawStr = `
+  var oldxhr=window.XMLHttpRequest
+  function newobj(){}
+  window.XMLHttpRequest=function(){
+      let tagetobk=new newobj();
+      tagetobk.oldxhr=new oldxhr();
+      let handle={
+          get: function(target, prop, receiver) {
+              if(prop==='oldxhr'){
+                  return Reflect.get(target,prop);
+              }
+              if(typeof Reflect.get(target.oldxhr,prop)==='function')
+              {
+                  if(Reflect.get(target.oldxhr,prop+'proxy')===undefined)
+                  {
+                      target.oldxhr[prop+'proxy']=function(...funcargs){
+                          let newArgs = [...funcargs]
+                          try {
+                              if (["GET", "POST"].indexOf(newArgs[0]) !== -1) {
+                                  if(newArgs[1].indexOf("http") !== 0) {
+                                    const pathname = newArgs[1];
+                                    let needProxy = true;
+                                    ['.js', '.css', '.html'].forEach(function (item) {
+                                        if(pathname.indexOf(item) !== -1) {
+                                            needProxy = false
+                                        }
+                                    })
+                                    if(needProxy) {
+                                        newArgs[1] = '${placeholder}' + newArgs[1]
+                                    }
+                                }
+                              }
+                          } catch (e) {}
+                          let result=target.oldxhr[prop].call(target.oldxhr,...newArgs)
+                          return result;
+                      }
+                  }
+                  return Reflect.get(target.oldxhr,prop+'proxy')
+              }
+              if(prop.indexOf('response')!==-1)
+              {
+                  return Reflect.get(target.oldxhr,prop)
+              }
+              return Reflect.get(target.oldxhr,prop);
+          },
+          set(target, prop, value) {
+              return Reflect.set(target.oldxhr, prop, value);
+          },
+          has(target, key) {
+              // debugger;
+              return Reflect.has(target.oldxhr,key);
+          }
+      }
+      let ret = new Proxy(tagetobk, handle);
+      return ret;
+  };
+  `
+  return rawStr.replace(placeholder, `/${nameSpace}`)
+}
+
+function travelDom(domAst, { scriptStr }) {
+  let headTag = domAst.childNodes?.[1]?.childNodes?.[0]
+  if(headTag.nodeName === 'head') {
+    let tempNode = {
+      nodeName: 'script',
+      tagName: 'script',
+      attrs: [],
+      childNodes: [
+        {
+          nodeName: '#text',
+          value: scriptStr
+        }
+      ],
+      parentNode: headTag
+    }
+    headTag.childNodes.push(tempNode)
+  }
+}
+
+async function installApplication() {
+  return new Promise(async (resolve, reject) => {
+    const applicationLoadConfigPath = path.join(process.cwd(), './application.json');
+    if(fs.existsSync(applicationLoadConfigPath)) {
+      const applicationLoadConfig = require(applicationLoadConfigPath)
+      const installApps = applicationLoadConfig?.installApps
+      for(let l = installApps.length, i = 0; i < l; i++) {
+        const appConfig = installApps[i];
+        if(appConfig.type === 'npm') {
+          const npmPkg = appConfig.path;
+          const nameSpace = appConfig.name;
+          const pkgName = npmPkg.split('@')[0]
+          const pkgVersion = npmPkg.split('@')[1]
+          const destAppDir = path.join(APPS_BASE_FOLDER, `./${pkgName}`)
+          if(!fs.existsSync(APPS_BASE_FOLDER)) {
+            fs.mkdirSync(APPS_BASE_FOLDER)
+          }
+          // judge jump
+          const existedAppPkgPath = path.join(destAppDir, './package.json')
+          if(fs.existsSync(existedAppPkgPath)) {
+            const existedAppPkg = require(existedAppPkgPath);
+            console.log('!!!!', existedAppPkg?.version, pkgVersion)
+            if(existedAppPkg?.version === pkgVersion) {
+              console.log(`【install】: 应用 ${npmPkg} 已安装，跳过...`)
+              continue
+            }
+          }
+          console.log(`【install】: 应用 ${npmPkg} 正在加载中...`)
+          try{
+            if(!fs.existsSync(destAppDir)) {
+              fs.mkdirSync(destAppDir)
+              fs.writeFileSync(existedAppPkgPath, JSON.stringify({}), 'utf-8')
+            }
+            cp.execSync(`cd ${destAppDir} && npm i --registry=https://registry.npm.taobao.org ${npmPkg}`)
+            console.log(`【install】: 应用加载完毕 ${npmPkg} `)
+          } catch(e) {
+            console.log(`【install】: 应用 ${npmPkg} 安装失败，跳过...`)
+            console.log(`【install】: 错误是: ${e.toString()}`)
+            continue;
+          }
+          // copy aplication
+          const srcAppDir = path.join(destAppDir, `./node_modules/${pkgName}`)
+          fs.copySync(srcAppDir, destAppDir)
+          const installJSONPath = path.join(destAppDir, './install.json');
+          if(fs.existsSync(installJSONPath)) {
+            const register = require(installJSONPath);
+            if(typeof register === "object") {
+              // copy xml
+              if(typeof register?.mapperPath === 'string') {
+                const xmlFolder = path.join(destAppDir, register?.mapperPath)
+                if(fs.existsSync(xmlFolder)) {
+                  fs.copySync(xmlFolder, path.join(process.cwd(), `./src/dao`))
+                }
+              }
+              // copy assets
+              const srcAssetFolder = path.join(destAppDir, register.assetPath)
+              const destAssetFolder = path.join(process.cwd(), `./_assets/${nameSpace}`)
+              const srcHomePage = path.join(destAppDir, register.assetPath, register.homepage)
+              const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
+              let handledHomePageDom = parse5.parse(rawHomePageStr);
+              travelDom(handledHomePageDom, {
+                scriptStr: injectScript({
+                  nameSpace: register.namespace
+                })
+              })
+              let handledHomePageStr = parse5.serialize(handledHomePageDom)
+              fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')
+              fs.copySync(srcAssetFolder, destAssetFolder)
+              console.log(`【install】: 资源准备完毕 ${npmPkg}`)
+              // exec hooks
+              if(register.preInstall) {
+                prepareEnv()
+                setTimeout(async () => {
+                  await execJs({
+                    jsPath: path.join(destAppDir, register.preInstall)
+                  })
+                }, 100)
+              }
+            }
+          }
+        }
+      }
+    }
+    console.log(`【install】: 应用安装成功，可以启动 `)
+    resolve()
+  })
+}
+
+function prepareEnv() {
+  if(!MYSQL_CONNECTION) {
+    MYSQL_CONNECTION = mysql.createConnection({
+      host: config.get("database.host"),
+      user: config.get("database.user"),
+      database: config.get("database.database"),
+      password: config.get("database.password"),
+      port: config.get("database.port")
+    });
+    console.log(`【install】: 可执行环境准备完毕 `)
+  }
+}
+
+const execSql = (sql) => {
+  return new Promise((resolve, reject) => {
+    MYSQL_CONNECTION.query(
+      sql,
+      function (err, results, fields) {
+        if(!err) {
+          // console.log(results);
+          resolve(true)
+          return true
+        } else {
+          reject(err)
+          return false
+        }
+      }
+    );
+  })
+}
+
+const closeConnection = () => {
+  if(MYSQL_CONNECTION && MYSQL_CONNECTION.end) {
+    try {
+      MYSQL_CONNECTION.end((err) => {
+        if(err) {
+          return console.log('数据库关闭失败:' + err.message);
+        }
+        console.log(`【install】: 数据库已释放 `)
+      })
+    } catch(e) {
+      console.log(e)
+    }
+  }
+}
+
+async function execJs({ jsPath }) {
+  const loadScript = require(jsPath)
+  await loadScript({
+    execSql: execSql
+  })
+}
+
+function destroyEnv() {
+  closeConnection();
+  setTimeout(() => {
+    MYSQL_CONNECTION = null;
+    console.log(`【install】: 可执行环境已释放 `)
+  }, 500)
+}
+
+installApplication()
+  .then(() => {
+    destroyEnv()
+  })
+  .catch(e => {
+    console.log(e)
+  })

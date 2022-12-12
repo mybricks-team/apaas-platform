@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="userLog">
+    <select id="queryByType">
+        select *
+        from user_log
+        where type = #{type}
+    </select>
+
+    <insert id="insert">
+        insert into user_log
+        (
+        type,
+        user_id,
+        user_email,
+        log_content,
+        create_time
+        )
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{type},
+            #{userId},
+            #{userEmail},
+            #{logContent},
+            #{createTime}
+        </trim>
+    </insert>
+</mapper>
