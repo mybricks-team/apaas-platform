@@ -47,12 +47,12 @@ export class AppDO {
 export default class AppDao extends DOBase {
   @Mapping(AppDO)
   public async queryLatestApp(): Promise<Array<AppDO>> {
-    return await this.exe<Array<AppDO>>("app:queryLatestApp", {});
+    return await this.exe<Array<AppDO>>("apaas_app:queryLatestApp", {});
   }
 	
   @Mapping(AppDO)
   public async getAppByNamespace_Version(namespace: string, version: string): Promise<Array<AppDO>> {
-    return await this.exe<Array<AppDO>>("app:getAppByNamespace_Version", { namespace, version });
+    return await this.exe<Array<AppDO>>("apaas_app:getAppByNamespace_Version", { namespace, version });
   }
 	
 	async insertApp(params: {
@@ -67,6 +67,6 @@ export default class AppDao extends DOBase {
 		creator_name: string;
 		create_time: number;
 	}) {
-		return await this.exe('app:insert', params)
+		return await this.exe('apaas_app:insert', params)
 	}
 }

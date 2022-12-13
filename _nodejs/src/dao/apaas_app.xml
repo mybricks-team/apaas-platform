@@ -15,9 +15,9 @@
             version,
             creator_name,
             create_time
-        from app
+        from apaas_app
         WHERE status = 1
-        and id in (select max(id) from app GROUP BY name)
+        and id in (select max(id) from apaas_app GROUP BY name)
         order by create_time desc
     </select>
     <select id="getAppByNamespace_Version">
@@ -32,7 +32,7 @@
             version,
             creator_name,
             create_time
-        from app
+        from apaas_app
         WHERE status = 1
         and namespace = #{namespace}
         and version = #{version}

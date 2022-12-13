@@ -99,7 +99,6 @@ async function installApplication() {
         const appConfig = installApps[i];
         if(appConfig.type === 'npm') {
           const npmPkg = appConfig.path;
-          const nameSpace = appConfig.name;
           const pkgName = npmPkg.split('@')[0]
           const pkgVersion = npmPkg.split('@')[1]
           if(!fs.existsSync(APPS_BASE_FOLDER)) {

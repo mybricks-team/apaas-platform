@@ -62,7 +62,7 @@ export default class AppsService {
         const temp: any = {
           version: pkgJson?.version,
           homepage: `/${pkgJson.name}/index.html`, // 约定
-          title: pkgJson.title,
+          title: pkgJson?.mybricks?.title,
           namespace: pkgJson.name,
           description: pkgJson.description,
           icon: pkgJson?.mybricks?.icon,
