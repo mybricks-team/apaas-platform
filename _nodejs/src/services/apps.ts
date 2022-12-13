@@ -195,6 +195,10 @@ export default class AppsService {
           path.join(process.cwd(), "./application.json"),
           rawApplicationStr
         );
+        // 往回回退安装
+        childProcess.execSync("node installApplication.js", {
+          cwd: path.join(process.cwd()),
+        });
         return { code: -1, message: logStr.toString() };
       }
     } catch(e) {
