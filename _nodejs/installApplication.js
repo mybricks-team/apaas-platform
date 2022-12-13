@@ -102,6 +102,9 @@ async function installApplication() {
           const nameSpace = appConfig.name;
           const pkgName = npmPkg.split('@')[0]
           const pkgVersion = npmPkg.split('@')[1]
+          if(!fs.existsSync(APPS_BASE_FOLDER)) {
+            fs.mkdirSync(APPS_BASE_FOLDER)
+          }
           const destAppDir = path.join(APPS_BASE_FOLDER, `./${pkgName}`)
           if(!fs.existsSync(APPS_BASE_FOLDER)) {
             fs.mkdirSync(APPS_BASE_FOLDER)
