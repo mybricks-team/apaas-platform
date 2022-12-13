@@ -133,7 +133,7 @@ export function Item ({icon, title, namespace, onClick}: ItemProps): JSX.Element
         </div>
       </>
     );
-  }, []);
+  }, [title, icon]);
 
   return (
     <div

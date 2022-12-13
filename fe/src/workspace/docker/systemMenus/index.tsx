@@ -1,12 +1,11 @@
 import React, {
-	useMemo,
 	useState,
 	useEffect,
 	useCallback
 } from 'react';
 import { useComputed } from 'rxui-t'
 import axios from 'axios';
-import {Badge, Modal, message} from 'antd';
+import {Badge, Modal} from 'antd';
 
 import {Item, Catelog} from '../Docker';
 import MessageModal from '../message-modal';
@@ -15,7 +14,7 @@ import AppStore from './../../app-store'
 import {IconMessage, IconSetting} from '../../icon';
 import {COOKIE_LOGIN_USER} from '../../../constants';
 import {getApiUrl, removeCookie} from '../../../utils';
-import WorkspaceContext, {BOTTOM_APP_MENU_ITEMS} from '../../WorkspaceContext';
+import WorkspaceContext from '../../WorkspaceContext';
 
 // @ts-ignore
 import css from './index.less';
@@ -100,7 +99,6 @@ function Config(): JSX.Element {
 			}
 		})
 	}, []);
-	
 	
 	return (
 		<>
