@@ -5,7 +5,7 @@
 <mapper namespace="file_content">
   <select id="queryByFilters">
     select *
-    from ws_file_content
+    from apaas_file_content
     where
     1 = 1
     <if test="fileId">
@@ -33,14 +33,14 @@
 
   <select id="queryById">
     select *
-    from ws_file_content
+    from apaas_file_content
     where
     id = #{id}
   </select>
 
   <select id="queryByIds">
     select id, file_id, creator_id, creator_name, create_time, update_time, status, content, content_type
-    from ws_file_content
+    from apaas_file_content
     where
     status = 1 and
     <if test="ids">
@@ -52,7 +52,7 @@
   </select>
 
   <insert id="insert">
-    insert into ws_file_content
+    insert into apaas_file_content
     (
     file_id,
     version,
@@ -72,7 +72,7 @@
   </insert>
 
   <update id="update">
-    update ws_file_content
+    update apaas_file_content
     set
     <if test="fileId">
       file_id = #{fileId},
@@ -104,7 +104,7 @@
   </update>
 
   <update id="updateContent">
-    update ws_file_content
+    update apaas_file_content
     set
     content = #{content},
     update_time = #{updateTime}
@@ -119,7 +119,7 @@
         create_time,
         update_time,
         version
-        from ws_file_content
+        from apaas_file_content
         where
         file_id = #{fileId}
         order by update_time desc

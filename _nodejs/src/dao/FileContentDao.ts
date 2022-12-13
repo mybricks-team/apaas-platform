@@ -43,7 +43,7 @@ export default class FileContentDao extends DOBase {
     limit?: number;
   }): Promise<T> {
     const fileContents = await this.exe<FileContentDO[]>(
-      'file_content:queryByFilters',
+      'apaas_file_content:queryByFilters',
       params
     )
 
@@ -64,7 +64,7 @@ export default class FileContentDao extends DOBase {
     id: number
   }): Promise<FileContentDO[]> {
     const fileContents = await this.exe<FileContentDO[]>(
-      'file_content:queryById',
+      'apaas_file_content:queryById',
       params
     ) as any
 
@@ -77,7 +77,7 @@ export default class FileContentDao extends DOBase {
 	  limit: number;
 	  offset: number;
   }): Promise<FileContentDO[]> {
-	  return await this.exe<FileContentDO[]>('file_content:getContentVersions', params) as any;
+	  return await this.exe<FileContentDO[]>('apaas_file_content:getContentVersions', params) as any;
   }
 
   public async create(params: {
@@ -88,7 +88,7 @@ export default class FileContentDao extends DOBase {
     content: string
   }): Promise<{ id: number }> {
     const result = await this.exe<any>(
-      'file_content:insert',
+      'apaas_file_content:insert',
       Object.assign(
         params,
         {
@@ -109,7 +109,7 @@ export default class FileContentDao extends DOBase {
     content?: string
   }): Promise<{ id: number }> {
     await this.exe<any>(
-      'file_content:update',
+      'apaas_file_content:update',
       Object.assign(
         params,
         {
@@ -128,7 +128,7 @@ export default class FileContentDao extends DOBase {
     content: string
   }): Promise<{ id: number }> {
     await this.exe<any>(
-      'file_content:updateContent',
+      'apaas_file_content:updateContent',
       Object.assign(
         params,
         {

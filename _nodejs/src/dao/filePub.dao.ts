@@ -57,7 +57,7 @@ export default class FilePubDao extends DOBase {
       query.type = "";
     }
 
-    const result = await this.exe<any>("file_pub:create", {
+    const result = await this.exe<any>("apaas_file_pub:create", {
       ...query,
       status: query.status ?? EffectStatus.EFFECT,
       createTime: Date.now(),
@@ -80,7 +80,7 @@ export default class FilePubDao extends DOBase {
     }
   ) {
     if (query.id || (query.fileId && query.version)) {
-      await this.exe<any>("file_pub:update", {
+      await this.exe<any>("apaas_file_pub:update", {
         query,
         nextInfo: {
           ...nextInfo,
@@ -97,7 +97,7 @@ export default class FilePubDao extends DOBase {
 
   async getLatestPubByFileId(fileId: number, type?: string) {
     return await this.exe<{ id: number; file_id: number; version: string }[]>(
-      "file_pub:getLatestPubByFileId",
+      "apaas_file_pub:getLatestPubByFileId",
       { fileId, type }
     );
   }
@@ -110,14 +110,14 @@ export default class FilePubDao extends DOBase {
     type: string;
   }) {
     return await this.exe<FilePublishDO[]>(
-      "file_pub:getContentVersions",
+      "apaas_file_pub:getContentVersions",
       params
     );
   }
 
   @Mapping(FilePublishDO)
   async getPublishByFileId(id: number) {
-    return await this.exe<FilePublishDO[]>("file_pub:getPublishByFileId", {
+    return await this.exe<FilePublishDO[]>("apaas_file_pub:getPublishByFileId", {
       id,
     });
   }
@@ -128,7 +128,7 @@ export default class FilePubDao extends DOBase {
     version: string;
   }) {
     const res = await this.exe<FilePublishDO[]>(
-      "file_pub:getPublishByFileIdAndVersion",
+      "apaas_file_pub:getPublishByFileIdAndVersion",
       {
         ...params,
       }
