@@ -26,18 +26,46 @@ interface SchemaSettingProps {
 
 export default ({ initialValues, schema = [], onSubmit, style }: SchemaSettingProps) => {
   const [form] = Form.useForm()
+
+  const compileWorkflowsKeyName = useMemo(() => {
+    return schema.find(t => t.type === 'compileWorkflows')?.id || '';
+  }, [schema])
+
   useEffect(() => {
-    form?.setFieldsValue?.(initialValues)
-  }, [initialValues])
+    if (!!!compileWorkflowsKeyName) {
+      form?.setFieldsValue?.(initialValues)
+      return
+    }
+    const newValues = JSON.parse(JSON.stringify(initialValues))
+    newValues[compileWorkflowsKeyName] = Object.keys(initialValues?.[compileWorkflowsKeyName] ?? {}).map((keyName) => {
+      return {
+        name: decodeURI(keyName),
+        ...(initialValues?.[compileWorkflowsKeyName]?.[keyName] ?? {}),
+      }
+    })
+    form?.setFieldsValue?.(newValues)
+  }, [initialValues, compileWorkflowsKeyName])
 
   const handleSubmit = useCallback(() => {
     form?.validateFields().then((values) => {
-      typeof onSubmit === 'function' && onSubmit(values)
+      const newVals = JSON.parse(JSON.stringify(values))
+      if (newVals?.[compileWorkflowsKeyName]) {
+        const oldArray = JSON.parse(JSON.stringify(newVals[compileWorkflowsKeyName])) 
+        delete newVals[compileWorkflowsKeyName]
+        oldArray.forEach((env, index) => {
+          const { name, ...others } = env
+          if (!newVals[compileWorkflowsKeyName]) {
+            newVals[compileWorkflowsKeyName] = {}
+          }
+          newVals[compileWorkflowsKeyName][encodeURI(name)] = { ...others, index }
+        })
+      }
+      typeof onSubmit === 'function' && onSubmit(newVals)
     })
-  }, [onSubmit])
+  }, [onSubmit, compileWorkflowsKeyName])
 
   /** TODO临时代码，这里只能单例了 */
-  const compileWorkflowsValue = Form.useWatch(schema.find(t => t.type === 'compileWorkflows')?.id || '', form) || [];
+  const compileWorkflowsValue = Form.useWatch(compileWorkflowsKeyName, form) || [];
 
   return (
     <div className={styles.schemaSetting} style={style}>

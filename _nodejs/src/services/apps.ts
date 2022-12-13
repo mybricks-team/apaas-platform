@@ -129,7 +129,7 @@ export default class AppsService {
     for (const app of applications.installApps) {
       const [_name, version] = app.path.split("@");
 
-      const remoteApp = remoteApps.find((r) => r.namespace === app.name);
+      const remoteApp = remoteApps.find((r) => r.namespace === _name);
 
       if (remoteApp && versionGreaterThan(remoteApp.version, version)) {
         res.push({

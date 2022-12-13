@@ -41,7 +41,7 @@ async function _initDatabaseTables() {
 
 async function _initDatabaseRecord() {
   const insertUser = `
-    INSERT INTO \`${UserInputConfig.databaseName}\`.\`user\` (\`email\`, \`password\`, \`create_time\`, \`update_time\`, \`status\`, \`role\`) VALUES ('${UserInputConfig.userId}', '${Buffer.from(UserInputConfig.userPassword).toString('base64')}', ${Date.now()}, ${Date.now()}, 1, 10);
+    INSERT INTO \`${UserInputConfig.databaseName}\`.\`apaas_user\` (\`email\`, \`password\`, \`create_time\`, \`update_time\`, \`status\`, \`role\`) VALUES ('${UserInputConfig.userId}', '${Buffer.from(UserInputConfig.userPassword).toString('base64')}', ${Date.now()}, ${Date.now()}, 1, 10);
   `
   await _execSqlSync(insertUser)
   console.log(`【install】: 数据记录初始化成功`)

@@ -10,10 +10,6 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-cloud-com@0.0.18"
-    },
-    {
-      "type": "npm",
       "path": "mybricks-app-workflow@0.0.7"
     },
     {
