@@ -18,7 +18,6 @@ import SystemService from "./services/system";
 import FilePubDao from "./dao/filePub.dao";
 import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
-
 @Module({
   imports: [
     ...loadModule().modules

@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import { Spin, message } from 'antd'
 
-import { MockSaveList, MockPublishList } from './mock'
-
 import SaveList from './save'
 import PublishList from './publish'
 import PreviewModal from './modal'
@@ -171,20 +169,6 @@ export default ({
     getLatestList: getPublishLatestList,
     setLoading: setPublishLoading,
   } = useVersionList({ fetchUrl: '/api/workspace/publish/versions' })
-
-  // const saveUnique = useRef(new Uniqe('id'))
-  // const [saveListState, setSaveListState] = useState({
-  //   loading: false,
-  //   pageIndex: 1,
-  //   dataSource: [] || MockSaveList,
-  // })
-
-  // const publishUnique = useRef(new Uniqe('id'))
-  // const [publishListState, setPublishListState] = useState({
-  //   loading: false,
-  //   pageIndex: 1,
-  //   dataSource: [] || MockPublishList,
-  // })
 
   const viewNode = useRef(null)
 

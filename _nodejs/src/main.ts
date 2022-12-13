@@ -29,9 +29,9 @@ async function bootstrap() {
       port: config.get("database.port"),
       database: config.get("database.database"),
       sqlPath: config.get("database.sqlPath"),
+      isGlobal: true
     },
   ]);
-
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
     appOptions
