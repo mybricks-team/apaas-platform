@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="file_pub">
+<mapper namespace="apaas_file_pub">
     <insert id="create">
-        insert into ws_file_pub
+        insert into apaas_file_pub
         (
         file_id,
         commit_info,
@@ -34,7 +34,7 @@
     </insert>
 
     <insert id="batchCreate">
-        insert into ws_file_pub
+        insert into apaas_file_pub
         (
         file_id,
         commit_info,
@@ -64,7 +64,7 @@
     </insert>
 
     <update id="update">
-        update ws_file_pub
+        update apaas_file_pub
         set
         <if test="nextInfo.content != null">
             content = #{nextInfo.content},
@@ -93,7 +93,7 @@
 
     <select id='getLatestPubByFileId'>
         select *
-        from ws_file_pub
+        from apaas_file_pub
         where
         file_id = #{fileId}
         <if test="type">
@@ -112,7 +112,7 @@
             update_time,
             version,
             type
-        from ws_file_pub
+        from apaas_file_pub
         where
             file_id = #{fileId}
             <if test="type">
@@ -125,13 +125,13 @@
     <select id="getPublishByFileId">
         select
             *
-        from ws_file_pub
+        from apaas_file_pub
         where
             id = #{id}
     </select>
 
     <select id="getPublishByFileIdAndVersion">
-        select * from ws_file_pub
+        select * from apaas_file_pub
         where file_id = #{fileId} and version = #{version}
     </select>
 </mapper>

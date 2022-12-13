@@ -27,7 +27,7 @@ export default class UserLogDao extends DOBase {
   @Mapping(UserLogDO)
   public async queryAllDownload(): Promise<UserLogDO[]> {
     const result = await this.exe<any>(
-      'userLog:queryByType', {type: 1}
+      'apaas_user_log:queryByType', {type: 1}
     )
 
     return result
@@ -41,7 +41,7 @@ export default class UserLogDao extends DOBase {
     params = Object.assign({}, params)
 
     const result = await this.exe<any>(
-      'userLog:insert',
+      'apaas_user_log:insert',
       Object.assign(
         params,
         {
@@ -62,7 +62,7 @@ export default class UserLogDao extends DOBase {
     params = Object.assign({}, params)
 
     const result = await this.exe<any>(
-      'userLog:insert',
+      'apaas_user_log:insert',
       Object.assign(
         params,
         {
