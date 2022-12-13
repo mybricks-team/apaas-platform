@@ -1,0 +1,16 @@
+{
+  "environment": "production",
+  "server": {
+    "host": "localhost",
+    "port": 3000
+  },
+  "database": {
+    "dbType": "MYSQL",
+    "host": "localhost",
+    "user": "mybricks",
+    "password": "GN2eyX6Ntb2AjTmj",
+    "port": 3306,
+    "database": "mybricks",
+    "sqlPath": "."
+  }
+}
