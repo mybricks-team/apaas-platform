@@ -8,7 +8,6 @@ import Projects from './projects';
 import LoginCtx from '../LoginCtx';
 import { getApiUrl } from '../utils';
 import Docker from './docker/Docker';
-import InlineApp from './inline-app';
 import WorkspaceContext from './WorkspaceContext';
 
 // @ts-ignore
@@ -70,7 +69,7 @@ export default function Workspace(): JSX.Element {
     //   setLoading(false);
     // });
   }, []);
-	const selectedApp = useComputed(() => WorkspaceContext.selectedApp);
+	// const selectedApp = useComputed(() => WorkspaceContext.selectedApp);
 
   return (
     <div className={css.view}>
@@ -84,7 +83,7 @@ export default function Workspace(): JSX.Element {
         <>
           <Docker />
           <div className={css.main}>
-	          {selectedApp?.isInlineApp ? <InlineApp /> : <Projects />}
+            <Projects />
           </div>
         </>
       )}

@@ -10,6 +10,7 @@ interface AppCardProps {
 	app: T_App & { installInfo?: string; operateType?: string; preVersion?: string };
 	setCurrentUpgrade(namespace: string): void;
 	disabled: boolean;
+	style: any,
 }
 
 const { Paragraph } = Typography;
@@ -22,7 +23,7 @@ const safeParse = (content = '', defaultValue = {}) => {
 	}
 };
 const AppCard: FC<AppCardProps> = props => {
-	const { app, setCurrentUpgrade, disabled } = props;
+	const { app, setCurrentUpgrade, disabled, style } = props;
 	const [loading, setLoading] = useState(false);
 	
 	const operateText = useMemo(() => {
@@ -126,7 +127,7 @@ const AppCard: FC<AppCardProps> = props => {
 	}, [app, setCurrentUpgrade]);
 	
 	return (
-	  <div className={styles.appCard}>
+	  <div className={styles.appCard} style={style}>
 		  <div className={styles.header}>
 			  <div className={styles.infoContainer}>
 				  <div className={styles.icon} style={{ backgroundImage: `url(${app.icon})` }} />

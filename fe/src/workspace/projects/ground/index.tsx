@@ -1,15 +1,18 @@
 import React, {FC, useCallback, useMemo, useState} from 'react';
-import {message} from 'antd';
 import axios from 'axios';
+import {message} from 'antd';
 import {useComputed} from 'rxui-t';
-import WorkspaceContext from '../WorkspaceContext';
-import FileIcon from '../icon/file-icon';
+
+import { Content } from '..';
+import FileIcon from '../../icon/file-icon';
+import WorkspaceContext from '../../WorkspaceContext';
 
 // @ts-ignore
 import css from './index.less';
 
 const Ground: FC = () => {
 	const [fileList, setFileList] = useState([]);
+
 	useMemo(() => {
 		axios({
 			method: 'get',
@@ -22,17 +25,19 @@ const Ground: FC = () => {
 			}
 		})
 	}, []);
-	
+
 	return (
-		<div className={css.view}>
-			<div className={css.files}>
-				{fileList?.map((item, idx) => {
-					return (
-						<ProjectItem key={idx} item={item}/>
-					)
-				})}
+		<Content title="大家的分享">
+			<div className={css.view}>
+				<div className={css.files}>
+					{fileList?.map((item, idx) => {
+						return (
+							<ProjectItem key={idx} item={item}/>
+						)
+					})}
+				</div>
 			</div>
-		</div>
+		</Content>
 	);
 };
 

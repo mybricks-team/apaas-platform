@@ -1,27 +1,33 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import {
-  Button,
-  message,
-  Menu,
-  Form,
-  Select,
-  Input,
-} from 'antd'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Form, Select, Button, message } from 'antd'
 import axios from 'axios'
 import { useComputed } from 'rxui-t'
+import { SettingOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+
 import { getApiUrl } from '../../../utils'
 import WorkspaceContext from '../../WorkspaceContext'
-import { SettingOutlined } from '@ant-design/icons'
 
+// @ts-ignore
 import styles from './index.less'
 
-const Tabs = ({ onClick, activeKey, items = [] }) => {
+interface TabsProps {
+  onClick: (e: any) => void
+  activeKey?: string
+  items: Array<{
+    label: string
+    key: string
+    icon: JSX.Element
+  }>
+  style?: any
+}
+
+const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
   if (!Array.isArray(items)) {
     return null
   }
 
   return (
-    <div className={styles.tabs}>
+    <div className={styles.tabs} style={style}>
       {items.map((item) => (
         <div
           key={item.key}
@@ -40,7 +46,7 @@ const Tabs = ({ onClick, activeKey, items = [] }) => {
 
 export default () => {
   const user = useComputed(() => WorkspaceContext.user)
-  const [activeKey, setActiveKey] = useState('system')
+  const [activeKey, setActiveKey] = useState()
   const [keyJumpMap, setKeyJumpMap] = useState({})
   const [form] = Form.useForm()
   const [menuItems, setMenuItems] = useState([
@@ -115,7 +121,13 @@ export default () => {
           labelAlign="left"
           autoComplete="off"
         >
-          <Form.Item initialValue="about.html" label="首页" name="platformHome" required rules={[{ required: true, type:'string', message: '请设置首页' }]}>
+          <Form.Item
+            initialValue="about.html"
+            label="首页"
+            name="platformHome"
+            required
+            rules={[{ required: true, type: 'string', message: '请设置首页' }]}
+          >
             <Select
               options={[
                 {
@@ -125,10 +137,9 @@ export default () => {
                 {
                   value: 'login.html',
                   label: '登录页',
-                }
+                },
               ]}
-            >
-            </Select>
+            ></Select>
           </Form.Item>
         </Form>
         <div className={styles.btnGroups}>
@@ -147,7 +158,7 @@ export default () => {
 
   useEffect(() => {
     const newMenuItems = [...menuItems]
-    const keyJumpMap = {};
+    const keyJumpMap = {}
     WorkspaceContext.InstalledAPPS?.forEach((app) => {
       if (app.setting) {
         newMenuItems.push({
@@ -161,46 +172,76 @@ export default () => {
             urlPath = `${app.namespace}/${element.path}`
           }
         })
-        keyJumpMap[app.namespace] = urlPath;
+        keyJumpMap[app.namespace] = urlPath
       }
     })
-    setKeyJumpMap(keyJumpMap);
+    setKeyJumpMap(keyJumpMap)
     setMenuItems(newMenuItems)
   }, [])
 
   const renderContent = () => {
-    if (activeKey === 'system') {
-      return <GlobalForm />
-    } else {
-      return (
-        // <div style={{ padding: '12px' }}>
-        <iframe
-          src={keyJumpMap[activeKey]}
-          frameborder="no"
-          border="0"
-          style={{
-            minHeight: '500px',
-            width: '100%',
-          }}
-        />
-        // </div>
-      )
+    if (!activeKey) {
+      return null
     }
+
+    return (
+      <div className={styles.setting}>
+        {activeKey === 'system' ? (
+          <GlobalForm />
+        ) : (
+          keyJumpMap?.[activeKey] && (
+            <iframe
+              src={keyJumpMap[activeKey]}
+              // @ts-ignore
+              frameborder="no"
+              border="0"
+              style={{
+                minHeight: '500px',
+                maxHeight: '90vh',
+                height: 600,
+                width: '100%',
+              }}
+            />
+          )
+        )}
+      </div>
+    )
   }
 
+  const activeTitle = useMemo(() => {
+    return menuItems?.find?.((t) => t.key === activeKey)?.label ?? '设置'
+  }, [activeKey, menuItems])
+
   return (
+    // <Content title="设置">
     <div className={`${styles.configModal} fangzhou-theme`}>
-      {/*<div className={styles.title}>设置</div>*/}
+      <div className={styles.title}>
+        {activeKey && (
+          <LeftOutlined
+            style={{ marginRight: 10, cursor: 'pointer' }}
+            onClick={() => setActiveKey('')}
+          />
+        )}
+        {activeTitle}
+      </div>
+      {/* <div className={styles.userInfo}>
+        <div className={styles.left}>
+
+          <div>{user?.email}</div>
+        </div>
+      </div> */}
       <div className={styles.configContainer}>
         <Tabs
+          style={{ display: !activeKey ? 'flex' : 'none' }}
           onClick={(e) => {
             setActiveKey(e.key)
           }}
-          activeKey={activeKey}
+          // activeKey={activeKey}
           items={menuItems}
         />
-        <div className={styles.setting}>{renderContent()}</div>
+        {renderContent()}
       </div>
     </div>
+    // </Content>
   )
 }

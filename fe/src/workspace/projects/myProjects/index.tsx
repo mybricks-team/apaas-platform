@@ -3,8 +3,10 @@ import axios from 'axios';
 import { message } from 'antd';
 import { useComputed, useObservable } from 'rxui-t';
 
+
 import { Title } from './title';
 import { Create } from './create';
+import { Block, Content } from '..';
 import { Projects } from './projects';
 import { getApiUrl } from '../../../utils';
 import WorkspaceContext, { User } from '../../WorkspaceContext';
@@ -109,23 +111,18 @@ export default function MyProjects ({user}) {
 
   return (
     <>
-      <Block>
-        <Title user={user} ctx={ctx} />
-      </Block>
-      <Block>
-        <Create user={user} ctx={ctx} />
-      </Block>
-      <Block style={{flex: 1, height: 0, marginBottom: 0}}>
-        <Projects user={user} ctx={ctx} />
-      </Block>
+      <Content
+        title={<Title user={user} ctx={ctx} />}
+      >
+        <Block>
+          <Create user={user} ctx={ctx} />
+        </Block>
+        <Block style={{flex: 1, height: 0, marginBottom: 0}}>
+          <Projects user={user} ctx={ctx} />
+        </Block>
+      </Content>
     </>
   );
 }
 
-function Block ({style = {}, children}): JSX.Element {
-  return (
-    <div style={{marginBottom: 11, ...style}}>
-      {children}
-    </div>
-  );
-}
+

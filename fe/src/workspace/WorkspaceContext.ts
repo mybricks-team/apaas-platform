@@ -1,8 +1,8 @@
-import { observable } from 'rxui-t';
 import {FC} from 'react';
-import { getUrlQuery } from '../utils';
+import { observable } from 'rxui-t';
+
 import AppStore from './app-store';
-import Ground from './ground';
+import { getUrlQuery } from '../utils';
 
 export type APP_MENU_ITEM_ID = "my_project" | "running_task";
 
@@ -23,6 +23,9 @@ export type APP_MENU_ITEM_ID = "my_project" | "running_task";
 //   // {id: 'running_task', label: '运行中的任务', Icon: IconTimedTask}
 // ];
 
+/** 默认选中 */
+export const APP_DEFAULT_ACTIVE_MENUID = "my_project"; 
+
 /** 菜单栏列表 */
 export const APP_MENU_ITEMS: Array<T_App> = [
   {
@@ -32,15 +35,6 @@ export const APP_MENU_ITEMS: Array<T_App> = [
     namespace: "my_project",
     icon: "https://assets.mybricks.world/icon/myprojects.7cd8f4c7813982aa.png",
   },
-	{
-		title: "搭建案例",
-		description: "搭建案例",
-		type: "ground",
-		namespace: "ground",
-		icon: "https://assets.mybricks.world/icon/leileizi.png",
-		isInlineApp: true,
-		Element: Ground,
-	},
   // 暂时注释TODO
   // {
   //   title: '运行中的任务',
@@ -146,7 +140,15 @@ export class Context {
     ];
 
     /** 平台默认,侧边栏应用 */
-    const DockerAPPS: Array<T_App> = [];
+    const DockerAPPS: Array<T_App> = [
+      {
+        title: "大家的分享",
+        description: "大家的分享",
+        type: "ground",
+        namespace: "ground",
+        icon: "https://assets.mybricks.world/icon/leileizi.png"
+      },
+    ];
 
     const APPSMap: { [key: string]: T_App } = {};
 
@@ -158,7 +160,7 @@ export class Context {
     apps.forEach((app: T_App) => {
       /** 根据某个字段去做判断 */
       if (app.namespace === 'material') {
-        DockerAPPS.push({ ...app, isInlineApp: true });
+        DockerAPPS.push(app);
       } else {
         DesignAPPS.push(app);
       }
@@ -195,12 +197,21 @@ export class Context {
     if (pushState) {
       let pushUrl = "";
 
-      queryKeys.forEach((queryKey) => {
-        const value = urlQuery[queryKey];
-        if (value) {
-          pushUrl = pushUrl + `${pushUrl ? "&" : "?"}${queryKey}=${value}`;
-        }
-      });
+      if (key === 'path') {
+        pushUrl = `?path=${value}`;
+        queryKeys.forEach((queryKey) => {
+          if (queryKey !== "path") {
+            Reflect.deleteProperty(urlQuery, queryKey);
+          }
+        });
+      } else {
+        queryKeys.forEach((queryKey) => {
+          const value = urlQuery[queryKey];
+          if (value) {
+            pushUrl = pushUrl + `${pushUrl ? "&" : "?"}${queryKey}=${value}`;
+          }
+        });
+      }
 
       history.pushState(null, "", pushUrl);
     }
@@ -211,8 +222,8 @@ export class Context {
 
     Reflect.deleteProperty(urlQuery, "");
 
-    if (!["my_project", "my_project2"].includes(urlQuery.path)) {
-      urlQuery.path = APP_MENU_ITEMS[0].namespace;
+    if (!urlQuery.path) {
+      urlQuery.path = APP_DEFAULT_ACTIVE_MENUID;
     }
 
     let replaceUrl = "";
@@ -245,9 +256,9 @@ export class Context {
   }
 
   /** 只有管理员才能看见的模块namespaces */
-  adminNameSpaces = ['app-store', 'app-workflow']
+  adminNameSpaces = ['app-store', 'app-workflow'];
   /** 是否超级管理员 */
-  isAdministrator: boolean = false
+  isAdministrator: boolean = false;
   /** 设置是否超级管理员 */
   setIsAdministrator = (bool: boolean) => {
     this.isAdministrator = bool

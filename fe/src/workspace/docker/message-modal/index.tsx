@@ -106,7 +106,8 @@ const MessageModal: FC<MessageModalProps> = props => {
 	const upgraded = useCallback(() => setCurrentUpgrade(''), []);
 	
   return (
-	  <Modal open={visible} className={styles.messageModal} title="消息中心" mask style={{ minHeight: '400px' }} footer={null} onCancel={onClose} maskClosable width={700}>
+		<div className={styles.messageModal} style={{ minHeight: '400px' }}>
+	  {/* <Modal open={visible} className={styles.messageModal} title="消息中心" mask style={{ minHeight: '400px' }} footer={null} onCancel={onClose} maskClosable width={700}> */}
 		  {messages.length ? (
 			  <Collapse
 				  bordered={false}
@@ -140,7 +141,8 @@ const MessageModal: FC<MessageModalProps> = props => {
 					<Empty description="暂无消息" />
 				</div>
 		  )}
-	  </Modal>
+		{/* </Modal> */}
+		</div>
   );
 };
 

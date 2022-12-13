@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
-import { Col, Empty, Radio, Row, Spin } from 'antd';
+import { Col, Empty, Radio, Row, Spin, Button } from 'antd';
+import { SwapOutlined } from '@ant-design/icons'
 import compareVersion from 'compare-version';
 import { chunk } from 'lodash-es';
 import AppCard from '../app-card';
@@ -16,7 +17,7 @@ interface AppListProps {
 
 const AppList: FC<AppListProps> = props => {
 	const { loading, installedApps, allApps } = props;
-	const [type, setType] = useState<'installed' | 'all'>('all');
+	const [type, setType] = useState<'installed' | 'all'>('installed');
 	const [currentUpgrade, setCurrentUpgrade] = useState('');
 	const appList = useMemo(() => {
 		let apps =  [
@@ -53,23 +54,27 @@ const AppList: FC<AppListProps> = props => {
 	}, []);
 	
 	return (
-		<div className={styles.appList}>
+		<div className={`${styles.appList} fangzhou-theme`}>
 			<Spin spinning={loading} className={styles.spin}>
-				<div className={styles.filter}>
+				{/* <div className={styles.filter}>
 					<Radio.Group onChange={onChangeType} value={type}>
 						<Radio.Button value="all">全部</Radio.Button>
 						<Radio.Button value="installed">已安装</Radio.Button>
 					</Radio.Group>
+				</div> */}
+				<div className={styles.rightFilter}>
+					<Button type="link" icon={<SwapOutlined />} onClick={() => setType(c => c === 'installed' ? 'all' : 'installed')}>{ type === 'all' ? '我的应用' : '应用市场' }</Button>
 				</div>
 				{appList.length && !loading ? (
 					<div className={styles.rowContainer}>
-						{chunk(appList, 2).map(([app1, app2]) => {
+						{chunk(appList, 2).map(([app1, app2], index) => {
 							return (
 								<Row key={app1.namespace} className={styles.rows} gutter={48}>
 									<Col span={12}>
 										<AppCard
 											disabled={currentUpgrade ? currentUpgrade !== app1.namespace : false}
 											setCurrentUpgrade={setCurrentUpgrade}
+											style={index === chunk(appList, 2).length -1 ? { borderBottomWidth: 0 } : {}}
 											app={app1} />
 									</Col>
 									<Col span={12}>
@@ -77,6 +82,7 @@ const AppList: FC<AppListProps> = props => {
 											<AppCard
 												disabled={currentUpgrade ? currentUpgrade !== app2.namespace : false}
 												setCurrentUpgrade={setCurrentUpgrade}
+												style={index === chunk(appList, 2).length -1 ? { borderBottomWidth: 0 } : {}}
 												app={app2} />
 										) : null}
 									</Col>
