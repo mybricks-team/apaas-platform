@@ -1,4 +1,4 @@
-CREATE TABLE `app` (
+CREATE TABLE `apaas_app` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '应用中文名称',
   `namespace` varchar(255) DEFAULT NULL COMMENT 'namespace',

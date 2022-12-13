@@ -1,4 +1,4 @@
-CREATE TABLE `user_log` (
+CREATE TABLE `apaas_user_log` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `type` int NOT NULL,
   `user_id` bigint NOT NULL,

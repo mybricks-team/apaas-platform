@@ -1,4 +1,4 @@
-CREATE TABLE `user` (
+CREATE TABLE `apaas_user` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(256) DEFAULT NULL,
   `email` varchar(256) NOT NULL,

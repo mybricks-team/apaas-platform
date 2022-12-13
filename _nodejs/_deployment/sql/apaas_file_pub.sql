@@ -1,4 +1,4 @@
-CREATE TABLE `ws_file_pub` (
+CREATE TABLE `apaas_file_pub` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `file_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '文件id',
   `version` varchar(50) CHARACTER SET utf8mb4  NOT NULL DEFAULT '1.0.0' COMMENT '版本号',

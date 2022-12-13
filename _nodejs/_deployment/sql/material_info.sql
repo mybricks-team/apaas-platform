@@ -1,4 +1,4 @@
-CREATE TABLE `material` (
+CREATE TABLE `material_info` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '物料记录id',
   `type` varchar(100) CHARACTER SET utf8mb4  NOT NULL DEFAULT '' COMMENT '组件库/组件类型',
   `scope_status` int DEFAULT '0' COMMENT '物料露出状态，-1-私有，0-workspace公开，1-全局公开',
