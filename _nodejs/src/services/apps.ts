@@ -155,22 +155,28 @@ export default class AppsService {
 		if (!remoteApp) {
 			return { code: 0, message: "升级失败，不存在此应用" };
 		}
-	
 		/** 已安装应用 */
-	  const installedApp = applications.installApps.find((a) => a.name === namespace);
+	  let installedApp = null;
+    let installedIndex = null;
+    applications.installApps.forEach((app, index) => {
+      if(app.path?.indexOf(namespace) !== -1) {
+        installedApp = app
+        installedIndex = index
+      }
+    });
 		
-		/** 不存在则新加入一项 */
     if (!installedApp) {
+      /** 新加应用 */
 			const pkgName = safeParse(remoteApp.installInfo).pkgName
-	    
 	    applications.installApps.push({
 		    type: 'npm',
-		    name: namespace,
 		    path: `${pkgName}@${version}`
 	    });
     } else {
+      // 升级版本
 	    const [pkgName] = installedApp.path.split("@");
 	    installedApp.path = `${pkgName}@${version}`;
+      applications.installApps.splice(installedIndex, 1, installedApp)
     }
     const rawApplicationStr = fs.readFileSync(path.join(process.cwd(), "./application.json"), 'utf-8')
 	  fs.writeFileSync(
