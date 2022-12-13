@@ -199,7 +199,7 @@ module.exports = {
     new RemovePlugin({
       before: {
         include: [
-          path.resolve(__dirname, `../_nodejs/_assets/js`)
+          path.resolve(__dirname, `../../_nodejs/_assets/js/*`)
         ]
       },
     }),
