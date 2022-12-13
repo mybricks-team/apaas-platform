@@ -26,17 +26,17 @@ const UpgradeButton:FC<{ app: Record<string, unknown>; setCurrentUpgrade(namespa
 				method: 'get',
 				url: getApiUrl('/api/apps/update/status'),
 				params: otherInfo,
-				timeout: 30000,
+				timeout: 3000,
 			}).then(res => {
 				if (res.data.code === 1) {
 					message.open({
 						type: 'success',
-						content: '升级成功，刷新页面可立即体验新功能，3 秒后将自动刷新页面~',
+						content: '升级成功，刷新页面可立即体验新功能，5 秒后将自动刷新页面~',
 						key: LOADING_KEY,
 						duration: 3,
 					});
 					
-					setTimeout(() => location.reload(), 3000);
+					setTimeout(() => location.reload(), 5000);
 					setLoading(false);
 					setCurrentUpgrade('');
 				} else if (res.data.code === -1) {
