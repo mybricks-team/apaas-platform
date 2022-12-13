@@ -68,13 +68,13 @@ export default class AppsService {
           icon: pkgJson?.mybricks?.icon,
           type: pkgJson?.mybricks?.type,
         }
-        if(path.join(appsFolder, appName, "./assets/setting.html")) {
+        if(pkgJson?.mybricks?.setting) {
+          temp['setting'] = pkgJson?.mybricks?.setting
+        } else if(fs.existsSync(path.join(appsFolder, appName, "./assets/setting.html"))) {
           // 约定的设置字段
           temp['setting'] = {
             homepage: `/${pkgJson.name}/setting.html`, // 约定
           }
-        } else if(pkgJson?.mybricks?.setting) {
-          temp['setting'] = pkgJson?.mybricks?.setting
         }
         apps.push(temp);
       }

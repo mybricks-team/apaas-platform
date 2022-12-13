@@ -3,12 +3,12 @@
     {
       "type": "npm",
       "name": "app-pc-page",
-      "path": "mybricks-pc-page@0.0.33"
+      "path": "mybricks-pc-page@0.0.34"
     },
     {
       "type": "npm",
       "name": "material",
-      "path": "mybricks-material@0.0.42"
+      "path": "mybricks-material@0.0.43"
     }
   ]
 }
