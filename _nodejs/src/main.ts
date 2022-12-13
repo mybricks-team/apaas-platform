@@ -12,7 +12,8 @@ import { enhanceApp } from './enhance'
 
 async function bootstrap() {
   process.on("unhandledRejection", (e) => {
-    console.info(`[global error]: [unhandledRejection]: ${JSON.stringify(e)}`);
+    console.info(`[global error]: \n`);
+    console.log(e)
   });
   const appOptions = {
     // cors: {

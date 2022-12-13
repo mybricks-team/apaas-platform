@@ -59,11 +59,11 @@ export default class AppsService {
         if (fs.existsSync(pkgFilePath)) {
           pkgJson = JSON.parse(fs.readFileSync(pkgFilePath, "utf-8"));
         }
-      
         const temp: any = {
           version: pkgJson?.version,
           homepage: `/${pkgJson.name}/index.html`, // 约定
           title: pkgJson.name,
+          namespace: pkgJson.name,
           description: pkgJson.description,
           icon: pkgJson?.mybricks?.icon,
           type: pkgJson?.mybricks?.type,

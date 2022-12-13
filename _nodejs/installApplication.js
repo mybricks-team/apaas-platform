@@ -110,7 +110,6 @@ async function installApplication() {
           const existedAppPkgPath = path.join(destAppDir, './package.json')
           if(fs.existsSync(existedAppPkgPath)) {
             const existedAppPkg = require(existedAppPkgPath);
-            console.log('!!!!', existedAppPkg?.version, pkgVersion)
             if(existedAppPkg?.version === pkgVersion) {
               console.log(`【install】: 应用 ${npmPkg} 已安装，跳过...`)
               continue
@@ -136,38 +135,40 @@ async function installApplication() {
           // copy aplication
           const srcAppDir = path.join(destAppDir, `./node_modules/${pkgName}`)
           fs.copySync(srcAppDir, destAppDir)
-          const installJSONPath = path.join(destAppDir, './install.json');
-          if(fs.existsSync(installJSONPath)) {
-            const register = require(installJSONPath);
-            if(typeof register === "object") {
+          const pkgPath = path.join(destAppDir, './package.json');
+          if(fs.existsSync(pkgPath)) {
+            const pkg = require(pkgPath);
+            if(typeof pkg === "object") {
               // copy xml
-              if(typeof register?.mapperPath === 'string') {
-                const xmlFolder = path.join(destAppDir, register?.mapperPath)
-                if(fs.existsSync(xmlFolder)) {
-                  fs.copySync(xmlFolder, path.join(process.cwd(), `./src/dao`))
+              const bePath = path.join(destAppDir, './nodejs')
+              const fePath = path.join(destAppDir, './assets')
+              if(fs.existsSync(bePath)) {
+                // 存在后端
+                if(fs.existsSync(path.join(bePath, './mapper'))) {
+                  // 存在mapper
+                  fs.copySync(path.join(bePath, './mapper'), path.join(process.cwd(), `./src/dao`))
                 }
               }
-              // copy assets
-              const srcAssetFolder = path.join(destAppDir, register.assetPath)
-              const destAssetFolder = path.join(process.cwd(), `./_assets/${nameSpace}`)
-              const srcHomePage = path.join(destAppDir, register.assetPath, register.homepage)
-              const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
-              let handledHomePageDom = parse5.parse(rawHomePageStr);
-              travelDom(handledHomePageDom, {
-                scriptStr: injectScript({
-                  nameSpace: register.namespace
+              if(fs.existsSync(fePath)) {
+                // 存在前端
+                const srcHomePage = path.join(fePath, './index.html') // 约定
+                const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
+                let handledHomePageDom = parse5.parse(rawHomePageStr);
+                travelDom(handledHomePageDom, {
+                  scriptStr: injectScript({
+                    nameSpace: pkg.name
+                  })
                 })
-              })
-              let handledHomePageStr = parse5.serialize(handledHomePageDom)
-              fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')
-              fs.copySync(srcAssetFolder, destAssetFolder)
-              console.log(`【install】: 资源准备完毕 ${npmPkg}`)
+                let handledHomePageStr = parse5.serialize(handledHomePageDom)
+                fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')
+                console.log(`【install】: 资源准备完毕 ${npmPkg}`)
+              }
               // exec hooks
-              if(register.preInstall) {
+              if(pkgPath?.mybricks?.preInstall) {
                 prepareEnv()
                 setTimeout(async () => {
                   await execJs({
-                    jsPath: path.join(destAppDir, register.preInstall)
+                    jsPath: path.join(destAppDir, pkgPath.mybricks.preInstall)
                   })
                 }, 100)
               }
