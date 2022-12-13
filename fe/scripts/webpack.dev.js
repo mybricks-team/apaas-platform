@@ -18,10 +18,10 @@ const outputPath = path.resolve(__dirname, `../_nodejs/_assets`)
 module.exports = {
   mode: 'development',//设置mode
   entry: {
-    about: path.resolve(__dirname, `../src-fe/about/index.tsx`),
-    login: path.resolve(__dirname, `../src-fe/login/index.tsx`),
-    workspace: path.resolve(__dirname, `../src-fe/workspace/index.tsx`),
-    'app-timer-service': path.resolve(__dirname, `../src-fe/app-timer-service/index.tsx`),
+    about: path.resolve(__dirname, `../src/about/index.tsx`),
+    login: path.resolve(__dirname, `../src/login/index.tsx`),
+    workspace: path.resolve(__dirname, `../src/workspace/index.tsx`),
+    'app-timer-service': path.resolve(__dirname, `../src/app-timer-service/index.tsx`),
   },
   output: {
     path: outputPath,
@@ -215,49 +215,49 @@ module.exports = {
       ENV: NODE_ENV === "production" ? JSON.stringify("") : JSON.stringify("DEV")
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../src-fe/templates/app-timer-service.html`),
+      template: path.resolve(__dirname, `../src/templates/app-timer-service.html`),
       filename: "app-timer-service.html",
       chunks: ['app-timer-service'],
       hot: true,
     }),
     // new HtmlWebpackPlugin({
-    //   template: path.resolve(__dirname, `../src-fe/templates/app-pc-page.html`),
+    //   template: path.resolve(__dirname, `../src/templates/app-pc-page.html`),
     //   filename: "app-pc-page.html",
     //   chunks: ['app-pc-page'],
     //   hot: true,
     // }),
     // new HtmlWebpackPlugin({
-    //   template: path.resolve(__dirname, `../src-fe/templates/app-cloud-com.html`),
+    //   template: path.resolve(__dirname, `../src/templates/app-cloud-com.html`),
     //   filename: "app-cloud-com.html",
     //   chunks: ['app-cloud-com'],
     //   hot: true,
     // }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../src-fe/templates/login.html`),
+      template: path.resolve(__dirname, `../src/templates/login.html`),
       filename: "login.html",
       chunks: ['login'],
       hot: true,
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../src-fe/templates/about.html`),
+      template: path.resolve(__dirname, `../src/templates/about.html`),
       filename: "about.html",
       chunks: ['about'],
       hot: true,
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../src-fe/templates/docs.html`),
+      template: path.resolve(__dirname, `../src/templates/docs.html`),
       filename: "docs.html",
       chunks: ['docs'],
       hot: true,
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../src-fe/templates/workspace.html`),
+      template: path.resolve(__dirname, `../src/templates/workspace.html`),
       filename: "workspace.html",
       chunks: ['workspace'],
       hot: true,
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../src-fe/templates/app-timer-service.html`),
+      template: path.resolve(__dirname, `../src/templates/app-timer-service.html`),
       filename: "app-timer-service.html",
       chunks: ['app-timer-service'],
       hot: true,
