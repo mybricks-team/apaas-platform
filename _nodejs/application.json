@@ -15,6 +15,11 @@
     {
       "type": "npm",
       "path": "mybricks-app-workflow@0.0.7"
+    },
+    {
+      "type": "npm",
+      "name": "mybricks-cloud-com",
+      "path": "mybricks-cloud-com@0.0.21"
     }
   ]
 }
