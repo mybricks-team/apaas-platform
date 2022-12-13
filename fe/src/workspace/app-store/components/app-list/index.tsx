@@ -63,7 +63,7 @@ const AppList: FC<AppListProps> = props => {
 					</Radio.Group>
 				</div> */}
 				<div className={styles.rightFilter}>
-					<Button type="link" icon={<SwapOutlined />} onClick={() => setType(c => c === 'installed' ? 'all' : 'installed')}>{ type === 'all' ? '我的应用' : '应用市场' }</Button>
+				<Button type="link" icon={<SwapOutlined />} onClick={() => setType(c => c === 'installed' ? 'all' : 'installed')}>{`跳转到「${type === 'all' ? '我的应用' : '应用市场'}」`}</Button>
 				</div>
 				{appList.length && !loading ? (
 					<div className={styles.rowContainer}>
