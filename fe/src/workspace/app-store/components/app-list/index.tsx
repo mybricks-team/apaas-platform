@@ -39,7 +39,7 @@ const AppList: FC<AppListProps> = props => {
 				
 				return { ...app, operateType, preVersion, title: (app as any).name };
 			}),
-			...installedApps.filter(app => !allApps.find(a => a.namespace === app.namespace)).map(app => ({ ...app })),
+			...(type === 'installed' ? installedApps.filter(app => !allApps.find(a => a.namespace === app.namespace)).map(app => ({ ...app })) : []),
 		];
 		
 		if (type === 'installed') {

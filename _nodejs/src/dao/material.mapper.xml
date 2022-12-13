@@ -170,26 +170,26 @@
         material_info.updator_id,
         material_info.updator_name,
         material_info.update_time,
-        material_pub.content,
-        material_pub.commit_info
-        from material_info, material_pub
+        material_pub_info.content,
+        material_pub_info.commit_info
+        from material_info, material_pub_info
         where material_info.id in
         <foreach collection="materialIds" item="item" open="( " separator="," close=" )" index="index">
             #{item}
         </foreach>
-        and material_pub.version = material_info.version
-        and material_pub.material_id = material_info.id
+        and material_pub_info.version = material_info.version
+        and material_pub_info.material_id = material_info.id
     </select>
 
     <select id="getMaterialsByNamespace_Version">
         select
-        material_pub.*,
+        material_pub_info.*,
         material_info.type,
         material_info.namespace
         from
-        material_info, material_pub
+        material_info, material_pub_info
         where
-        material_pub.material_id = material_info.id
+        material_pub_info.material_id = material_info.id
         and ${query}
     </select>
 
