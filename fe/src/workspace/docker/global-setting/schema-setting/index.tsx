@@ -24,6 +24,16 @@ interface SchemaSettingProps {
   style: CSSProperties,
 }
 
+const simpleCopyObject = target => {
+  let res = {}
+  try {
+    res = JSON.parse(JSON.stringify(target ?? {}))
+  } catch (error) {
+    res = {}
+  }
+  return res
+}
+
 export default ({ initialValues, schema = [], onSubmit, style }: SchemaSettingProps) => {
   const [form] = Form.useForm()
 
@@ -36,7 +46,7 @@ export default ({ initialValues, schema = [], onSubmit, style }: SchemaSettingPr
       form?.setFieldsValue?.(initialValues)
       return
     }
-    const newValues = JSON.parse(JSON.stringify(initialValues))
+    const newValues = simpleCopyObject(initialValues)
     newValues[compileWorkflowsKeyName] = Object.keys(initialValues?.[compileWorkflowsKeyName] ?? {}).map((keyName) => {
       return {
         name: decodeURI(keyName),
@@ -48,7 +58,7 @@ export default ({ initialValues, schema = [], onSubmit, style }: SchemaSettingPr
 
   const handleSubmit = useCallback(() => {
     form?.validateFields().then((values) => {
-      const newVals = JSON.parse(JSON.stringify(values))
+      const newVals = simpleCopyObject(values);
       if (newVals?.[compileWorkflowsKeyName]) {
         const oldArray = JSON.parse(JSON.stringify(newVals[compileWorkflowsKeyName])) 
         delete newVals[compileWorkflowsKeyName]

@@ -15,6 +15,16 @@
     {
       "type": "npm",
       "path": "mybricks-cloud-com@0.0.21"
+    },
+    {
+      "type": "npm",
+      "name": "mybricks-pc-page",
+      "path": "mybricks-pc-page@0.0.39"
+    },
+    {
+      "type": "npm",
+      "name": "mybricks-app-workflow",
+      "path": "mybricks-app-workflow@0.0.7"
     }
   ]
 }
