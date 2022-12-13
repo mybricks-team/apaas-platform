@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 import { Col, Empty, Radio, Row, Spin, Button } from 'antd';
-import { SwapOutlined } from '@ant-design/icons'
+import { SwapOutlined, LeftOutlined } from '@ant-design/icons'
 import compareVersion from 'compare-version';
 import { chunk } from 'lodash-es';
 import AppCard from '../app-card';
@@ -54,46 +54,67 @@ const AppList: FC<AppListProps> = props => {
 	}, []);
 	
 	return (
-		<div className={`${styles.appList} fangzhou-theme`}>
-			<Spin spinning={loading} className={styles.spin}>
-				{/* <div className={styles.filter}>
-					<Radio.Group onChange={onChangeType} value={type}>
-						<Radio.Button value="all">全部</Radio.Button>
-						<Radio.Button value="installed">已安装</Radio.Button>
-					</Radio.Group>
-				</div> */}
-				<div className={styles.rightFilter}>
-				<Button type="link" icon={<SwapOutlined />} onClick={() => setType(c => c === 'installed' ? 'all' : 'installed')}>{`跳转到「${type === 'all' ? '我的应用' : '应用市场'}」`}</Button>
+		<div className={`${styles.viewContainer} fangzhou-theme`}>
+			<div className={styles.header}>
+				<div className={styles.title}>
+					{type === 'all' && (
+						<LeftOutlined
+							style={{ marginRight: 10, cursor: 'pointer' }}
+							onClick={() => setType('installed')}
+						/>
+					)}
+					{type === 'all' ? '应用市场' : '我的应用'}
 				</div>
-				{appList.length && !loading ? (
-					<div className={styles.rowContainer}>
-						{chunk(appList, 2).map(([app1, app2], index) => {
-							return (
-								<Row key={app1.namespace} className={styles.rows} gutter={48}>
-									<Col span={12}>
-										<AppCard
-											disabled={currentUpgrade ? currentUpgrade !== app1.namespace : false}
-											setCurrentUpgrade={setCurrentUpgrade}
-											style={index === chunk(appList, 2).length -1 ? { borderBottomWidth: 0 } : {}}
-											app={app1} />
-									</Col>
-									<Col span={12}>
-										{app2 ? (
+				<div>
+					{
+						type === 'installed' &&
+						<Button type="link" onClick={() => setType(c => c === 'installed' ? 'all' : 'installed')}>
+							{`跳转到「应用市场」`}
+						</Button>
+					}
+				</div>
+			</div>
+			<div className={`${styles.appList}`}>
+				
+				<Spin spinning={loading} className={styles.spin}>
+					{/* <div className={styles.filter}>
+						<Radio.Group onChange={onChangeType} value={type}>
+							<Radio.Button value="all">全部</Radio.Button>
+							<Radio.Button value="installed">已安装</Radio.Button>
+						</Radio.Group>
+					</div> */}
+					<div className={styles.rightFilter}>
+					</div>
+					{appList.length && !loading ? (
+						<div className={styles.rowContainer}>
+							{chunk(appList, 2).map(([app1, app2], index) => {
+								return (
+									<Row key={app1.namespace} className={styles.rows} gutter={48}>
+										<Col span={12}>
 											<AppCard
-												disabled={currentUpgrade ? currentUpgrade !== app2.namespace : false}
+												disabled={currentUpgrade ? currentUpgrade !== app1.namespace : false}
 												setCurrentUpgrade={setCurrentUpgrade}
 												style={index === chunk(appList, 2).length -1 ? { borderBottomWidth: 0 } : {}}
-												app={app2} />
-										) : null}
-									</Col>
-								</Row>
-							);
-						})}
-					</div>
-				) : (
-					<Empty className={styles.empty} imageStyle={{ height: '152px' }} description="暂无组件"/>
-				)}
-			</Spin>
+												app={app1} />
+										</Col>
+										<Col span={12}>
+											{app2 ? (
+												<AppCard
+													disabled={currentUpgrade ? currentUpgrade !== app2.namespace : false}
+													setCurrentUpgrade={setCurrentUpgrade}
+													style={index === chunk(appList, 2).length -1 ? { borderBottomWidth: 0 } : {}}
+													app={app2} />
+											) : null}
+										</Col>
+									</Row>
+								);
+							})}
+						</div>
+					) : (
+						<Empty className={styles.empty} imageStyle={{ height: '152px' }} description="暂无组件"/>
+					)}
+				</Spin>
+			</div>
 		</div>
 	);
 };

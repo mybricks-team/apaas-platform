@@ -80,7 +80,7 @@ function Config(): JSX.Element {
 	})
 
 	const { showPanel: showAppPanel, Content: RenderAppPanel } = usePanelItem({
-		title: '我的应用',
+		// title: '我的应用',
 		content: <AppStore />
 	})
 	

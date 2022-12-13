@@ -6,7 +6,7 @@ import AppList from './components/app-list';
 import WorkspaceContext, {T_App} from '../WorkspaceContext';
 
 // @ts-ignore
-import css from './index.less';
+// import css from './index.less';
 
 const AppStore = () => {
 	const [loading, setLoading] = useState(false);
@@ -28,9 +28,9 @@ const AppStore = () => {
 	}, []);
 	
 	return (
-		<div className={css.viewContainer}>
-			<AppList installedApps={installedApps} allApps={allApps} loading={loading}/>
-		</div>
+		// <div className={css.viewContainer}>
+		<AppList installedApps={installedApps} allApps={allApps} loading={loading}/>
+		// </div>
 	);
 };
 export default AppStore;
