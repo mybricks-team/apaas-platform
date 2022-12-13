@@ -9,6 +9,11 @@
       "type": "npm",
       "name": "material",
       "path": "mybricks-material@0.0.45"
+    },
+    {
+      "type": "npm",
+      "name": "app-cloud-com",
+      "path": "mybricks-cloud-com@0.0.16"
     }
   ]
 }
