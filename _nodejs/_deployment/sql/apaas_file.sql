@@ -1,4 +1,4 @@
-CREATE TABLE `ws_file` (
+CREATE TABLE `apaas_file` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` bigint DEFAULT NULL,
   `group_id` bigint DEFAULT NULL,

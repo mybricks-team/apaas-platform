@@ -1,6 +1,5 @@
-CREATE TABLE `ws_config` (
+CREATE TABLE `apaas_config` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `admin` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '管理员用户',
   `config` mediumtext CHARACTER SET utf8mb4 COMMENT '配置信息',
   `creator_id` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '创建者ID',
   `creator_name` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '创建者',

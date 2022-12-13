@@ -1,4 +1,4 @@
-CREATE TABLE `ws_file_content` (
+CREATE TABLE `apaas_file_content` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `file_id` bigint NOT NULL,
   `content` mediumtext CHARACTER SET utf8mb4 ,
