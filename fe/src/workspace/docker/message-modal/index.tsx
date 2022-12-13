@@ -106,7 +106,7 @@ const MessageModal: FC<MessageModalProps> = props => {
 	const upgraded = useCallback(() => setCurrentUpgrade(''), []);
 	
   return (
-		<div className={styles.messageModal} style={{ minHeight: '400px' }}>
+		<div className={`${styles.messageModal} fangzhou-theme`} style={{ minHeight: '400px' }}>
 	  {/* <Modal open={visible} className={styles.messageModal} title="消息中心" mask style={{ minHeight: '400px' }} footer={null} onCancel={onClose} maskClosable width={700}> */}
 		  {messages.length ? (
 			  <Collapse
