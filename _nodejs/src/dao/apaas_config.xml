@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="config">
+<mapper namespace="apaas_config">
     <select id="getConfigByNamespace">
-        select * from ws_config 
+        select * from apaas_config 
         <if test="namespace">
             where app_namespace in
             <foreach collection="namespace" open="(" close=")" separator="," item="ns" index="i">
@@ -14,9 +14,8 @@
     </select>
 
     <insert id="insert">
-        insert into ws_config
+        insert into apaas_config
         (
-        admin,
         config,
         creator_id,
         creator_name,
@@ -27,7 +26,6 @@
         app_namespace
         )
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            #{admin},
             #{config},
             #{creatorId},
             #{creatorName},
@@ -40,7 +38,7 @@
     </insert>
 
     <update id="update">
-        update ws_config
+        update apaas_config
         set
         config = #{config},
         updator_name = #{updatorName},

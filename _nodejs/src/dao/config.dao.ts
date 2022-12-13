@@ -7,9 +7,6 @@ export class ConfigDO {
   id: number;
 
   @Column
-  admin: string;
-
-  @Column
   password: string;
 
   @Column("creator_id")
@@ -46,7 +43,7 @@ export class ConfigDO {
 export default class ConfigDao extends DOBase {
   @Mapping(ConfigDO)
   public async getConfig(params: { namespace: string[] }) {
-    return await this.exe<ConfigDO[]>("config:getConfigByNamespace", {
+    return await this.exe<ConfigDO[]>("apaas_config:getConfigByNamespace", {
       ...params,
     });
   }
@@ -57,7 +54,7 @@ export default class ConfigDao extends DOBase {
     config: string;
     namespace: string
   }) {
-    const result = await this.exe<{ insertId: number }>("config:insert", {
+    const result = await this.exe<{ insertId: number }>("apaas_config:insert", {
       ...params,
       admin: params.creatorId,
       updatorId: params.creatorId,
@@ -76,7 +73,7 @@ export default class ConfigDao extends DOBase {
     config: string;
     namespace: string;
   }) {
-    await this.exe<{ insertId: number }>("config:update", {
+    await this.exe<{ insertId: number }>("apaas_config:update", {
       ...params,
       updateTime: new Date().getTime(),
     });

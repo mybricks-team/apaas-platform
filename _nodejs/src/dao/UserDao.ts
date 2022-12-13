@@ -62,7 +62,7 @@ export default class UserDao extends DOBase {
   @Mapping(UserDO)
   public async queryAll(): Promise<UserDO[]> {
     const result = await this.exe<any>(
-      'user:queryAll'
+      'apaas_user:queryAll'
     )
 
     return result
@@ -75,7 +75,7 @@ export default class UserDao extends DOBase {
     params = Object.assign({status: 1}, params)
 
     const result = await this.exe<any>(
-      'user:queryByEmail',
+      'apaas_user:queryByEmail',
       params
     )
 
@@ -91,7 +91,7 @@ export default class UserDao extends DOBase {
     }, params)
 
     const result = await this.exe<any>(
-      'user:updateLisenceCode',
+      'apaas_user:updateLisenceCode',
       params
     )
 
@@ -114,7 +114,7 @@ export default class UserDao extends DOBase {
     params = Object.assign({}, params)
 
     const result = await this.exe<any>(
-      'user:insert',
+      'apaas_user:insert',
       Object.assign(
         params,
         {
