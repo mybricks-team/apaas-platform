@@ -34,15 +34,15 @@ export default class AppsService {
     }
     const dirNames = fs.readdirSync(appsFolder);
     const apps = [];
-    dirNames?.forEach((fileName) => {
-      const installFilePath = path.join(appsFolder, fileName, "./install.json");
+    dirNames?.forEach((appName) => {
+      const installFilePath = path.join(appsFolder, appName, "./install.json");
       if (fs.existsSync(installFilePath)) {
         // 这里预留后续开放配置，暂时不删除
         const installJson = JSON.parse(
           fs.readFileSync(installFilePath, "utf-8")
         );
         let pkgJson: any = {};
-        const pkgFilePath = path.join(appsFolder, fileName, "./package.json");
+        const pkgFilePath = path.join(appsFolder, appName, "./package.json");
         if (fs.existsSync(pkgFilePath)) {
           pkgJson = JSON.parse(fs.readFileSync(pkgFilePath, "utf-8"));
         }
@@ -55,18 +55,26 @@ export default class AppsService {
         apps.push(temp);
       } else {
         let pkgJson: any = {};
-        const pkgFilePath = path.join(appsFolder, fileName, "./package.json");
+        const pkgFilePath = path.join(appsFolder, appName, "./package.json");
         if (fs.existsSync(pkgFilePath)) {
           pkgJson = JSON.parse(fs.readFileSync(pkgFilePath, "utf-8"));
         }
-      
         const temp: any = {
           version: pkgJson?.version,
           homepage: `/${pkgJson.name}/index.html`, // 约定
           title: pkgJson.name,
+          namespace: pkgJson.name,
           description: pkgJson.description,
           icon: pkgJson?.mybricks?.icon,
           type: pkgJson?.mybricks?.type,
+        }
+        if(path.join(appsFolder, appName, "./assets/setting.html")) {
+          // 约定的设置字段
+          temp['setting'] = {
+            homepage: `/${pkgJson.name}/setting.html`, // 约定
+          }
+        } else if(pkgJson?.mybricks?.setting) {
+          temp['setting'] = pkgJson?.mybricks?.setting
         }
         apps.push(temp);
       }

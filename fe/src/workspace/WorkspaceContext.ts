@@ -159,7 +159,7 @@ export class Context {
 
     apps.forEach((app: T_App) => {
       /** 根据某个字段去做判断 */
-      if (app.namespace === 'material') {
+      if (app.namespace === 'mybricks-material') {
         DockerAPPS.push(app);
       } else {
         DesignAPPS.push(app);

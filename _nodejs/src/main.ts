@@ -8,10 +8,12 @@ import { start as startDB } from "@mybricks/rocker-dao";
 import * as config from "config";
 import { proxyMiddleWare } from "./middleware/proxy.middleware";
 import { loadModule } from "../module-loader";
+import { enhanceApp } from './enhance'
 
 async function bootstrap() {
   process.on("unhandledRejection", (e) => {
-    console.info(`[global error]: [unhandledRejection]: ${JSON.stringify(e)}`);
+    console.info(`[global error]: \n`);
+    console.log(e)
   });
   const appOptions = {
     // cors: {
@@ -19,6 +21,7 @@ async function bootstrap() {
     //   credentials: true,
     // }
   };
+  const loadedModule = loadModule()
 
   startDB([
     {
@@ -41,6 +44,9 @@ async function bootstrap() {
     prefix: "/",
     index: false
   });
+  enhanceApp(app, {
+    appNamespaceList: loadedModule.namespace
+  })
 
   const whitelist = ["localhost", "mybricks.world"];
   app.enableCors({
@@ -59,7 +65,7 @@ async function bootstrap() {
   });
   app.use(
     proxyMiddleWare({
-      prefixList: loadModule().namespace,
+      prefixList: loadedModule.namespace,
     })
   );
   app.use(bodyParser.json({ limit: "100mb" }));

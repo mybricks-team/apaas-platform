@@ -8,16 +8,18 @@ const scanDir = (dirFullPath: string) => {
     const folders = fs.readdirSync(dirFullPath);
     if (folders) {
       folders.forEach((dirPath) => {
-        const installPath = path.join(dirFullPath, dirPath);
-        if (installPath.indexOf("install.json") !== -1) {
-          const register = require(installPath);
-          if (typeof register === "object") {
-            if (register.module && register.module.module) {
+        const pkgPath = path.join(dirFullPath, dirPath);
+        if (pkgPath.indexOf("package.json") !== -1) {
+          const pkg = require(pkgPath);
+          if (typeof pkg === "object") {
+            // 约定的根模块地址
+            const rootModulePath = path.join(dirFullPath, './nodejs/index.module.ts')
+            if(fs.existsSync(rootModulePath)) {
               modules.push(
-                require(path.join(dirFullPath, register.module.module)).default
+                require(rootModulePath).default
               );
             }
-            namespace.push(`/${register.namespace}/`);
+            namespace.push(`${pkg.name}`);
           }
         }
       });
