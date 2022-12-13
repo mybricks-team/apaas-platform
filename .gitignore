@@ -12,6 +12,7 @@ yarn.lock
 .npmrc
 *.pem
 _nodejs/_assets/temp
+_nodejs/_assets/material/
 _apps/*
 _nodejs/dist/*
 mybricks
