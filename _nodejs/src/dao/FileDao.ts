@@ -142,7 +142,7 @@ export default class FileDao extends DOBase {
       query.shareType = null
     }
 
-    return await this.exe<Array<FileDO>>("file:queryAll", {
+    return await this.exe<Array<FileDO>>("apaas_file:queryAll", {
       ...query,
       isAdministrator,
       folderExtName,
@@ -157,7 +157,7 @@ export default class FileDao extends DOBase {
    */
   @Mapping(FileDO)
   public async queryById(id: number): Promise<FileDO> {
-    const files = await this.exe<FileDO[]>("file:queryById", {
+    const files = await this.exe<FileDO[]>("apaas_file:queryById", {
       id
     })
 
@@ -170,7 +170,7 @@ export default class FileDao extends DOBase {
    */
   @Mapping(FileDO)
   public async queryByRef(ref: string): Promise<FileDO[]> {
-    const files = await this.exe<FileDO[]>("file:queryByRef", {
+    const files = await this.exe<FileDO[]>("apaas_file:queryByRef", {
       ref
     })
 
@@ -179,7 +179,7 @@ export default class FileDao extends DOBase {
 
   @Mapping(FileDO)
   public async queryByNamespace(namespace: string): Promise<FileDO> {
-    const files = await this.exe<FileDO[]>("file:queryByNamespace", {
+    const files = await this.exe<FileDO[]>("apaas_file:queryByNamespace", {
       namespace
     })
 
@@ -210,7 +210,7 @@ export default class FileDao extends DOBase {
       query.description = null
     }
 
-    const result = await this.exe<any>('file:create', {
+    const result = await this.exe<any>('apaas_file:create', {
       ...query,
       namespace: query.namespace || '_self',
       type: query.type || FileTypeEnum.USER,
@@ -239,7 +239,7 @@ export default class FileDao extends DOBase {
     type?: string,
     version?: string
   }>): Promise<{ id: number | null }> {
-    const result = await this.exe<any>("file:batchCreate", {
+    const result = await this.exe<any>("apaas_file:batchCreate", {
       files: files.map(file => {
         return {
           ...file,
@@ -274,7 +274,7 @@ export default class FileDao extends DOBase {
     query = Object.assign(query, {
       update_time: new Date().getTime()
     })
-    const result = await this.exe<any>("file:delete", query)
+    const result = await this.exe<any>("apaas_file:delete", query)
 
     return {
       id: !!result ? query.id : null
@@ -290,7 +290,7 @@ export default class FileDao extends DOBase {
   }): Promise<{ id: number | null }> {
     query = Object.assign({}, query)
 
-    const result = await this.exe<any>("file:rename", {
+    const result = await this.exe<any>("apaas_file:rename", {
       ...query,
       update_time: new Date().getTime()
     })
@@ -301,7 +301,7 @@ export default class FileDao extends DOBase {
   }
 
   public async modifyFileType(id: number, type: string): Promise<{ id: number | null }> {
-    const result = await this.exe<any>('file:modifyFileType', {
+    const result = await this.exe<any>('apaas_file:modifyFileType', {
       id,
       type,
       update_time: new Date().getTime()
@@ -313,7 +313,7 @@ export default class FileDao extends DOBase {
   }
 
   public async modifyFileDeliveryChannel(id: number, deliveryChannel: string): Promise<{ id: number | null }> {
-    const result = await this.exe<any>('file:modifyFileDeliveryChannel', {
+    const result = await this.exe<any>('apaas_file:modifyFileDeliveryChannel', {
       id,
       deliveryChannel,
       updateTime: new Date().getTime()
@@ -333,7 +333,7 @@ export default class FileDao extends DOBase {
     if (!query.parentId) {
       query.parentId = null
     }
-    const result = await this.exe<any>("file:moveFile", query)
+    const result = await this.exe<any>("apaas_file:moveFile", query)
 
     return {
       id: !!result ? query.fileId : null
@@ -342,7 +342,7 @@ export default class FileDao extends DOBase {
 
   @Mapping(FileDO)
   public async getAllFiles() {
-    const result = await this.exe<any>("file:getAllFiles")
+    const result = await this.exe<any>("apaas_file:getAllFiles")
 
     return result
   }
@@ -371,7 +371,7 @@ export default class FileDao extends DOBase {
       query.icon = null
     }
     
-    const result = await this.exe<any>('file:update', query)
+    const result = await this.exe<any>('apaas_file:update', query)
     return {id: result.insertId}
   }
 
@@ -410,7 +410,7 @@ export default class FileDao extends DOBase {
     // }
 
 
-    const result = await this.exe<any>('file:getFiles', {
+    const result = await this.exe<any>('apaas_file:getFiles', {
       ...query
     })
 
@@ -423,7 +423,7 @@ export default class FileDao extends DOBase {
   }) {
     query = Object.assign({}, query)
 
-    const result = await this.exe<any>('file:getFolderTreeAry', {
+    const result = await this.exe<any>('apaas_file:getFolderTreeAry', {
       ...query
     })
 
@@ -449,7 +449,7 @@ export default class FileDao extends DOBase {
     }
 
     const result = await this.exe<any>(
-      'file:getFileCountByExtNames',
+      'apaas_file:getFileCountByExtNames',
       params
     )
 
@@ -467,7 +467,7 @@ export default class FileDao extends DOBase {
   }) {
     query = Object.assign({}, query)
 
-    const result = await this.exe<any>('file:updateByIds', {
+    const result = await this.exe<any>('apaas_file:updateByIds', {
       ...query,
       updateTime: new Date().getTime()
     })
@@ -480,7 +480,7 @@ export default class FileDao extends DOBase {
     userId: string
     timeInterval: number
   }) {
-    const result = await this.exe<any>('file:getRecycleBinFiles', {
+    const result = await this.exe<any>('apaas_file:getRecycleBinFiles', {
       ...query,
       currentTime: new Date().getTime()
     })
@@ -493,7 +493,7 @@ export default class FileDao extends DOBase {
     updatorId: string
     updatorName: string
   }) {
-    const result = await this.exe<any>('file:recoverFile', {
+    const result = await this.exe<any>('apaas_file:recoverFile', {
       ...query,
       updateTime: new Date().getTime()
     })
@@ -519,7 +519,7 @@ export default class FileDao extends DOBase {
   }): Promise<any[]> {
 
     const result = await this.exe<any>(
-      'file:getFileListByExtName',
+      'apaas_file:getFileListByExtName',
       params
     )
 
@@ -541,7 +541,7 @@ export default class FileDao extends DOBase {
   }): Promise<any[]> {
 
     const result = await this.exe<any>(
-      'file:getFileListTotalByExtName',
+      'apaas_file:getFileListTotalByExtName',
       params
     )
 

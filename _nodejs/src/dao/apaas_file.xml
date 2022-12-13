@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="file">
+<mapper namespace="apaas_file">
     <select id="query">
-        select * from ws_file where
+        select * from apaas_file where
         status = 1
         <if test="folderId">
             and parent_id = #{folderId} 
@@ -36,7 +36,7 @@
     <select id="queryAll">
         select
         id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case when icon= '' then '0' else '1' end as has_icon 
-        from ws_file
+        from apaas_file
         where 
         <if test="folderId != null">
             parent_id = #{folderId} and
@@ -89,27 +89,27 @@
 
     <select id="queryById">
         select * 
-        from ws_file where
+        from apaas_file where
         id = #{id} and
         status = 1
     </select>
 
     <select id="queryByRef">
         select * 
-        from ws_file where
+        from apaas_file where
         ref = #{ref} and
         status = 1
     </select>
 
     <select id="queryByNamespace">
         select * 
-        from ws_file where
+        from apaas_file where
         namespace = #{namespace} and
         status = 1
     </select>
 
     <insert id="create">
-        insert into ws_file
+        insert into apaas_file
         (
         group_id,
         parent_id,
@@ -146,7 +146,7 @@
     </insert>
 
     <insert id="batchCreate">
-        insert into ws_file
+        insert into apaas_file
         (
         group_id,
         parent_id,
@@ -184,7 +184,7 @@
     </insert>
 
     <update id="delete">
-        update ws_file
+        update apaas_file
         set
         status = -1,
         update_time = #{update_time},
@@ -202,7 +202,7 @@
     </update>
 
     <update id="rename">
-        update ws_file
+        update apaas_file
         set
         name = #{name},
         <if test="description != null">
@@ -215,7 +215,7 @@
     </update>
 
     <update id="modifyFileType">
-        update ws_file
+        update apaas_file
         set
         type = #{type},
         update_time = #{update_time}
@@ -223,7 +223,7 @@
     </update>
 
     <update id="modifyFileDeliveryChannel">
-        update ws_file
+        update apaas_file
         set
         delivery_channel = #{deliveryChannel},
         update_time = #{updateTime}
@@ -231,14 +231,14 @@
     </update>
 
     <select id="getAllFiles">
-        select * from ws_file
+        select * from apaas_file
         where
         status = 1
         order by update_time desc
     </select>
 
     <update id="moveFile">
-        update ws_file
+        update apaas_file
         set
         group_id = #{groupId},
         parent_id = #{parentId},
@@ -247,7 +247,7 @@
     </update>
 
     <update id="update">
-        update ws_file
+        update apaas_file
         set
         <if test="name">
             name = #{name},
@@ -277,7 +277,7 @@
     </update>
 
     <select id="getFiles">
-        select * from ws_file
+        select * from apaas_file
         where id 
         <if test="id">
             and id = #{id}
@@ -339,7 +339,7 @@
                 @s := @s + 1 AS sort 
             FROM
                 ( SELECT @r := #{id}, @s := 0 ) temp,
-                ws_file
+                apaas_file
             WHERE
                 @r > 0 
             ) t1
@@ -374,7 +374,7 @@
     </select>
 
     <update id="updateByIds">
-        update ws_file
+        update apaas_file
         set
         update_time = #{updateTime},
         <if test="name != null">
@@ -397,7 +397,7 @@
     </update>
 
     <select id="getRecycleBinFiles">
-        select * from ws_file
+        select * from apaas_file
         where (updator_id = #{userId} or creator_id = #{userId}) 
         and status = -1 
         and #{currentTime} - update_time < #{timeInterval} 
@@ -405,7 +405,7 @@
     </select>
 
     <update id="recoverFile">
-        update ws_file
+        update apaas_file
         set 
         update_time = #{updateTime}, 
         updator_id = #{updatorId}, 
@@ -415,7 +415,7 @@
     </update>
 
     <select id="getFileListByExtName">
-        select * from ws_file
+        select * from apaas_file
         where DATE_FORMAT(FROM_UNIXTIME(file.create_time / 1000), "%Y-%m-%d") >= #{startTime}
         and DATE_FORMAT(FROM_UNIXTIME(file.create_time / 1000), "%Y-%m-%d") <= #{endTime}
         and ext_name != 'folder'
@@ -426,7 +426,7 @@
         limit ${(pageIndex - 1)*pageSize}, #{pageSize}
     </select>
     <select id="getFileListTotalByExtName">
-        select count(*) as "total" from ws_file
+        select count(*) as "total" from apaas_file
         where DATE_FORMAT(FROM_UNIXTIME(file.create_time / 1000), "%Y-%m-%d") >= #{startTime}
         and DATE_FORMAT(FROM_UNIXTIME(file.create_time / 1000), "%Y-%m-%d") <= #{endTime}
         and ext_name != 'folder'

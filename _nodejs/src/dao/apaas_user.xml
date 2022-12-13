@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="user">
+<mapper namespace="apaas_user">
     <select id="countByName" resultType="number">
-        select count(*) from user
+        select count(*) from apaas_user
         <where>
             <if test="name != null">
                 and name like #{name}
@@ -14,13 +14,13 @@
 
     <select id="queryByEmail">
         select *
-        from user
+        from apaas_user
         where email = #{email}
         and status = #{status}
     </select>
 
     <insert id="insert">
-        insert into user
+        insert into apaas_user
         (
         email,
         password,
@@ -38,13 +38,13 @@
     </insert>
 
     <select id="queryAll">
-        select * from user
+        select * from apaas_user
         where
         status = 1
     </select>
 
     <update id="updateLisenceCode">
-        update user
+        update apaas_user
         set
         <if test="licenseCode">
             license_code = #{licenseCode},
@@ -54,7 +54,7 @@
     </update>
 
     <update id="update">
-        update user
+        update apaas_user
         set
         <if test="status != null">
             status = #{status},
