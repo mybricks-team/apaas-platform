@@ -91,7 +91,7 @@ export interface T_App {
   /** 图标 */
   icon: string;
   /** 类型 */
-  type: string;
+  type?: string;
   /** 标题 */
   title: string;
   /** 跳转链接 */
@@ -99,11 +99,11 @@ export interface T_App {
   /** 唯一命名空间 */
   namespace: string;
   /** 描述 */
-  description: string;
+  description?: string;
   /** 应用版本 */
   version?: string;
   /** 应用设置 */
-  setting?: { call: string };
+  setting?: string | any;
   /** 应用导出设置 */
   exports?: IAppExport[];
 	
