@@ -238,7 +238,7 @@ export default class WorkspaceService {
           });
           // @ts-ignore
 					const materialRes = await axios.post(
-						(request.secure ? 'https://' : 'http://') + request.headers.host + '/material/api/material/component/create',
+						(request.secure ? 'https://' : 'http://') + request.headers.host + '/mybricks-material/api/material/component/create',
 						{ component: { ...body, emial: userId, version }, config }
 					);
 
