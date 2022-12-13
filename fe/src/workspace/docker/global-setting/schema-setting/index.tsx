@@ -33,7 +33,6 @@ export default ({ initialValues, schema = [], onSubmit, style }: SchemaSettingPr
 
   useEffect(() => {
     if (!!!compileWorkflowsKeyName) {
-      console.log('initialValues', initialValues, compileWorkflowsKeyName)
       form?.setFieldsValue?.(initialValues)
       return
     }
@@ -44,9 +43,6 @@ export default ({ initialValues, schema = [], onSubmit, style }: SchemaSettingPr
         ...(initialValues?.[compileWorkflowsKeyName]?.[keyName] ?? {}),
       }
     })
-
-    console.log('newValues', newValues)
-
     form?.setFieldsValue?.(newValues)
   }, [initialValues, compileWorkflowsKeyName])
 
