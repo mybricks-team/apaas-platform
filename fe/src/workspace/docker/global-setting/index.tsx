@@ -238,6 +238,7 @@ export default () => {
               frameborder="no"
               border="0"
               style={{
+                paddingTop: 20,
                 minHeight: '500px',
                 maxHeight: '90vh',
                 height: 600,

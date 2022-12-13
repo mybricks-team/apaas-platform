@@ -21,7 +21,7 @@ function read (zip, files, dirPath) {
   });
 }
 
-const zipDirPath = path.join(__dirname, '../_nodejs');
+const zipDirPath = path.join(__dirname, '../../_nodejs');
 /** 过滤不打进zip包的文件名 */
 const filterFileName = ['.DS_Store', '_apps', 'config', 'node_modules', '.npmignore', 'package-lock.json'];
 const files = fs.readdirSync(zipDirPath).filter(filename => {

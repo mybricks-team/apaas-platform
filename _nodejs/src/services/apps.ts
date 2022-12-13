@@ -74,9 +74,7 @@ export default class AppsService {
           temp['setting'] = pkgJson?.mybricks?.setting
         } else if(fs.existsSync(path.join(appsFolder, appName, "./assets/setting.html"))) {
           // 约定的设置字段
-          temp['setting'] = {
-            homepage: `/${pkgJson.name}/setting.html`, // 约定
-          }
+          temp['setting'] = `/${pkgJson.name}/setting.html` // 约定
         }
         // 应用导出能力
         if(pkgJson?.mybricks?.serviceProvider) {
@@ -131,7 +129,7 @@ export default class AppsService {
     for (const app of applications.installApps) {
       const [_name, version] = app.path.split("@");
 
-      const remoteApp = remoteApps.find((r) => r.namespace === app.name);
+      const remoteApp = remoteApps.find((r) => r.namespace === _name);
 
       if (remoteApp && versionGreaterThan(remoteApp.version, version)) {
         res.push({

@@ -195,11 +195,11 @@ module.exports = {
     // }),
     new WebpackBar(),
     new ignoreWarningPlugin(), // All warnings will be ignored
-
     new RemovePlugin({
       before: {
+        allowRootAndOutside: true,
         include: [
-          path.resolve(__dirname, `../../_nodejs/_assets/js/*`)
+          path.resolve(__dirname, `../../_nodejs/_assets/js`)
         ]
       },
     }),

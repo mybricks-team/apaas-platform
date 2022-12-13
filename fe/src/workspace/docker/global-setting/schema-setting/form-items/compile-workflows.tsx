@@ -83,7 +83,7 @@ export default ({ title = '发布环境', name, form, value }) => {
   }, [])
 
   const openTask = useCallback((fileId) => {
-    window.open(`/app-workflow/app-workflow.html?id=${fileId}`)
+    window.open(`/mybricks-app-workflow/index.html?id=${fileId}`)
   }, [])
 
   return (
