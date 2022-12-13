@@ -2,15 +2,15 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="userLog">
+<mapper namespace="apaas_user_log">
     <select id="queryByType">
         select *
-        from user_log
+        from apaas_user_log
         where type = #{type}
     </select>
 
     <insert id="insert">
-        insert into user_log
+        insert into apaas_user_log
         (
         type,
         user_id,
