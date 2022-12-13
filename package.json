@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "zip": "cd fe && npm install && npm run build && node ../_nodejs/zip.js"
   },
   "repository": {
     "type": "git",
