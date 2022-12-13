@@ -35,30 +35,10 @@ export default class AppsService {
     const dirNames = fs.readdirSync(appsFolder);
     const apps = [];
     dirNames?.forEach((appName) => {
-      const installFilePath = path.join(appsFolder, appName, "./install.json");
-      if (fs.existsSync(installFilePath)) {
-        // 这里预留后续开放配置，暂时不删除
-        const installJson = JSON.parse(
-          fs.readFileSync(installFilePath, "utf-8")
-        );
-        let pkgJson: any = {};
-        const pkgFilePath = path.join(appsFolder, appName, "./package.json");
-        if (fs.existsSync(pkgFilePath)) {
-          pkgJson = JSON.parse(fs.readFileSync(pkgFilePath, "utf-8"));
-        }
-        const temp = {...installJson}
-        temp.version = pkgJson?.version;
-        temp.homepage = `/${installJson.namespace}/${installJson.homepage}`;
-        if(temp.module) {
-          delete temp.module
-        }
-        apps.push(temp);
-      } else {
-        let pkgJson: any = {};
-        const pkgFilePath = path.join(appsFolder, appName, "./package.json");
-        if (fs.existsSync(pkgFilePath)) {
-          pkgJson = JSON.parse(fs.readFileSync(pkgFilePath, "utf-8"));
-        }
+      let pkgJson: any = {};
+      const pkgFilePath = path.join(appsFolder, appName, "./package.json");
+      if (fs.existsSync(pkgFilePath)) {
+        pkgJson = JSON.parse(fs.readFileSync(pkgFilePath, "utf-8"));
         const temp: any = {
           version: pkgJson?.version,
           homepage: `/${pkgJson.name}/index.html`, // 约定
