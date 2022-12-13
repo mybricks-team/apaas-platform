@@ -62,18 +62,30 @@ export default class AppsService {
         const temp: any = {
           version: pkgJson?.version,
           homepage: `/${pkgJson.name}/index.html`, // 约定
-          title: pkgJson.name,
+          title: pkgJson.title,
           namespace: pkgJson.name,
           description: pkgJson.description,
           icon: pkgJson?.mybricks?.icon,
           type: pkgJson?.mybricks?.type,
+          exports: []
         }
+        // 应用设置页面
         if(pkgJson?.mybricks?.setting) {
           temp['setting'] = pkgJson?.mybricks?.setting
         } else if(fs.existsSync(path.join(appsFolder, appName, "./assets/setting.html"))) {
           // 约定的设置字段
           temp['setting'] = {
             homepage: `/${pkgJson.name}/setting.html`, // 约定
+          }
+        }
+        // 应用导出能力
+        if(pkgJson?.mybricks?.serviceProvider) {
+          for(let serviceName in pkgJson?.mybricks?.serviceProvider) {
+            const val = pkgJson?.mybricks?.serviceProvider[serviceName]
+            temp.exports.push({
+              name: serviceName,
+              path: `/${pkgJson.name}/${val}`
+            })
           }
         }
         apps.push(temp);
