@@ -1,12 +1,18 @@
+import FileContentDao from './../dao/FileContentDao';
+import FileDao from '../dao/FileDao';
+import FilePubDao from '../dao/filePub.dao';
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import FileDao from "../dao/FileDao";
 
 @Controller("api")
 export default class ConfigService {
   fileDao: FileDao;
+  fileContentDao: FileContentDao;
+  filePubDao: FilePubDao;
 
   constructor() {
     this.fileDao = new FileDao();
+    this.fileContentDao = new FileContentDao()
+    this.filePubDao = new FilePubDao();
   }
 
   @Get("/file/get")
@@ -38,6 +44,33 @@ export default class ConfigService {
     return {
       code: 1,
       data: files,
+    };
+  }
+
+  @Post("/file/getFileContentByFileIdAndPubVersion")
+  async getFileContentByFileIdAndPubVersion(@Body('fileId') fileId: string, @Body('pubVersion') pubVersion: string) {
+    if(!fileId || !pubVersion) {
+      return {
+        code :-1,
+        msg: '参数不合法'
+      }
+    }
+    const pubInfo = await this.filePubDao.getPublishByFileIdAndVersion({
+      fileId: fileId,
+      version: pubVersion
+    })
+    if(!pubInfo?.fileContentId) {
+      return {
+        code: -1,
+        msg: `filePub中fileContentId为空`
+      }
+    }
+    const rtn = await this.fileContentDao.queryById({
+      id: pubInfo?.fileContentId
+    })
+    return {
+      code: 1,
+      data: rtn ? rtn[0] : null
     };
   }
 }
