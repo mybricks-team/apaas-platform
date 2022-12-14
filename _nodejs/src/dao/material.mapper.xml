@@ -200,13 +200,13 @@
             title = #{nextInfo.title},
         </if>
         <if test="nextInfo.icon != undefined">
-            title = #{nextInfo.icon},
+            icon = #{nextInfo.icon},
         </if>
         <if test="nextInfo.version != undefined">
             version = #{nextInfo.version},
         </if>
         <if test="nextInfo.description != undefined">
-            title = #{nextInfo.description},
+            description = #{nextInfo.description},
         </if>
         <if test="nextInfo.previewImg != undefined">
             preview_img = #{nextInfo.previewImg},

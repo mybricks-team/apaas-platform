@@ -252,22 +252,22 @@ export default class WorkspaceService {
 	    });
 	    data.pib_id = id;
  
-	    if (extName === ExtName.CLOUD_COM) {
-				try {
-					const [config = {}] = await this.configDao.getConfig({
-            namespace: [ExtName.CLOUD_COM]
-          });
-          // @ts-ignore
-					const materialRes = await axios.post(
-						(request.secure ? 'https://' : 'http://') + request.headers.host + '/mybricks-material/api/material/component/create',
-						{ component: { ...body, emial: userId, version }, config }
-					);
+	    // if (extName === ExtName.CLOUD_COM) {
+			// 	try {
+			// 		const [config = {}] = await this.configDao.getConfig({
+      //       namespace: [ExtName.CLOUD_COM]
+      //     });
+      //     // @ts-ignore
+			// 		const materialRes = await axios.post(
+			// 			(request.secure ? 'https://' : 'http://') + request.headers.host + '/mybricks-material/api/material/component/create',
+			// 			{ component: { ...body, emial: userId, version }, config }
+			// 		);
 
-          data = { ...data, ...((materialRes.data.data ? materialRes.data.data : materialRes.data) || {}) };
-				} catch (err) {
-          console.log(err, 'err')
-        }
-	    }
+      //     data = { ...data, ...((materialRes.data.data ? materialRes.data.data : materialRes.data) || {}) };
+			// 	} catch (err) {
+      //     console.log(err, 'err')
+      //   }
+	    // }
 
       return {
         code: 1,
