@@ -132,7 +132,8 @@ export default class AppsService {
   }
 
   @Post("/apps/update")
-  async appUpdate(@Body() body) {
+  async appUpdate(@Body() body, @Req() req) {
+    // req.setTimeout(100)
     const { namespace, version } = body;
 
     const applications = require(path.join(process.cwd(), "./application.json"));
@@ -161,6 +162,7 @@ export default class AppsService {
 		/** 已安装应用 */
 	  let installedApp = null;
     let installedIndex = null;
+    let installPkgName = '';
     applications.installApps.forEach((app, index) => {
       if(app.path?.indexOf(namespace) !== -1) {
         installedApp = app
@@ -170,15 +172,15 @@ export default class AppsService {
 		
     if (!installedApp) {
       /** 新加应用 */
-			const pkgName = safeParse(remoteApp.installInfo).pkgName
+			installPkgName = safeParse(remoteApp.installInfo).pkgName
 	    applications.installApps.push({
 		    type: 'npm',
-		    path: `${pkgName}@${version}`
+		    path: `${installPkgName}@${version}`
 	    });
     } else {
       // 升级版本
-	    const [pkgName] = installedApp.path.split("@");
-	    installedApp.path = `${pkgName}@${version}`;
+	    installPkgName = installedApp.path.split("@")[0];
+	    installedApp.path = `${installPkgName}@${version}`;
       applications.installApps.splice(installedIndex, 1, installedApp)
     }
     const rawApplicationStr = fs.readFileSync(path.join(process.cwd(), "./application.json"), 'utf-8')
@@ -208,20 +210,27 @@ export default class AppsService {
       console.log(e.toString())
     }
     try {
-      childProcess.exec(
-        "npx pm2 reload index",
-        {
-          cwd: path.join(process.cwd()),
-        },
-        (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${error}`);
-            return;
+      const serverModulePath = path.join(process.cwd(), `../_apps/${installPkgName}/nodejs/index.module.ts`)
+      if(fs.existsSync(serverModulePath)) {
+        console.log('有service，即将重启服务')
+        childProcess.exec(
+          "npx pm2 reload index",
+          {
+            cwd: path.join(process.cwd()),
+          },
+          (error, stdout, stderr) => {
+            if (error) {
+              console.error(`exec error: ${error}`);
+              return;
+            }
+            console.log(`stdout: ${stdout}`);
+            console.log(`stderr: ${stderr}`);
           }
-          console.log(`stdout: ${stdout}`);
-          console.log(`stderr: ${stderr}`);
-        }
-      );
+        );
+      } else {
+        console.log('无service，无需重启')
+      }
+     
     } catch (e) {
       console.log(e);
     }
@@ -240,7 +249,7 @@ export default class AppsService {
       );
       const app = appPkg?.installApps?.find((a) => {
         const [pkgName, pkgVersion] = a.path.split("@");
-        return a.name === namespace && version === pkgVersion;
+        return pkgName === namespace && version === pkgVersion;
       });
       if (app) {
         return {
