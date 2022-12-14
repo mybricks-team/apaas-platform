@@ -41,12 +41,13 @@ export default class SystemService {
         },
         Hooks: (taskId) => {
           return {
-            onFinished: () => {
+            onFinished: (data: {code: number, msg: string}) => {
               // @ts-ignore
               this.eventBus.emit(`TASK_DONE_${taskId}`, {
-                taskId
+                taskId,
+                data
               })
-            },
+            }
           };
         },
       },
@@ -68,11 +69,14 @@ export default class SystemService {
         );
         // @ts-ignore
         this.eventBus.on(`TASK_DONE_${taskId}`, (data) => {
-          resolve(true);
+          resolve(data);
         })
       } catch (e) {
         console.log(e);
-        reject(e);
+        reject({
+          code: -1,
+          msg: JSON.stringify(e)
+        });
       }
     });
   }
@@ -102,11 +106,7 @@ export default class SystemService {
       ;const PARAMS = ${injectParam};
       ;${codeStr};
     `
-    await this.exec(str, {taskId});
-    return {
-      code: 1,
-      data: {},
-      msg: '发布完成'
-    };
+    const execRes = await this.exec(str, {taskId});
+    return execRes
   }
 }
