@@ -33,7 +33,7 @@ export const usePanelItem = ({
 	return {
 		showPanel: type === 'modal' ? showModal : () => {},
 		Content: ( type === 'modal' ?
-			<Modal title={title} footer={false} width={width} style={{ maxWidth: '90vw' }} onCancel={() => setShow(false)} open={show}>
+			<Modal title={title} footer={false} width={width} style={{ maxWidth: '90vw' }} destroyOnClose onCancel={() => setShow(false)} open={show}>
 				{content}
 			</Modal> : null 
 		)

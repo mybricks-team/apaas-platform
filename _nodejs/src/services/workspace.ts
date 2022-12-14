@@ -273,9 +273,28 @@ export default class WorkspaceService {
 	@Get('/workspace/publish/versions')
 	async getPublishVersions(@Query() query) {
 		const { fileId, pageIndex, pageSize, type } = query;
-		const data = await this.filePubDao.getContentVersions({ fileId, limit: Number(pageSize), offset: (Number(pageIndex) - 1) * Number(pageSize), type });
+		const filePubs = await this.filePubDao.getContentVersions({ fileId, limit: Number(pageSize), offset: (Number(pageIndex) - 1) * Number(pageSize), type });
+
+    const fileContentIds = filePubs.filter(t => t.fileContentId).map(t => t.fileContentId);
+
+    if (Array.isArray(fileContentIds) && fileContentIds.length) {
+      const fileContents = await this.fileContentDao.queryBy({ ids: fileContentIds })
+
+      if (Array.isArray(fileContents) && fileContents.length) {
+        const fileContentMap = new Map();
+        fileContents.forEach(content => {
+          fileContentMap.set(content.id, content)
+        })
+
+        filePubs.forEach(filePub => {
+          if (filePub?.fileContentId && fileContentMap.has(filePub.fileContentId)) {
+            filePub.fileContentInfo = fileContentMap.get(filePub.fileContentId)
+          }
+        })
+      }
+    }
 		
-		return { code: 1, data };
+		return { code: 1, data: filePubs };
 	}
 	
 	@Get('/workspace/publish/content')

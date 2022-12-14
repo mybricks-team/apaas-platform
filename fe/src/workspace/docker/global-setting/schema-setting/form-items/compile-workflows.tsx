@@ -77,6 +77,9 @@ export default ({ title = '发布环境', name, form, value }) => {
   }, [])
 
   const getVersionByFileId = useCallback((fileId) => {
+    if (!fileId) {
+      return
+    }
     VersionService.getPublishVersions({ fileId }).then((files) => {
       setVersionMap((c) => ({ ...c, [fileId]: files }))
     })
@@ -94,7 +97,8 @@ export default ({ title = '发布环境', name, form, value }) => {
             {`${title}管理`}
             <Button
               type="link"
-              onClick={() => setEnvFormVisible(true)}
+              // onClick={() => setEnvFormVisible(true)}
+              onClick={() => add?.({})}
               block
               style={{ width: 150 }}
               icon={<PlusOutlined />}
@@ -125,9 +129,9 @@ export default ({ title = '发布环境', name, form, value }) => {
                   key="delete"
                   onClick={() => {
                     Modal.confirm({
-                      title: `删除任务「${value?.[field.name]?.name}」`,
+                      title: `删除`,
                       content:
-                        '删除任务后搭建应用将无法发布页面到此环境，请谨慎操作!',
+                        '删除任务后搭建应用将无法发布到此环境，请谨慎操作!',
                       okText: '我已知晓，确认删除',
                       cancelText: '取消',
                       onOk: () => remove(field.name),
@@ -142,8 +146,7 @@ export default ({ title = '发布环境', name, form, value }) => {
               ]}
             >
               <Card.Meta
-                title={value?.[field.name]?.name}
-                description={`${value?.[field.name]?.name}${title}`}
+                title={value?.[field.name]?.name || (!value[field.name]?.fileId || !value[field.name]?.version ? '请先选择任务和版本' : '当前任务未配置名称')}
               />
               <Form.Item
                 {...field}
@@ -174,7 +177,6 @@ export default ({ title = '发布环境', name, form, value }) => {
                       [name, field.name, 'version'],
                       ''
                     )
-                    getVersionByFileId(fileId)
                   }}
                 />
               </Form.Item>
@@ -194,6 +196,9 @@ export default ({ title = '发布环境', name, form, value }) => {
                       }
                     }
                   )}
+                  onFocus={() => {
+                    getVersionByFileId(value[field.name]?.fileId)
+                  }}
                   notFoundContent={
                     '当前任务无发布版本，请先点击下方编排按钮去发布'
                   }
