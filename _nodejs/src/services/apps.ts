@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Req } from "@nestjs/common";
 import * as fs from "fs";
 import * as path from "path";
 import * as childProcess from "child_process";
@@ -65,6 +65,9 @@ export default class AppsService {
               path: `/${pkgJson.name}/${val}`
             })
           }
+        }
+        if(pkgJson?.mybricks?.isSystem) {
+          temp['isSystem'] = pkgJson?.mybricks?.isSystem
         }
         apps.push(temp);
       }
