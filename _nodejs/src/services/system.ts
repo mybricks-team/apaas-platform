@@ -89,8 +89,13 @@ export default class SystemService {
     // @ts-ignore
     const codeStr = pubInfo.content;
     const taskId = uuid(10)
+    const workFlowInfo = {
+      fileId,
+      pubVersion: version
+    }
     const str = `
       ;const _EXEC_ID_ = '${taskId}';
+      ;const WORK_FLOW_INFO = ${JSON.stringify(workFlowInfo)};
       ;const hooks = Hooks(_EXEC_ID_);
       ;const logger = Logger(_EXEC_ID_);
       ;const PARAMS = ${injectParam};
