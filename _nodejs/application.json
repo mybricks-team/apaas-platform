@@ -6,15 +6,15 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-material@0.0.52"
+      "path": "mybricks-material@0.0.53"
     },
     {
       "type": "npm",
-      "path": "mybricks-cloud-com@0.0.21"
+      "path": "mybricks-cloud-com@0.0.22"
     },
     {
       "type": "npm",
-      "path": "mybricks-app-workflow@0.0.13"
+      "path": "mybricks-app-workflow@0.0.17"
     }
   ]
 }
