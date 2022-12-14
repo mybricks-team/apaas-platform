@@ -216,6 +216,8 @@ export default class WorkspaceService {
         modifyContent =  `
           const axios = require('axios');
           const FormData = require('form-data');
+          const fileParser = require('@mybricks/file-parser');
+          const renderCom = require('@mybricks/render-com');
           ${content}
         `
       }
