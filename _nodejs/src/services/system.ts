@@ -60,6 +60,7 @@ export default class SystemService {
   async exec(codeContent: string, { taskId }: {taskId: string}) {
     return new Promise((resolve, reject) => {
       try {
+        // console.log(codeContent);
         // @ts-ignore
         this.sandbox.run(
           codeContent,
