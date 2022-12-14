@@ -206,7 +206,19 @@ export default class WorkspaceService {
   @Post('/workspace/publish')
   async publish(@Body() body, @Req() request: Request) {
     try {
-			const { extName, userId, fileId, content, commitInfo, type, fileContentId } = body;
+			let { extName, userId, fileId, content, commitInfo, type, fileContentId } = body;
+			
+			/** 不存在 fileContentId 则取最新一条记录 */
+			if (!fileContentId) {
+				const fileContent = await this.fileContentDao.queryBy<FileContentDO>({
+					fileId: fileId,
+					sortType: 'desc',
+					limit: 1,
+					orderBy: 'create_time',
+				}) as any;
+				
+				fileContentId = fileContent?.id || null;
+			}
 			
 			let data: Record<string, unknown> = {};
 			const [pub] = await this.filePubDao.getLatestPubByFileId(fileId, type);
