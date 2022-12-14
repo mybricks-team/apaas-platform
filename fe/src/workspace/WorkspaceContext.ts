@@ -256,7 +256,7 @@ export class Context {
   }
 
   /** 只有管理员才能看见的模块namespaces */
-  adminNameSpaces = ['app-store', 'app-workflow'];
+  adminNameSpaces = ['app-store', 'mybricks-app-workflow'];
   /** 是否超级管理员 */
   isAdministrator: boolean = false;
   /** 设置是否超级管理员 */
