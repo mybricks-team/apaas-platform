@@ -69,7 +69,7 @@ export default class SystemService {
         );
         // @ts-ignore
         this.eventBus.on(`TASK_DONE_${taskId}`, (data) => {
-          resolve(data);
+          resolve(data.data);
         })
       } catch (e) {
         console.log(e);
