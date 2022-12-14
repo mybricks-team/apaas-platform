@@ -177,6 +177,10 @@ export default ({ title = '发布环境', name, form, value }) => {
                       [name, field.name, 'version'],
                       ''
                     )
+                    form.setFieldValue(
+                      [name, field.name, 'name'],
+                      ''
+                    )
                   }}
                 />
               </Form.Item>
@@ -196,10 +200,17 @@ export default ({ title = '发布环境', name, form, value }) => {
                       } catch (error) {
                         
                       }
+
+                      const newArr = [...(value || [])]
+                      newArr.splice(field.name)
+                      const hasRepeatName = (newArr || []).some(
+                        (item) => item.name === _taskName
+                      )
                       return {
-                        label: version?.version,
+                        label: `${version?.version}${!!!_taskName ? '未配置任务名称，无效版本' : (hasRepeatName ? '任务名称重复，不可选择' : '' )}`,
                         value: version?.version,
-                        _taskName
+                        _taskName,
+                        disabled: !!!_taskName || hasRepeatName
                       }
                     }
                   )}

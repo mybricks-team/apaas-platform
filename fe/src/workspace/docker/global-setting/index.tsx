@@ -112,46 +112,24 @@ const GlobalForm = ({ initialValues, onSubmit }) => {
 export default () => {
   const user = useComputed(() => WorkspaceContext.user)
   const [activeKey, setActiveKey] = useState()
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([
-    { title: '全局设置', namespace: 'system', icon: <SettingOutlined /> },
-  ])
   const [configMap, setConfigMap] = useState({})
 
-  useEffect(() => {
+  const menuItems = useMemo((): MenuItem[] => {
+    let defaultItems = [{ title: '全局设置', namespace: 'system', icon: <SettingOutlined /> }]
     if (!Array.isArray(WorkspaceContext.InstalledAPPS)) {
-      return
+      return defaultItems
+    } else {
+      const appSettings = WorkspaceContext.InstalledAPPS.filter(
+        (app) => app?.setting
+      ).map((app) => {
+        return {
+          ...app,
+          icon: typeof app?.icon === 'string' ? <img src={app.icon} /> : app.icon,
+        }
+      })
+
+      return [...defaultItems, ...appSettings]
     }
-
-    // WorkspaceContext.InstalledAPPS.push({
-    //   icon: 'https://assets.mybricks.world/icon/pcpage.svg',
-    //   title: 'PC页面',
-    //   version: '0.0.33',
-    //   type: 'pc-page',
-    //   namespace: 'mybricks-pc-page',
-    //   setting: [
-    //     {
-    //       id: 'defaultComlib',
-    //       type: 'input',
-    //       title: '组件库链接',
-    //       required: true,
-    //     },
-    //     {
-    //       id: 'publishEnvs',
-    //       type: 'compileWorkflows',
-    //       title: '发布环境',
-    //     },
-    //   ],
-    // })
-
-    const appSettings = WorkspaceContext.InstalledAPPS.filter(
-      (app) => app?.setting
-    ).map((app) => {
-      return {
-        ...app,
-        icon: typeof app?.icon === 'string' ? <img src={app.icon} /> : app.icon,
-      }
-    })
-    setMenuItems((c) => [...c, ...appSettings])
   }, [])
 
   const queryConfig = useCallback(() => {
