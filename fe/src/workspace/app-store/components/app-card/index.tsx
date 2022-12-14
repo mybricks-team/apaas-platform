@@ -65,7 +65,7 @@ const AppCard: FC<AppCardProps> = props => {
 						type: 'success',
 						content: '升级成功，刷新页面可立即体验新功能，5 秒后将自动刷新页面~',
 						key: LOADING_KEY,
-						duration: 3,
+						duration: 5,
 					});
 				} else if (res.data.code === -1) {
 					reset();
