@@ -161,7 +161,7 @@ export default class WorkspaceService {
           await this.fileDao.queryByNamespace(namespace)
         ]);
 
-        if (!fileByNamespace && fileByFileId.namespace !== "_self") {
+        if (!fileByNamespace && fileByFileId.namespace === "_self") {
           await this.fileDao.update({id: fileId, namespace, updatorId: userId, updatorName: userId})
         }
       }
