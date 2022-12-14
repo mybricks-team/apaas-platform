@@ -192,7 +192,7 @@ export default class WorkspaceService {
 	      await this.fileContentDao.create({
 		      fileId,
 		      content,
-		      version: getNextVersion(contentItem?.version || '1.0.0'),
+		      version: contentItem?.version ? getNextVersion(contentItem?.version) :  '1.0.0',
 		      creatorId: userId,
 		      creatorName: userId
 	      });
@@ -229,7 +229,7 @@ export default class WorkspaceService {
 			
 			let data: Record<string, unknown> = {};
 			const [pub] = await this.filePubDao.getLatestPubByFileId(fileId, type);
-			const version = getNextVersion(pub?.version || '1.0.0');
+			const version = pub?.version ? getNextVersion(pub?.version) : '1.0.0';
       let modifyContent = content;
       if(extName === ExtName.WORK_FLOW) {
         modifyContent =  `
