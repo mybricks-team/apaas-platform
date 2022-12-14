@@ -20,7 +20,7 @@
     "@babel/core": "^7.20.2",
     "@babel/preset-env": "^7.20.2",
     "@mybricks/file-parser": "1.0.3-beta1",
-    "@mybricks/render-com": "1.0.6",
+    "@mybricks/render-com-node": "^1.0.0",
     "@mybricks/rocker-dao": "0.0.5",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
