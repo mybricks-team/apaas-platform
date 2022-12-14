@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "cd fe && npm install && npm run build",
-    "zip": "npm run build && node ../_nodejs/zip.js"
+    "zip": "npm run build && node ./_nodejs/zip.js"
   },
   "repository": {
     "type": "git",
