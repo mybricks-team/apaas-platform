@@ -155,8 +155,15 @@ export default class WorkspaceService {
         }
       }
 
-      if (namespace) {
-        await this.fileDao.update({id: fileId, namespace, updatorId: userId, updatorName: userId})
+      if (namespace && typeof namespace === "string" && namespace.trim() && namespace !== "_self") {  
+        const [fileByFileId, fileByNamespace] = await Promise.all([
+          await this.fileDao.queryById(fileId),
+          await this.fileDao.queryByNamespace(namespace)
+        ]);
+
+        if (!fileByNamespace && fileByFileId.namespace !== "_self") {
+          await this.fileDao.update({id: fileId, namespace, updatorId: userId, updatorName: userId})
+        }
       }
 
       if (type) {
