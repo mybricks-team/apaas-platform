@@ -190,12 +190,25 @@ export default ({ title = '发布环境', name, form, value }) => {
                 <Select
                   options={versionMap?.[value?.[field.name]?.fileId]?.map(
                     (version) => {
+                      let _taskName = ''
+                      try {
+                        _taskName = JSON.parse(version?.fileContentInfo?.content).taskName
+                      } catch (error) {
+                        
+                      }
                       return {
                         label: version?.version,
                         value: version?.version,
+                        _taskName
                       }
                     }
                   )}
+                  onChange={(_, opt) => {
+                    form.setFieldValue(
+                      [name, field.name, 'name'],
+                      opt?._taskName
+                    )
+                  }}
                   onFocus={() => {
                     getVersionByFileId(value[field.name]?.fileId)
                   }}

@@ -290,7 +290,12 @@ export default class WorkspaceService {
     const fileContentIds = filePubs.filter(t => t.fileContentId).map(t => t.fileContentId);
 
     if (Array.isArray(fileContentIds) && fileContentIds.length) {
-      const fileContents = await this.fileContentDao.queryBy({ ids: fileContentIds })
+      let fileContents = await this.fileContentDao.queryBy({ ids: fileContentIds })
+
+      // 兼容单个查询不为数组的情况
+      if (fileContents?.id) {
+        fileContents = [fileContents]
+      }
 
       if (Array.isArray(fileContents) && fileContents.length) {
         const fileContentMap = new Map();

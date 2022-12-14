@@ -107,6 +107,7 @@
         select
             id,
             file_id,
+            file_content_id,
             creator_id,
             create_time,
             update_time,
