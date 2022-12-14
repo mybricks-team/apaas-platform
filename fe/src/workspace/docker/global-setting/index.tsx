@@ -71,7 +71,7 @@ const GlobalForm = ({ initialValues, onSubmit }) => {
         autoComplete="off"
       >
         <Form.Item
-          initialValue="about.html"
+          initialValue="login.html"
           label="首页"
           name="platformHome"
           required
@@ -79,10 +79,10 @@ const GlobalForm = ({ initialValues, onSubmit }) => {
         >
           <Select
             options={[
-              {
-                value: 'about.html',
-                label: 'Mybricks介绍页',
-              },
+              // {
+              //   value: 'about.html',
+              //   label: 'Mybricks介绍页',
+              // },
               {
                 value: 'login.html',
                 label: '登录页',
