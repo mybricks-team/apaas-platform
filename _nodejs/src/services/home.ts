@@ -14,7 +14,7 @@ export default class HomeService {
   @Get("/")
   async getInstalledList(@Req() req, @Res() res) {
     const config = await this.configService.getAll(['system'])
-    const platformHome = config?.data?.system?.config?.platformHome || 'about.html';
+    const platformHome = config?.data?.system?.config?.platformHome || 'login.html';
     const filePath = path.join(process.cwd(), `./_assets/${platformHome}`)
     if(fs.existsSync(filePath)) {
       res.sendFile(filePath);

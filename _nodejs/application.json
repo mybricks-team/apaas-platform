@@ -2,19 +2,19 @@
   "installApps": [
     {
       "type": "npm",
-      "path": "mybricks-pc-page@0.0.46"
+      "path": "mybricks-pc-page@0.0.50"
     },
     {
       "type": "npm",
-      "path": "mybricks-material@0.0.53"
+      "path": "mybricks-material@0.0.60"
     },
     {
       "type": "npm",
-      "path": "mybricks-cloud-com@0.0.23"
+      "path": "mybricks-cloud-com@0.0.25"
     },
     {
       "type": "npm",
-      "path": "mybricks-app-workflow@0.0.18"
+      "path": "mybricks-app-workflow@0.0.19"
     }
   ]
 }

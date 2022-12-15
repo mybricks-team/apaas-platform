@@ -34,44 +34,51 @@ export default class AppsService {
     }
     const dirNames = fs.readdirSync(appsFolder);
     const apps = [];
-    dirNames?.forEach((appName) => {
-      let pkgJson: any = {};
-      const pkgFilePath = path.join(appsFolder, appName, "./package.json");
-      if (fs.existsSync(pkgFilePath)) {
-        pkgJson = JSON.parse(fs.readFileSync(pkgFilePath, "utf-8"));
-        const temp: any = {
-          version: pkgJson?.version,
-          homepage: `/${pkgJson.name}/index.html`, // 约定
-          title: pkgJson?.mybricks?.title,
-          namespace: pkgJson.name,
-          description: pkgJson.description,
-          icon: pkgJson?.mybricks?.icon,
-          type: pkgJson?.mybricks?.type,
-          exports: []
-        }
-        // 应用设置页面
-        if(pkgJson?.mybricks?.setting) {
-          temp['setting'] = pkgJson?.mybricks?.setting
-        } else if(fs.existsSync(path.join(appsFolder, appName, "./assets/setting.html"))) {
-          // 约定的设置字段
-          temp['setting'] = `/${pkgJson.name}/setting.html` // 约定
-        }
-        // 应用导出能力
-        if(pkgJson?.mybricks?.serviceProvider) {
-          for(let serviceName in pkgJson?.mybricks?.serviceProvider) {
-            const val = pkgJson?.mybricks?.serviceProvider[serviceName]
-            temp.exports.push({
-              name: serviceName,
-              path: `/${pkgJson.name}/${val}`
-            })
+    if(Array.isArray(dirNames)) {
+      for(let l=dirNames.length, i=0; i<l; i++) {
+        const appName = dirNames[i];
+        let pkgJson: any = {};
+        const pkgFilePath = path.join(appsFolder, appName, "./package.json");
+        if (fs.existsSync(pkgFilePath)) {
+          pkgJson = JSON.parse(fs.readFileSync(pkgFilePath, "utf-8"));
+          // @ts-ignore
+          if(Object.keys(pkgJson).length === 0) {
+            continue
           }
+          const temp: any = {
+            version: pkgJson?.version,
+            homepage: `/${pkgJson.name}/index.html`, // 约定
+            title: pkgJson?.mybricks?.title,
+            namespace: pkgJson.name,
+            description: pkgJson.description,
+            icon: pkgJson?.mybricks?.icon,
+            type: pkgJson?.mybricks?.type,
+            exports: []
+          }
+          // 应用设置页面
+          if(pkgJson?.mybricks?.setting) {
+            temp['setting'] = pkgJson?.mybricks?.setting
+          } else if(fs.existsSync(path.join(appsFolder, appName, "./assets/setting.html"))) {
+            // 约定的设置字段
+            temp['setting'] = `/${pkgJson.name}/setting.html` // 约定
+          }
+          // 应用导出能力
+          if(pkgJson?.mybricks?.serviceProvider) {
+            for(let serviceName in pkgJson?.mybricks?.serviceProvider) {
+              const val = pkgJson?.mybricks?.serviceProvider[serviceName]
+              temp.exports.push({
+                name: serviceName,
+                path: `/${pkgJson.name}/${val}`
+              })
+            }
+          }
+          if(pkgJson?.mybricks?.isSystem) {
+            temp['isSystem'] = pkgJson?.mybricks?.isSystem
+          }
+          apps.push(temp);
         }
-        if(pkgJson?.mybricks?.isSystem) {
-          temp['isSystem'] = pkgJson?.mybricks?.isSystem
-        }
-        apps.push(temp);
       }
-    });
+    }
     return {
       code: 1,
       data: apps,
@@ -133,7 +140,6 @@ export default class AppsService {
 
   @Post("/apps/update")
   async appUpdate(@Body() body, @Req() req) {
-    // req.setTimeout(100)
     const { namespace, version } = body;
 
     const applications = require(path.join(process.cwd(), "./application.json"));
