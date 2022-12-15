@@ -1,6 +1,7 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { Form, Select, Input, Button, message } from 'antd'
 import CompileWorkflows from './form-items/compile-workflows'
+// import CompileWorkflow from './form-items/compile-workflow'
 
 // @ts-ignore
 import styles from './index.less'
@@ -92,22 +93,32 @@ export default ({ initialValues, schema = [], onSubmit, style }: SchemaSettingPr
             if (setting.type === 'compileWorkflows') {
               return <CompileWorkflows title={setting.title} name={setting.id} form={form} value={compileWorkflowsValue} />
             }
-
-            return (
-              <Form.Item
-                label={setting.title}
-                name={setting.id}
-                required={setting.required}
-                rules={setting.required ? [{ required: true, type: 'string', message: `请设置${setting.title}` }] : []}
-              >
-                {
-                  setting.type === 'input' && <Input {...(setting?.props ?? {})} />
-                }
-                {
-                  setting.type === 'select' && <Select {...(setting?.props ?? {})} />
-                }
-              </Form.Item>
-            )
+            switch (true) {
+              case setting.type === 'input': {
+                return (
+                  <Form.Item
+                    label={setting.title}
+                    name={setting.id}
+                    required={setting.required}
+                    rules={setting.required ? [{ required: true, message: `请设置${setting.title}` }] : []}
+                  >
+                    <Input {...(setting?.props ?? {})} />
+                  </Form.Item>
+                )
+              }
+              case setting.type === 'select': {
+                return (
+                  <Form.Item
+                    label={setting.title}
+                    name={setting.id}
+                    required={setting.required}
+                    rules={setting.required ? [{ required: true, message: `请设置${setting.title}` }] : []}
+                  >
+                    <Select {...(setting?.props ?? {})} />
+                  </Form.Item>
+                )
+              }
+            }            
           })
         }
       </Form>
