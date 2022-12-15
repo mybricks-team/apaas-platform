@@ -38,12 +38,16 @@ export function loadModule() {
   if (fs.existsSync(appDir)) {
     const folders = fs.readdirSync(appDir);
     if (folders) {
-      folders.forEach((childPath) => {
+      for(let l=folders.length, i=0; i<l; i++) {
+        const childPath = folders[i]
+        if(childPath === '.DS_Store') {
+          continue;
+        }
         const appFullPath = path.join(appDir, childPath);
         const data = scanDir(appFullPath);
         modules = modules.concat(data.modules);
         namespace = namespace.concat(data.namespace);
-      });
+      }
     }
   }
   return {
