@@ -1,2 +1,2 @@
-npx pm2 start index.js
+npx pm2 start mybricks.js
 echo "Start complete."

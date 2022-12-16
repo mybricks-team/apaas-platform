@@ -7,10 +7,10 @@
   },
   "main": "index.js",
   "scripts": {
-    "start": "npx pm2 start index.js",
-    "stop": "npx pm2 stop index.js",
+    "start": "npx pm2 start mybricks.js",
+    "stop": "npx pm2 stop mybricks.js",
     "installApplication": "node installApplication.js",
-    "start:watch": "NODE_ENV=development nodemon --ext js,ts --exec 'node index.js'",
+    "start:watch": "NODE_ENV=development nodemon --ext js,ts --exec 'node mybricks.js'",
     "publishToNpm": "npm publish --registry=https://registry.npmjs.org",
     "zip": "node zip.js"
   },
@@ -19,7 +19,7 @@
   "dependencies": {
     "@babel/core": "^7.20.2",
     "@babel/preset-env": "^7.20.2",
-    "@mybricks/file-parser": "1.0.4",
+    "@mybricks/file-parser": "1.0.5",
     "@mybricks/render-com-node": "^1.0.0",
     "@mybricks/rocker-dao": "0.0.5",
     "@nestjs/common": "^8.0.0",
