@@ -7,10 +7,10 @@
   },
   "main": "index.js",
   "scripts": {
-    "start": "npx pm2 start mybricks.js",
-    "stop": "npx pm2 stop mybricks.js",
+    "start": "npx pm2 start index.js",
+    "stop": "npx pm2 stop index.js",
     "installApplication": "node installApplication.js",
-    "start:watch": "NODE_ENV=development nodemon --ext js,ts --exec 'node mybricks.js'",
+    "start:watch": "NODE_ENV=development nodemon --ext js,ts --exec 'node index.js'",
     "publishToNpm": "npm publish --registry=https://registry.npmjs.org",
     "zip": "node zip.js"
   },
