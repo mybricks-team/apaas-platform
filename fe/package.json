@@ -34,7 +34,7 @@
     "html-to-image": "^1.10.8",
     "lodash-es": "^4.17.21",
     "react-syntax-highlighter": "^15.5.0",
-    "rxui-t": "0.0.2"
+    "rxui-t": "0.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
