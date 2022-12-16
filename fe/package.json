@@ -18,7 +18,7 @@
   "author": "MyBricks Team",
   "license": "ISC",
   "dependencies": {
-    "@mybricks-cloud/create-application": "^1.0.3",
+    "@mybricks-cloud/create-application": "1.0.4",
     "@mybricks-cloud/g-config": "^1.0.7",
     "@mybricks-cloud/myspace-new-cloudcdm-project": "^1.0.28",
     "@mybricks/designer": "^1.0.6",
