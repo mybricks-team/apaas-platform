@@ -51,7 +51,7 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
   )
 }
 
-const GlobalForm = ({ initialValues, onSubmit }) => {
+const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [form] = Form.useForm()
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const GlobalForm = ({ initialValues, onSubmit }) => {
   }, [initialValues])
 
   return (
-    <div className={styles.globalForm}>
+    <div className={styles.globalForm} style={style}>
       <Form
         form={form}
         labelCol={{ span: 4 }}
@@ -114,6 +114,8 @@ export default () => {
   const [activeKey, setActiveKey] = useState()
   const [configMap, setConfigMap] = useState({})
 
+  const [isConfigMount, setIsConfigMount] = useState(false)
+
   const menuItems = useMemo((): MenuItem[] => {
     let defaultItems = [{ title: '全局设置', namespace: 'system', icon: <SettingOutlined /> }]
     if (!Array.isArray(WorkspaceContext.InstalledAPPS)) {
@@ -144,6 +146,7 @@ export default () => {
       const { code, data } = res?.data || {}
       if (code === 1) {
         setConfigMap(data)
+        setIsConfigMount(true)
       }
     })().catch((err) => {
       message.error(err.message || '查询设置失败')
@@ -181,16 +184,17 @@ export default () => {
 
   const renderContent = () => {
     switch (true) {
+      case !isConfigMount: {
+        return '配置初始化中...'
+      }
       case !activeKey: {
         return null
       }
       /** 系统设置 */
       case activeKey === 'system': {
-        if (!activeKey) {
-          return null
-        }
         return (
           <GlobalForm
+            style={{ paddingTop: 20 }}
             initialValues={configMap?.[activeKey]?.config}
             onSubmit={(values) => {
               submitConfig(activeKey, values)
@@ -238,6 +242,7 @@ export default () => {
                 maxHeight: '90vh',
                 height: 600,
                 width: '100%',
+                paddingTop: 20,
               }}
               onSubmit={(values) => {
                 submitConfig(activeItem?.namespace, values)
