@@ -128,11 +128,6 @@ function Config(): JSX.Element {
 					onClick={showConfigPanel}
 				/>
 			}
-			<Item
-				icon="https://assets.mybricks.world/icon/163921.png"
-				title="回收站"
-				namespace="trash"
-			/>
 			{RenderMessagePanel}
 			{RenderConfigPanel}
 			{RenderAppPanel}

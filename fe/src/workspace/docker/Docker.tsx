@@ -61,8 +61,18 @@ function AppMenusPanel (): JSX.Element {
   });
 
   return (
-    <Catelog>
-      {Render}
+    <Catelog style={{ flex: 1 }}>
+      <div>
+	      {Render}
+      </div>
+	
+	    <div style={{ marginTop: 'auto' }}>
+		    <Item
+			    icon="https://assets.mybricks.world/icon/163921.png"
+			    title="回收站"
+			    namespace="trash"
+		    />
+	    </div>
     </Catelog>
   );
 }
