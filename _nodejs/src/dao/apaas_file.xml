@@ -90,8 +90,11 @@
     <select id="queryById">
         select * 
         from apaas_file where
-        id = #{id} and
-        status = 1
+        id = #{id}
+        and status in
+        <foreach collection="status" open="(" close=")" separator="," item="item" index="i">
+            #{item}
+        </foreach>
     </select>
 
     <select id="queryByRef">
@@ -397,7 +400,7 @@
     </update>
 
     <select id="getRecycleBinFiles">
-        select * from apaas_file
+        select *, case when icon= '' then '0' else '1' end as has_icon from apaas_file
         where (updator_id = #{userId} or creator_id = #{userId}) 
         and status = -1 
         and #{currentTime} - update_time < #{timeInterval} 

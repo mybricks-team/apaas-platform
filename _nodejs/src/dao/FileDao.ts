@@ -1,5 +1,6 @@
 import * as moment from "dayjs";
 import {Column, DOBase, Mapping} from "@mybricks/rocker-dao";
+import {EffectStatus} from "../constants";
 
 export const FileTypeEnum = {
   SYSTEM: 'system',
@@ -154,11 +155,13 @@ export default class FileDao extends DOBase {
   /**
    * 获取文件信息
    * @param id
+   * @param status
    */
   @Mapping(FileDO)
-  public async queryById(id: number): Promise<FileDO> {
+  public async queryById(id: number, status = [EffectStatus.EFFECT]): Promise<FileDO> {
     const files = await this.exe<FileDO[]>("apaas_file:queryById", {
-      id
+      id,
+	    status
     })
 
     return files && files.length > 0 ? files[0] : void 0

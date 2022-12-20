@@ -1,10 +1,9 @@
-import {Body, Res, Controller, Get, Post, Query, Req} from '@nestjs/common';
-import { Request, Response } from 'express';
+import {Body, Controller, Get, Post, Query, Req, Res} from '@nestjs/common';
+import {Request, Response} from 'express';
 import FileDao from "../dao/FileDao";
 import FileContentDao, {FileContentDO} from "../dao/FileContentDao";
-import {ExtName} from "../constants";
+import {EffectStatus, ExtName} from "../constants";
 import FilePubDao from "../dao/filePub.dao";
-import * as axios from "axios";
 import {getNextVersion} from "../utils";
 import ConfigDao from "../dao/config.dao";
 
@@ -38,6 +37,35 @@ export default class WorkspaceService {
       return {
         code: 1,
         // TODO
+        data: rtn.filter(item => {
+          if (item.hasIcon === '1') {
+            item.icon = `/api/workspace/getFileIcon?fileId=${item.id}`;
+          }
+          
+          return item.extName !== 'component';
+        })
+      }
+    } catch (ex) {
+      return {
+        code: -1,
+        message: ex.message
+      }
+    }
+  }
+	
+  @Get('/workspace/trashes')
+  async getTrashes(@Query() query) {
+    const { userId } = query
+    if (!userId) {
+      return { code: -1, message: '用户 ID 不能为空' }
+    }
+
+    try {
+	    /** 15 天 */
+      const rtn = await this.fileDao.getRecycleBinFiles({ userId, timeInterval: 15 * (24 * 60 * 60) * 1000, })
+
+      return {
+        code: 1,
         data: rtn.filter(item => {
           if (item.hasIcon === '1') {
             item.icon = `/api/workspace/getFileIcon?fileId=${item.id}`;
@@ -405,6 +433,26 @@ export default class WorkspaceService {
       }
     }
   }
+	
+  @Post('/workspace/recoverFile')
+  async recoverFile(@Body() body) {
+    const { id, userId } = body
+    if (!id || !userId) {
+      return { code: -1, message: 'userId、id 不能为空' };
+    }
+
+    try {
+      await this.fileDao.recoverFile({
+        id,
+        updatorId: userId,
+        updatorName: userId
+      })
+
+      return { code: 1, data: null };
+    } catch (ex) {
+      return { code: -1, message: ex.message };
+    }
+  }
 
   @Get('/workspace/checkNamespaceUsedByCdm')
   async checkNamespaceUsedByCdm(@Query() query) {
@@ -450,7 +498,7 @@ export default class WorkspaceService {
   @Get('/workspace/getFileIcon')
   async getFileIcon(@Query() query, @Res() res: Response,) {
     try {
-      const file = await this.fileDao.queryById(query.fileId);
+      const file = await this.fileDao.queryById(query.fileId, [EffectStatus.EFFECT, EffectStatus.DELETE]);
       const base64 = file.icon.replace(/^data:image\/\w+;base64,/, '');
       const dataBuffer = new Buffer(base64, 'base64');
 

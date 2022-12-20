@@ -2,6 +2,7 @@ import React from 'react';
 import { useComputed } from 'rxui-t';
 
 import Ground from './ground';
+import Trash from './trash';
 import InlineApp from './inlineApp';
 import MyProjects from './myProjects';
 import RunningTaskPanel from './tasks';
@@ -50,6 +51,11 @@ function Render (): JSX.Element {
             <RunningTaskPanel user={user} />
           );
           break;
+	      case 'trash':
+		      JSX = (
+			      <Trash />
+		      );
+		      break;
         default:
           break;
       }

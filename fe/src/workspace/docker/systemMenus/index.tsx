@@ -104,7 +104,7 @@ function Config(): JSX.Element {
 		<>
 			{isAdministrator && 
 				<Item
-					icon={<IconSetting width={20} height={20}/>}
+					icon="https://assets.mybricks.world/icon/liuleidashuaige.png"
 					title="我的应用"
 					onClick={showAppPanel}
 				/>
@@ -128,6 +128,11 @@ function Config(): JSX.Element {
 					onClick={showConfigPanel}
 				/>
 			}
+			<Item
+				icon="https://assets.mybricks.world/icon/163921.png"
+				title="回收站"
+				namespace="trash"
+			/>
 			{RenderMessagePanel}
 			{RenderConfigPanel}
 			{RenderAppPanel}
