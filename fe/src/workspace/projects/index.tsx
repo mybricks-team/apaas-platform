@@ -43,6 +43,7 @@ function Render (): JSX.Element {
           break;
         case 'ground': 
           JSX = (
+            //@ts-ignore
             <Ground />
           );
           break;
@@ -53,6 +54,7 @@ function Render (): JSX.Element {
           break;
 	      case 'trash':
 		      JSX = (
+            //@ts-ignore
 			      <Trash />
 		      );
 		      break;

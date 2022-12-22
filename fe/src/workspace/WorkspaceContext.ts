@@ -91,7 +91,7 @@ export interface T_App {
   /** 图标 */
   icon: string;
   /** 类型 */
-  type?: string;
+  type: string;
   /** 标题 */
   title: string;
   /** 跳转链接 */
@@ -176,8 +176,6 @@ export class Context {
     this.InstalledAPPS = apps;
     this.APPSMap = APPSMap;
   }
-	/** 当前内联显示的应用 */
-	selectedApp: T_App | null = APP_MENU_ITEMS[0];
 
   /** url query */
   urlQuery = observable({
@@ -261,7 +259,7 @@ export class Context {
   isAdministrator: boolean = false;
   /** 设置是否超级管理员 */
   setIsAdministrator = (bool: boolean) => {
-    this.isAdministrator = bool
+    this.isAdministrator = bool;
   }
 }
 

@@ -3,47 +3,25 @@ import React, {
 	useEffect,
 	useCallback
 } from 'react';
-import { useComputed } from 'rxui-t'
 import axios from 'axios';
-import {Badge, Modal} from 'antd';
+import { Badge, Modal } from 'antd';
+import { useComputed } from 'rxui-t';
 
-import {Item, Catelog} from '../Docker';
+import AppStore from './../../app-store';
+import { Item, Catelog } from '../Docker';
 import MessageModal from '../message-modal';
 import GlobalSetting from '../global-setting';
-import AppStore from './../../app-store'
-import {IconMessage, IconSetting} from '../../icon';
-import {COOKIE_LOGIN_USER} from '../../../constants';
-import {getApiUrl, removeCookie} from '../../../utils';
+import { IconMessage, IconSetting } from '../../icon';
 import WorkspaceContext from '../../WorkspaceContext';
+import { COOKIE_LOGIN_USER } from '../../../constants';
+import { getApiUrl, removeCookie } from '../../../utils';
 
 // @ts-ignore
 import css from './index.less';
 
-export const usePanelItem = ({
-	title = '',
-	width = 800,
-	content,
-	type = 'modal'
-}) => {
-	const [show, setShow] = useState(false);
-	const showModal = useCallback(() => {
-		setShow(true)
-	}, [])
-
-	return {
-		showPanel: type === 'modal' ? showModal : () => {},
-		Content: ( type === 'modal' ?
-			<Modal title={title} footer={false} width={width} style={{ maxWidth: '90vw' }} destroyOnClose onCancel={() => setShow(false)} open={show}>
-				{content}
-			</Modal> : null 
-		)
-	}
-}
-
-
 /** 全局信息 */
 export function SystemMenus(): JSX.Element {
-	const user = useComputed(() => WorkspaceContext.user)
+	const user = useComputed(() => WorkspaceContext.user);
 	/** 登出 */
 	const onLogout = useCallback(() => {
 		Modal.confirm({
@@ -72,21 +50,6 @@ function Config(): JSX.Element {
 	const isAdministrator = useComputed(() => WorkspaceContext.isAdministrator)
 	/** MessageModal 状态 */
 	const [messages, setMessages] = useState<any[]>([]);
-
-	const { showPanel: showMessagePanel, Content: RenderMessagePanel } = usePanelItem({
-		title: '消息通知',
-		content: <MessageModal messages={messages} />
-	})
-
-	const { showPanel: showAppPanel, Content: RenderAppPanel } = usePanelItem({
-		// title: '我的应用',
-		content: <AppStore />
-	})
-	
-	const { showPanel: showConfigPanel, Content: RenderConfigPanel } = usePanelItem({
-		width: 700,
-		content: <GlobalSetting />
-	})
 	
 	useEffect(() => {
 		/** 检查应用更新 */
@@ -106,7 +69,9 @@ function Config(): JSX.Element {
 				<Item
 					icon="https://assets.mybricks.world/icon/liuleidashuaige.png"
 					title="我的应用"
-					onClick={showAppPanel}
+					modal={{
+						content: <AppStore />
+					}}
 				/>
 			}
 			{isAdministrator && 
@@ -118,19 +83,23 @@ function Config(): JSX.Element {
 							消息通知
 						</Badge>
 					) : <>消息通知</>}
-					onClick={showMessagePanel}
+					modal={{
+						title: '消息通知',
+						// @ts-ignore
+						content: <MessageModal messages={messages} />
+					}}
 				/>
 			}
 			{isAdministrator && 
 				<Item
 					icon={<IconSetting width={20} height={20}/>}
 					title="设置"
-					onClick={showConfigPanel}
+					modal={{
+						width: 700,
+						content: <GlobalSetting />
+					}}
 				/>
 			}
-			{RenderMessagePanel}
-			{RenderConfigPanel}
-			{RenderAppPanel}
 		</>
 	);
 }

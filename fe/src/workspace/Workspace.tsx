@@ -51,25 +51,8 @@ export default function Workspace(): JSX.Element {
       setLoading(false);
     }).catch((err) => {
       message.error(err?.message ?? '初始化信息失败');
-    })
-    // axios({
-    //   method: "get",
-    //   url: getApiUrl('/api/apps/getInstalledList')
-    // }).then((res) => {
-    //   const { code, data } = res.data;
-    //   if (code === 1) {
-    //     WorkspaceContext.setApps(data);
-    //   } else {
-    //     message.error('获取安装应用信息失败');
-    //   }
-    // }).catch((err) => {
-    //   console.error(err);
-    //   message.error(err.message);
-    // }).finally(() => {
-    //   setLoading(false);
-    // });
+    });
   }, []);
-	// const selectedApp = useComputed(() => WorkspaceContext.selectedApp);
 
   return (
     <div className={css.view}>

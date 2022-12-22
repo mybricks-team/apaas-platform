@@ -1,8 +1,14 @@
-import React, { useMemo, useCallback } from 'react';
+import React, {
+  useMemo,
+  useState,
+  useEffect,
+  useCallback
+} from 'react';
 import { useComputed } from 'rxui-t';
 
 import { OtherApps } from './otherApps';
 import { SystemMenus } from './systemMenus';
+import { usePanelItem, Props as PanelItemProps } from '../hooks/usePanelItem';
 import WorkspaceContext, { APP_MENU_ITEMS, APP_DEFAULT_ACTIVE_MENUID } from '../WorkspaceContext';
 
 // @ts-ignore
@@ -10,8 +16,6 @@ import css from './Docker.less';
 
 /** Docker (左侧边栏) */
 export default function Docker(): JSX.Element {
-  const { user } = WorkspaceContext;
-
   return (
     <div className={css.docker}>
       <Logo />
@@ -28,7 +32,7 @@ export default function Docker(): JSX.Element {
 function Logo (): JSX.Element {
   /** 点击logo */
   const logoClick: () => void = useCallback(() => {
-    WorkspaceContext.setUrlQuery("path", APP_DEFAULT_ACTIVE_MENUID)
+    WorkspaceContext.setUrlQuery('path', APP_DEFAULT_ACTIVE_MENUID)
   }, []);
 
   return (
@@ -99,25 +103,22 @@ interface ItemProps {
   namespace?: string;
   /** 自定义点击事件 */
   onClick?: () => void;
+  /** 弹窗/抽屉/... */
+  modal?: PanelItemProps;
 }
 
 /** 菜单项封装 */
-export function Item ({icon, title, namespace, onClick}: ItemProps): JSX.Element {
-  
-  // title 标题
-  // icon 图标
-
-  // namespace 命名空间 唯一标识，若传入namespace 那么才有可能被聚焦 active
-  // onClick 点击事件，未传入即默认！
-
-  /** 菜单项点击 */
-  const itemClick: () => void = useCallback(() => {
-    if (onClick) {
-      onClick();
-    } else {
-      WorkspaceContext.setUrlQuery('path', namespace);
+export function Item ({icon, title, namespace, onClick, modal}: ItemProps): JSX.Element {
+  const [itemContext] = useState({
+    /** 菜单项点击 */
+    onClick() {
+      if (onClick) {
+        onClick();
+      } else {
+        WorkspaceContext.setUrlQuery('path', namespace);
+      }
     }
-  }, []);
+  });
 
   /** 是否被选中，未传入命名空间永远为否 */
   const className = useComputed(() => {
@@ -146,31 +147,33 @@ export function Item ({icon, title, namespace, onClick}: ItemProps): JSX.Element
   }, [title, icon]);
 
   return (
-    <div
-      className={className}
-      onClick={itemClick}
-    >
-     {ItemInfo}
-    </div>
+    <>
+      <div
+        className={className}
+        onClick={() => itemContext.onClick()}
+      >
+        {ItemInfo}
+      </div>
+      {modal && <Modal {...modal} itemContext={itemContext}/>}
+    </>
   )
 }
 
-// export function Item ({item, active = false, onClick = () => {}, iconStyle = {}, Icon, Title}: ItemProps): JSX.Element {
-//   return (
-//     <div className={`${css.menuItem} ${active ? css.menuItemActive : ''}`}
-//       onClick={onClick}
-//     >
-//       <div className={css.menuIcon} style={iconStyle}>
-//         {Icon && Icon}
-//         {item && <img src={item.icon} width={20} height={20}/>}
-//       </div>
-//       <div className={css.menuLabel}>
-//         {Title && Title}
-//         {item && item.title}
-//       </div>
-//     </div>
-//   )
-// }
+interface ModalProps extends PanelItemProps {
+  itemContext: {
+    onClick: Function;
+  }
+}
+
+function Modal (props: ModalProps) {
+  const { showPanel, Content } = usePanelItem(props);
+
+  useEffect(() => {
+    props.itemContext.onClick = showPanel;
+  }, []);
+
+  return Content;
+}
 
 /** 分组 */
 export function Catelog ({style = {}, children}): JSX.Element {
