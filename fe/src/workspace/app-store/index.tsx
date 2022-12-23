@@ -16,7 +16,7 @@ const AppStore = () => {
 	useEffect(() => {
 		setLoading(true);
 		
-		axios('https://mybricks.world/api/apps/getLatestAll').then((res) => {
+		axios('/api/apps/getLatestAllFromSource').then((res) => {
 			if (res.data.code === 1) {
 				setAllApps(res.data.data);
 			} else {
