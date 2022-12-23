@@ -8,12 +8,12 @@ import { start as startDB } from "@mybricks/rocker-dao";
 import * as config from "config";
 import { proxyMiddleWare } from "./middleware/proxy.middleware";
 import { loadModule } from "../module-loader";
-import { enhanceApp } from './enhance'
+import { enhanceApp } from "./enhance";
 
 async function bootstrap() {
   process.on("unhandledRejection", (e) => {
     console.info(`[global error]: \n`);
-    console.log(e)
+    console.log(e);
   });
   const appOptions = {
     // cors: {
@@ -21,7 +21,7 @@ async function bootstrap() {
     //   credentials: true,
     // }
   };
-  const loadedModule = loadModule()
+  const loadedModule = loadModule();
 
   startDB([
     {
@@ -32,7 +32,7 @@ async function bootstrap() {
       port: config.get("database.port"),
       database: config.get("database.database"),
       sqlPath: config.get("database.sqlPath"),
-      isGlobal: true
+      isGlobal: true,
     },
   ]);
   const app = await NestFactory.create<NestExpressApplication>(
@@ -42,21 +42,16 @@ async function bootstrap() {
   //app.setGlobalPrefix('api')
   app.useStaticAssets(path.join(__dirname, "../_assets/"), {
     prefix: "/",
-    index: false
+    index: false,
   });
   enhanceApp(app, {
-    appNamespaceList: loadedModule.namespace
-  })
+    appNamespaceList: loadedModule.namespace,
+  });
 
   const whitelist = ["localhost", "mybricks.world"];
   app.enableCors({
     origin: function (origin, callback) {
       callback(null, true);
-      // if (!origin || whitelist.find(item => origin.indexOf(item) >= 0)) {
-      //   callback(null, true)
-      // } else {
-      //   callback(new Error('Not allowed by CORS'))
-      // }
     },
     allowedHeaders:
       "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",

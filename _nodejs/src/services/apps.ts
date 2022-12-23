@@ -6,7 +6,7 @@ import { safeParse, versionGreaterThan } from "../utils";
 import AppDao from "../dao/AppDao";
 import * as axios from "axios";
 
-@Controller("/api")
+@Controller("/paas/api")
 export default class AppsService {
   appDao: AppDao;
   // 控制是否重启

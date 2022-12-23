@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import ConfigDao from "../dao/config.dao";
 
-@Controller("api")
+@Controller("/paas/api")
 export default class ConfigService {
   configDao: ConfigDao;
 
@@ -28,9 +28,9 @@ export default class ConfigService {
 
   @Post("/config/update")
   async updateConfig(
-    @Body('userId') userId: string,
-    @Body('config') config: any,
-    @Body('namespace') namespace: string,
+    @Body("userId") userId: string,
+    @Body("config") config: any,
+    @Body("namespace") namespace: string
   ) {
     const [curConfig] = await this.configDao.getConfig({
       namespace: [namespace],
@@ -40,14 +40,14 @@ export default class ConfigService {
         config: JSON.stringify(config),
         updatorId: userId,
         updatorName: userId,
-        namespace: namespace
+        namespace: namespace,
       });
     } else {
       await this.configDao.create({
         creatorId: userId,
         creatorName: userId,
         config: JSON.stringify(config),
-        namespace: namespace
+        namespace: namespace,
       });
     }
 

@@ -7,7 +7,7 @@ import FilePubDao from "../dao/filePub.dao";
 import { getNextVersion } from "../utils";
 import ConfigDao from "../dao/config.dao";
 
-@Controller("api")
+@Controller("/paas/api")
 export default class WorkspaceService {
   fileDao: FileDao;
   configDao: ConfigDao;

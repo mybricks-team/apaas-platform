@@ -3,10 +3,10 @@ import { NodeVM } from "vm2";
 import * as path from "path";
 import FileDao from "../dao/FileDao";
 import FilePubDao from "../dao/filePub.dao";
-import {uuid} from '../utils/index'
-var EventEmitter2 = require('eventemitter2');
+import { uuid } from "../utils/index";
+var EventEmitter2 = require("eventemitter2");
 
-@Controller("api")
+@Controller("/paas/api")
 export default class SystemService {
   @Inject(FileDao)
   fileDao: FileDao;
@@ -18,13 +18,13 @@ export default class SystemService {
     // @ts-ignore
     this.eventBus = new EventEmitter2({
       wildcard: false,
-      delimiter: '.',
+      delimiter: ".",
       newListener: false,
       removeListener: false,
       maxListeners: 10,
       verboseMemoryLeak: false,
-      ignoreErrors: false
-    })
+      ignoreErrors: false,
+    });
     // @ts-ignore
     this.sandbox = new NodeVM({
       console: "off",
@@ -37,17 +37,17 @@ export default class SystemService {
             error: async (...args) => {
               console.log(...args);
             },
-          }
+          };
         },
         Hooks: (taskId) => {
           return {
-            onFinished: (data: {code: number, msg: string}) => {
+            onFinished: (data: { code: number; msg: string }) => {
               // @ts-ignore
               this.eventBus.emit(`TASK_DONE_${taskId}`, {
                 taskId,
-                data
-              })
-            }
+                data,
+              });
+            },
           };
         },
       },
@@ -58,24 +58,21 @@ export default class SystemService {
     });
   }
 
-  async exec(codeContent: string, { taskId }: {taskId: string}) {
+  async exec(codeContent: string, { taskId }: { taskId: string }) {
     return new Promise((resolve, reject) => {
       try {
         // console.log(codeContent);
         // @ts-ignore
-        this.sandbox.run(
-          codeContent,
-          path.join(process.cwd(), "node_modules")
-        );
+        this.sandbox.run(codeContent, path.join(process.cwd(), "node_modules"));
         // @ts-ignore
         this.eventBus.on(`TASK_DONE_${taskId}`, (data) => {
           resolve(data.data);
-        })
+        });
       } catch (e) {
         console.log(e);
         reject({
           code: -1,
-          msg: JSON.stringify(e)
+          msg: JSON.stringify(e),
         });
       }
     });
@@ -93,11 +90,11 @@ export default class SystemService {
     });
     // @ts-ignore
     const codeStr = pubInfo.content;
-    const taskId = uuid(10)
+    const taskId = uuid(10);
     const workFlowInfo = {
       fileId,
-      pubVersion: version
-    }
+      pubVersion: version,
+    };
     const str = `
       ;const _EXEC_ID_ = '${taskId}';
       ;const WORK_FLOW_INFO = ${JSON.stringify(workFlowInfo)};
@@ -105,8 +102,8 @@ export default class SystemService {
       ;const logger = Logger(_EXEC_ID_);
       ;const PARAMS = ${injectParam};
       ;${codeStr};
-    `
-    const execRes = await this.exec(str, {taskId});
-    return execRes
+    `;
+    const execRes = await this.exec(str, { taskId });
+    return execRes;
   }
 }

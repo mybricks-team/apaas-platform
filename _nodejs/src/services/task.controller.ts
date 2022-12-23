@@ -4,7 +4,7 @@ import FileTaskDao from "../dao/FileTaskDao";
 import TaskService from "./task.service";
 import { RunningStatusMap, TaskTypeMap } from "../constants";
 
-@Controller("/api/task")
+@Controller("/paas/api/task")
 export default class TaskController {
   @Inject(TaskService)
   taskService: TaskService;
