@@ -8,8 +8,11 @@ import { useComputed } from 'rxui-t';
 
 import { OtherApps } from './otherApps';
 import { SystemMenus } from './systemMenus';
+import { eventOperation } from '../../utils';
 import { usePanelItem, Props as PanelItemProps } from '../hooks/usePanelItem';
-import WorkspaceContext, { APP_MENU_ITEMS, APP_DEFAULT_ACTIVE_MENUID } from '../WorkspaceContext';
+import WorkspaceContext, { 
+  APP_MENU_ITEMS,
+  APP_DEFAULT_ACTIVE_MENUID } from '../WorkspaceContext';
 
 // @ts-ignore
 import css from './Docker.less';
@@ -65,7 +68,7 @@ function AppMenusPanel (): JSX.Element {
   });
 
   return (
-    <Catelog style={{ flex: 1 }}>
+    <Catelog style={{ flex: '1 0 auto', height: 0, overflow: 'auto' }}>
       <div>
 	      {Render}
       </div>
@@ -105,10 +108,14 @@ interface ItemProps {
   onClick?: () => void;
   /** 弹窗/抽屉/... */
   modal?: PanelItemProps;
+
+  prefix?: React.ReactNode;
+
+  suffix?: React.ReactNode;
 }
 
 /** 菜单项封装 */
-export function Item ({icon, title, namespace, onClick, modal}: ItemProps): JSX.Element {
+export function Item ({icon, title, namespace, onClick, modal, prefix, suffix}: ItemProps): JSX.Element {
   const [itemContext] = useState({
     /** 菜单项点击 */
     onClick() {
@@ -150,9 +157,15 @@ export function Item ({icon, title, namespace, onClick, modal}: ItemProps): JSX.
     <>
       <div
         className={className}
-        onClick={() => itemContext.onClick()}
+        style={{paddingLeft: prefix ? 5 : 5 + 14}}
+        onClick={eventOperation(itemContext.onClick).stop}
       >
-        {ItemInfo}
+        <div className={css.left}>
+          {prefix && <div>{prefix}</div>}
+          {ItemInfo}
+        </div>
+       
+        {suffix && <div className={css.right}>{suffix}</div>}
       </div>
       {modal && <Modal {...modal} itemContext={itemContext}/>}
     </>
