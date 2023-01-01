@@ -1,0 +1,11 @@
+{
+  "database": {
+    "dbType": "MYSQL",
+    "host": "47.111.7.45",
+    "user": "mybricks-staging",
+    "password": "WsXC6sGBb758bRbK",
+    "port": 3306,
+    "database": "mybricks-staging",
+    "sqlPath": "."
+  }
+}

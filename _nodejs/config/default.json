@@ -1,16 +1,11 @@
 {
-  "environment": "development",
-  "server": {
-    "host": "localhost",
-    "port": 3000
-  },
   "database": {
     "dbType": "MYSQL",
-    "host": "47.111.7.45",
-    "user": "mybricks-staging",
-    "password": "WsXC6sGBb758bRbK",
+    "host": "localhost",
+    "user": "mybricks",
+    "password": "GN2eyX6Ntb2AjTmj",
     "port": 3306,
-    "database": "mybricks-staging",
+    "database": "mybricks",
     "sqlPath": "."
   }
 }
