@@ -1,7 +1,5 @@
 import * as moment from "dayjs";
 
-export { publishCloudComponentToNpm } from "./npm";
-
 export function uuid(length = 32): string {
   let text = "";
 

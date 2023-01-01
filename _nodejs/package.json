@@ -10,15 +10,13 @@
     "start": "NODE_ENV=production npx pm2 start index.js",
     "stop": "npx pm2 stop index.js",
     "installApplication": "node installApplication.js",
-    "start:dev": "NODE_ENV=hello node index.js",
+    "start:dev": "node index.js",
     "publishToNpm": "npm publish --registry=https://registry.npmjs.org",
     "zip": "node zip.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@babel/core": "^7.20.2",
-    "@babel/preset-env": "^7.20.2",
     "@mybricks/file-parser": "1.0.5",
     "@mybricks/render-com-node": "^1.0.0",
     "@mybricks/rocker-dao": "0.0.5",
@@ -40,6 +38,8 @@
     "vm2": "^3.9.11"
   },
   "devDependencies": {
+    "@babel/core": "^7.20.2",
+    "@babel/preset-env": "^7.20.2",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^16.0.0",
     "jszip": "^3.10.1",
