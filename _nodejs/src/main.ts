@@ -21,7 +21,15 @@ async function bootstrap() {
   enhanceApp(app, {
     appNamespaceList: loadedModule.namespace,
   });
-  app.enableCors();
+  app.enableCors({
+    origin: function (origin, callback) {
+      callback(null, true);
+    },
+    allowedHeaders:
+      "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
+    methods: "GET,PUT,POST,DELETE,UPDATE,OPTIONS",
+    credentials: true,
+  });
   app.use(
     proxyMiddleWare({
       prefixList: loadedModule.namespace,
