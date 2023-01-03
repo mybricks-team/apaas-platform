@@ -4,6 +4,7 @@ import * as path from "path";
 import FileDao from "../dao/FileDao";
 import FilePubDao from "../dao/filePub.dao";
 import { uuid } from "../utils/index";
+import { getConnection } from "@mybricks/rocker-dao";
 var EventEmitter2 = require("eventemitter2");
 
 @Controller("/paas/api")
@@ -78,6 +79,26 @@ export default class SystemService {
     });
   }
 
+  async execSQL(sql: string, args?: any) {
+    const conn = await getConnection();
+    let param = {
+      sql,
+      timeout: 10 * 1000,
+    };
+    if (args) {
+      param["values"] = args;
+    }
+    return new Promise((resolve, reject) => {
+      conn.query(param, args, function (error, results, fields) {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(results);
+      });
+    });
+  }
+
   @Post("/system/task/run")
   async systemTaskRun(
     @Body("fileId") fileId: string,
@@ -105,5 +126,28 @@ export default class SystemService {
     `;
     const execRes = await this.exec(str, { taskId });
     return execRes;
+  }
+
+  @Post("/system/domain/execSql")
+  async execSql(
+    @Body("sql") sql: string,
+    @Body("param") param: string,
+  ) {
+    if(!sql) {
+      return {
+        code: -1,
+        msg: 'sql字段不能为空'
+      }
+    }
+    let execRes = {}
+    try {
+      execRes = await this.execSQL(sql, param ?? []);
+    } catch(e) {
+      console.log(`[/system/domain/execSql]: 出错 ${JSON.stringify(e)}`)
+    }
+    return {
+      code: 1,
+      data: execRes
+    };
   }
 }

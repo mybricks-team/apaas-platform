@@ -19,7 +19,7 @@
   "dependencies": {
     "@mybricks/file-parser": "1.0.5",
     "@mybricks/render-com-node": "^1.0.0",
-    "@mybricks/rocker-dao": "0.0.5",
+    "@mybricks/rocker-dao": "0.0.7",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
