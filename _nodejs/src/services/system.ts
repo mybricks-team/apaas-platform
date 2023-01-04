@@ -51,6 +51,9 @@ export default class SystemService {
             },
           };
         },
+        Util: {
+          execSQL: this.execSQL
+        }
       },
       require: {
         external: true,
@@ -62,7 +65,6 @@ export default class SystemService {
   async exec(codeContent: string, { taskId }: { taskId: string }) {
     return new Promise((resolve, reject) => {
       try {
-        // console.log(codeContent);
         // @ts-ignore
         this.sandbox.run(codeContent, path.join(process.cwd(), "node_modules"));
         // @ts-ignore
@@ -185,7 +187,7 @@ export default class SystemService {
       let codeStr = '';
       contentObj?.sqlAry?.forEach(service => {
         if(service.id === serviceId) {
-          codeStr = contentObj.code;
+          codeStr = service.code;
         }
       })
       if(codeStr) {
@@ -194,11 +196,19 @@ export default class SystemService {
           ;const _EXEC_ID_ = '${taskId}';
           ;const hooks = Hooks(_EXEC_ID_);
           ;const logger = Logger(_EXEC_ID_);
-          ;const PARAMS = ${param};
+          ;const PARAMS = ${JSON.stringify(param)};
           ;${codeStr};
         `;
-        const execRes = await this.exec(str, { taskId });
-        return execRes;
+        let execRes = null
+        try {
+          execRes = await this.exec(str, { taskId });
+        } catch(e) {
+          console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`)
+        }
+        return {
+          code: 1,
+          data: execRes
+        };
       } else {
         return {
           code: -1,

@@ -11,6 +11,7 @@
     "stop": "npx pm2 stop index.js",
     "installApplication": "node installApplication.js",
     "start:dev": "node index.js",
+    "start:watch": "NODE_ENV=development nodemon --ext js,ts --exec 'node index.js'",
     "publishToNpm": "npm publish --registry=https://registry.npmjs.org",
     "zip": "node zip.js"
   },
