@@ -3,7 +3,6 @@ const fs = require('fs-extra');
 const path = require('path')
 const parse5 = require('parse5');
 const mysql = require('mysql2');
-const config = require('config')
 
 let MYSQL_CONNECTION = null
 const APPS_BASE_FOLDER = path.join(process.cwd(), `../_apps`);
@@ -186,12 +185,13 @@ async function installApplication() {
 
 function prepareEnv() {
   if(!MYSQL_CONNECTION) {
+    const dbConfig = require("./config/default.json");
     MYSQL_CONNECTION = mysql.createConnection({
-      host: config.get("database.host"),
-      user: config.get("database.user"),
-      database: config.get("database.database"),
-      password: config.get("database.password"),
-      port: config.get("database.port")
+      host: dbConfig.database.host,
+      user: dbConfig.database.user,
+      database: dbConfig.database.database,
+      password: dbConfig.database.password,
+      port: dbConfig.database.port
     });
     console.log(`【install】: 可执行环境准备完毕 `)
   }

@@ -15,6 +15,10 @@
     {
       "type": "npm",
       "path": "mybricks-app-workflow@0.0.19"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-domain@0.0.1"
     }
   ]
 }

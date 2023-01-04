@@ -27,7 +27,7 @@ export const proxyMiddleWare = (query: { prefixList: string[] }) => {
     appRegs.forEach((reg) => {
       if (reg.test(handleUrl)) {
         jumpPaas = true;
-        handleUrl = handleUrl.replace(reg, "/paas/");
+        handleUrl = handleUrl.replace(reg, "/");
       }
     });
     if (!jumpPaas) {
