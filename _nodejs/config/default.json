@@ -3,7 +3,7 @@
     "dbType": "MYSQL",
     "host": "localhost",
     "user": "mybricks",
-    "password": "GN2eyX6Ntb2AjTmj",
+    "password": "C6TzXt44AeZDKp3M",
     "port": 3306,
     "database": "mybricks",
     "sqlPath": "."
