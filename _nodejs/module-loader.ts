@@ -34,6 +34,7 @@ const scanDir = (dirFullPath: string) => {
 export function loadModule() {
   let modules = [];
   let namespace = [];
+  const namespaceMap: any = {}
   const appDir = path.join(process.cwd(), "../_apps");
   if (fs.existsSync(appDir)) {
     const folders = fs.readdirSync(appDir);
@@ -46,6 +47,9 @@ export function loadModule() {
         const appFullPath = path.join(appDir, childPath);
         const data = scanDir(appFullPath);
         modules = modules.concat(data.modules);
+        namespaceMap[data?.namespace?.[0]] = {
+          hasService: data.modules?.length !== 0
+        }
         namespace = namespace.concat(data.namespace);
       }
     }
@@ -53,5 +57,6 @@ export function loadModule() {
   return {
     modules,
     namespace,
+    namespaceMap
   };
 }

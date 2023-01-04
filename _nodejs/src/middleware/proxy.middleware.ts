@@ -12,11 +12,16 @@ const PAAS_PREFIX = [
   "/api/workspace/",
 ];
 
-export const proxyMiddleWare = (query: { prefixList: string[] }) => {
+export const proxyMiddleWare = (query: { namespaceMap: any }) => {
   const appRegs = [];
   const paasRegs = [];
-  query?.prefixList?.forEach((prefix) => {
-    appRegs.push(new RegExp(`^/${prefix}/`));
+  const prefixList = Object.keys(query?.namespaceMap)
+  // console.log('@@@@@@', query.namespaceMap)
+  prefixList?.forEach((prefix) => {
+    appRegs.push({
+      reg: new RegExp(`^/${prefix}/`),
+      namespace: prefix
+    });
   });
   PAAS_PREFIX?.forEach((prefix) => {
     paasRegs.push(new RegExp(`^${prefix}`));
@@ -24,10 +29,19 @@ export const proxyMiddleWare = (query: { prefixList: string[] }) => {
   return (req: Request, res: Response, next: NextFunction) => {
     let handleUrl = req.url;
     let jumpPaas = false;
-    appRegs.forEach((reg) => {
+    appRegs.forEach(({reg, namespace}) => {
       if (reg.test(handleUrl)) {
         jumpPaas = true;
-        handleUrl = handleUrl.replace(reg, "/");
+        // if(query?.namespaceMap?.[namespace]?.hasService) {
+        //   handleUrl = handleUrl.replace(reg, "/");
+        // } else {
+        //   handleUrl = handleUrl.replace(reg, "/paas/");
+        // }
+        if(handleUrl.indexOf('api/domain') !== -1) {
+          handleUrl = handleUrl.replace(reg, "/");
+        } else {
+          handleUrl = handleUrl.replace(reg, "/paas/");
+        }
       }
     });
     if (!jumpPaas) {

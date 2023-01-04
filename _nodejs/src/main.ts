@@ -32,7 +32,7 @@ async function bootstrap() {
   });
   app.use(
     proxyMiddleWare({
-      prefixList: loadedModule.namespace,
+      namespaceMap: loadedModule.namespaceMap,
     })
   );
   app.use(bodyParser.json({ limit: "100mb" }));
