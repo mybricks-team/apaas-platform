@@ -12,11 +12,15 @@ const PAAS_PREFIX = [
   "/api/workspace/",
 ];
 
+/*
+  /mybricks-domain/api/domain/publish
+  /mybricks-pc-page/api/config/get
+  /mybricks-pc-page/paas/api/config/get
+*/
 export const proxyMiddleWare = (query: { namespaceMap: any }) => {
   const appRegs = [];
   const paasRegs = [];
   const prefixList = Object.keys(query?.namespaceMap)
-  // console.log('@@@@@@', query.namespaceMap)
   prefixList?.forEach((prefix) => {
     appRegs.push({
       reg: new RegExp(`^/${prefix}/`),
@@ -32,15 +36,28 @@ export const proxyMiddleWare = (query: { namespaceMap: any }) => {
     appRegs.forEach(({reg, namespace}) => {
       if (reg.test(handleUrl)) {
         jumpPaas = true;
-        // if(query?.namespaceMap?.[namespace]?.hasService) {
-        //   handleUrl = handleUrl.replace(reg, "/");
-        // } else {
-        //   handleUrl = handleUrl.replace(reg, "/paas/");
-        // }
-        if(handleUrl.indexOf('api/domain') !== -1) {
-          handleUrl = handleUrl.replace(reg, "/");
+        if(query?.namespaceMap?.[namespace]?.hasService) {
+          let isPaaSInterface = false
+          PAAS_PREFIX.forEach(i => {
+            if(handleUrl.indexOf(i) !== -1) {
+              isPaaSInterface = true
+            }
+          })
+          if(isPaaSInterface) {
+            if(handleUrl.indexOf('/paas/') !== -1) {
+              handleUrl = handleUrl.replace(reg, "/");
+            } else {
+              handleUrl = handleUrl.replace(reg, "/paas/");
+            }
+          } else {
+            handleUrl = handleUrl.replace(reg, "/");
+          }
         } else {
-          handleUrl = handleUrl.replace(reg, "/paas/");
+          if(handleUrl.indexOf('/paas/') !== -1) {
+            handleUrl = handleUrl.replace(reg, "/");
+          } else {
+            handleUrl = handleUrl.replace(reg, "/paas/");
+          }
         }
       }
     });
