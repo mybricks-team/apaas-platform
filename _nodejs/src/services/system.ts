@@ -167,6 +167,47 @@ export default class SystemService {
     }
   }
 
+  @Post("/system/domain/run")
+  async systemDomainRun(
+    @Body("fileId") fileId: string,
+    @Body("serviceId") serviceId: string,
+    @Body("param") param: any
+  ) {
+    if(!fileId || !serviceId) {
+      return {
+        code: -1,
+        msg: '缺少 fileId 或 serviceId'
+      }
+    }
+    const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(+fileId, 'prod');
+    if(pubInfo?.content) {
+      const contentObj = JSON.parse(pubInfo?.content)
+      let codeStr = '';
+      contentObj?.sqlAry?.forEach(service => {
+        if(service.id === serviceId) {
+          codeStr = contentObj.code;
+        }
+      })
+      if(codeStr) {
+        const taskId = uuid(10);
+        const str = `
+          ;const _EXEC_ID_ = '${taskId}';
+          ;const hooks = Hooks(_EXEC_ID_);
+          ;const logger = Logger(_EXEC_ID_);
+          ;const PARAMS = ${param};
+          ;${codeStr};
+        `;
+        const execRes = await this.exec(str, { taskId });
+        return execRes;
+      } else {
+        return {
+          code: -1,
+          msg: `未找到 ${fileId} 下的服务 ${serviceId}, 请确认！`
+        }
+      }
+    }
+  }
+
   @Post("/system/domain/execSql")
   async execSql(
     @Body("sql") sql: string,

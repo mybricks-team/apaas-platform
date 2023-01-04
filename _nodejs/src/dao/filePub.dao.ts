@@ -95,6 +95,7 @@ export default class FilePubDao extends DOBase {
     }
   }
 
+  @Mapping(FilePublishDO)
   async getLatestPubByFileId(fileId: number, type?: string) {
     return await this.exe<{ id: number; file_id: number; version: string }[]>(
       "apaas_file_pub:getLatestPubByFileId",
@@ -135,7 +136,7 @@ export default class FilePubDao extends DOBase {
     );
     return res ? res[0] : null;
   }
-  
+
   @Mapping(FilePublishDO)
   async getLatestPubByIds(params: {
     ids: number[], envType: string
