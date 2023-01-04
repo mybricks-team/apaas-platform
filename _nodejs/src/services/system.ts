@@ -128,10 +128,49 @@ export default class SystemService {
     return execRes;
   }
 
+
+  @Post("/system/domain/list")
+  async getDomainServiceList() {
+    const domainFiles = await this.fileDao.query({
+      extName: 'domain'
+    })
+    const fileInfoMap = {}
+    domainFiles?.map(f => {
+      fileInfoMap[f.id] = f
+    })
+    const fileIds: any[] = Object.keys(fileInfoMap) || [];
+    const pubContentList = await this.filePubDao.getLatestPubByIds({
+      ids: fileIds,
+      envType: 'prod'
+    })
+    let totalList = []
+    pubContentList?.forEach(pubContent => {
+      const contentObj = JSON.parse(pubContent.content)
+      if(contentObj?.sqlAry) {
+        let service = {
+          fileId: pubContent.fileId,
+          fileName: fileInfoMap[pubContent.fileId]?.name,
+          serviceList: []
+        }
+        contentObj?.sqlAry?.forEach(s => {
+          service.serviceList.push({
+            serviceId: s.id,
+            title: s.title
+          })
+        })
+        totalList.push(service)
+      }
+    })
+    return {
+      code: 1,
+      data: totalList
+    }
+  }
+
   @Post("/system/domain/execSql")
   async execSql(
     @Body("sql") sql: string,
-    @Body("param") param: string,
+    @Body("params") params: any[],
   ) {
     if(!sql) {
       return {
@@ -141,7 +180,7 @@ export default class SystemService {
     }
     let execRes = {}
     try {
-      execRes = await this.execSQL(sql, param ?? []);
+      execRes = await this.execSQL(sql, params ?? []);
     } catch(e) {
       console.log(`[/system/domain/execSql]: 出错 ${JSON.stringify(e)}`)
     }

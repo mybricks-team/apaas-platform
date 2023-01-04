@@ -135,4 +135,15 @@
         select * from apaas_file_pub
         where file_id = #{fileId} and version = #{version}
     </select>
+
+    <select id="getLatestPubByIds">
+        select * from apaas_file_pub
+        where type = #{envType}
+        <if test="ids">
+            and file_id in
+            <foreach collection="ids" open="(" close=")" separator="," item="id" index="i">
+                #{id}
+            </foreach>
+        </if>
+    </select>
 </mapper>

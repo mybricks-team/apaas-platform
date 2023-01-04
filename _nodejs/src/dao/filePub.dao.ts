@@ -135,4 +135,18 @@ export default class FilePubDao extends DOBase {
     );
     return res ? res[0] : null;
   }
+  
+  @Mapping(FilePublishDO)
+  async getLatestPubByIds(params: {
+    ids: number[], envType: string
+  }) {
+    let envType = 'prod'
+    if(params.envType) {
+      envType = params.envType
+    }
+    return await this.exe<any>(
+      "apaas_file_pub:getLatestPubByIds",
+      { ids: params.ids, envType }
+    );
+  }
 }
