@@ -93,6 +93,7 @@ export default class SystemService {
     return new Promise((resolve, reject) => {
       conn.query(param, args, function (error, results, fields) {
         if (error) {
+          console.log(error)
           reject(error);
           return;
         }
@@ -133,39 +134,47 @@ export default class SystemService {
 
   @Post("/system/domain/list")
   async getDomainServiceList() {
-    const domainFiles = await this.fileDao.query({
-      extName: 'domain'
-    })
-    const fileInfoMap = {}
-    domainFiles?.map(f => {
-      fileInfoMap[f.id] = f
-    })
-    const fileIds: any[] = Object.keys(fileInfoMap) || [];
-    const pubContentList = await this.filePubDao.getLatestPubByIds({
-      ids: fileIds,
-      envType: 'prod'
-    })
-    let totalList = []
-    pubContentList?.forEach(pubContent => {
-      const contentObj = JSON.parse(pubContent.content)
-      if(contentObj?.sqlAry) {
-        let service = {
-          fileId: pubContent.fileId,
-          fileName: fileInfoMap[pubContent.fileId]?.name,
-          serviceList: []
-        }
-        contentObj?.sqlAry?.forEach(s => {
-          service.serviceList.push({
-            serviceId: s.id,
-            title: s.title
+    try {
+      let totalList = []
+      const domainFiles = await this.fileDao.query({
+        extName: 'domain'
+      })
+      const fileInfoMap = {}
+      domainFiles?.map(f => {
+        fileInfoMap[f.id] = f
+      })
+      const fileIds: any[] = Object.keys(fileInfoMap) || [];
+      const pubContentList = await this.filePubDao.getLatestPubByIds({
+        ids: fileIds,
+        envType: 'prod'
+      })
+      pubContentList?.forEach(pubContent => {
+        const contentObj = typeof pubContent.content === 'string' ? JSON.parse(pubContent.content) : pubContent.content
+        if(contentObj?.sqlAry) {
+          let service = {
+            fileId: pubContent.fileId,
+            fileName: fileInfoMap[pubContent.fileId]?.name,
+            serviceList: []
+          }
+          contentObj?.sqlAry?.forEach(s => {
+            service.serviceList.push({
+              serviceId: s.id,
+              title: s.title
+            })
           })
-        })
-        totalList.push(service)
+          totalList.push(service)
+        }
+      })
+      return {
+        code: 1,
+        data: totalList
       }
-    })
-    return {
-      code: 1,
-      data: totalList
+    } catch(e) {
+      return {
+        code: -1,
+        data: [],
+        msg: `获取接口列表失败: ${JSON.stringify(e)}`
+      }
     }
   }
 
@@ -187,7 +196,7 @@ export default class SystemService {
       let codeStr = '';
       contentObj?.sqlAry?.forEach(service => {
         if(service.id === serviceId) {
-          codeStr = service.code;
+          codeStr = decodeURIComponent(service.code)
         }
       })
       if(codeStr) {
