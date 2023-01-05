@@ -51,8 +51,23 @@ export default class SystemService {
             },
           };
         },
-        Util: {
-          execSQL: this._execSQL
+        UTIL: (taskId) => {
+          return {
+            execSQL: async (sql, args) => {
+              try {
+                console.log('开始执行沙箱内sql')
+                await this._execSQL(sql, args)
+                console.log('执行沙箱内sql成功')
+              } catch (error) {
+                console.log('执行沙箱内sql出错', error)
+                // @ts-ignore
+                this.eventBus.emit(`TASK_ERROR_${taskId}`, {
+                  taskId,
+                  data: error,
+                });
+              }
+            }
+          }
         }
       },
       require: {
@@ -68,6 +83,14 @@ export default class SystemService {
         // @ts-ignore
         this.eventBus.on(`TASK_DONE_${taskId}`, (data) => {
           resolve(data.data);
+        });
+        // @ts-ignore
+        this.eventBus.on(`TASK_ERROR_${taskId}`, (data) => {
+          console.log('监测到业务出错', data)
+          reject({
+            code: -1,
+            msg: data.data,
+          });
         });
         // @ts-ignore
         this.sandbox.run(codeContent, path.join(process.cwd(), "node_modules"));
@@ -100,7 +123,7 @@ export default class SystemService {
         console.log(`[${tdId}]: Transaction start`);
         conn.query(param, args, function (error, results, fields) {
           if (error) {
-            console.log(error)
+            console.log('执行业务SQL失败：', error)
             conn.rollback(function() {
               console.log(`[${tdId}]: Transaction rollback`);
             });
@@ -148,8 +171,19 @@ export default class SystemService {
       ;const PARAMS = ${injectParam};
       ;${codeStr};
     `;
-    const execRes = await this.exec(str, { taskId });
-    return execRes;
+    let res = {
+      code: 1,
+      data: null,
+      msg: ''
+    }
+    try {
+      res.data = await this.exec(str, { taskId })
+    } catch(e) {
+      console.log(`[/system/task/run]: 出错 ${JSON.stringify(e)}`)
+      res.code = -1;
+      res.msg = JSON.stringify(e.msg);
+    }
+    return res
   }
 
   @Post("/system/domain/list")
@@ -227,18 +261,22 @@ export default class SystemService {
           ;const hooks = Hooks(_EXEC_ID_);
           ;const logger = Logger(_EXEC_ID_);
           ;const PARAMS = ${JSON.stringify(params || {})};
+          ;const Util = UTIL(_EXEC_ID_);
           ;${codeStr};
         `;
-        let execRes = null
+        let res = {
+          code: 1,
+          data: null,
+          msg: ''
+        }
         try {
-          execRes = await this.exec(str, { taskId });
+          res.data = await this.exec(str, { taskId })
         } catch(e) {
           console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`)
+          res.code = -1;
+          res.msg = JSON.stringify(e.msg);
         }
-        return {
-          code: 1,
-          data: execRes
-        };
+        return res
       } else {
         return {
           code: -1,
@@ -277,7 +315,6 @@ export default class SystemService {
     
   }
 
-  
   @Post("/system/sandbox/testRun")
   async testRun(
     @Body("code") code: string,
