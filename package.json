@@ -1,14 +1,25 @@
 {
-  "name": "@mybricks/apaas",
-  "version": "1.1.75",
+  "name": "@mybricks/apaas-platform",
+  "version": "0.0.1",
   "description": "",
   "scripts": {
     "build": "cd fe && npm install && npm run build",
-    "zip": "npm run build && node ./_nodejs/zip.js"
+    "zip": "npm run build && node ./_nodejs/zip.js",
+    "zip:upgrade": "npm run build && node ./_nodejs/zipUpgrade.js",
+    "publishToNpm": "npm run zip:upgrade"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:mybricks-team/official-website.git"
+  },
+  "files": [
+    "assets",
+    "README.md",
+    "package.json"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "author": "MyBricks Team",
   "license": "ISC"

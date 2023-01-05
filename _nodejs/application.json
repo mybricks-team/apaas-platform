@@ -20,5 +20,9 @@
       "type": "npm",
       "path": "mybricks-domain@0.0.1"
     }
-  ]
+  ],
+  "platform": {
+    "type": "npm",
+    "path": "@mybricks/apaas-platform@0.0.1"
+  }
 }
