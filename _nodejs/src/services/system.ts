@@ -52,7 +52,7 @@ export default class SystemService {
           };
         },
         Util: {
-          execSQL: this.execSQL
+          execSQL: this._execSQL
         }
       },
       require: {
@@ -81,7 +81,7 @@ export default class SystemService {
     });
   }
 
-  async execSQL(sql: string, args?: any) {
+  async _execSQL(sql: string, args?: any) {
     const conn = await getConnection();
     let param = {
       sql,
@@ -91,14 +91,35 @@ export default class SystemService {
       param["values"] = args;
     }
     return new Promise((resolve, reject) => {
-      conn.query(param, args, function (error, results, fields) {
-        if (error) {
-          console.log(error)
-          reject(error);
-          return;
+      let tdId = conn.threadId;
+      conn.beginTransaction(function(_e) {
+        if (_e) {
+          console.log(`[${tdId}]: Transaction failed`);
+          reject(_e);
         }
-        resolve(results);
+        console.log(`[${tdId}]: Transaction start`);
+        conn.query(param, args, function (error, results, fields) {
+          if (error) {
+            console.log(error)
+            conn.rollback(function() {
+              console.log(`[${tdId}]: Transaction rollback`);
+            });
+            reject(error);
+          }
+          conn.commit(function(err) {
+            if (err) {
+              console.log(err)
+              conn.rollback(function() {
+                console.log(`[${tdId}]: Transaction rollback`);
+              });
+              reject(err)
+            }
+          });
+          console.log(`[${tdId}]: Transaction succeed`);
+          resolve(results);
+        });
       });
+
     });
   }
 
@@ -240,14 +261,20 @@ export default class SystemService {
     }
     let execRes = {}
     try {
-      execRes = await this.execSQL(sql, params ?? []);
+      execRes = await this._execSQL(sql, params ?? []);
+      return {
+        code: 1,
+        data: execRes,
+        msg: ''
+      };
     } catch(e) {
       console.log(`[/system/domain/execSql]: 出错 ${JSON.stringify(e)}`)
+      return {
+        code: -1,
+        msg: JSON.stringify(e)
+      };
     }
-    return {
-      code: 1,
-      data: execRes
-    };
+    
   }
 
   
