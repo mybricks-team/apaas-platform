@@ -66,11 +66,11 @@ export default class SystemService {
     return new Promise((resolve, reject) => {
       try {
         // @ts-ignore
-        this.sandbox.run(codeContent, path.join(process.cwd(), "node_modules"));
-        // @ts-ignore
         this.eventBus.on(`TASK_DONE_${taskId}`, (data) => {
           resolve(data.data);
         });
+        // @ts-ignore
+        this.sandbox.run(codeContent, path.join(process.cwd(), "node_modules"));
       } catch (e) {
         console.log(e);
         reject({
