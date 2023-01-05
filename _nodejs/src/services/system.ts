@@ -152,7 +152,6 @@ export default class SystemService {
     return execRes;
   }
 
-
   @Post("/system/domain/list")
   async getDomainServiceList() {
     try {
@@ -180,7 +179,8 @@ export default class SystemService {
           contentObj?.sqlAry?.forEach(s => {
             service.serviceList.push({
               serviceId: s.id,
-              title: s.title
+              title: s.title,
+              paramAry: s.paramAry
             })
           })
           totalList.push(service)
