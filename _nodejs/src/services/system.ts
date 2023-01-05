@@ -205,7 +205,7 @@ export default class SystemService {
           ;const _EXEC_ID_ = '${taskId}';
           ;const hooks = Hooks(_EXEC_ID_);
           ;const logger = Logger(_EXEC_ID_);
-          ;const PARAMS = ${JSON.stringify(param)};
+          ;const PARAMS = ${JSON.stringify(param || {})};
           ;${codeStr};
         `;
         let execRes = null
