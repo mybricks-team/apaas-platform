@@ -182,7 +182,7 @@ export default class SystemService {
   async systemDomainRun(
     @Body("fileId") fileId: string,
     @Body("serviceId") serviceId: string,
-    @Body("param") param: any
+    @Body("params") params: any
   ) {
     if(!fileId || !serviceId) {
       return {
@@ -205,7 +205,7 @@ export default class SystemService {
           ;const _EXEC_ID_ = '${taskId}';
           ;const hooks = Hooks(_EXEC_ID_);
           ;const logger = Logger(_EXEC_ID_);
-          ;const PARAMS = ${JSON.stringify(param || {})};
+          ;const PARAMS = ${JSON.stringify(params || {})};
           ;${codeStr};
         `;
         let execRes = null
