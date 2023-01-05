@@ -249,4 +249,37 @@ export default class SystemService {
       data: execRes
     };
   }
+
+  
+  @Post("/system/sandbox/testRun")
+  async testRun(
+    @Body("code") code: string,
+    @Body("params") params: any
+  ) {
+    if(!code) {
+      return {
+        code: -1,
+        msg: '缺少 code'
+      }
+    }
+    const taskId = uuid(10);
+    const str = `
+      ;const _EXEC_ID_ = '${taskId}';
+      ;const hooks = Hooks(_EXEC_ID_);
+      ;const WORK_FLOW_INFO = ${JSON.stringify({})};
+      ;const logger = Logger(_EXEC_ID_);
+      ;const PARAMS = ${JSON.stringify(params || {})};
+      ;${code};
+    `;
+    let execRes = null
+    try {
+      execRes = await this.exec(str, { taskId });
+    } catch(e) {
+      console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`)
+    }
+    return {
+      code: 1,
+      data: execRes
+    };
+  }
 }
