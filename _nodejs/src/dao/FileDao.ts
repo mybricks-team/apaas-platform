@@ -104,6 +104,19 @@ export class FileDO {
 }
 
 export default class FileDao extends DOBase {
+
+  @Mapping(FileDO)
+  public async pureQuery(query?: {
+    id?: number
+    extName?: string
+  }): Promise<Array<FileDO>> {
+    query = Object.assign({}, query)
+
+    return await this.exe<Array<FileDO>>("apaas_file:query", {
+      ...query
+    });
+  }
+
   @Mapping(FileDO)
   public async query(query?: {
     id?: number

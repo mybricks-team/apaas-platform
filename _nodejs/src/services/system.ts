@@ -190,7 +190,7 @@ export default class SystemService {
   async getDomainServiceList() {
     try {
       let totalList = []
-      const domainFiles = await this.fileDao.query({
+      const domainFiles = await this.fileDao.pureQuery({
         extName: 'domain'
       })
       const fileInfoMap = {}
@@ -198,6 +198,7 @@ export default class SystemService {
         fileInfoMap[f.id] = f
       })
       const fileIds: any[] = Object.keys(fileInfoMap) || [];
+      console.log('!!!', fileIds)
       const pubContentList = await this.filePubDao.getLatestPubByIds({
         ids: fileIds,
         envType: 'prod'
