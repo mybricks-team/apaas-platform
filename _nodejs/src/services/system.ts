@@ -15,6 +15,8 @@ export default class SystemService {
   @Inject(FilePubDao)
   filePubDao: FilePubDao;
 
+  conn: any;
+
   constructor() {
     // @ts-ignore
     this.eventBus = new EventEmitter2({
@@ -54,10 +56,12 @@ export default class SystemService {
         UTIL: (taskId) => {
           return {
             execSQL: async (sql, args) => {
+              let res = null
               try {
                 console.log('开始执行沙箱内sql')
-                await this._execSQL(sql, args)
+                res = await this._execSQL(sql, args)
                 console.log('执行沙箱内sql成功')
+                return res
               } catch (error) {
                 console.log('执行沙箱内sql出错', error)
                 // @ts-ignore
@@ -75,6 +79,7 @@ export default class SystemService {
         root: "./",
       },
     });
+    this.conn = null;
   }
 
   async exec(codeContent: string, { taskId }: { taskId: string }) {
@@ -105,7 +110,10 @@ export default class SystemService {
   }
 
   async _execSQL(sql: string, args?: any) {
-    const conn = await getConnection();
+    if(!this.conn) {
+      this.conn = await getConnection();
+    }
+    const conn = this.conn
     let param = {
       sql,
       timeout: 10 * 1000,
