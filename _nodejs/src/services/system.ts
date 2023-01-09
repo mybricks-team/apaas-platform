@@ -114,8 +114,11 @@ export default class SystemService {
       this.conn = await getConnection();
     }
     const conn = this.conn
+    const handledSql = sql?.replace(new RegExp('(?:\n|\t|\r)', 'ig'), ($0, $1) => {
+      return ' '
+    })
     let param = {
-      sql,
+      sql: handledSql,
       timeout: 10 * 1000,
     };
     if (args) {
@@ -278,6 +281,7 @@ export default class SystemService {
           data: null,
           msg: ''
         }
+        console.log('!!!!!', str)
         try {
           res.data = await this.exec(str, { taskId })
         } catch(e) {
