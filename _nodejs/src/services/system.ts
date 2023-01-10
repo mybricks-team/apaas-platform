@@ -215,13 +215,13 @@ export default class SystemService {
       })
       pubContentList?.forEach(pubContent => {
         const contentObj = typeof pubContent.content === 'string' ? JSON.parse(pubContent.content) : pubContent.content
-        if(contentObj?.sqlAry) {
+        if(contentObj?.serviceAry) {
           let service = {
             fileId: pubContent.fileId,
             fileName: fileInfoMap[pubContent.fileId]?.name,
             serviceList: []
           }
-          contentObj?.sqlAry?.forEach(s => {
+          contentObj?.serviceAry?.forEach(s => {
             service.serviceList.push({
               serviceId: s.id,
               title: s.title,
@@ -260,7 +260,7 @@ export default class SystemService {
     if(pubInfo?.content) {
       const contentObj = JSON.parse(pubInfo?.content)
       let codeStr = '';
-      contentObj?.sqlAry?.forEach(service => {
+      contentObj?.serviceAry?.forEach(service => {
         if(service.id === serviceId) {
           codeStr = decodeURIComponent(service.code)
         }
