@@ -17,8 +17,9 @@ export default class SystemService {
 
   conn: any;
 
+  eventBus: any;
+
   constructor() {
-    // @ts-ignore
     this.eventBus = new EventEmitter2({
       wildcard: false,
       delimiter: ".",
@@ -28,76 +29,77 @@ export default class SystemService {
       verboseMemoryLeak: false,
       ignoreErrors: false,
     });
-    // @ts-ignore
-    this.sandbox = new NodeVM({
-      console: "off",
-      sandbox: {
-        Logger: (taskId) => {
-          return console;
-        },
-        Hooks: (taskId) => {
-          return {
-            onFinished: (data: { code: number; msg: string }) => {
-              // @ts-ignore
-              this.eventBus.emit(`TASK_DONE_${taskId}`, {
-                taskId,
-                data,
-              });
-            },
-          };
-        },
-        UTIL: (taskId) => {
-          return {
-            execSQL: async (sql, args) => {
-              let res = null
-              try {
-                console.log('开始执行沙箱内sql')
-                res = await this._execSQL(sql, args)
-                console.log('执行沙箱内sql成功')
-                return res
-              } catch (error) {
-                console.log('执行沙箱内sql出错', error)
-                // @ts-ignore
-                this.eventBus.emit(`TASK_ERROR_${taskId}`, {
-                  taskId,
-                  data: error,
-                });
-              }
-            }
-          }
-        }
-      },
-      require: {
-        external: true,
-        root: "./",
-      },
-    });
     this.conn = null;
   }
 
-  async exec(codeContent: string, { taskId }: { taskId: string }) {
+  async exec(codeContent: string, { taskId }: { taskId: string }): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
         // @ts-ignore
         this.eventBus.on(`TASK_DONE_${taskId}`, (data) => {
-          resolve(data.data);
+          resolve({
+            success: true,
+            data: data.data
+          });
         });
         // @ts-ignore
         this.eventBus.on(`TASK_ERROR_${taskId}`, (data) => {
           console.log('监测到业务出错', data)
-          reject({
-            code: -1,
+          resolve({
+            success: false,
             msg: data.data,
           });
         });
         // @ts-ignore
-        this.sandbox.run(codeContent, path.join(process.cwd(), "node_modules"));
-      } catch (e) {
-        console.log(e);
-        reject({
-          code: -1,
-          msg: JSON.stringify(e),
+        const sandbox = new NodeVM({
+          console: "off",
+          sandbox: {
+            Logger: (taskId) => {
+              return console;
+            },
+            Hooks: (taskId) => {
+              return {
+                onFinished: (data: { code: number; msg: string }) => {
+                  // @ts-ignore
+                  this.eventBus.emit(`TASK_DONE_${taskId}`, {
+                    taskId,
+                    data,
+                  });
+                },
+              };
+            },
+            UTIL: (taskId) => {
+              return {
+                execSQL: async (sql, args) => {
+                  let res = null
+                  try {
+                    console.log('开始执行沙箱内sql')
+                    res = await this._execSQL(sql, args)
+                    console.log('执行沙箱内sql成功')
+                    return res
+                  } catch (error) {
+                    console.log('执行沙箱内sql出错', error)
+                    // @ts-ignore
+                    this.eventBus.emit(`TASK_ERROR_${taskId}`, {
+                      taskId,
+                      data: error,
+                    });
+                  }
+                }
+              }
+            }
+          },
+          require: {
+            external: true,
+            root: "./",
+          },
         });
+        sandbox.run(codeContent, path.join(process.cwd(), "node_modules"));
+      } catch (e) {
+        resolve({
+          success: false,
+          msg: e.toString(),
+        })
       }
     });
   }
@@ -181,7 +183,12 @@ export default class SystemService {
       msg: ''
     }
     try {
-      res.data = await this.exec(str, { taskId })
+      const {success, data, msg} = await this.exec(str, { taskId })
+      res = {
+        code: success ? 1 : -1,
+        data,
+        msg
+      }
     } catch(e) {
       console.log(`[/system/task/run]: 出错 ${JSON.stringify(e)}`)
       res.code = -1;
@@ -202,7 +209,6 @@ export default class SystemService {
         fileInfoMap[f.id] = f
       })
       const fileIds: any[] = Object.keys(fileInfoMap) || [];
-      console.log('!!!', fileIds)
       const pubContentList = await this.filePubDao.getLatestPubByIds({
         ids: fileIds,
         envType: 'prod'
@@ -274,9 +280,13 @@ export default class SystemService {
           data: null,
           msg: ''
         }
-        console.log('!!!!!', str)
         try {
-          res.data = await this.exec(str, { taskId })
+          const {success, data, msg} = await this.exec(str, { taskId })
+          res = {
+            code: success ? 1 : -1,
+            data,
+            msg
+          }
         } catch(e) {
           console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`)
           res.code = -1;
@@ -341,15 +351,25 @@ export default class SystemService {
       ;const PARAMS = ${JSON.stringify(params || {})};
       ;${code};
     `;
-    let execRes = null
+    let res: any = {
+      code: 1,
+      data: null,
+      msg: ''
+    }
     try {
-      execRes = await this.exec(str, { taskId });
+      const {success, data, msg} = await this.exec(str, { taskId })
+      res = {
+        code: success ? 1 : -1,
+        data,
+        msg
+      }
     } catch(e) {
       console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`)
+      res = {
+        code: -1,
+        msg: JSON.stringify(e)
+      }
     }
-    return {
-      code: 1,
-      data: execRes
-    };
+    return res;
   }
 }
