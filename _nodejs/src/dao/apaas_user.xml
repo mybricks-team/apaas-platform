@@ -19,6 +19,21 @@
         and status = #{status}
     </select>
 
+    <select id="queryByEmails">
+        select name, email 
+        from apaas_user
+        where status = #{status}
+        and email in 
+            <foreach collection="emails" open="(" close=")" separator="," item="email" index="i">
+                #{email}
+            </foreach>
+        order by field (email, 
+            <foreach collection="emails" open="" close="" separator="," item="email" index="i">
+                #{email}
+            </foreach>
+        )
+    </select>
+
     <insert id="insert">
         insert into apaas_user
         (

@@ -116,3 +116,5 @@ export function getNextVersion(version, max = 100) {
 
   return vAry.join(".");
 }
+
+export { isNumber } from './type'
