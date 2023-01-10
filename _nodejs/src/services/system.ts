@@ -33,14 +33,7 @@ export default class SystemService {
       console: "off",
       sandbox: {
         Logger: (taskId) => {
-          return {
-            log: async (...args) => {
-              console.log(...args);
-            },
-            error: async (...args) => {
-              console.log(...args);
-            },
-          };
+          return console;
         },
         Hooks: (taskId) => {
           return {
@@ -180,6 +173,10 @@ export default class SystemService {
       ;const hooks = Hooks(_EXEC_ID_);
       ;const logger = Logger(_EXEC_ID_);
       ;const PARAMS = ${injectParam};
+      ;process.on("unhandledRejection", (e) => {
+        console.info('[global error]: \n');
+        logger.log(e);
+      });
       ;${codeStr};
     `;
     let res = {
@@ -274,6 +271,10 @@ export default class SystemService {
           ;const logger = Logger(_EXEC_ID_);
           ;const PARAMS = ${JSON.stringify(params || {})};
           ;const Util = UTIL(_EXEC_ID_);
+          ;process.on("unhandledRejection", (e) => {
+            console.info('[global error]: \n');
+            logger.log(e);
+          });
           ;${codeStr};
         `;
         let res = {
@@ -346,6 +347,10 @@ export default class SystemService {
       ;const WORK_FLOW_INFO = ${JSON.stringify({})};
       ;const logger = Logger(_EXEC_ID_);
       ;const PARAMS = ${JSON.stringify(params || {})};
+      ;process.on("unhandledRejection", (e) => {
+        console.info('[global error]: \n');
+        logger.log(e);
+      });
       ;${code};
     `;
     let execRes = null
