@@ -349,6 +349,7 @@ export default class SystemService {
       ;const WORK_FLOW_INFO = ${JSON.stringify({})};
       ;const logger = Logger(_EXEC_ID_);
       ;const PARAMS = ${JSON.stringify(params || {})};
+      ;const Util = UTIL(_EXEC_ID_);
       ;${code};
     `;
     let res: any = {
