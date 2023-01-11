@@ -29,10 +29,7 @@
     "paths": {
       "@mybricks/designer-spa": [
         "../for-spa/src/index.tsx"
-      ],
-      "@mybricks/render-web": [
-        "../render-web/src/index.tsx"
-      ],
+      ]
     }
   },
   "exclude": [

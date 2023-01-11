@@ -23,7 +23,6 @@
     "@mybricks/designer": "^1.0.6",
     "@mybricks/designer-topl": "1.0.4",
     "@mybricks/plugin-connector-http": "^0.0.38",
-    "@mybricks/render-web": "^1.0.79",
     "@mybricks/rxui": "^1.0.86",
     "@mybricks/sdk-for-app": "0.0.19",
     "antd": "^4.23.6",
