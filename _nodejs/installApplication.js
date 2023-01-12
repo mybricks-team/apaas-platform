@@ -5,7 +5,9 @@ const parse5 = require('parse5');
 const mysql = require('mysql2');
 
 let MYSQL_CONNECTION = null
+const ENV = process.env.NODE_ENV;
 const APPS_BASE_FOLDER = path.join(process.cwd(), `../_apps`);
+const NPM_REGISTRY = 'https://registry.npm.taobao.org'
 
 function injectScript({ nameSpace }) {
   const placeholder = '_NAME_SPACE_'
@@ -117,24 +119,25 @@ async function installApplication() {
             }
           }
           console.log(`【install】: 应用 ${npmPkg} 正在加载中...`)
+          const tempFolder = destAppDir + '_temp';
           try{
-            if(!fs.existsSync(destAppDir)) {
-              fs.mkdirSync(destAppDir)
-              fs.writeFileSync(existedAppPkgPath, JSON.stringify({}), 'utf-8')
+            if(!fs.existsSync(tempFolder)) {
+              fs.mkdirSync(tempFolder)
+              fs.writeFileSync(tempFolder + '/package.json', JSON.stringify({}), 'utf-8')
             } else {
-              fs.removeSync(destAppDir)
-              fs.mkdirSync(destAppDir)
-              fs.writeFileSync(existedAppPkgPath, JSON.stringify({}), 'utf-8')
+              fs.removeSync(tempFolder)
+              fs.mkdirSync(tempFolder)
+              fs.writeFileSync(tempFolder + '/package.json', JSON.stringify({}), 'utf-8')
             }
-            cp.execSync(`cd ${destAppDir} && npm i --registry=https://registry.npm.taobao.org ${npmPkg}`)
-            console.log(`【install】: 应用加载完毕 ${npmPkg} `)
+            cp.execSync(`cd ${tempFolder} && npm i --registry=${NPM_REGISTRY} ${npmPkg}`)
           } catch(e) {
             console.log(`【install】: 应用 ${npmPkg} 安装失败，跳过...`)
             console.log(`【install】: 错误是: ${e.toString()}`)
+            fs.removeSync(tempFolder)
             continue;
           }
           // copy aplication
-          const srcAppDir = path.join(destAppDir, `./node_modules/${pkgName}`)
+          const srcAppDir = path.join(tempFolder, `./node_modules/${pkgName}`)
           fs.copySync(srcAppDir, destAppDir)
           const pkgPath = path.join(destAppDir, './package.json');
           if(fs.existsSync(pkgPath)) {
@@ -157,7 +160,7 @@ async function installApplication() {
                 let handledHomePageDom = parse5.parse(rawHomePageStr);
                 travelDom(handledHomePageDom, {
                   scriptStr: injectScript({
-                    nameSpace: pkg.name
+                    nameSpace: pkg.name ? pkg.name : ''
                   })
                 })
                 let handledHomePageStr = parse5.serialize(handledHomePageDom)
@@ -174,6 +177,7 @@ async function installApplication() {
                 }, 100)
               }
             }
+            fs.removeSync(tempFolder)
           }
         }
       }
