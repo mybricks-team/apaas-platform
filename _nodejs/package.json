@@ -18,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mybricks/file-parser": "1.0.5",
+    "@mybricks/file-parser": "1.0.8",
     "@mybricks/render-com-node": "^1.0.0",
     "@mybricks/rocker-dao": "0.0.8",
     "@nestjs/common": "^8.0.0",
