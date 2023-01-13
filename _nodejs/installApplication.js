@@ -129,7 +129,7 @@ async function installApplication() {
               fs.mkdirSync(tempFolder)
               fs.writeFileSync(tempFolder + '/package.json', JSON.stringify({}), 'utf-8')
             }
-            cp.execSync(`cd ${tempFolder} && npm i --registry=${NPM_REGISTRY} ${npmPkg}`)
+            cp.execSync(`cd ${tempFolder} && npm i --registry=${NPM_REGISTRY} ${npmPkg} --production`)
           } catch(e) {
             console.log(`【install】: 应用 ${npmPkg} 安装失败，跳过...`)
             console.log(`【install】: 错误是: ${e.toString()}`)
@@ -150,8 +150,10 @@ async function installApplication() {
                 // 存在后端
                 if(fs.existsSync(path.join(bePath, './mapper'))) {
                   // 存在mapper
-                  fs.copySync(path.join(bePath, './mapper'), path.join(process.cwd(), `./src/dao`))
+                  fs.copySync(path.join(bePath, './mapper'), path.join(process.cwd(), `./src/resource`))
                 }
+                // 移动依赖
+                fs.moveSync(path.join(tempFolder, `./node_modules`), path.join(destAppDir, `./node_modules`), {overwrite: true})
               }
               if(fs.existsSync(fePath)) {
                 // 存在前端
