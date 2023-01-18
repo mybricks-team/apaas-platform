@@ -3,11 +3,9 @@ const fs = require('fs-extra');
 const path = require('path')
 const parse5 = require('parse5');
 const mysql = require('mysql2');
+const { APPS_BASE_FOLDER, NPM_REGISTRY } = require('./env');
 
 let MYSQL_CONNECTION = null
-const ENV = process.env.NODE_ENV;
-const APPS_BASE_FOLDER = path.join(process.cwd(), `../_apps`);
-const NPM_REGISTRY = 'https://registry.npm.taobao.org'
 
 function injectScript({ nameSpace }) {
   const placeholder = '_NAME_SPACE_'
