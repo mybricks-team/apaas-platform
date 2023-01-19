@@ -8,6 +8,8 @@ import { proxyMiddleWare } from "./middleware/proxy.middleware";
 import { loadModule } from "../module-loader";
 import { enhanceApp } from "./enhance";
 import init from "./init";
+const env = require('../env.js')
+const fs = require('fs-extra')
 
 async function bootstrap() {
   const loadedModule = loadModule();
@@ -18,6 +20,12 @@ async function bootstrap() {
     prefix: "/",
     index: false,
   });
+  if(fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
+    app.useStaticAssets(env.FILE_LOCAL_STORAGE_FOLDER, {
+      prefix: `/${env.FILE_LOCAL_STORAGE_PREFIX}`,
+      index: false,
+    });
+  }
   enhanceApp(app, {
     appNamespaceList: loadedModule.namespace,
   });

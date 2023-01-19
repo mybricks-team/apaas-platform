@@ -14,6 +14,7 @@ yarn.lock
 _nodejs/_assets/temp
 _nodejs/_assets/material/
 _apps/*
+_localstorage/*
 _nodejs/dist/*
 mybricks
 mybricks.zip

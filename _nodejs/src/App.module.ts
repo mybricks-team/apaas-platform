@@ -17,8 +17,12 @@ import SystemService from "./services/system";
 import FilePubDao from "./dao/filePub.dao";
 import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
+import FlowModule from './module/flow/flow.module'
 @Module({
-  imports: [...loadModule().modules],
+  imports: [
+    FlowModule,
+    ...loadModule().modules,
+  ],
   controllers: [
     AppsService,
     UserServices,
