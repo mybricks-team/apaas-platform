@@ -6,6 +6,14 @@
   display: flex;
   flex-direction: column;
 
+  .customLogo {
+    cursor: pointer;
+    margin: 20px 0 0 20px;
+    height: 36px;
+    width: fit-content;
+    display: block;
+  }
+
   .logo {
     cursor: pointer;
     display: flex;
@@ -65,29 +73,36 @@
           display: flex;
           margin-bottom: 1px;
           justify-content: space-between;
+
           .menuIcon {
             margin-right: 8px;
             display: flex;
             align-items: center;
+
             svg {
               height: 100%
             }
           }
+
           .menuLabel {
             text-overflow: ellipsis;
             white-space: nowrap;
           }
+
           &:hover {
             background-color: #3d5c800a;
           }
+
           .left {
             display: flex;
           }
+
           .right {
             display: flex;
             align-items: center;
           }
         }
+
         .menuItemActive {
           font-weight: bolder;
           background-color: #3d5c8014 !important;

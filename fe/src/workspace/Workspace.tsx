@@ -18,6 +18,7 @@ export default function Workspace(): JSX.Element {
 
   /** 获取应用loading状态 */
   const [loading, setLoading] = useState(true);
+  const [customLogo, setCustomLogo] = useState("");
 
   useMemo(() => {
     /** 登录状态 */
@@ -31,10 +32,10 @@ export default function Workspace(): JSX.Element {
     /** 设置用户信息 */
     WorkspaceContext.setUser(loginCtx.curUser);
 
-    /** 初始化(获取应用和角色) */
-    ;(async() => {
+    /** 初始化(获取应用、配置和角色) */
+    ; (async () => {
       const user = await API.user.getUserInfo()
-      
+
       WorkspaceContext.setIsAdministrator(!!user?.isAdmin)
 
       const appRes = await axios({
@@ -47,6 +48,20 @@ export default function Workspace(): JSX.Element {
       } else {
         message.error('获取安装应用信息失败');
       }
+
+      // UI 配置
+      const systemConfig = await axios({
+        method: "post",
+        url: getApiUrl('/paas/api/config/get'),
+        data: {
+          scope: ["system"]
+        }
+      });
+      console.error( systemConfig.data );
+      if(systemConfig?.data?.code === 1){
+        setCustomLogo(systemConfig?.data?.data?.system?.config?.logo);
+      }
+
     })().finally(() => {
       setLoading(false);
     }).catch((err) => {
@@ -64,7 +79,7 @@ export default function Workspace(): JSX.Element {
         </div>
       ) : (
         <>
-          <Docker />
+          <Docker customLogo={customLogo} />
           <div className={css.main}>
             <Projects />
           </div>

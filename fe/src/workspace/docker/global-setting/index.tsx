@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Form, Select, Button, message } from 'antd'
+import { Form, Select, Input, Button, message } from 'antd'
 import axios from 'axios'
 import { useComputed } from 'rxui-t'
 import { SettingOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
@@ -38,9 +38,8 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
       {items.map((item) => (
         <div
           key={item.namespace}
-          className={`${styles.tab} ${
-            activeKey === item.namespace ? styles.activeTab : ''
-          }`}
+          className={`${styles.tab} ${activeKey === item.namespace ? styles.activeTab : ''
+            }`}
           onClick={() => onClick?.({ namespace: item.namespace })}
         >
           <div className={styles.icon}>{item?.icon}</div>
@@ -90,6 +89,15 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
             ]}
           ></Select>
         </Form.Item>
+
+        <Form.Item
+          initialValue=""
+          label="自定义 Logo"
+          name="logo"
+        >
+          <Input placeholder='请填写自定义 logo 的 url 地址（高度36px，宽度自适应）' />
+        </Form.Item>
+
       </Form>
       <div className={styles.btnGroups}>
         <Button
@@ -135,7 +143,7 @@ export default () => {
   }, [])
 
   const queryConfig = useCallback(() => {
-    ;(async () => {
+    ; (async () => {
       const res = await axios({
         method: 'post',
         url: getApiUrl('/api/config/get'),
@@ -155,7 +163,7 @@ export default () => {
 
   const submitConfig = useCallback(
     (namespace, values) => {
-      ;(async () => {
+      ; (async () => {
         const res = await axios({
           method: 'post',
           url: getApiUrl('/api/config/update'),

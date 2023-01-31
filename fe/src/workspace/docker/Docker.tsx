@@ -10,18 +10,19 @@ import { OtherApps } from './otherApps';
 import { SystemMenus } from './systemMenus';
 import { eventOperation } from '../../utils';
 import { usePanelItem, Props as PanelItemProps } from '../hooks/usePanelItem';
-import WorkspaceContext, { 
+import WorkspaceContext, {
   APP_MENU_ITEMS,
-  APP_DEFAULT_ACTIVE_MENUID } from '../WorkspaceContext';
+  APP_DEFAULT_ACTIVE_MENUID
+} from '../WorkspaceContext';
 
 // @ts-ignore
 import css from './Docker.less';
 
 /** Docker (左侧边栏) */
-export default function Docker(): JSX.Element {
+export default function Docker({ customLogo }): JSX.Element {
   return (
     <div className={css.docker}>
-      <Logo />
+      <Logo customLogo={customLogo} />
       <div className={css.body}>
         <OtherApps />
         <AppMenusPanel />
@@ -32,11 +33,15 @@ export default function Docker(): JSX.Element {
 }
 
 /** logo */
-function Logo (): JSX.Element {
+function Logo({ customLogo }): JSX.Element {
   /** 点击logo */
   const logoClick: () => void = useCallback(() => {
     WorkspaceContext.setUrlQuery('path', APP_DEFAULT_ACTIVE_MENUID)
   }, []);
+
+  if (customLogo) {
+    return (<img className={css.customLogo} src={customLogo} onClick={logoClick} />)
+  }
 
   return (
     <div className={css.logo} onClick={logoClick}>
@@ -49,13 +54,13 @@ function Logo (): JSX.Element {
 }
 
 /** 菜单项面板 */
-function AppMenusPanel (): JSX.Element {
-	
+function AppMenusPanel(): JSX.Element {
+
   /** 菜单项面板 */
   const Render: JSX.Element[] = useComputed(() => {
     return APP_MENU_ITEMS.map((app) => {
       const { icon, title, namespace } = app;
-	    
+
       return (
         <Item
           key={namespace}
@@ -70,16 +75,16 @@ function AppMenusPanel (): JSX.Element {
   return (
     <Catelog style={{ flex: '1 0 auto', height: 0, overflow: 'auto' }}>
       <div>
-	      {Render}
+        {Render}
       </div>
-	
-	    <div style={{ marginTop: 'auto' }}>
-		    <Item
-			    icon="https://assets.mybricks.world/icon/163921.png"
-			    title="回收站"
-			    namespace="trash"
-		    />
-	    </div>
+
+      <div style={{ marginTop: 'auto' }}>
+        <Item
+          icon="https://assets.mybricks.world/icon/163921.png"
+          title="回收站"
+          namespace="trash"
+        />
+      </div>
     </Catelog>
   );
 }
@@ -115,7 +120,7 @@ interface ItemProps {
 }
 
 /** 菜单项封装 */
-export function Item ({icon, title, namespace, onClick, modal, prefix, suffix}: ItemProps): JSX.Element {
+export function Item({ icon, title, namespace, onClick, modal, prefix, suffix }: ItemProps): JSX.Element {
   const [itemContext] = useState({
     /** 菜单项点击 */
     onClick() {
@@ -144,7 +149,7 @@ export function Item ({icon, title, namespace, onClick, modal, prefix, suffix}: 
     return (
       <>
         <div className={css.menuIcon}>
-          {typeof icon === "string" ? <img src={icon} width={20} height={20}/> : icon}
+          {typeof icon === "string" ? <img src={icon} width={20} height={20} /> : icon}
         </div>
         <div className={css.menuLabel}>
           {title}
@@ -157,17 +162,17 @@ export function Item ({icon, title, namespace, onClick, modal, prefix, suffix}: 
     <>
       <div
         className={className}
-        style={{paddingLeft: prefix ? 5 : 5 + 14}}
+        style={{ paddingLeft: prefix ? 5 : 5 + 14 }}
         onClick={eventOperation(itemContext.onClick).stop}
       >
         <div className={css.left}>
           {prefix && <div>{prefix}</div>}
           {ItemInfo}
         </div>
-       
+
         {suffix && <div className={css.right}>{suffix}</div>}
       </div>
-      {modal && <Modal {...modal} itemContext={itemContext}/>}
+      {modal && <Modal {...modal} itemContext={itemContext} />}
     </>
   )
 }
@@ -178,7 +183,7 @@ interface ModalProps extends PanelItemProps {
   }
 }
 
-function Modal (props: ModalProps) {
+function Modal(props: ModalProps) {
   const { showPanel, Content } = usePanelItem(props);
 
   useEffect(() => {
@@ -189,7 +194,7 @@ function Modal (props: ModalProps) {
 }
 
 /** 分组 */
-export function Catelog ({style = {}, children}): JSX.Element {
+export function Catelog({ style = {}, children }): JSX.Element {
   return (
     <div className={css.catelog} style={style}>
       <div className={css.menuPanel}>
