@@ -213,13 +213,13 @@ module.exports = {
       ENV: NODE_ENV === "production" ? JSON.stringify("") : JSON.stringify("DEV")
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../src/templates/login.html`),
+      template: path.resolve(__dirname, `../templates/login.html`),
       filename: "login.html",
       chunks: ['login'],
       hot: true,
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../src/templates/workspace.html`),
+      template: path.resolve(__dirname, `../templates/workspace.html`),
       filename: "workspace.html",
       chunks: ['workspace'],
       hot: true,

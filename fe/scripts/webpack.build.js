@@ -19,10 +19,8 @@ const outputPath = path.resolve(__dirname, `../../_nodejs/_assets`);
 module.exports = {
   mode: "production", //设置mode
   entry: {
-    // about: path.resolve(__dirname, `../src/about/index.tsx`),
     login: path.resolve(__dirname, `../src/login/index.tsx`),
     workspace: path.resolve(__dirname, `../src/workspace/index.tsx`),
-    // 'app-timer-service': path.resolve(__dirname, `../src/app-timer-service/index.tsx`),
   },
   output: {
     path: outputPath,
@@ -204,32 +202,16 @@ module.exports = {
       },
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../src/templates/login.html`),
+      template: path.resolve(__dirname, `../templates/login.html`),
       filename: "login.html",
       chunks: ['login'],
       hot: true,
     }),
-    // new HtmlWebpackPlugin({
-    //   template: path.resolve(__dirname, `../src/templates/about.html`),
-    //   filename: "about.html",
-    //   chunks: ['about'],
-    //   hot: true,
-    // }),
-    // new HtmlWebpackPlugin({
-    //   template: path.resolve(__dirname, `../src/templates/docs.html`),
-    //   filename: "docs.html",
-    //   chunks: ['docs'],
-    // }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../src/templates/workspace.html`),
+      template: path.resolve(__dirname, `../templates/workspace.html`),
       filename: "workspace.html",
       chunks: ['workspace'],
     }),
-    // new HtmlWebpackPlugin({
-    //   template: path.resolve(__dirname, `../src/templates/app-timer-service.html`),
-    //   filename: "app-timer-service.html",
-    //   chunks: ['app-timer-service'],
-    // }),
     //new VueLoaderPlugin(),
     //new BundleAnalyzerPlugin()
     // new FriendlyErrorsWebpackPlugin({
