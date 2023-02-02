@@ -21,19 +21,17 @@ export default function Workspace(): JSX.Element {
   const [customLogo, setCustomLogo] = useState("");
 
   useMemo(() => {
-    /** 登录状态 */
-    const loginCtx = LoginCtx.init();
-
-    if (!loginCtx.curUser) {
-      location.href = "/";
-      return;
-    }
-
-    /** 设置用户信息 */
-    WorkspaceContext.setUser(loginCtx.curUser);
-
     /** 初始化(获取应用、配置和角色) */
     ; (async () => {
+      /** 登录状态 */
+      const loginCtx = LoginCtx.init();
+      if (!loginCtx.curUser) {
+        location.href = "/login.html";
+        return;
+      }
+      /** 设置用户信息 */
+      WorkspaceContext.setUser(loginCtx.curUser);
+
       const user = await API.user.getUserInfo()
 
       WorkspaceContext.setIsAdministrator(!!user?.isAdmin)
