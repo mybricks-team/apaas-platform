@@ -5,6 +5,7 @@ import * as path from "path";
 import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
 import { proxyMiddleWare } from "./middleware/proxy.middleware";
+import { checkHealthMiddleware } from './middleware/checkHealth.middleware';
 import { loadModule } from "../module-loader";
 import { enhanceApp } from "./enhance";
 import init from "./init";
@@ -29,6 +30,7 @@ async function bootstrap() {
   enhanceApp(app, {
     appNamespaceList: loadedModule.namespace,
   });
+  app.use(checkHealthMiddleware);
   app.enableCors({
     origin: function (origin, callback) {
       callback(null, true);
