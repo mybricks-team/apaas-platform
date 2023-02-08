@@ -16,6 +16,7 @@ import FileService from "./services/file";
 import SystemService from "./services/system";
 import FilePubDao from "./dao/filePub.dao";
 import HomeService from "./services/home";
+import IntelligenceService from './services/intelligence';
 import ConfigDao from "./dao/config.dao";
 import FlowModule from './module/flow/flow.module'
 @Module({
@@ -35,6 +36,7 @@ import FlowModule from './module/flow/flow.module'
     FileService,
     SystemService,
     HomeService,
+    IntelligenceService,
   ],
   providers: [
     TaskService,
