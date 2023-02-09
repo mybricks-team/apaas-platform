@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { CreateCompletionRequest, OpenAIApi, Configuration } from "openai";
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: "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",
 });
 
 const openai = new OpenAIApi(configuration);
@@ -25,7 +25,7 @@ export default class AIService {
       top_p: 1,
       frequency_penalty: 0.0,
       presence_penalty: 0.0,
-      stop: ['#', ';'],
+      stop: ['#', ';', '。'],
       ...(params ?? {}),
       prompt,
     }
@@ -37,7 +37,7 @@ export default class AIService {
           model: "text-davinci-003",
           temperature: 0,
           max_tokens: 1000,
-          stop: ['#', ';'],
+          stop: ['#', ';', '。'],
         }
         break;
       }
