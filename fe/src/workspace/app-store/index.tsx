@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {useComputed} from 'rxui-t';
+import {useComputed} from '@mybricks/rxui';
 import {message} from 'antd';
 import axios from 'axios';
 import AppList from './components/app-list';

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Form, Select, Button, message } from 'antd'
 import axios from 'axios'
-import { useComputed } from 'rxui-t'
+import { useComputed } from '@mybricks/rxui'
 import { SettingOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 
 import { getApiUrl } from '../../../utils'

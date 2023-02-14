@@ -1,14 +1,22 @@
 .news {
   display: flex;
-  margin-left: -5px;
   flex-flow: wrap;
+  position: absolute;
+  z-index: 1000;
+  background: #FFF;
+  right: 20px;
+  width: 600px;
+  /* border: 1px solid #DDD; */
+  border-radius: 5px;
+  padding: 5px;
+  box-shadow: 0px 3px 7px 1px #ddd;
 
   .project {
     cursor: pointer;
     position: relative;
-    width: 250px;
+    width: 280px;
     height: 70px;
-    border: 1px solid #DDD;
+    //border: 1px solid #F7F7F7;
     border-radius: 5px;
     display: flex;
     flex-shrink: 0;
@@ -22,7 +30,7 @@
     }
 
     .typeIcon {
-      padding: 7px 15px 0 12px;
+      padding: 15px 15px 0 12px;
 
       svg {
         max-width: 18px;

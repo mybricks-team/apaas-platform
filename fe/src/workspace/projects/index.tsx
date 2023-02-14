@@ -1,30 +1,33 @@
 import React from 'react';
-import { useComputed } from 'rxui-t';
+import {observe, useComputed} from '@mybricks/rxui';
 
 import Ground from './ground';
 import Trash from './trash';
 import InlineApp from './inlineApp';
 import MyProjects from './myProjects';
 import RunningTaskPanel from './tasks';
-import WorkspaceContext, { APP_DEFAULT_ACTIVE_MENUID } from '../WorkspaceContext';
+import WorkspaceContext, {APP_DEFAULT_ACTIVE_MENUID} from '../WorkspaceContext';
 
-// @ts-ignore
 import css from './index.less';
 
-export default function Projects (): JSX.Element {
+let wsCtx: WorkspaceContext
+export default function Projects(): JSX.Element {
+  wsCtx = observe(WorkspaceContext, {from: 'parents'})
+
   return (
     <div className={css.body}>
-      <Render />
+      <Render/>
     </div>
   );
 }
 
 /** 渲染项目内容 */
-function Render (): JSX.Element {
+function Render(): JSX.Element {
+
   return useComputed(() => {
     let JSX: JSX.Element | null = null;
 
-    const { user, urlQuery: { path }, APPSMap } = WorkspaceContext;
+    const {user, urlQuery: {path}, APPSMap} = wsCtx;
 
     const app = APPSMap[path];
 
@@ -38,33 +41,33 @@ function Render (): JSX.Element {
       switch (path) {
         case 'my_project':
           JSX = (
-            <MyProjects user={user} />
+            <MyProjects user={user}/>
           );
           break;
-        case 'ground': 
+        case 'ground':
           JSX = (
             //@ts-ignore
-            <Ground />
+            <Ground/>
           );
           break;
         case 'running_task':
           JSX = (
-            <RunningTaskPanel user={user} />
+            <RunningTaskPanel user={user}/>
           );
           break;
-	      case 'trash':
-		      JSX = (
+        case 'trash':
+          JSX = (
             //@ts-ignore
-			      <Trash />
-		      );
-		      break;
+            <Trash/>
+          );
+          break;
         default:
           break;
       }
     }
 
     if (!JSX) {
-      WorkspaceContext.setUrlQuery('path', APP_DEFAULT_ACTIVE_MENUID);
+      wsCtx.setUrlQuery('path', APP_DEFAULT_ACTIVE_MENUID);
     }
 
     return JSX || <div>当前页面不存在，跳转回“我的项目”</div>;
@@ -72,7 +75,7 @@ function Render (): JSX.Element {
 }
 
 /** 内容区 */
-export function Content ({title, children}) {
+export function Content({title, children}) {
   return (
     <>
       <Block>
@@ -84,7 +87,7 @@ export function Content ({title, children}) {
 }
 
 /** 块 */
-export function Block ({style = {}, children}): JSX.Element {
+export function Block({style = {}, children}): JSX.Element {
   return (
     <div style={{marginBottom: 11, ...style}}>
       {children}

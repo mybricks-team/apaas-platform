@@ -1,7 +1,7 @@
 import React, {FC, useCallback, useMemo, useState} from 'react';
 import axios from 'axios';
 import {message} from 'antd';
-import {useComputed} from 'rxui-t';
+import {useComputed} from '@mybricks/rxui';
 
 import { Content } from '..';
 import FileIcon from '../../icon/file-icon';

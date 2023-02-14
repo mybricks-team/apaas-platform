@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { useComputed } from 'rxui-t';
+import { useComputed } from '@mybricks/rxui';
 
 import { Content } from '..';
 import WorkspaceContext, { T_App } from '../../WorkspaceContext';

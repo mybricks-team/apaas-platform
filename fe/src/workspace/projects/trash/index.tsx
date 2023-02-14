@@ -1,5 +1,5 @@
 import React, {FC, useCallback, useMemo, useState} from 'react'
-import {useComputed} from 'rxui-t';
+import {useComputed} from '@mybricks/rxui';
 import axios from 'axios';
 import {message} from 'antd';
 import moment from 'moment';

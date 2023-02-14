@@ -4,12 +4,12 @@ import React, {
   useEffect,
   useCallback
 } from 'react';
-import { useComputed } from 'rxui-t';
+import {observe, useComputed} from '@mybricks/rxui';
 
-import { OtherApps } from './otherApps';
-import { SystemMenus } from './systemMenus';
-import { eventOperation } from '../../utils';
-import { usePanelItem, Props as PanelItemProps } from '../hooks/usePanelItem';
+import {OtherApps} from './otherApps';
+import {SystemMenus} from './systemMenus';
+import {eventOperation} from '../../utils';
+import {usePanelItem, Props as PanelItemProps} from '../hooks/usePanelItem';
 import WorkspaceContext, {
   APP_MENU_ITEMS,
   APP_DEFAULT_ACTIVE_MENUID
@@ -18,35 +18,39 @@ import WorkspaceContext, {
 // @ts-ignore
 import css from './Docker.less';
 
+let wsCtx: WorkspaceContext
+
 /** Docker (左侧边栏) */
-export default function Docker({ customLogo }): JSX.Element {
+export default function Docker({customLogo}): JSX.Element {
   return (
     <div className={css.docker}>
-      <Logo customLogo={customLogo} />
+      <Logo customLogo={customLogo}/>
       <div className={css.body}>
-        <OtherApps />
-        <AppMenusPanel />
-        <SystemMenus />
+        <OtherApps/>
+        <AppMenusPanel/>
+        <SystemMenus/>
       </div>
     </div>
   );
 }
 
 /** logo */
-function Logo({ customLogo }): JSX.Element {
+function Logo({customLogo}): JSX.Element {
+  wsCtx = observe(WorkspaceContext, {from: 'parents'})
+
   /** 点击logo */
   const logoClick: () => void = useCallback(() => {
-    WorkspaceContext.setUrlQuery('path', APP_DEFAULT_ACTIVE_MENUID)
+    wsCtx.setUrlQuery('path', APP_DEFAULT_ACTIVE_MENUID)
   }, []);
 
   if (customLogo) {
-    return (<img className={css.customLogo} src={customLogo} onClick={logoClick} />)
+    return (<img className={css.customLogo} src={customLogo} onClick={logoClick}/>)
   }
 
   return (
     <div className={css.logo} onClick={logoClick}>
       <div>
-        <img src={'/icon.png'} alt="" />
+        <img src={'/icon.png'} alt=""/>
       </div>
       <span>My<i>B</i>ricks</span>
     </div>
@@ -59,7 +63,7 @@ function AppMenusPanel(): JSX.Element {
   /** 菜单项面板 */
   const Render: JSX.Element[] = useComputed(() => {
     return APP_MENU_ITEMS.map((app) => {
-      const { icon, title, namespace } = app;
+      const {icon, title, namespace} = app;
 
       return (
         <Item
@@ -73,12 +77,12 @@ function AppMenusPanel(): JSX.Element {
   });
 
   return (
-    <Catelog style={{ flex: '1 0 auto', height: 0, overflow: 'auto' }}>
+    <Catelog style={{flex: '1 0 auto', height: 0, overflow: 'auto'}}>
       <div>
         {Render}
       </div>
 
-      <div style={{ marginTop: 'auto' }}>
+      <div style={{marginTop: 'auto'}}>
         <Item
           icon="https://assets.mybricks.world/icon/163921.png"
           title="回收站"
@@ -120,14 +124,14 @@ interface ItemProps {
 }
 
 /** 菜单项封装 */
-export function Item({ icon, title, namespace, onClick, modal, prefix, suffix }: ItemProps): JSX.Element {
+export function Item({icon, title, namespace, onClick, modal, prefix, suffix}: ItemProps): JSX.Element {
   const [itemContext] = useState({
     /** 菜单项点击 */
     onClick() {
       if (onClick) {
         onClick();
       } else {
-        WorkspaceContext.setUrlQuery('path', namespace);
+        wsCtx.setUrlQuery('path', namespace);
       }
     }
   });
@@ -136,7 +140,7 @@ export function Item({ icon, title, namespace, onClick, modal, prefix, suffix }:
   const className = useComputed(() => {
     let className = css.menuItem;
     if (namespace) {
-      const { urlQuery: { path } } = WorkspaceContext;
+      const {urlQuery: {path}} = wsCtx;
       if (path === namespace) {
         className = className + ` ${css.menuItemActive}`;
       }
@@ -149,7 +153,7 @@ export function Item({ icon, title, namespace, onClick, modal, prefix, suffix }:
     return (
       <>
         <div className={css.menuIcon}>
-          {typeof icon === "string" ? <img src={icon} width={20} height={20} /> : icon}
+          {typeof icon === "string" ? <img src={icon} width={20} height={20}/> : icon}
         </div>
         <div className={css.menuLabel}>
           {title}
@@ -162,7 +166,7 @@ export function Item({ icon, title, namespace, onClick, modal, prefix, suffix }:
     <>
       <div
         className={className}
-        style={{ paddingLeft: prefix ? 5 : 5 + 14 }}
+        style={{paddingLeft: prefix ? 5 : 5 + 14}}
         onClick={eventOperation(itemContext.onClick).stop}
       >
         <div className={css.left}>
@@ -172,7 +176,7 @@ export function Item({ icon, title, namespace, onClick, modal, prefix, suffix }:
 
         {suffix && <div className={css.right}>{suffix}</div>}
       </div>
-      {modal && <Modal {...modal} itemContext={itemContext} />}
+      {modal && <Modal {...modal} itemContext={itemContext}/>}
     </>
   )
 }
@@ -184,7 +188,7 @@ interface ModalProps extends PanelItemProps {
 }
 
 function Modal(props: ModalProps) {
-  const { showPanel, Content } = usePanelItem(props);
+  const {showPanel, Content} = usePanelItem(props);
 
   useEffect(() => {
     props.itemContext.onClick = showPanel;
@@ -194,7 +198,7 @@ function Modal(props: ModalProps) {
 }
 
 /** 分组 */
-export function Catelog({ style = {}, children }): JSX.Element {
+export function Catelog({style = {}, children}): JSX.Element {
   return (
     <div className={css.catelog} style={style}>
       <div className={css.menuPanel}>

@@ -1,25 +1,27 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import axios from 'axios';
-import { message } from 'antd';
-import { useObservable } from 'rxui-t';
+import {message} from 'antd';
+import {observe, useObservable} from '@mybricks/rxui';
 // 搭建地址 https://mybricks.world/app-cloud-com.html?id=197
-import CreateFileCloudCdm from "@mybricks-cloud/myspace-new-cloudcdm-project";
 // 搭建地址 https://mybricks.world/app-cloud-com.html?id=243
 import CreateFile from '@mybricks-cloud/create-application';
-
-import { IconAppPCPage } from '../../../icon';
-import { ChildPanelProps } from '..';
-import { getApiUrl } from '../../../../utils';
+import {getApiUrl} from '../../../../utils';
 // import { APPS, APPSMap } from '../../../constants';
-import WorkspaceContext, { T_App, JOBS_USE_EMAILS } from '../../../WorkspaceContext';
+import WorkspaceContext, {T_App} from '../../../WorkspaceContext';
 
-import css from './index.less';
+import css from './Create.less';
+import Ctx from "../Ctx";
 
 /** 创建项目 */
-export function Create({ user, ctx }: ChildPanelProps): JSX.Element {
-  const createCtx = useObservable({ app: null });
+export function Create(): JSX.Element {
+  const ctx = observe(Ctx, {from: 'parents'})
+
+  const wsCtx = observe(WorkspaceContext, {from: 'parents'})
+  const {user, APPSMap, DesignAPPS} = wsCtx
+
+  const createCtx = useObservable({app: null});
   /** TODO 云组件创建弹窗的显示隐藏，后续所有应用创建应该统一？ */
-  // const [visible, setVisible] = useState<boolean | number>(1);
+    // const [visible, setVisible] = useState<boolean | number>(1);
   const [createFileVisible, setCreateFileVisible] = useState<any>(1);
 
   /** 点击新建 */
@@ -30,7 +32,6 @@ export function Create({ user, ctx }: ChildPanelProps): JSX.Element {
 
   /** 搭建应用列表 */
   const AppList: JSX.Element[] = useMemo(() => {
-    const { DesignAPPS } = WorkspaceContext;
     return DesignAPPS.map(app => {
       const {
         icon,
@@ -46,8 +47,8 @@ export function Create({ user, ctx }: ChildPanelProps): JSX.Element {
           onClick={() => newProject(app)}
         >
           <div className={css.typeIcon}>
-            <div style={{ width: 32, height: 32 }}>
-              {icon && <img src={icon} width={'100%'} height={'100%'} />}
+            <div style={{width: 32, height: 32}}>
+              {icon && <img src={icon} width={'100%'} height={'100%'}/>}
             </div>
           </div>
           <div className={css.tt}>
@@ -55,7 +56,7 @@ export function Create({ user, ctx }: ChildPanelProps): JSX.Element {
             <p>{description}</p>
           </div>
           <div className={css.snap}>
-            +
+
           </div>
         </div>
       );
@@ -65,9 +66,8 @@ export function Create({ user, ctx }: ChildPanelProps): JSX.Element {
   /** 创建应用弹窗提交事件 */
   const createFileSubmit = useCallback((value) => {
     try {
-      const { name } = value;
-      const { APPSMap } = WorkspaceContext;
-      const { type, isSystem } = createCtx.app;
+      const {name} = value;
+      const {type, isSystem} = createCtx.app;
       const parentId = ctx.path[ctx.path.length - 1].id;
       const param: any = {
         userId: user.email,
@@ -75,17 +75,17 @@ export function Create({ user, ctx }: ChildPanelProps): JSX.Element {
         appType: type,
         parentId,
       }
-      if(isSystem) {
+      if (isSystem) {
         param.type = 'system';
       }
       axios({
         method: "post",
         url: getApiUrl('/api/workspace/createFile'),
         data: param
-      }).then(({ data }) => {
+      }).then(({data}) => {
         if (data.code === 1) {
           const appReg = APPSMap[type];
-          const { homepage } = appReg;
+          const {homepage} = appReg;
           ctx.getAll();
           if (typeof homepage === 'string') {
             setTimeout(() => {
@@ -114,7 +114,7 @@ export function Create({ user, ctx }: ChildPanelProps): JSX.Element {
       return <></>;
     }
     return (
-      <div style={{ display: 'none' }}>
+      <div style={{display: 'none'}}>
         <CreateFile
           title={`新建${createCtx.app.title}`}
           visible={createFileVisible}
@@ -126,7 +126,7 @@ export function Create({ user, ctx }: ChildPanelProps): JSX.Element {
   }, [createFileVisible]);
 
   return (
-    <div className={css.news}>
+    <div className={css.news} style={{display: !ctx.popCreate ? 'none' : ''}}>
       {/* {RenderNewProjectModal} */}
       {RenderCreateFile}
       {AppList}

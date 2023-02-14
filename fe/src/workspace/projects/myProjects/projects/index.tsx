@@ -1,22 +1,24 @@
-import React, { useCallback } from 'react';
+import React, {useCallback} from 'react';
 import axios from 'axios';
-import { message } from 'antd';
-import { useComputed } from 'rxui-t';
-import { ChildPanelProps } from '..';
-import { IconDelete } from '../../../icon';
+import {message} from 'antd';
+import {observe, useComputed} from '@mybricks/rxui';
+import {IconDelete} from '../../../icon';
 import WorkspaceContext from '../../../WorkspaceContext';
-import { getApiUrl, eventOperation } from '../../../../utils';
+import {eventOperation, getApiUrl} from '../../../../utils';
 import FileIcon from '../../../icon/file-icon';
 
-// @ts-ignore
 import css from './index.less';
+import Ctx from "../Ctx";
 
 /** 项目列表 */
-export function Projects ({user, ctx}: ChildPanelProps): JSX.Element {
+export function Projects(): JSX.Element {
+  const wsCtx = observe(WorkspaceContext, {from: 'parents'})
+
+  const ctx = observe(Ctx, {from: "parents"})
 
   /** 各种操作 */
   const operate = useCallback((type, item) => {
-    const { id, name, extName, parentId, homepage } = item;
+    const {id, name, extName, parentId, homepage} = item;
     switch (type) {
       case 'open':
         if (extName !== 'folder') {
@@ -49,20 +51,20 @@ export function Projects ({user, ctx}: ChildPanelProps): JSX.Element {
   }, []);
 
   /** 渲染项目列表 */
-  const Render:JSX.Element | JSX.Element[]  = useComputed(() => {
+  const Render: JSX.Element | JSX.Element[] = useComputed(() => {
     let JSX: JSX.Element | JSX.Element[] = <></>;
     if (Array.isArray(ctx.projectList)) {
       if (ctx.projectList.length) {
-        const { APPSMap } = WorkspaceContext;
+        const {APPSMap} = wsCtx;
         JSX = ctx.projectList.map((project) => {
-          const { extName } = project
+          const {extName} = project
           const appReg = APPSMap[extName];
 
           if (!appReg) {
             return <></>;
           }
 
-          const { icon, homepage } = appReg;
+          const {icon, homepage} = appReg;
 
           return (
             <div key={project.id} className={css.file} onClick={() => operate('open', {...project, homepage})}>

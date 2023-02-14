@@ -1,8 +1,7 @@
 import {FC} from 'react';
-import { observable } from 'rxui-t';
 
 import AppStore from './app-store';
-import { getUrlQuery } from '../utils';
+import {getUrlQuery} from '../utils';
 
 export type APP_MENU_ITEM_ID = "my_project" | "running_task";
 
@@ -24,7 +23,7 @@ export type APP_MENU_ITEM_ID = "my_project" | "running_task";
 // ];
 
 /** 默认选中 */
-export const APP_DEFAULT_ACTIVE_MENUID = "my_project"; 
+export const APP_DEFAULT_ACTIVE_MENUID = "my_project";
 
 /** 菜单栏列表 */
 export const APP_MENU_ITEMS: Array<T_App> = [
@@ -46,15 +45,15 @@ export const APP_MENU_ITEMS: Array<T_App> = [
 ];
 
 export const BOTTOM_APP_MENU_ITEMS: Array<T_App> = [
-	{
-		title: "应用商店",
-		description: "应用商店",
-		type: "app-store",
-		namespace: "app-store",
-		icon: "https://assets.mybricks.world/icon/liuleidashuaige.png",
-		Element: AppStore,
-		isInlineApp: true,
-	},
+  {
+    title: "应用商店",
+    description: "应用商店",
+    type: "app-store",
+    namespace: "app-store",
+    icon: "https://assets.mybricks.world/icon/liuleidashuaige.png",
+    Element: AppStore,
+    isInlineApp: true,
+  },
 ];
 
 export const APP_MENU_ITEM_MAP = {};
@@ -106,17 +105,17 @@ export interface T_App {
   setting?: string | any;
   /** 应用导出设置 */
   exports?: IAppExport[];
-	
-	isInlineApp?: boolean;
-	/** 前端使用，inlineApp 渲染 */
-	Element?: FC;
+
+  isInlineApp?: boolean;
+  /** 前端使用，inlineApp 渲染 */
+  Element?: FC;
 }
 
 const queryKeys = ["path", "id"];
 const queryKeysMap = {};
 queryKeys.forEach((key) => (queryKeysMap[key] = true));
 
-export class Context {
+export default class WorkspaceContext {
   /** 侧边栏应用列表 */
   DockerAPPS: Array<T_App> = [];
   /** 搭建应用列表 */
@@ -125,6 +124,7 @@ export class Context {
   InstalledAPPS: Array<T_App> = [];
   /** 快速检索App信息 */
   APPSMap: { [key: string]: T_App } = {};
+
   /** 设置各类应用 */
   setApps(apps: Array<T_App>) {
     /** 平台默认,搭建应用 */
@@ -132,9 +132,23 @@ export class Context {
       // 平台特殊应用特殊处理
       {
         title: "文件夹",
-        description: "使用文件夹将各应用进行分类",
+        description: "文件夹",
         type: "folder",
         namespace: "mybricks-folder",
+        icon: "https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png",
+      },
+      {
+        title: "项目文件夹",
+        description: "通过项目的方式管理文件",
+        type: "folder",
+        namespace: "folder-project",
+        icon: "https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png",
+      },
+      {
+        title: "模块文件夹",
+        description: "通过模块的方式管理文件",
+        type: "folder",
+        namespace: "folder-module",
         icon: "https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png",
       },
     ];
@@ -178,10 +192,10 @@ export class Context {
   }
 
   /** url query */
-  urlQuery = observable({
+  urlQuery = {
     path: null,
     id: null,
-  });
+  }
 
   /**
    *
@@ -190,7 +204,7 @@ export class Context {
    * @param pushState 是否操作路由
    */
   setUrlQuery(key, value, pushState = true) {
-    const { urlQuery } = this;
+    const {urlQuery} = this;
     urlQuery[key] = value;
     if (pushState) {
       let pushUrl = "";
@@ -262,8 +276,3 @@ export class Context {
     this.isAdministrator = bool;
   }
 }
-
-const GlobalContext: Context = observable(new Context());
-
-/** 全局上下文 */
-export default GlobalContext;

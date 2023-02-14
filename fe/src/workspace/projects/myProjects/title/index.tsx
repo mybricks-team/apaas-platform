@@ -1,32 +1,39 @@
-import React, { useCallback } from 'react';
-import { Breadcrumb } from 'antd';
-import { useComputed } from 'rxui-t';
+import React, {useCallback, useEffect} from 'react';
+import {Breadcrumb} from 'antd';
 
-import { ChildPanelProps } from '..';
-
-// @ts-ignore
 import css from './index.less';
+import {Create} from "./Create";
+import {evt, observe} from "@mybricks/rxui";
+import Ctx from "../Ctx";
 
-/** 路径 */
-export function Title ({ctx}: ChildPanelProps): JSX.Element {
+export default function TitleBar(): JSX.Element {
+  const ctx = observe(Ctx, {from: "parents"})
 
-  /** 路径点击 */
   const titleClick = useCallback((_item, idx) => {
     ctx.path = ctx.path.slice(0, idx + 1);
     ctx.getAll(true);
   }, []);
 
-  /** 渲染路径 */
-  const Render: JSX.Element = useComputed(() => {
-    const pathLastIndex = ctx.path.length - 1;
-    return (
+  useEffect(() => {
+    function click() {
+      ctx.hideCreatePanel()
+    }
+
+    document.addEventListener('click', click)
+    return () => {
+      document.removeEventListener('click', click)
+    }
+  }, [])
+
+  const pathLastIndex = ctx.path.length - 1;
+  return (
+    <div className={css.titleBar}>
       <Breadcrumb separator='>' className={css.breadcrumb}>
         {ctx.path.map((item, idx) => {
-          const { id, name } = item;
+          const {id, name} = item;
           return (
             <Breadcrumb.Item
               key={id}
-              // @ts-ignore ???
               style={{cursor: pathLastIndex !== idx ? 'pointer' : 'default'}}
               onClick={() => {
                 if (pathLastIndex !== idx) {
@@ -37,8 +44,11 @@ export function Title ({ctx}: ChildPanelProps): JSX.Element {
           );
         })}
       </Breadcrumb>
-    );
-  });
 
-  return Render;
+      <div className={css.btns}>
+        <button onClick={evt(ctx.showCreatePanel).stop}><span>+</span>新建</button>
+        <Create/>
+      </div>
+    </div>
+  )
 }
