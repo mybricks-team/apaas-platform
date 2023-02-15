@@ -35,7 +35,7 @@ export function Projects(): JSX.Element {
           axios({
             method: "post",
             url: getApiUrl('/api/workspace/deleteFile'),
-            data: {id: item.id, userId: user.email}
+            data: {id: item.id, userId: wsCtx.user.email}
           }).then(({data}) => {
             if (data.code === 1) {
               ctx.getAll(true);

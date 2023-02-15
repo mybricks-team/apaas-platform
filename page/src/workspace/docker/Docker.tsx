@@ -40,7 +40,7 @@ function Logo({customLogo}): JSX.Element {
 
   /** 点击logo */
   const logoClick: () => void = useCallback(() => {
-    wsCtx.setUrlQuery('path', APP_DEFAULT_ACTIVE_MENUID)
+    wsCtx.gotoApp(APP_DEFAULT_ACTIVE_MENUID)
   }, []);
 
   if (customLogo) {
@@ -131,7 +131,7 @@ export function Item({icon, title, namespace, onClick, modal, prefix, suffix}: I
       if (onClick) {
         onClick();
       } else {
-        wsCtx.setUrlQuery('path', namespace);
+        wsCtx.gotoApp(namespace);
       }
     }
   });
@@ -140,8 +140,8 @@ export function Item({icon, title, namespace, onClick, modal, prefix, suffix}: I
   const className = useComputed(() => {
     let className = css.menuItem;
     if (namespace) {
-      const {urlQuery: {path}} = wsCtx;
-      if (path === namespace) {
+      const {appPath} = wsCtx;
+      if (appPath === namespace) {
         className = className + ` ${css.menuItemActive}`;
       }
     }

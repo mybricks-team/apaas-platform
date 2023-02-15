@@ -9,3 +9,4 @@ _localstorage/*
 dist
 mybricks.zip
 .idea/
+server/_assets/js

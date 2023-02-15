@@ -1,7 +1,7 @@
 
 export function getApiUrl(uri) {
   const env = typeof ENV === 'undefined' ? void 0 : ENV//defined by webpack
-  return env ? `http://localhost:3000${uri}`
+  return env ? `http://localhost:8080${uri}`
     : `${uri}`
 }
 

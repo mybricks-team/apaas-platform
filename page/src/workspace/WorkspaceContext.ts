@@ -3,7 +3,7 @@ import {FC} from 'react';
 import AppStore from './app-store';
 import {getUrlQuery} from '../utils';
 
-export type APP_MENU_ITEM_ID = "my_project" | "running_task";
+export type APP_MENU_ITEM_ID = "my-project" | "running-task";
 
 /** 菜单栏 */
 // export const APP_MENU_ITEMS: Array<{
@@ -18,28 +18,28 @@ export type APP_MENU_ITEM_ID = "my_project" | "running_task";
 //   }) => JSX.Element
 
 // }> = [
-//   {id: 'my_project', label: '我的项目', Icon: IconMyProjects},
-//   // {id: 'running_task', label: '运行中的任务', Icon: IconTimedTask}
+//   {id: 'my-project', label: '我的项目', Icon: IconMyProjects},
+//   // {id: 'running-task', label: '运行中的任务', Icon: IconTimedTask}
 // ];
 
 /** 默认选中 */
-export const APP_DEFAULT_ACTIVE_MENUID = "my_project";
+export const APP_DEFAULT_ACTIVE_MENUID = "my-project";
 
 /** 菜单栏列表 */
 export const APP_MENU_ITEMS: Array<T_App> = [
   {
     title: "我的项目",
     description: "我的项目",
-    type: "my_project",
-    namespace: "my_project",
+    type: "my-project",
+    namespace: "my-project",
     icon: "https://assets.mybricks.world/icon/myprojects.7cd8f4c7813982aa.png",
   },
   // 暂时注释TODO
   // {
   //   title: '运行中的任务',
   //   description: '运行中的任务',
-  //   type: 'running_task',
-  //   namespace: 'running_task',
+  //   type: 'running-task',
+  //   namespace: 'running-task',
   //   icon: 'https://ali-ec.static.yximgs.com/udata/pkg/eshop/mybricks/myprojects.7cd8f4c7813982aa.png'
   // },
 ];
@@ -112,10 +112,6 @@ export interface T_App {
   /** 前端使用，inlineApp 渲染 */
   Element?: FC;
 }
-
-const queryKeys = ["path", "id"];
-const queryKeysMap = {};
-queryKeys.forEach((key) => (queryKeysMap[key] = true));
 
 export default class WorkspaceContext {
   /** 侧边栏应用列表 */
@@ -192,72 +188,32 @@ export default class WorkspaceContext {
     this.APPSMap = APPSMap;
   }
 
-  /** url query */
-  urlQuery = {
-    path: null,
-    id: null,
-  }
+  /** 应用路径 */
+  appPath = ''
 
   /**
    *
-   * @param key       key
-   * @param value     value
+   * @param path      应用路径
    * @param pushState 是否操作路由
    */
-  setUrlQuery(key, value, pushState = true) {
-    const {urlQuery} = this;
-    urlQuery[key] = value;
+  gotoApp(path, pushState = true) {
+    this.appPath = path;
+    console.log('设置appPath', path)
     if (pushState) {
-      let pushUrl = "";
-
-      if (key === 'path') {
-        pushUrl = `?path=${value}`;
-        queryKeys.forEach((queryKey) => {
-          if (queryKey !== "path") {
-            Reflect.deleteProperty(urlQuery, queryKey);
-          }
-        });
-      } else {
-        queryKeys.forEach((queryKey) => {
-          const value = urlQuery[queryKey];
-          if (value) {
-            pushUrl = pushUrl + `${pushUrl ? "&" : "?"}${queryKey}=${value}`;
-          }
-        });
-      }
-
-      history.pushState(null, "", pushUrl);
+      history.pushState(null, "", `?app=${path}`);
     }
   }
 
   constructor() {
     const urlQuery = getUrlQuery();
+    const { app } = urlQuery;
+    this.gotoApp(app, false)
 
-    Reflect.deleteProperty(urlQuery, "");
-
-    if (!urlQuery.path) {
-      urlQuery.path = APP_DEFAULT_ACTIVE_MENUID;
-    }
-
-    let replaceUrl = "";
-
-    queryKeys.forEach((queryKey) => {
-      const value = urlQuery[queryKey];
-      if (value) {
-        replaceUrl =
-          replaceUrl + `${replaceUrl ? "&" : "?"}${queryKey}=${value}`;
-        this.setUrlQuery(queryKey, value, false);
-      }
-    });
-
-    history.replaceState(JSON.parse(JSON.stringify(urlQuery)), "", replaceUrl);
-
-    window.addEventListener("popstate", () => {
-      const urlQuery = getUrlQuery();
-      queryKeys.forEach((queryKey) => {
-        this.setUrlQuery(queryKey, urlQuery[queryKey], false);
-      });
-    });
+    // window.addEventListener("popstate", () => {
+    //   const urlQuery = getUrlQuery();
+    //   const { app } = urlQuery;
+    //   this.gotoApp(app, false);
+    // });
   }
 
   /** 用户信息 */

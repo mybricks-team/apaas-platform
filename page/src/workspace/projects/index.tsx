@@ -23,55 +23,52 @@ export default function Projects(): JSX.Element {
 
 /** 渲染项目内容 */
 function Render(): JSX.Element {
+  let JSX: JSX.Element | null = null;
 
-  return useComputed(() => {
-    let JSX: JSX.Element | null = null;
+  const {user, appPath, APPSMap} = wsCtx;
 
-    const {user, urlQuery: {path}, APPSMap} = wsCtx;
+  const app = appPath && APPSMap[appPath];
 
-    const app = APPSMap[path];
-
-    if (app) {
-      /** 安装的应用 */
-      JSX = (
-        <InlineApp app={app}/>
-      );
-    } else {
-      /** 平台默认的应用 */
-      switch (path) {
-        case 'my_project':
-          JSX = (
-            <MyProjects user={user}/>
-          );
-          break;
-        case 'ground':
-          JSX = (
-            //@ts-ignore
-            <Ground/>
-          );
-          break;
-        case 'running_task':
-          JSX = (
-            <RunningTaskPanel user={user}/>
-          );
-          break;
-        case 'trash':
-          JSX = (
-            //@ts-ignore
-            <Trash/>
-          );
-          break;
-        default:
-          break;
-      }
+  if (app) {
+    /** 安装的应用 */
+    JSX = (
+      <InlineApp app={app}/>
+    );
+  } else {
+    /** 平台默认的应用 */
+    switch (appPath) {
+      case 'my-project':
+        JSX = (
+          <MyProjects user={user}/>
+        );
+        break;
+      case 'ground':
+        JSX = (
+          //@ts-ignore
+          <Ground/>
+        );
+        break;
+      case 'running-task':
+        JSX = (
+          <RunningTaskPanel user={user}/>
+        );
+        break;
+      case 'trash':
+        JSX = (
+          //@ts-ignore
+          <Trash/>
+        );
+        break;
+      default:
+        break;
     }
+  }
 
-    if (!JSX) {
-      wsCtx.setUrlQuery('path', APP_DEFAULT_ACTIVE_MENUID);
-    }
+  if (!JSX) {
+    wsCtx.gotoApp(APP_DEFAULT_ACTIVE_MENUID);
+  }
 
-    return JSX || <div>当前页面不存在，跳转回“我的项目”</div>;
-  });
+  return JSX || <div>当前页面不存在，跳转回“我的项目”</div>;
 }
 
 /** 内容区 */

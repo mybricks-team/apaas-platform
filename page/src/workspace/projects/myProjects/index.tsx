@@ -7,23 +7,24 @@ import TitleBar from './title';
 
 import {Block, Content} from '..';
 import {Projects} from './projects';
-import {getApiUrl} from '../../../utils';
+import {getApiUrl, getUrlQuery} from '../../../utils';
 import WorkspaceContext, {User} from '../../WorkspaceContext';
 import Ctx from "./Ctx";
 
 export default function MyProjects({user}) {
-  const wsCtx = observe(WorkspaceContext, {from: 'parents'})
-
   const ctx: Ctx = useObservable(Ctx, next => {
     next({
       user,
-      path: [{id: null, name: '我的项目', parentId: null}],
-      projectList: null,
-      getAll(pushState = false) {
+      getAll(pushState = true) {
         const parentId = ctx.path[ctx.path.length - 1].id;
+        const urlQuery = getUrlQuery()
+        const {app} = urlQuery
+        const url = `?app=${app}${parentId ? `&id=${parentId}` : ''}`;
 
         if (pushState) {
-          wsCtx.setUrlQuery('id', parentId);
+          history.pushState(null, "", url);
+        } else {
+          history.replaceState(JSON.parse(JSON.stringify(urlQuery)), "", url);
         }
 
         axios({
@@ -54,7 +55,8 @@ export default function MyProjects({user}) {
           ctx.projectList = [];
         });
       },
-      setPath(id: string | null, pushState = false) {
+      setPath(id: string | null, pushState = true) {
+        ctx.parentId = id
         ctx.projectList = null;
         const path = ctx.path.slice(0, 1);
 
@@ -69,6 +71,7 @@ export default function MyProjects({user}) {
           }).then((res) => {
             const {code, data} = res.data;
             if (code === 1) {
+              console.log(data, 'data')
               if (data.length) {
                 path.push(...data);
               }
@@ -87,13 +90,17 @@ export default function MyProjects({user}) {
     })
   }, {to: 'children'});
 
-  useComputed(() => {
-    const {urlQuery: {id}} = wsCtx;
+  useMemo(() => {
+    const urlQuery = getUrlQuery()
+    const { id } = urlQuery
+    ctx.setPath(id, false)
 
-    setTimeout(() => {
-      ctx.setPath(id);
+    window.addEventListener("popstate", () => {
+      const urlQuery = getUrlQuery();
+      const { id } = urlQuery;
+      ctx.setPath(id, false)
     });
-  });
+  }, [])
 
   return (
     <>

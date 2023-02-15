@@ -11,6 +11,7 @@ import WorkspaceContext from './WorkspaceContext';
 
 import css from './Workspace.less';
 import {useObservable} from "@mybricks/rxui";
+import {getUrlQuery} from '../utils'
 
 /** 工作区 (我的空间) */
 export default function Workspace(): JSX.Element {
@@ -65,6 +66,14 @@ export default function Workspace(): JSX.Element {
       setLoading(false);
     }).catch((err) => {
       message.error(err?.message ?? '初始化信息失败');
+    });
+
+    window.addEventListener("popstate", () => {
+      const urlQuery = getUrlQuery();
+      const { app } = urlQuery;
+      if (app !== wsCtx.appPath) {
+        wsCtx.gotoApp(app, false);
+      }
     });
   }, []);
 

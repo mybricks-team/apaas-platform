@@ -82,7 +82,8 @@ module.exports = {
     // open:true,
     proxy: [
       {
-        context: ['*'],
+        // context: ['*'],
+        context: ['/'],
         target: 'http://localhost:8080',
         secure: false,
         changeOrigin: true,
@@ -208,9 +209,9 @@ module.exports = {
   plugins: [
     new WebpackBar(),
     new ignoreWarningPlugin(),   // All warnings will be ignored
-    new webpack.DefinePlugin({
-      ENV: NODE_ENV === "production" ? JSON.stringify("") : JSON.stringify("DEV")
-    }),
+    // new webpack.DefinePlugin({
+    //   ENV: NODE_ENV === "production" ? JSON.stringify("") : JSON.stringify("DEV")
+    // }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, `../templates/workspace.html`),
       filename: "workspace.html",
