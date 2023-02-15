@@ -8,6 +8,7 @@ import CreateFile from '@mybricks-cloud/create-application';
 import {getApiUrl} from '../../../../utils';
 // import { APPS, APPSMap } from '../../../constants';
 import WorkspaceContext, {T_App} from '../../../WorkspaceContext';
+import FileIcon from '../../../icon/file-icon'
 
 import css from './Create.less';
 import Ctx from "../Ctx";
@@ -32,7 +33,11 @@ export function Create(): JSX.Element {
 
   /** 搭建应用列表 */
   const AppList: JSX.Element[] = useMemo(() => {
-    return DesignAPPS.map(app => {
+    const { folderExtName } = ctx;
+    if (typeof folderExtName === 'undefined') {
+      return []
+    }
+    return designAPPSFilter(DesignAPPS, folderExtName).map(app => {
       const {
         icon,
         title,
@@ -47,9 +52,7 @@ export function Create(): JSX.Element {
           onClick={() => newProject(app)}
         >
           <div className={css.typeIcon}>
-            <div style={{width: 32, height: 32}}>
-              {icon && <img src={icon} width={'100%'} height={'100%'}/>}
-            </div>
+            <FileIcon icon={icon}/>
           </div>
           <div className={css.tt}>
             <label>{title}</label>
@@ -61,7 +64,7 @@ export function Create(): JSX.Element {
         </div>
       );
     });
-  }, []);
+  }, [ctx.folderExtName]);
 
   /** 创建应用弹窗提交事件 */
   const createFileSubmit = useCallback((value) => {
@@ -133,4 +136,18 @@ export function Create(): JSX.Element {
       {AppList}
     </div>
   );
+}
+
+function designAPPSFilter (apps, folderExtname) {
+  let finalApps = apps
+  switch (folderExtname) {
+    case 'folder-project':
+    case 'folder-module':
+      finalApps = apps.filter((app) => app.extName !== 'folder-project')
+      break
+    default:
+      break
+  }
+  
+  return finalApps
 }

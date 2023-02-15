@@ -9,14 +9,17 @@ import {Block, Content} from '..';
 import {Projects} from './projects';
 import {getApiUrl, getUrlQuery} from '../../../utils';
 import WorkspaceContext, {User} from '../../WorkspaceContext';
-import Ctx from "./Ctx";
+import Ctx, { folderExtnames } from "./Ctx";
 
 export default function MyProjects({user}) {
   const ctx: Ctx = useObservable(Ctx, next => {
     next({
       user,
       getAll(pushState = true) {
-        const parentId = ctx.path[ctx.path.length - 1].id;
+        const curPath = ctx.path[ctx.path.length - 1]
+        const parentId = curPath.id
+        const extName = curPath.extName
+        ctx.folderExtName = extName
         const urlQuery = getUrlQuery()
         const {app} = urlQuery
         const url = `?app=${app}${parentId ? `&id=${parentId}` : ''}`;
@@ -38,7 +41,7 @@ export default function MyProjects({user}) {
 
             data.data.forEach((item) => {
               const {extName} = item;
-              if (extName === 'folder') {
+              if (folderExtnames.includes(extName)) {
                 folderAry.push(item);
               } else {
                 fileAry.push(item);
@@ -71,7 +74,6 @@ export default function MyProjects({user}) {
           }).then((res) => {
             const {code, data} = res.data;
             if (code === 1) {
-              console.log(data, 'data')
               if (data.length) {
                 path.push(...data);
               }

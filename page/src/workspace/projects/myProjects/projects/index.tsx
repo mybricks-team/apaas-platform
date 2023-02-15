@@ -8,7 +8,7 @@ import {eventOperation, getApiUrl} from '../../../../utils';
 import FileIcon from '../../../icon/file-icon';
 
 import css from './index.less';
-import Ctx from "../Ctx";
+import Ctx, { folderExtnames } from "../Ctx";
 
 /** 项目列表 */
 export function Projects(): JSX.Element {
@@ -21,13 +21,10 @@ export function Projects(): JSX.Element {
     const {id, name, extName, parentId, homepage} = item;
     switch (type) {
       case 'open':
-        if (extName !== 'folder') {
+        if (!folderExtnames.includes(extName)) {
           window.location.href = `${homepage}?id=${id}`;
-          // window.location.href = `/app-${extName}.html?id=${id}`;
         } else {
-          // ctx.path.push({id, name, parentId});
           ctx.setPath(id, true);
-          // ctx.getAll();
         }
         break;
       case 'delete':
@@ -69,10 +66,12 @@ export function Projects(): JSX.Element {
           return (
             <div key={project.id} className={css.file} onClick={() => operate('open', {...project, homepage})}>
               <div className={css.snap}>
-                <FileIcon urlIcon={project.icon} icon={icon} big={extName === 'folder'}/>
+                <FileIcon urlIcon={project.icon} icon={icon} big={folderExtnames.includes(extName)}/>
               </div>
               <div className={css.tt}>
-                <FileIcon icon={icon} width={18}/>
+                <div className={css.typeIcon}>
+                  <FileIcon icon={icon} width={18}/>
+                </div>
                 <div className={css.detail}>
                   <div className={css.name}>
                     {project.name}

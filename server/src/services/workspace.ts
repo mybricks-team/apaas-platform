@@ -7,6 +7,8 @@ import FilePubDao from "../dao/filePub.dao";
 import { getNextVersion } from "../utils";
 import ConfigDao from "../dao/config.dao";
 
+const folderExtnames = ['folder', 'folder-project', 'folder-module']
+
 @Controller("/paas/api")
 export default class WorkspaceService {
   fileDao: FileDao;
@@ -571,14 +573,14 @@ export default class WorkspaceService {
     if (file) {
       let { extName, parentId } = file;
 
-      if (extName === "folder") {
-        path.unshift({ id: file.id, name: file.name, parentId });
+      if (folderExtnames.includes(extName)) {
+        path.unshift(file);
 
         while (parentId) {
           file = await this.fileDao.queryById(parentId);
           parentId = file?.parentId;
 
-          path.unshift({ id: file.id, name: file.name, parentId });
+          path.unshift(file);
         }
       }
     }

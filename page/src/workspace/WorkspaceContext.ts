@@ -3,6 +3,8 @@ import {FC} from 'react';
 import AppStore from './app-store';
 import {getUrlQuery} from '../utils';
 
+import { FolderProject, FolderModule } from './icon' 
+
 export type APP_MENU_ITEM_ID = "my-project" | "running-task";
 
 /** 菜单栏 */
@@ -88,11 +90,11 @@ interface IAppExport {
 /** APP */
 export interface T_App {
   /** 图标 */
-  icon: string;
+  icon: string | ((...args: any) => JSX.Element);
   /** 应用类型类型: 系统、用户 */
   type: string;
   /** 搭建应用类型 */
-  extName: string;
+  extName?: string;
   /** 标题 */
   title: string;
   /** 跳转链接 */
@@ -130,6 +132,7 @@ export default class WorkspaceContext {
       {
         title: "文件夹",
         description: "文件夹",
+        type: 'user',
         extName: "folder",
         namespace: "mybricks-folder",
         icon: "https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png",
@@ -137,16 +140,18 @@ export default class WorkspaceContext {
       {
         title: "项目文件夹",
         description: "通过项目的方式管理文件",
-        extName: "folder",
-        namespace: "folder-project",
-        icon: "https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png",
+        type: 'user',
+        extName: "folder-project",
+        namespace: "mybricks-folder-project",
+        icon: FolderProject
       },
       {
         title: "模块文件夹",
         description: "通过模块的方式管理文件",
-        extName: "folder",
-        namespace: "folder-module",
-        icon: "https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png",
+        type: 'user',
+        extName: "folder-module",
+        namespace: "mybricks-folder-module",
+        icon: FolderModule
       },
     ];
 
@@ -155,6 +160,7 @@ export default class WorkspaceContext {
       {
         title: "大家的分享",
         description: "大家的分享",
+        type: 'user',
         extName: "ground",
         namespace: "ground",
         icon: "https://assets.mybricks.world/icon/leileizi.png"

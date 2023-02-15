@@ -26,10 +26,9 @@
 //     this.popCreate = false
 //   }
 // }
-import axios from 'axios'
-import { message } from 'antd'
 
-import { getApiUrl, getUrlQuery } from '../../../utils'
+
+export const folderExtnames = ['folder', 'folder-project', 'folder-module']
 
 export default class Ctx {
   user: { id, name, email }
@@ -38,7 +37,9 @@ export default class Ctx {
 
   popCreate: boolean
 
-  path: Array<{ id: null | number, name: string, parentId: null | number }> = [{id: null, name: '我的项目', parentId: null}]
+  folderExtName: null | string | undefined = undefined
+
+  path: Array<{ id: null | number, name: string, parentId: null | number, extName: null | string }> = [{id: null, name: '我的项目', parentId: null, extName: null}]
 
   projectList: null | Array<any> = null
 
