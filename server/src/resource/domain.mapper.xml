@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="domain">
+    <select id="getTables">
+        SHOW TABLES
+    </select>
+
+    <select id="getFields">
+        SHOW FULL COLUMNS FROM ${table}
+    </select>
+
+    <delete id="deleteTable">
+        update domain_table_meta
+        set
+            status = -1
+        where
+            id = #{id}
+    </delete>
+
+    <insert id="createTable">
+        CREATE TABLE ${table} (
+        <foreach collection="fields" item="item" open="" separator="" close="" index="index">
+            <choose>
+                <when test="item.name === 'id'">
+                    ${item.id} bigint unsigned NOT NULL AUTO_INCREMENT COMMENT #{item.desc},
+                </when>
+                <otherwise>
+                    <if test="item.dbType === 'varchar'">
+                        ${item.id} varchar(256) DEFAULT NULL COMMENT #{item.desc},
+                    </if>
+                    <if test="item.dbType === 'bigint'">
+                        ${item.id} bigint DEFAULT NULL COMMENT #{item.desc},
+                    </if>
+                    <if test="item.dbType === 'int'">
+                        ${item.id} int DEFAULT NULL COMMENT #{item.desc},
+                    </if>
+                    <if test="item.dbType === 'mediumtext'">
+                        ${item.id} mediumtext DEFAULT NULL COMMENT #{item.desc},
+                    </if>
+                </otherwise>
+            </choose>
+        </foreach>
+        PRIMARY KEY (${primaryKey})
+        ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT #{comment};
+    </insert>
+
+    <update id="updateTable">
+        ALTER TABLE ${table}
+        <foreach collection="columns" item="item" open="" separator="," close="" index="index">
+            <if test="item.action === 'insert_field'">
+                ADD ${item.name}
+                <if test="item.type === 'varchar'">
+                    varchar(256)
+                </if>
+                <if test="item.type === 'bigint'">
+                    bigint
+                </if>
+                <if test="item.type === 'int'">
+                    int
+                </if>
+                <if test="item.type === 'mediumtext'">
+                    mediumtext
+                </if>
+                DEFAULT NULL COMMENT #{item.desc}
+            </if>
+            <if test="item.action === 'modify_field'">
+                MODIFY ${item.name}
+                <if test="item.type === 'varchar'">
+                    varchar(256)
+                </if>
+                <if test="item.type === 'bigint'">
+                    bigint
+                </if>
+                <if test="item.type === 'int'">
+                    int
+                </if>
+                <if test="item.type === 'mediumtext'">
+                    mediumtext
+                </if>
+                DEFAULT NULL COMMENT #{item.desc}
+            </if>
+            <if test="item.action === 'delete_field'">
+                DROP ${item.name}
+            </if>
+            <if test="item.action === 'modify_table_comment'">
+                COMMENT #{item.desc}
+            </if>
+            <if test="item.action === 'modify_table_name'">
+                RENAME TO #{item.name}
+            </if>
+        </foreach>
+    </update>
+
+    <insert id="createView">
+        CREATE VIEW ${view}
+        <foreach collection="fields" item="item" open="(" separator="," close=")" index="index">
+            ${item}
+        </foreach>
+        AS SELECT
+        <foreach collection="originFields" item="item" open="" separator="," close="" index="index">
+            ${item}
+        </foreach>
+        FROM ${table};
+    </insert>
+
+    <update id="updateView">
+        ALTER VIEW ${view}
+        <foreach collection="fields" item="item" open="(" separator="," close=")" index="index">
+            ${item}
+        </foreach>
+        AS SELECT
+        <foreach collection="originFields" item="item" open="" separator="," close="" index="index">
+            ${item}
+        </foreach>
+        FROM ${table}
+    </update>
+
+    <delete id="deleteView">
+        DROP VIEW IF EXISTS ${view};
+    </delete>
+
+    <select id="getTableMeta">
+        select
+        domain_table_meta.*,
+        domain_table_action.table_meta,
+        domain_table_action.action_log,
+        domain_table_action.id as action_log_id,
+        domain_table_action.creator_id as updater_id,
+        domain_table_action.create_time as update_time
+        from
+        domain_table_meta,
+        domain_table_action
+        where
+        domain_file_id = #{fileId}
+        and domain_table_meta.id = domain_table_action.domain_meta_id
+        and domain_table_action.id in (select max(id) from domain_table_action group by domain_meta_id)
+        and domain_table_meta.status = 1
+        <if test="tableName">
+            and domain_table_meta.table_name = #{tableName}
+        </if>
+    </select>
+
+    <insert id="createActionLog">
+        insert into domain_table_action
+        (
+        table_meta,
+        domain_meta_id,
+        action_log,
+        creator_id,
+        create_time
+        ) values (
+            #{tableMeta},
+            #{metaId},
+            #{actionLog},
+            #{creatorId},
+            #{createTime}
+        )
+    </insert>
+
+    <insert id="createTableMeta">
+        insert into domain_table_meta
+        (
+        table_name,
+        domain_file_id,
+        creator_id,
+        create_time
+        ) values (
+            #{tableName},
+            #{fileId},
+            #{creatorId},
+            #{createTime}
+        )
+    </insert>
+
+    <update id="updateTableMeta">
+        update domain_table_meta
+        set
+            action_log_id = #{actionLogId}
+        where
+            id = #{id}
+    </update>
+</mapper>

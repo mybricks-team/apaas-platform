@@ -1,0 +1,11 @@
+{
+  "database": {
+    "dbType": "MYSQL",
+    "host": "public-bjzey-d-62.idchb1az3.hb1.kwaidc.com",
+    "user": "gifshow_5229_v1_rw",
+    "password": "Kv1uKW5j96RiBbCo8Zk0JTpPDNEzFq3c",
+    "port": 5229,
+    "database": "gifshow",
+    "sqlPath": "../resource"
+  }
+}

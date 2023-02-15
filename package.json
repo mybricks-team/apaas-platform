@@ -3,8 +3,8 @@
   "version": "1.1.75",
   "description": "",
   "scripts": {
-    "build": "cd fe && npm install && npm run build",
-    "zip": "npm run build && node ./_nodejs/zip.js"
+    "build": "cd page && npm install && npm run build",
+    "zip": "npm run build && node ./server/zip.js"
   },
   "repository": {
     "type": "git",

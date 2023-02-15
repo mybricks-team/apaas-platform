@@ -1,9 +1,0 @@
-.git/
-.idea/
-.DS_Store
-node_modules/*
-tags/*
-.history
-.vscode/
-package-lock.json
-*.pem

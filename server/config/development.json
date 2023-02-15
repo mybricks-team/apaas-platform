@@ -1,0 +1,11 @@
+{
+  "database": {
+    "dbType": "MYSQL",
+    "host": "public-xm-d-cds-staging-node57.idchb1az1.hb1.kwaidc.com",
+    "user": "test_rw",
+    "password": "54rltyi5BCdcm06wu22A0brvvzU5uDgB",
+    "port": 47635,
+    "database": "gifshow",
+    "sqlPath": "../resource"
+  }
+}

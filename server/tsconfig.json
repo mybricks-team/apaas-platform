@@ -15,9 +15,9 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "common/*": ["./server/common/*"],
+      "common/*": ["./src/common/*"],
     }
   },
   "exclude": ["node_modules", "page"],
-  "include": ["./server"],
+  "include": ["./src"],
 }
