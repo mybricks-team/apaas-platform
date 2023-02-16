@@ -124,6 +124,7 @@ export default class FileDao extends DOBase {
     groupIds?: string | string[]
     namespaces?: string[];
     extName?: string
+    extNames?: string[]
     page?: number
     pageSize?: number
     creatorId?: string

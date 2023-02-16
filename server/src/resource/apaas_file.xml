@@ -76,6 +76,12 @@
             )
             ) and
         </if>
+        <if test="extNames">
+            ext_name in
+            <foreach collection="extNames" open="(" close=")" separator="," item="extName" index="i">
+                #{extName}
+            </foreach> and 
+        </if>
         <if test="name">
             name like #{name} and
         </if>

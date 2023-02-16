@@ -153,4 +153,77 @@ export default class ConfigService {
       })
     }
   }
+
+  @Get("/file/getFileTreeMapByFile")
+  async getFileTreeMapByFile(@Query() query) {
+    const { id, extName, folderExtName } = query
+    let file = await this.fileDao.queryById(id)
+
+    if (!file) {
+      return {
+        code: 1,
+        data: {
+          ['000']: {
+            data: [],
+            type: '_files_',
+            _origin: {}
+          }
+        }
+      }
+    }
+
+    let { parentId } = file;
+
+    const map = {}
+    const path = []
+
+
+    while(parentId) {
+      file = await this.fileDao.queryById(parentId);
+      const files = await this.fileDao.query({parentId: file.id, extNames: [extName, 'folder', 'folder-project', 'folder-module']})
+      if (file.extName === folderExtName) {
+        // 停止
+        parentId = null
+      } else {
+        // 继续找
+        parentId = file?.parentId
+      }
+      if (!parentId) {
+        map['000'] = {
+          data: files,
+          type: '_files_',
+          _origin: {}
+        }
+      } else {
+        map[`folder_${file.id}`] = {
+          data: files,
+          type: '_files_',
+          _origin: file
+        }
+        path.unshift({
+          fileId: `folder_${file.id}`,
+          loading: false,
+          type: '_files_'
+        })
+      }
+    }
+
+    return {
+      code: 1,
+      data: {map, path}
+    }
+  }
+
+  @Get("/file/getFiles")
+  async getFiles(@Query() query) {
+    const { parentId, extNames } = query
+
+    const files = await this.fileDao.query({parentId, extNames})
+
+    return {
+      code: 1,
+      data: files
+    }
+  }
+
 }

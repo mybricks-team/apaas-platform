@@ -33,11 +33,11 @@ export function Create(): JSX.Element {
 
   /** 搭建应用列表 */
   const AppList: JSX.Element[] = useMemo(() => {
-    const { folderExtName } = ctx;
+    const { folderExtName, path } = ctx;
     if (typeof folderExtName === 'undefined') {
       return []
     }
-    return designAPPSFilter(DesignAPPS, folderExtName).map(app => {
+    return designAPPSFilter(DesignAPPS, path).map(app => {
       const {
         icon,
         title,
@@ -138,16 +138,29 @@ export function Create(): JSX.Element {
   );
 }
 
-function designAPPSFilter (apps, folderExtname) {
+function designAPPSFilter (apps, path) {
   let finalApps = apps
-  switch (folderExtname) {
-    case 'folder-project':
-    case 'folder-module':
-      finalApps = apps.filter((app) => app.extName !== 'folder-project')
-      break
-    default:
-      break
+  const inFolderProjectAndModule = !!path.find((item) => ['folder-project', 'folder-module'].includes(item.extName))
+  /**
+   * 项目文件夹、模块文件夹下无法创建项目文件夹
+   */
+  if (inFolderProjectAndModule) {
+    finalApps = apps.filter((app) => app.extName !== 'folder-project')
   }
   
   return finalApps
 }
+
+// function designAPPSFilter (apps, folderExtname) {
+//   let finalApps = apps
+//   switch (folderExtname) {
+//     case 'folder-project':
+//     case 'folder-module':
+//       finalApps = apps.filter((app) => app.extName !== 'folder-project')
+//       break
+//     default:
+//       break
+//   }
+  
+//   return finalApps
+// }
