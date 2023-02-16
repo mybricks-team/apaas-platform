@@ -154,6 +154,42 @@ export default class ConfigService {
     }
   }
 
+  @Get("/file/checkInFolderProject")
+  async checkInFolderProject(@Query() query) {
+    const { id } = query
+    let file = await this.fileDao.queryById(id)
+    let inFolderProject = false
+
+    if (!file) {
+      return {
+        code: 1,
+        data: {
+          inFolderProject
+        }
+      }
+    }
+
+    let { parentId } = file
+
+    while(parentId) {
+      file = await this.fileDao.queryById(parentId)
+
+      if (file?.extName === 'folder-project') {
+        inFolderProject = true
+        parentId = null
+      } else {
+        parentId = file?.parentId
+      }
+    }
+
+    return {
+      code: 1,
+      data: {
+        inFolderProject
+      }
+    }
+  }
+
   @Get("/file/getFileTreeMapByFile")
   async getFileTreeMapByFile(@Query() query) {
     const { id, extName, folderExtName } = query
