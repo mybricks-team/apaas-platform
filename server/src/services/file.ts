@@ -252,6 +252,14 @@ export default class ConfigService {
         type: '_files_',
         _origin: {}
       }
+    } else {
+      const files = await this.fileDao.query({extNames: [extName, 'folder', 'folder-project', 'folder-module'], creatorId: file.creatorId})
+
+      map['000'] = {
+        data: files,
+        type: '_files_',
+        _origin: {}
+      }
     }
 
     return {
