@@ -59,7 +59,7 @@ async function bootstrap() {
     +process.env.port ||
       +process.env.AUTO_PORT0 ||
       +process.env.AUTO_PORT1 ||
-      8080,
+      3100,
   );
 }
 
