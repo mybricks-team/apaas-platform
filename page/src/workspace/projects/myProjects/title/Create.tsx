@@ -158,8 +158,6 @@ function designAPPSFilter (apps, path) {
   if (inFolderProjectAndModule) {
     finalApps = apps.filter((app) => app.extName !== 'folder-project')
   }
-
-  console.log(finalApps, 'finalApps')
   
   return finalApps
 }
