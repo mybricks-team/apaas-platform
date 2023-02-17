@@ -33,10 +33,7 @@ export function Create(): JSX.Element {
 
   /** 搭建应用列表 */
   const AppList: JSX.Element[] = useMemo(() => {
-    const { folderExtName, path } = ctx;
-    if (typeof folderExtName === 'undefined') {
-      return []
-    }
+    const { path } = ctx;
     return designAPPSFilter(DesignAPPS, path).map(app => {
       const {
         icon,
@@ -161,6 +158,8 @@ function designAPPSFilter (apps, path) {
   if (inFolderProjectAndModule) {
     finalApps = apps.filter((app) => app.extName !== 'folder-project')
   }
+
+  console.log(finalApps, 'finalApps')
   
   return finalApps
 }
