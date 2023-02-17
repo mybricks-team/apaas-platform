@@ -262,7 +262,11 @@ export default class ConfigService {
 
   @Get("/file/getFiles")
   async getFiles(@Query() query) {
-    const { parentId, extNames, groupId } = query
+    let { parentId, extNames, groupId } = query
+
+    if (typeof extNames === 'string') {
+      extNames = extNames.split(',')
+    }
 
     const files = await this.fileDao.query({parentId, extNames, groupId})
 
