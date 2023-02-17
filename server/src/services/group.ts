@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { Logs } from '../utils';
 import UserDao from '../dao/UserDao'
-import UserGroupDao from '../dao/userGroupDao'
+import UserGroupDao from '../dao/UserGroupDao'
 import UserGroupRelation from '../dao/UserGroupRelationDao'
 
 @Controller('/paas/api')
