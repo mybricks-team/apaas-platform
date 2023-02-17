@@ -3,6 +3,7 @@ import {observe, useComputed} from '@mybricks/rxui';
 
 import Ground from './ground';
 import Trash from './trash';
+import Group from "./group";
 import InlineApp from './inlineApp';
 import MyProjects from './myProjects';
 import RunningTaskPanel from './tasks';
@@ -39,7 +40,7 @@ function Render(): JSX.Element {
     switch (appPath) {
       case 'my-project':
         JSX = (
-          <MyProjects user={user}/>
+          <MyProjects user={user} urlPrefix={`?app=${appPath}`}/>
         );
         break;
       case 'ground':
@@ -58,6 +59,11 @@ function Render(): JSX.Element {
           //@ts-ignore
           <Trash/>
         );
+        break;
+      case 'group':
+        JSX = (
+          <Group user={user} urlPrefix={`?app=${appPath}`}/>
+        )
         break;
       default:
         break;

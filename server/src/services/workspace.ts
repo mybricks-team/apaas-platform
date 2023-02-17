@@ -25,7 +25,7 @@ export default class WorkspaceService {
 
   @Get("/workspace/getAll")
   async getAll(@Query() query) {
-    const { userId, parentId } = query;
+    const { userId, parentId, groupId } = query;
     if (!userId) {
       return {
         code: -1,
@@ -34,7 +34,14 @@ export default class WorkspaceService {
     }
 
     try {
-      const rtn = await this.fileDao.query({ creatorId: userId, parentId });
+      const params = {
+        parentId,
+        groupId
+      }
+      if (!groupId) {
+        params.creatorId = userId
+      }
+      const rtn = await this.fileDao.query(params);
 
       return {
         code: 1,
@@ -145,7 +152,7 @@ export default class WorkspaceService {
 
   @Post("/workspace/createFile")
   async createFile(@Body() body) {
-    const { userId, name, extName, namespace, type, parentId } = body;
+    const { userId, name, extName, namespace, type, parentId, groupId } = body;
     if (!userId) {
       return {
         code: -1,
@@ -161,7 +168,7 @@ export default class WorkspaceService {
         creatorId: userId,
         creatorName: userId,
         extName: extName,
-        groupId: null,
+        groupId,
         parentId,
       });
 

@@ -11,18 +11,24 @@ import {getApiUrl, getUrlQuery} from '../../../utils';
 import WorkspaceContext, {User} from '../../WorkspaceContext';
 import Ctx, { folderExtnames } from "./Ctx";
 
-export default function MyProjects({user}) {
+// groupId={ctx.item.id}
+//       path={[{...ctx.item, type: 'group'}]}
+
+export default function MyProjects({urlPrefix, groupId, user, filterCondition, path = [{id: null, name: '我的项目', parentId: null, extName: null}]}) {
   const ctx: Ctx = useObservable(Ctx, next => {
     next({
       user,
+      urlPrefix,
+      groupId,
+      path,
+      filterCondition,
       getAll(pushState = true) {
         const curPath = ctx.path[ctx.path.length - 1]
-        const parentId = curPath.id
+        const parentId = curPath.type === 'group' ? null : curPath.id
         const extName = curPath.extName
-        ctx.folderExtName = extName
+        ctx.folderExtName = extName || curPath.type
         const urlQuery = getUrlQuery()
-        const {app} = urlQuery
-        const url = `?app=${app}${parentId ? `&id=${parentId}` : ''}`;
+        const url = `${urlPrefix}${parentId ? `&id=${parentId}` : ''}`;
 
         if (pushState) {
           history.pushState(null, "", url);
@@ -33,7 +39,7 @@ export default function MyProjects({user}) {
         axios({
           method: "get",
           url: getApiUrl('/api/workspace/getAll'),
-          params: {userId: user.email, parentId}
+          params: {userId: user.email, parentId, ...filterCondition}
         }).then(({data}) => {
           if (data.code === 1) {
             const folderAry: any = [];
@@ -62,7 +68,6 @@ export default function MyProjects({user}) {
         ctx.parentId = id
         ctx.projectList = null;
         const path = ctx.path.slice(0, 1);
-
         if (!id) {
           ctx.path = path;
           ctx.getAll(pushState);
@@ -95,13 +100,20 @@ export default function MyProjects({user}) {
   useMemo(() => {
     const urlQuery = getUrlQuery()
     const { id } = urlQuery
-    ctx.setPath(id, false)
+    ctx.setPath(id, !!groupId)
+  }, [])
 
-    window.addEventListener("popstate", () => {
+  useEffect(() => {
+    const fn = () => {
       const urlQuery = getUrlQuery();
       const { id } = urlQuery;
       ctx.setPath(id, false)
-    });
+    }
+    window.addEventListener("popstate", fn);
+
+    return () => {
+      window.removeEventListener("popstate", fn)
+    }
   }, [])
 
   return (

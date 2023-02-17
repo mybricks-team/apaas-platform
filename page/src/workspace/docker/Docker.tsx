@@ -93,16 +93,6 @@ function AppMenusPanel(): JSX.Element {
   );
 }
 
-// interface ItemProps {
-//   active?: boolean;
-//   item?: T_App;
-//   onClick: () => void;
-//   iconStyle?: {[key: string]: any}
-
-//   Icon?: JSX.Element
-//   Title?: JSX.Element
-// }
-
 /**
  * 菜单项组件入参
  */
@@ -150,10 +140,26 @@ export function Item({icon, title, namespace, onClick, modal, prefix, suffix}: I
 
   /** 菜单项信息 */
   const ItemInfo: JSX.Element = useMemo(() => {
+    let iconJSX;
+
+    const iconType = typeof icon;
+
+    switch(true) {
+      case iconType === 'string':
+        iconJSX = <img src={icon} width={20} height={20}/>
+        break
+      case iconType === 'function':
+        iconJSX = icon({width: 20, height: 20})
+        break
+      default:
+        iconJSX = icon
+        break
+    }
+
     return (
       <>
         <div className={css.menuIcon}>
-          {typeof icon === "string" ? <img src={icon} width={20} height={20}/> : icon}
+          {iconJSX}
         </div>
         <div className={css.menuLabel}>
           {title}

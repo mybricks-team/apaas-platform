@@ -20,6 +20,8 @@ import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
 import FlowModule from './module/flow/flow.module'
 import PublicService from "./services/public";
+import UserGroupService from "./services/group";
+
 @Module({
   imports: [
     FlowModule,
@@ -30,6 +32,7 @@ import PublicService from "./services/public";
     UserServices,
     ProductServices,
     WorkspaceService,
+    UserGroupService,
     TaskController,
     GroundService,
     ConfigService,

@@ -71,12 +71,26 @@ export function Create(): JSX.Element {
     try {
       const { name } = value;
       const { extName, isSystem } = createCtx.app;
-      const parentId = ctx.path[ctx.path.length - 1].id;
+      console.log(ctx.folderExtName, 'folderExtName')
+
+      let parentId
+
+      if (ctx.path.length === 1) {
+        parentId = null
+      } else {
+        parentId = ctx.path[ctx.path.length - 1].id;
+      }
+
       const param: any = {
         userId: user.email,
         name: name,
         extName: extName,
         parentId,
+        groupId: null
+      }
+      
+      if (ctx.path[0].type === 'group') {
+        param.groupId = ctx.path[0].id
       }
       if(isSystem) {
         param.type = 'system';

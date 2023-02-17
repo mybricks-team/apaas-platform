@@ -121,6 +121,7 @@ export default class FileDao extends DOBase {
   public async query(query?: {
     id?: number
     name?: string
+    groupId?: number
     groupIds?: string | string[]
     namespaces?: string[];
     extName?: string
@@ -155,6 +156,10 @@ export default class FileDao extends DOBase {
 
     if (typeof query.shareType === 'undefined') {
       query.shareType = null
+    }
+
+    if (typeof query.groupId === 'undefined') {
+      query.groupId = null
     }
 
     return await this.exe<Array<FileDO>>("apaas_file:queryAll", {

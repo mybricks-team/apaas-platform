@@ -3,7 +3,7 @@ import {FC} from 'react';
 import AppStore from './app-store';
 import {getUrlQuery} from '../utils';
 
-import { FolderProject, FolderModule } from './icon' 
+import { FolderProject, FolderModule, UserGroup } from './icon' 
 
 export type APP_MENU_ITEM_ID = "my-project" | "running-task";
 
@@ -32,9 +32,16 @@ export const APP_MENU_ITEMS: Array<T_App> = [
   {
     title: "我的项目",
     description: "我的项目",
-    type: "my-project",
+    type: "system",
     namespace: "my-project",
     icon: "https://assets.mybricks.world/icon/myprojects.7cd8f4c7813982aa.png",
+  },
+  {
+    title: "协作组",
+    description: "协作组",
+    type: "system",
+    namespace: "group",
+    icon: UserGroup
   },
   // 暂时注释TODO
   // {
@@ -203,10 +210,11 @@ export default class WorkspaceContext {
    * @param pushState 是否操作路由
    */
   gotoApp(path, pushState = true) {
-    this.appPath = path;
-    console.log('设置appPath', path)
-    if (pushState) {
-      history.pushState(null, "", `?app=${path}`);
+    if (this.appPath !== path) {
+      this.appPath = path;
+      if (pushState) {
+        history.pushState(null, "", `?app=${path}`);
+      }
     }
   }
 

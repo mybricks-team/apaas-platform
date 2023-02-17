@@ -44,6 +44,12 @@
         <if test="creatorId != null">
             creator_id = #{creatorId} and
         </if>
+        <if test="groupId != null">
+            group_id = #{groupId} and
+        </if>
+        <if test="groupId == null">
+            group_id is null and
+        </if>
         <if test="parentId == null">
             parent_id is null and
             <if test="groupIds != null">
@@ -52,9 +58,6 @@
                     #{groupId}
                 </foreach>
                 and
-            </if>
-            <if test="groupIds == null">
-                group_id is null and
             </if>
         </if>
         <if test="parentId">
