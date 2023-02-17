@@ -216,7 +216,7 @@ export default class ConfigService {
 
     while(parentId) {
       file = await this.fileDao.queryById(parentId);
-      const files = await this.fileDao.query({parentId: file.id, extNames: [extName, 'folder', 'folder-project', 'folder-module']})
+      const files = await this.fileDao.query({parentId: file.id, groupId: file.groupId,extNames: [extName, 'folder', 'folder-project', 'folder-module']})
       if (file.extName === folderExtName) {
         // 停止
         parentId = null
