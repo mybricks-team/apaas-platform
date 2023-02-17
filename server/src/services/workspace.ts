@@ -575,7 +575,8 @@ export default class WorkspaceService {
     const path = [];
 
     // let file = await this.fileDao.queryById(fileId);
-    let [file] = await this.fileDao.getFiles({ id: fileId, creatorId: userId });
+    // let [file] = await this.fileDao.getFiles({ id: fileId, creatorId: userId });
+    let [file] = await this.fileDao.getFiles({ id: fileId });
 
     if (file) {
       let { extName, parentId } = file;
