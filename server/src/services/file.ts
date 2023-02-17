@@ -244,6 +244,16 @@ export default class ConfigService {
       }
     }
 
+    if (file.groupId) {
+      const files = await this.fileDao.query({groupId: file.groupId,extNames: [extName, 'folder', 'folder-project', 'folder-module']})
+
+      map['000'] = {
+        data: files,
+        type: '_files_',
+        _origin: {}
+      }
+    }
+
     return {
       code: 1,
       data: {map, path}
@@ -252,9 +262,9 @@ export default class ConfigService {
 
   @Get("/file/getFiles")
   async getFiles(@Query() query) {
-    const { parentId, extNames } = query
+    const { parentId, extNames, groupId } = query
 
-    const files = await this.fileDao.query({parentId, extNames})
+    const files = await this.fileDao.query({parentId, extNames, groupId})
 
     return {
       code: 1,
