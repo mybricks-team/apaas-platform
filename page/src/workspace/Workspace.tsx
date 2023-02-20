@@ -33,9 +33,14 @@ export default function Workspace(): JSX.Element {
         wsCtx.setIsAdministrator(!!user?.isAdmin)
       } catch(e) {
         message.error(e.toString());
-        setTimeout(() => {
-          location.href = '/'
-        }, 1000)
+        const count = sessionStorage.getItem('_MYBIRCKS_LOGIN_REDIRECT_COUNT_')
+        if(!count) {
+          sessionStorage.setItem('_MYBIRCKS_LOGIN_REDIRECT_COUNT_', count + 1)
+          setTimeout(() => {
+            location.href = '/'
+            message.info('即将重定向到登录页')
+          }, 1000)
+        }
       }
 
       const appRes = await axios({
