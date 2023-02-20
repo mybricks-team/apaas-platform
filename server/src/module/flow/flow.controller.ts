@@ -33,6 +33,8 @@ export default class FlowController {
     let hostName = request.headers.host
     if(request.headers['x-forwarded-host']) {
       hostName = request.headers['x-forwarded-host']
+    } else if(request.headers['x-host']) {
+      hostName = request.headers['x-host'].replace(':443', '')
     }
     try {
       const subPath = await this.flowService.saveFile({
@@ -62,6 +64,8 @@ export default class FlowController {
       let hostName = request.headers.host
       if(request.headers['x-forwarded-host']) {
         hostName = request.headers['x-forwarded-host']
+      } else if(request.headers['x-host']) {
+        hostName = request.headers['x-host'].replace(':443', '')
       }
       let files = file || [];
       if (!Array.isArray(files)) {
