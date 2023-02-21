@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { Button, message, Modal, Card, Empty, Form, Select, Input } from 'antd'
+import {Button, message, Modal, Card, Switch, Form, Select} from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 
 import { FileService, VersionService } from './services'
@@ -234,6 +234,19 @@ export default ({ value, onChange, onInit }) => {
                     )}
                   </Select>
                 </Form.Item>
+	              <Form.Item
+		              {...field}
+		              className={styles.moduleForm}
+		              valuePropName="checked"
+		              label="标识为模块任务"
+		              name={[field.name, 'isModule']}
+	              >
+		              <Switch onChange={(value) => {
+			              form.setFieldValue([_NAME_, field.name, 'isModule'], value);
+			
+			              handleChange(form.getFieldsValue())
+		              }} />
+	              </Form.Item>
               </Card>
             ))}
             <div className={styles.addCard}>
