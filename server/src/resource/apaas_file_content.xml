@@ -38,6 +38,14 @@
     id = #{id}
   </select>
 
+  <select id="queryLatestSave">
+    select *
+    from apaas_file_content
+    where
+    file_id = #{fileId} 
+    ORDER BY id DESC LIMIT 1
+  </select>
+
   <select id="queryByIds">
     select id, file_id, creator_id, creator_name, create_time, update_time, status, content, content_type
     from apaas_file_content

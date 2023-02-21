@@ -6,6 +6,9 @@ import { EffectStatus, ExtName } from "../constants";
 import FilePubDao from "../dao/filePub.dao";
 import { getNextVersion } from "../utils";
 import ConfigDao from "../dao/config.dao";
+import * as axios from "axios";
+import FileService from './file'
+import ConfigService from './config'
 
 const folderExtnames = ['folder', 'folder-project', 'folder-module']
 
@@ -15,12 +18,16 @@ export default class WorkspaceService {
   configDao: ConfigDao;
   fileContentDao: FileContentDao;
   filePubDao: FilePubDao;
+  fileService: FileService;
+  configService: ConfigService;
 
   constructor() {
     this.fileDao = new FileDao();
     this.fileContentDao = new FileContentDao();
     this.filePubDao = new FilePubDao();
     this.configDao = new ConfigDao();
+    this.fileService = new FileService();
+    this.configService = new ConfigService()
   }
 
   @Get("/workspace/getAll")
@@ -342,6 +349,96 @@ export default class WorkspaceService {
         code: -1,
         message: ex.message,
       };
+    }
+  }
+
+  @Post("/workspace/publish/module")
+  async publishModule(@Body() body) {
+    const {
+      fileId,
+      email
+    } = body;
+    try {
+      const projectId = await this.fileService._getParentModuleAndProjectInfo(fileId)
+      const pcConfig = await this.configService.getAll(['mybricks-pc-page'])
+      
+      let pcCompileTaskInfo = null;
+      Object.values(pcConfig?.data?.['mybricks-pc-page']?.config?.compileTask).forEach(val => {
+        // @ts-ignore
+        if(val?.isModule) {
+          pcCompileTaskInfo = val
+        }
+      })
+      console.log('22222222', pcCompileTaskInfo)
+
+      // 先写两层，后续如果有需求改为bfs
+      let validFiles = []
+      const firstLevelChildren = await this.fileDao.queryAllFilesByParentId({parentId: fileId})
+      let task = []
+      firstLevelChildren?.forEach(file => {
+        if(file.extName !== 'folder') {
+          validFiles.push(file)
+        } else {
+          task.push(this.fileDao.queryAllFilesByParentId({parentId: file.id}))
+        }
+      })
+      const res = await Promise.all(task)
+      res?.forEach(single => {
+        single?.forEach(file => {
+          if(file.extName !== 'folder') {
+            validFiles.push(file)
+          }
+        });
+      })
+
+      let publishTask = []
+      for(let l = validFiles.length, i=0; i<l; i++) {
+        let file = validFiles[i]
+        const { extName } = file;
+        switch(extName) {
+          case 'domain': {
+            // todo: 物料接口，理论不应该让平台感知，后面通过协议暴露
+            // const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
+            // console.log('!!', latestSave)
+            // publishTask.push((axios as any).post('/api/domain/publish', {
+            //   data: {
+            //     fileId: projectId,
+            //     userId: email,
+            //   }
+            // }))
+            break;
+          }
+          case 'pc-page': {
+            const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
+            // console.log('111111', latestSave)
+            publishTask.push((axios as any).post('/paas/api/system/task/run', {
+              'fileId': pcCompileTaskInfo?.fileId,
+              'version': pcCompileTaskInfo?.version,
+              'injectParam': {
+                'type': 'pc页面发布',
+                'extension': {
+                  'content': latestSave.content
+                },
+                'extName': 'pc-page',
+                'fileId': file.id,
+                'userId': email
+              }
+            }));
+            break;
+          }
+        }
+      }
+
+      const publishTaskRes = await Promise.all(publishTask)
+      return {
+        code: 1,
+        data: publishTaskRes
+      }
+    } catch(e) {
+      return {
+        code: -1,
+        msg: e.message
+      }
     }
   }
 

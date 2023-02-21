@@ -96,6 +96,18 @@
         limit #{limit} offset #{offset}
     </select>
 
+    <select id="queryAllFilesByParentId">
+        select
+        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case when icon= '' then '0' else '1' end as has_icon 
+        from apaas_file
+        where 
+        <if test="parentId">
+            parent_id = #{parentId} and
+        </if>
+        status = 1
+        order by update_time desc
+    </select>
+
     <select id="queryById">
         select * 
         from apaas_file where

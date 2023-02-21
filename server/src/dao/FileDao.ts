@@ -171,6 +171,20 @@ export default class FileDao extends DOBase {
     });
   }
 
+  @Mapping(FileDO)
+  public async queryAllFilesByParentId(query?: {
+    parentId: number
+  }): Promise<Array<FileDO>> {
+    if(!query.parentId) {
+      return Promise.reject('缺少parentId')
+    }
+    query = Object.assign({}, query)
+
+    return await this.exe<Array<FileDO>>("apaas_file:queryAllFilesByParentId", {
+      ...query
+    });
+  }
+
   /**
    * 获取文件信息
    * @param id
