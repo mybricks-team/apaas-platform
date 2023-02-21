@@ -353,14 +353,14 @@ export default class WorkspaceService {
   }
 
   @Post("/workspace/publish/module")
-  async publishModule(@Body() body) {
+  async publishModule(@Body() body, @Req() req) {
     const {
       fileId,
       email
     } = body;
     try {
-      const projectId = await this.fileService._getParentModuleAndProjectInfo(fileId)
-      const pcConfig = await this.configService.getAll(['mybricks-pc-page'])
+      const projectId = (await this.fileService._getParentModuleAndProjectInfo(fileId))?.projectId;
+      const pcConfig = await this.configService.getAll(['mybricks-pc-page']);
       
       let pcCompileTaskInfo = null;
       Object.values(pcConfig?.data?.['mybricks-pc-page']?.config?.compileTask).forEach(val => {
@@ -369,7 +369,6 @@ export default class WorkspaceService {
           pcCompileTaskInfo = val
         }
       })
-      console.log('22222222', pcCompileTaskInfo)
 
       // 先写两层，后续如果有需求改为bfs
       let validFiles = []
@@ -392,36 +391,33 @@ export default class WorkspaceService {
       })
 
       let publishTask = []
-      for(let l = validFiles.length, i=0; i<l; i++) {
+	    const domainToJSONList = [];
+      for(let l = validFiles.length, i = 0; i < l; i++) {
         let file = validFiles[i]
         const { extName } = file;
         switch(extName) {
           case 'domain': {
             // todo: 物料接口，理论不应该让平台感知，后面通过协议暴露
-            // const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
-            // console.log('!!', latestSave)
-            // publishTask.push((axios as any).post('/api/domain/publish', {
-            //   data: {
-            //     fileId: projectId,
-            //     userId: email,
-            //   }
-            // }))
+            const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id });
+						
+	          domainToJSONList.push(JSON.parse(latestSave.content).toJSON);
             break;
           }
           case 'pc-page': {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
-            // console.log('111111', latestSave)
-            publishTask.push((axios as any).post('/paas/api/system/task/run', {
-              'fileId': pcCompileTaskInfo?.fileId,
-              'version': pcCompileTaskInfo?.version,
-              'injectParam': {
-                'type': 'pc页面发布',
-                'extension': {
-                  'content': latestSave.content
+						
+            publishTask.push((axios as any).post(`${req.headers.host.indexOf('localhost') !== -1 ? 'http://' : 'https://'}${req.headers.host}/paas/api/system/task/run`, {
+	            fileId: pcCompileTaskInfo?.fileId,
+	            version: pcCompileTaskInfo?.version,
+	            injectParam: {
+		            type: 'pc页面发布',
+	              extension: {
+                  json: JSON.parse(latestSave.content),
+                  title: latestSave.name,
                 },
-                'extName': 'pc-page',
-                'fileId': file.id,
-                'userId': email
+		            extName: 'pc-page',
+		            fileId: file.id,
+		            userId: email
               }
             }));
             break;
@@ -429,10 +425,31 @@ export default class WorkspaceService {
         }
       }
 
-      const publishTaskRes = await Promise.all(publishTask)
+			const entityMap = {}, serviceAry = [];
+	    domainToJSONList.forEach(domain => {
+				domain.entityAry.forEach(entity => {
+					if (!entity.isSystem || (entity.isSystem && (!entityMap[entity.id] || entity.implementEntityId))) {
+						entityMap[entity.id] = entity;
+					}
+				});
+		    serviceAry.push(...domain.service);
+	    });
+	    publishTask.push(
+				(axios as any).post(
+					`${req.headers.host.indexOf('localhost') !== -1 ? 'http://' : 'https://'}${req.headers.host}/api/domain/publish`,
+					{
+				    fileId: projectId,
+				    userId: email,
+				    json: { entityAry: Object.values(entityMap), service: serviceAry },
+			    }
+				)
+	    );
+	    
+      await Promise.all(publishTask);
+			
       return {
         code: 1,
-        data: publishTaskRes
+        data: null
       }
     } catch(e) {
       return {

@@ -1,7 +1,8 @@
 import React, {FC, useCallback, useState} from 'react';
 import {observe, useComputed} from '@mybricks/rxui';
-import Ctx from '../Ctx';
 import axios from 'axios';
+import {message} from "antd";
+import Ctx from '../Ctx';
 
 import styles from './index.less';
 
@@ -23,17 +24,24 @@ const Box: FC = () => {
 					fileId: latestPath.id,
 					email: ctx.user.email
 				}
-			})).data
-			console.log('@@@@', allFilesRes)
-		} catch(e) {
+			})).data;
 			
+			if (allFilesRes.code === -1) {
+				message.error('发布失败');
+			} else {
+				message.success('发布成功');
+			}
+		} catch(e) {
+			console.log('publish error', e);
+			message.error('发布失败');
 		}
+		setLoading(false);
 	}, [latestPath]);
 	
   return (
 	  <div className={styles.rightBox}>
 		  <div className={styles.title}>模块管理</div>
-		  <button className={styles.publish} disabled={loading} onClick={publish}>发布项目</button>
+		  <button className={styles.publish} disabled={loading} onClick={publish}>{loading ? '发布中...' : '发布模块'}</button>
 	  </div>
   );
 };
