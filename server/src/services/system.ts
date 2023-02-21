@@ -5,6 +5,7 @@ import { uuid } from '../utils/index';
 import { getConnection } from '@mybricks/rocker-dao';
 // @ts-ignore
 import { createVM } from 'vm-node';
+import FileService from './file'
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -14,6 +15,8 @@ export default class SystemService {
   @Inject(FilePubDao)
   filePubDao: FilePubDao;
 
+  fileService: FileService
+
   conn: any;
 
   nodeVMIns: any;
@@ -21,6 +24,7 @@ export default class SystemService {
   constructor() {
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
+    this.fileService = new FileService()
   }
 
   checkSqlValid(sql) {
@@ -191,21 +195,48 @@ export default class SystemService {
   }
 
   @Post('/system/domain/list')
-  async getDomainServiceList() {
+  async getDomainServiceList(@Body('fileId') fileId: number) {
     try {
+      const currentFileHierarchy = await this.fileService._getParentModuleAndProjectInfo(fileId)
       let totalList = [];
-      const domainFiles = await this.fileDao.pureQuery({
+      let domainFiles = await this.fileDao.pureQuery({
         extName: 'domain',
       });
+      let filterDomainFiles = []
+      const allDomainFileHierarchyTask = []
+      domainFiles.forEach(i => {
+        allDomainFileHierarchyTask.push(this.fileService._getParentModuleAndProjectInfo(i.id))
+      })
+      let allDomainFileHierarchy = await Promise.all(allDomainFileHierarchyTask);
+      
+      if (currentFileHierarchy.projectId) {
+        // 项目内，必须是同一项目
+        domainFiles?.forEach((i, index) => {
+          if(allDomainFileHierarchy[index]?.projectId === currentFileHierarchy.projectId) {
+            filterDomainFiles.push(i)
+          }
+        })
+      } else {
+        // 非项目内，找到projectID为空的列表
+        domainFiles?.forEach((i, index) => {
+          if(!allDomainFileHierarchy[index]?.projectId) {
+            filterDomainFiles.push(i)
+          }
+        })
+      }
       const fileInfoMap = {};
-      domainFiles?.map((f) => {
+      filterDomainFiles?.map((f) => {
         fileInfoMap[f.id] = f;
       });
       const fileIds: any[] = Object.keys(fileInfoMap) || [];
-      const pubContentList = await this.filePubDao.getLatestPubByIds({
-        ids: fileIds,
-        envType: 'prod',
-      });
+      let pubContentList = [];
+      if(fileIds?.length !== 0) {
+        pubContentList =  await this.filePubDao.getLatestPubByIds({
+          ids: fileIds,
+          envType: 'prod',
+        });
+      }
+      
       pubContentList?.forEach((pubContent) => {
         const contentObj =
           typeof pubContent.content === 'string'
@@ -235,7 +266,7 @@ export default class SystemService {
       return {
         code: -1,
         data: [],
-        msg: `获取接口列表失败: ${JSON.stringify(e)}`,
+        msg: `获取接口列表失败: ${e.message}`,
       };
     }
   }

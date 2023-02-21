@@ -284,4 +284,50 @@ export default class ConfigService {
     }
   }
 
+  async _getParentModuleAndProjectInfo(id: number) {
+    let res = {
+      projectId: null,
+      hierarchy: {}
+    }
+    try {
+      let count = 0;
+      let tempItem = await this.fileDao.queryById(id)
+      while(tempItem?.parentId && count < 5) {
+        count++;
+        tempItem = await this.fileDao.queryById(tempItem.parentId);
+        // todo: build hierarchy
+        if(tempItem.extName === 'folder-module') {
+        } else if(tempItem.extName === 'folder-project') {
+          res.projectId = tempItem.id
+          break
+        }
+      }
+      return res
+    } catch(e) {
+      throw e
+    }
+  }
+
+  @Get("/file/getParentModuleAndProjectInfo")
+  async getParentModuleAndProjectInfo(@Query('id') id: number) {
+    if(!id) {
+      return {
+        code: -1,
+        msg: '缺少ID'
+      }
+    }
+    try {
+      let res = this._getParentModuleAndProjectInfo(id)
+      return {
+        code: 1,
+        data: res
+      }
+    } catch(e) {
+      return {
+        code: -1,
+        msg: e.message
+      }
+    }
+  }
+
 }
