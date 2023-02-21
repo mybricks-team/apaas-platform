@@ -24,7 +24,7 @@
         <foreach collection="fields" item="item" open="" separator="" close="" index="index">
             <choose>
                 <when test="item.name === 'id'">
-                    ${item.id} bigint unsigned NOT NULL AUTO_INCREMENT COMMENT #{item.desc},
+                    ${item.id} bigint unsigned NOT NULL COMMENT #{item.desc},
                 </when>
                 <otherwise>
                     <if test="item.dbType === 'varchar'">

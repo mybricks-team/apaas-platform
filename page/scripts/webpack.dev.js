@@ -84,7 +84,7 @@ module.exports = {
       {
         // context: ['*'],
         context: ['/'],
-        target: 'http://localhost:8080',
+        target: 'http://localhost:3100',
         secure: false,
         changeOrigin: true,
       },

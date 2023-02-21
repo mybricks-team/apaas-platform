@@ -8,11 +8,8 @@ import TitleBar from './title';
 import {Block, Content} from '..';
 import {Projects} from './projects';
 import {getApiUrl, getUrlQuery} from '../../../utils';
-import WorkspaceContext, {User} from '../../WorkspaceContext';
 import Ctx, { folderExtnames } from "./Ctx";
-
-// groupId={ctx.item.id}
-//       path={[{...ctx.item, type: 'group'}]}
+import Box from "./box";
 
 export default function MyProjects({urlPrefix, groupId, user, filterCondition, path = [{id: null, name: '我的项目', parentId: null, extName: null}]}) {
   const ctx: Ctx = useObservable(Ctx, next => {
@@ -114,13 +111,24 @@ export default function MyProjects({urlPrefix, groupId, user, filterCondition, p
     return () => {
       window.removeEventListener("popstate", fn)
     }
-  }, [])
+  }, []);
+	
+	const latestPath = useComputed(() => {
+		return ctx.path[ctx.path.length - 1];
+	});
 
   return (
     <>
       <Content title={<TitleBar/>}>
-        <Block style={{flex: 1, height: 0, marginBottom: 0}}>
-          <Projects/>
+        <Block style={{flex: 1, height: 0, marginBottom: 0, display: 'flex'}}>
+	        <Block style={{ flex: 1, marginBottom: 0 }}>
+		        <Projects/>
+	        </Block>
+	        {latestPath.extName === 'folder-module' ? (
+		        <Block style={{width: '300px', marginBottom: 0}}>
+			        <Box />
+		        </Block>
+	        ) : null}
         </Block>
       </Content>
     </>
