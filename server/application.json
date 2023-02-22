@@ -26,10 +26,6 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-workflow@0.0.4"
-    },
-    {
-      "type": "npm",
       "path": "mybricks-app-website@0.0.28"
     },
     {
@@ -38,7 +34,11 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-app-ktaro@0.0.30"
+      "path": "mybricks-app-ktaro@0.0.32"
+    },
+    {
+      "type":"npm",
+      "path":"mybricks-app-mp@0.0.11"
     },
     {
       "type": "npm",
