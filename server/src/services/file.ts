@@ -317,7 +317,7 @@ export default class ConfigService {
       }
     }
     try {
-      let res = this._getParentModuleAndProjectInfo(id)
+      let res = await this._getParentModuleAndProjectInfo(id)
       return {
         code: 1,
         data: res
