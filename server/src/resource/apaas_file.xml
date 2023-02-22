@@ -467,6 +467,7 @@
         and apaas_file.id = #{projectId}
         and apaas_file_pub.id in (
             select max(id) from apaas_file_pub where module_id is not null group by module_id
-        );
+        )
+        order by apaas_file_pub.id desc;
     </select>
 </mapper>

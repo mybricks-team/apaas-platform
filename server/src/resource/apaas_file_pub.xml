@@ -16,7 +16,8 @@
         update_time,
         content,
         file_content_id,
-        type
+        type,
+        module_id
         )
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             #{fileId},
@@ -29,7 +30,8 @@
             #{createTime},
             #{content},
             #{fileContentId},
-            #{type}
+            #{type},
+            #{moduleId}
         </trim>
     </insert>
 
@@ -153,4 +155,15 @@
             ) as t2 
         where t1.id = t2.id
     </select>
+
+    <select id="getLatestPubByIdAndModuleIds">
+        select * from apaas_file_pub
+        where file_id = #{fileId}
+        and module_id in 
+        <foreach collection="ids" open="(" close=")" separator="," item="id" index="i">
+            #{id}
+        </foreach>
+        order by id
+    </select>
+
 </mapper>

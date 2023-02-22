@@ -52,6 +52,7 @@ export default class FilePubDao extends DOBase {
     status?: EffectStatus;
     commitInfo?: string;
     fileContentId?: number;
+    moduleId?: number
   }): Promise<{ id: number | null }> {
     if (!query.type) {
       query.type = "";
@@ -63,6 +64,7 @@ export default class FilePubDao extends DOBase {
       createTime: Date.now(),
       commitInfo: query.commitInfo ?? "",
       fileContentId: query.fileContentId ?? null,
+      moduleId: query?.moduleId ?? null
     });
 
     return {
@@ -150,4 +152,15 @@ export default class FilePubDao extends DOBase {
       { ids: params.ids, envType }
     );
   }
+
+  @Mapping(FilePublishDO)
+  async getLatestPubByIdAndModuleIds(params: {
+    moduleIds: number[], fileId: string | number
+  }) {
+    return await this.exe<any>(
+      "apaas_file_pub:getLatestPubByIdAndModuleIds",
+      { moduleIds: params.moduleIds, fileId: params.fileId }
+    );
+  }
+  
 }

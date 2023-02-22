@@ -585,7 +585,9 @@ export default class FileDao extends DOBase {
   }
 	
 	/** 根据项目ID获取下面所有模块的发布记录 */
-	public async getLatestFilePubsByProjectId(params: {}) {
+	public async getLatestFilePubsByProjectId(params: {
+    projectId: number
+  }) {
 		const result = await this.exe<any>(
 			'apaas_file:getLatestFilePubsByProjectId',
 			params

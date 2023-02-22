@@ -302,6 +302,7 @@ export default class WorkspaceService {
         commitInfo,
         type,
         fileContentId,
+        moduleId
       } = body;
 
       /** 不存在 fileContentId 则取最新一条记录 */
@@ -338,6 +339,7 @@ export default class WorkspaceService {
         creatorId: userId,
         creatorName: userId,
         fileContentId,
+        moduleId
       });
       data.pib_id = id;
 
@@ -360,7 +362,7 @@ export default class WorkspaceService {
       email
     } = body;
     try {
-      const projectId = (await this.fileService._getParentModuleAndProjectInfo(fileId))?.projectId;
+      const { projectId, moduleId } = (await this.fileService._getParentModuleAndProjectInfo(fileId));
       const pcConfig = await this.configService.getAll(['mybricks-pc-page']);
       const domainName = getRealDomain(req)
       
@@ -435,19 +437,47 @@ export default class WorkspaceService {
 				});
 		    serviceAry.push(...domain.service);
 	    });
-	    publishTask.push(
-				(axios as any).post(
-					`${domainName}/api/domain/publish`,
-					{
-				    fileId: projectId,
-				    userId: email,
-				    json: { entityAry: Object.values(entityMap), service: serviceAry },
-			    }
-				)
-	    );
-	    
+      if(domainToJSONList.length !== 0) {
+        publishTask.push(
+          (axios as any).post(
+            `${domainName}/api/domain/publish`,
+            {
+              fileId: projectId,
+              userId: email,
+              json: { entityAry: Object.values(entityMap), service: serviceAry },
+              moduleId
+            }
+          )
+        );
+      }
+
       await Promise.all(publishTask);
 			
+      // 合并项目内的所有最新module发布的信息
+      if(domainToJSONList.length !== 0) {
+        let insertPubRecord: any = {
+          version: null,
+          file_id: projectId,
+          content: {
+            serviceAry: []
+          },
+          creatorId: email,
+          creatorName: email,
+          type: 'prod'
+        }
+        const pubsList = await this.fileDao.getLatestFilePubsByProjectId({
+          projectId
+        })
+        pubsList?.forEach(pubItem => {
+          const obj = JSON.parse(pubItem);
+          insertPubRecord.content.serviceAry = insertPubRecord.content.serviceAry.concat(obj.serviceAry)
+        });
+        insertPubRecord.content = JSON.stringify(insertPubRecord.content)
+        insertPubRecord.version = pubsList[0]?.version ? getNextVersion(pubsList[0]?.version) : "1.0.0";
+        await this.filePubDao.create(insertPubRecord)
+        console.log('插入一条新纪录', JSON.stringify(insertPubRecord))
+      }
+
       return {
         code: 1,
         data: null
