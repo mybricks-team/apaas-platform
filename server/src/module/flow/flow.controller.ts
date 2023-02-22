@@ -59,7 +59,6 @@ export default class FlowController {
   @Post('/saveFiles')
   @UseInterceptors(FileInterceptor('files[]'))
   async saveFiles(@Request() request, @Body() body, @UploadedFile() file) {
-    console.log('saveFiles请求头是', request.headers)
     try {
       let hostName = request.headers.host
       if(request.headers['x-forwarded-host']) {
