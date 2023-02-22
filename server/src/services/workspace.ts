@@ -457,7 +457,7 @@ export default class WorkspaceService {
       if(domainToJSONList.length !== 0) {
         let insertPubRecord: any = {
           version: null,
-          file_id: projectId,
+          fileId: projectId,
           content: {
             serviceAry: []
           },
@@ -469,7 +469,7 @@ export default class WorkspaceService {
           projectId
         })
         pubsList?.forEach(pubItem => {
-          const obj = JSON.parse(pubItem);
+          const obj = JSON.parse(pubItem.content);
           insertPubRecord.content.serviceAry = insertPubRecord.content.serviceAry.concat(obj.serviceAry)
         });
         insertPubRecord.content = JSON.stringify(insertPubRecord.content)
