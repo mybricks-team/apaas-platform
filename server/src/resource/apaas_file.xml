@@ -459,4 +459,14 @@
         </if>
         and status = 1
     </select>
+
+    <select id="getLatestFilePubsByProjectId">
+        select apaas_file_pub.* from apaas_file_pub, apaas_file where
+        apaas_file.status = 1
+        and apaas_file.id = apaas_file_pub.file_id
+        and apaas_file.id = #{projectId}
+        and apaas_file_pub.id in (
+            select max(id) from apaas_file_pub where module_id is not null group by module_id
+        );
+    </select>
 </mapper>
