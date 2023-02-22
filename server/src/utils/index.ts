@@ -117,4 +117,20 @@ export function getNextVersion(version, max = 100) {
   return vAry.join(".");
 }
 
+export function getRealHostName(requestHeaders) {
+  let hostName = requestHeaders.host
+  if(requestHeaders['x-forwarded-host']) {
+    hostName = requestHeaders['x-forwarded-host']
+  } else if(requestHeaders['x-host']) {
+    hostName = requestHeaders['x-host'].replace(':443', '')
+  }
+  return hostName
+}
+
+export function getRealDomain(request) {
+  let hostName = getRealHostName(request.headers);
+  let domain = `${request.protocol}:\/\/${hostName}`
+  return domain
+}
+
 export { isNumber } from './type'

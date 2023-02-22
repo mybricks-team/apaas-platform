@@ -9,6 +9,7 @@ import ConfigDao from "../dao/config.dao";
 import * as axios from "axios";
 import FileService from './file'
 import ConfigService from './config'
+import { getRealDomain } from "../utils";
 
 const folderExtnames = ['folder', 'folder-project', 'folder-module']
 
@@ -361,6 +362,7 @@ export default class WorkspaceService {
     try {
       const projectId = (await this.fileService._getParentModuleAndProjectInfo(fileId))?.projectId;
       const pcConfig = await this.configService.getAll(['mybricks-pc-page']);
+      const domainName = getRealDomain(req)
       
       let pcCompileTaskInfo = null;
       Object.values(pcConfig?.data?.['mybricks-pc-page']?.config?.compileTask).forEach(val => {
@@ -405,8 +407,7 @@ export default class WorkspaceService {
           }
           case 'pc-page': {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
-						
-            publishTask.push((axios as any).post(`${req.headers.host.indexOf('localhost') !== -1 ? 'http://' : 'https://'}${req.headers.host}/paas/api/system/task/run`, {
+            publishTask.push((axios as any).post(`${domainName}/paas/api/system/task/run`, {
 	            fileId: pcCompileTaskInfo?.fileId,
 	            version: pcCompileTaskInfo?.version,
 	            injectParam: {
@@ -436,7 +437,7 @@ export default class WorkspaceService {
 	    });
 	    publishTask.push(
 				(axios as any).post(
-					`${req.headers.host.indexOf('localhost') !== -1 ? 'http://' : 'https://'}${req.headers.host}/api/domain/publish`,
+					`${domainName}/api/domain/publish`,
 					{
 				    fileId: projectId,
 				    userId: email,
