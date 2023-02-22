@@ -293,6 +293,9 @@ export default class ConfigService {
     try {
       let count = 0;
       let tempItem = await this.fileDao.queryById(id)
+      if(tempItem.extName === 'folder-module') {
+        res.moduleId = tempItem.id
+      }
       while(tempItem?.parentId && count < 5) {
         count++;
         tempItem = await this.fileDao.queryById(tempItem.parentId);
