@@ -287,6 +287,7 @@ export default class ConfigService {
   async _getParentModuleAndProjectInfo(id: number) {
     let res = {
       projectId: null,
+	    moduleId: null,
       hierarchy: {}
     }
     try {
@@ -297,6 +298,7 @@ export default class ConfigService {
         tempItem = await this.fileDao.queryById(tempItem.parentId);
         // todo: build hierarchy
         if(tempItem.extName === 'folder-module') {
+	        res.moduleId = tempItem.id
         } else if(tempItem.extName === 'folder-project') {
           res.projectId = tempItem.id
           break
