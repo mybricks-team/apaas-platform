@@ -442,7 +442,7 @@ export default class WorkspaceService {
           (axios as any).post(
             `${domainName}/api/domain/publish`,
             {
-              fileId: projectId,
+              projectId: projectId,
               userId: email,
               json: { entityAry: Object.values(entityMap), service: serviceAry },
               moduleId
