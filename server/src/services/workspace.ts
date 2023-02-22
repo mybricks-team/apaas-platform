@@ -475,7 +475,7 @@ export default class WorkspaceService {
         insertPubRecord.content = JSON.stringify(insertPubRecord.content)
         insertPubRecord.version = pubsList[0]?.version ? getNextVersion(pubsList[0]?.version) : "1.0.0";
         await this.filePubDao.create(insertPubRecord)
-        console.log('插入一条新纪录', JSON.stringify(insertPubRecord))
+        console.log('插入一条新纪录')
       }
 
       return {

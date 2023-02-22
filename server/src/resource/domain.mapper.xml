@@ -142,6 +142,25 @@
         </if>
     </select>
 
+    <select id="getSystemTableMetaByProjectId">
+        select
+        domain_table_meta.*,
+        domain_table_action.table_meta,
+        domain_table_action.action_log,
+        domain_table_action.id as action_log_id,
+        domain_table_action.creator_id as updater_id,
+        domain_table_action.create_time as update_time
+        from
+        domain_table_meta,
+        domain_table_action
+        where
+        project_id = #{projectId}
+        and domain_table_meta.id = domain_table_action.domain_meta_id
+        and domain_table_meta.table_name like '%SYS_USER%'
+        and domain_table_action.id in (select max(id) from domain_table_action group by domain_meta_id)
+        and domain_table_meta.status = 1
+    </select>
+
     <insert id="createActionLog">
         insert into domain_table_action
         (
@@ -164,11 +183,13 @@
         (
         table_name,
         domain_file_id,
+        project_id,
         creator_id,
         create_time
         ) values (
             #{tableName},
             #{fileId},
+            #{projectId},
             #{creatorId},
             #{createTime}
         )
