@@ -13,6 +13,7 @@ import {
 import FlowService from './flow.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 const env = require('../../../env.js')
+import { getRealDomain } from '../../utils/index'
 
 @Controller('/paas/api/flow')
 export default class FlowController {
@@ -29,13 +30,8 @@ export default class FlowController {
   @Post('/saveFile')
   @UseInterceptors(FileInterceptor('file'))
   async saveFile(@Request() request, @Body() body, @UploadedFile() file) {
-    console.log('saveFile请求头是', request.headers)
-    let hostName = request.headers.host
-    if(request.headers['x-forwarded-host']) {
-      hostName = request.headers['x-forwarded-host']
-    } else if(request.headers['x-host']) {
-      hostName = request.headers['x-host'].replace(':443', '')
-    }
+    const domainName = getRealDomain(request)
+    console.log('saveFile请求头是', `${domainName}`,)
     try {
       const subPath = await this.flowService.saveFile({
         str: file.buffer,
@@ -44,7 +40,7 @@ export default class FlowController {
       });
       return {
         data: {
-          url: `${request.protocol}:\/\/${hostName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`,
+          url: `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`,
         },
         code: 1,
       };
