@@ -56,12 +56,8 @@ export default class FlowController {
   @UseInterceptors(FileInterceptor('files[]'))
   async saveFiles(@Request() request, @Body() body, @UploadedFile() file) {
     try {
-      let hostName = request.headers.host
-      if(request.headers['x-forwarded-host']) {
-        hostName = request.headers['x-forwarded-host']
-      } else if(request.headers['x-host']) {
-        hostName = request.headers['x-host'].replace(':443', '')
-      }
+      const domainName = getRealDomain(request)
+      console.log('saveFile请求头是', `${domainName}`,)
       let files = file || [];
       if (!Array.isArray(files)) {
         files = [files];
@@ -82,7 +78,7 @@ export default class FlowController {
       ) {
         return {
           data: cdnList?.map((subPath) => {
-            return `${request.protocol}:\/\/${hostName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`
+            return `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`
           }),
           code: 1,
         };
