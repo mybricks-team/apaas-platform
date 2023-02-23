@@ -21,7 +21,23 @@ export default class FlowController {
   flowService: FlowService;
 
   @Get('/test')
-  async test() {
+  async test(@Request() request) {
+    const domainName = getRealDomain(request)
+    console.log('----')
+    console.log(request.headers)
+    console.log(domainName)
+    return {
+      code: 1
+    }
+  }
+
+  @Post('/test2')
+  @UseInterceptors(FileInterceptor('file'))
+  async test2(@Request() request, @Body() body, @UploadedFile() file) {
+    const domainName = getRealDomain(request)
+    console.log('----')
+    console.log(request.headers)
+    console.log(domainName)
     return {
       code: 1
     }

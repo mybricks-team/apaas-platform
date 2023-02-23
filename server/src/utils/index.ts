@@ -131,8 +131,8 @@ export function getRealDomain(request) {
   let hostName = getRealHostName(request.headers);
   // let protocol = request.headers['x-scheme'] ? 'https' : 'http'
 	/** TODO: 暂时写死 https */
-  let protocol = 'https';
-  // let protocol = request.headers['connection'] === 'upgrade' ? 'https' : 'http'
+  // let protocol = 'https';
+  let protocol = request.headers?.['connection'].toLowerCase() === 'upgrade' ? 'https' : 'http'
   let domain = `${protocol}:\/\/${hostName}`
   return domain
 }
