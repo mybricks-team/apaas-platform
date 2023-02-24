@@ -335,4 +335,20 @@ export default class ConfigService {
     }
   }
 
+  @Get("/file/getMyFiles")
+  async getMyFiles(@Query() query) {
+    const { userId, parentId, extNames, status } = query
+    const files = await this.fileDao.getMyFiles({
+      userId,
+      parentId,
+      extNames: extNames.split(','),
+      status
+    })
+
+    return {
+      code: 1,
+      data: files
+    }
+  }
+
 }

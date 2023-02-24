@@ -595,5 +595,25 @@ export default class FileDao extends DOBase {
 		
 		return result
 	}
+
+  /** 或者我的文件 */
+  @Mapping(FileDO)
+  public async getMyFiles(params: {
+    userId: string;
+    parentId: number;
+    extNames: string[];
+    status?: number;
+  }) {
+    if (typeof params.status !== 'number') {
+      params.status = 1
+    }
+
+    const result = await this.exe<any>(
+			'apaas_file:getMyFiles',
+			params
+		)
+		
+		return result
+  }
 }
 

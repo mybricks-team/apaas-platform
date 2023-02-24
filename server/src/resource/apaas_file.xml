@@ -470,4 +470,26 @@
         )
         order by apaas_file_pub.id desc;
     </select>
+
+    <select id="getMyFiles">
+        select id,parent_id,name,ext_name,create_time,update_time,description,status from apaas_file 
+        where creator_id = #{userId}
+        and status = #{status} 
+        and group_id is null 
+         <choose>
+            <when test="parentId">
+                and parent_id = #{parentId}
+            </when>
+            <otherwise>
+                and parent_id is null
+            </otherwise>
+        </choose>
+        <if test="extNames != null">
+            and ext_name in
+            <foreach collection="extNames" item="extName" open="(" close=")" separator="," index="index">
+                #{extName}
+            </foreach>
+        </if>
+        order by create_time desc
+    </select>
 </mapper>
