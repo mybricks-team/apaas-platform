@@ -6,7 +6,6 @@ import {observe, useObservable} from '@mybricks/rxui';
 // 搭建地址 https://mybricks.world/app-cloud-com.html?id=243
 import CreateFile from '@mybricks-cloud/create-application';
 import {getApiUrl} from '../../../../utils';
-// import { APPS, APPSMap } from '../../../constants';
 import WorkspaceContext, {T_App} from '../../../WorkspaceContext';
 
 import css from './Create.less';

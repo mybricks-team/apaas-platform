@@ -4,7 +4,7 @@ import React, {
   useCallback
 } from 'react';
 import axios from 'axios';
-import {Badge, Modal} from 'antd';
+import {Badge} from 'antd';
 import {observe, useComputed} from '@mybricks/rxui';
 
 import AppStore from './../../app-store';
@@ -13,8 +13,7 @@ import MessageModal from '../message-modal';
 import GlobalSetting from '../global-setting';
 import {IconMessage, IconSetting} from '../../icon';
 import WorkspaceContext from '../../WorkspaceContext';
-import {COOKIE_LOGIN_USER} from '../../../constants';
-import {getApiUrl, removeCookie} from '../../../utils';
+import {getApiUrl} from '../../../utils';
 
 // @ts-ignore
 import css from './index.less';
@@ -26,27 +25,10 @@ export function SystemMenus(): JSX.Element {
   wsCtx = observe(WorkspaceContext, {from: 'parents'})
   const {user} = wsCtx
 
-  /** 登出 */
-  const onLogout = useCallback(() => {
-		if(document.cookie.indexOf(COOKIE_LOGIN_USER) !== -1) {
-			Modal.confirm({
-				title: '确认退出登录吗',
-				okText: '退出',
-				cancelText: '取消',
-				onOk: () => {
-					removeCookie(COOKIE_LOGIN_USER);
-					setTimeout(() => {
-						location.href = '/'
-					}, 0);
-				}
-			});
-		}
-	}, []);
-
   return (
     <Catelog style={{marginTop: 'auto'}}>
       <Config/>
-      <div className={css.user} onClick={onLogout}>{user.email}</div>
+      <div className={css.user}>{user.email}</div>
     </Catelog>
   );
 }

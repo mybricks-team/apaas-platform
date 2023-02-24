@@ -13,8 +13,6 @@ export const APP_TYPE_PC_PAGE = 'pc-page';
 export const APP_TYPE_TIMER_SERVICE = 'timer-service';
 /** 文件夹 */
 export const APP_TYPE_FOLDER = 'folder';
-/** 登录用户信息 */
-export const COOKIE_LOGIN_USER = "mybricks-login-user";
 /** 应用类型列表 */
 export const APPS = [
   {

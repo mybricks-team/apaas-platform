@@ -6,7 +6,6 @@ import Trash from './trash';
 import Group from "./group";
 import InlineApp from './inlineApp';
 import MyProjects from './myProjects';
-import RunningTaskPanel from './tasks';
 import WorkspaceContext, {APP_DEFAULT_ACTIVE_MENUID} from '../WorkspaceContext';
 
 import css from './index.less';
@@ -47,11 +46,6 @@ function Render(): JSX.Element {
         JSX = (
           //@ts-ignore
           <Ground/>
-        );
-        break;
-      case 'running-task':
-        JSX = (
-          <RunningTaskPanel user={user}/>
         );
         break;
       case 'trash':

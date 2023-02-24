@@ -4,7 +4,6 @@ import {message} from 'antd';
 import API from '@mybricks/sdk-for-app/src/api';
 
 import Projects from './projects';
-import LoginCtx from '../LoginCtx';
 import {getApiUrl} from '../utils';
 import Docker from './docker/Docker';
 import WorkspaceContext from './WorkspaceContext';
