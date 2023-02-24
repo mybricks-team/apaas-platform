@@ -6,7 +6,6 @@ import {observe, useObservable} from '@mybricks/rxui';
 // 搭建地址 https://mybricks.world/app-cloud-com.html?id=243
 import CreateFile from '@mybricks-cloud/create-application';
 import {getApiUrl} from '../../../../utils';
-// import { APPS, APPSMap } from '../../../constants';
 import WorkspaceContext, {T_App} from '../../../WorkspaceContext';
 import FileIcon from '../../../icon/file-icon'
 
@@ -18,7 +17,7 @@ export function Create(): JSX.Element {
   const ctx = observe(Ctx, {from: 'parents'})
 
   const wsCtx = observe(WorkspaceContext, {from: 'parents'})
-  const {user, APPSMap, DesignAPPS} = wsCtx
+  const {user, APPSMap, DesignAPPS, FolderAPPS} = wsCtx
 
   const createCtx = useObservable({app: null});
   /** TODO 云组件创建弹窗的显示隐藏，后续所有应用创建应该统一？ */
@@ -31,10 +30,9 @@ export function Create(): JSX.Element {
     setCreateFileVisible(true);
   }, []);
 
-  /** 搭建应用列表 */
-  const AppList: JSX.Element[] = useMemo(() => {
+  const FolderList: JSX.Element = useMemo(() => {
     const { path } = ctx;
-    return designAPPSFilter(DesignAPPS, path).map(app => {
+    return designAPPSFilter(FolderAPPS, path).map(app => {
       const {
         icon,
         title,
@@ -60,15 +58,45 @@ export function Create(): JSX.Element {
           </div>
         </div>
       );
-    });
-  }, [ctx.folderExtName]);
+    })
+  }, [ctx.folderExtName])
+
+  /** 搭建应用列表 */
+  const AppList: JSX.Element = useMemo(() => {
+    return DesignAPPS.map(app => {
+      const {
+        icon,
+        title,
+        description
+      } = app;
+      return (
+        <div
+          key={app.type}
+          className={css.project}
+          data-namespace={app.namespace}
+          data-version={app.version}
+          onClick={() => newProject(app)}
+        >
+          <div className={css.typeIcon}>
+            <FileIcon icon={icon}/>
+          </div>
+          <div className={css.tt}>
+            <label>{title}</label>
+            <p>{description}</p>
+          </div>
+          <div className={css.snap}>
+
+          </div>
+        </div>
+      );
+    })
+  }, []);
 
   /** 创建应用弹窗提交事件 */
   const createFileSubmit = useCallback((value) => {
     try {
       const { name } = value;
       const { extName, isSystem } = createCtx.app;
-      console.log(ctx.folderExtName, 'folderExtName')
 
       let parentId
 
@@ -141,12 +169,17 @@ export function Create(): JSX.Element {
   }, [createFileVisible]);
 
   return (
-    <div className={css.news} style={{display: !ctx.popCreate ? 'none' : ''}}>
-      {/* {RenderNewProjectModal} */}
+    <div className={css.createContainer} style={{display: !ctx.popCreate ? 'none' : ''}}>
       {RenderCreateFile}
-      {AppList}
+      <div className={css.news}>
+        {FolderList}
+      </div>
+      <div className={css.divider}/>
+      <div className={css.news}>
+        {AppList}
+      </div>
     </div>
-  );
+  )
 }
 
 function designAPPSFilter (apps, path) {

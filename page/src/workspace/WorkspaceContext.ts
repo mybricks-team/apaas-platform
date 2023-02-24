@@ -123,6 +123,32 @@ export interface T_App {
 }
 
 export default class WorkspaceContext {
+  FolderAPPS: Array<T_App> = [
+    {
+      title: "文件夹",
+      description: "文件夹",
+      type: 'user',
+      extName: "folder",
+      namespace: "mybricks-folder",
+      icon: "https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png",
+    },
+    {
+      title: "项目文件夹",
+      description: "通过项目的方式管理文件",
+      type: 'user',
+      extName: "folder-project",
+      namespace: "mybricks-folder-project",
+      icon: FolderProject
+    },
+    {
+      title: "模块文件夹",
+      description: "通过模块的方式管理文件",
+      type: 'user',
+      extName: "folder-module",
+      namespace: "mybricks-folder-module",
+      icon: FolderModule
+    },
+  ];
   /** 侧边栏应用列表 */
   DockerAPPS: Array<T_App> = [];
   /** 搭建应用列表 */
@@ -136,30 +162,7 @@ export default class WorkspaceContext {
     /** 平台默认,搭建应用 */
     const DesignAPPS: Array<T_App> = [
       // 平台特殊应用特殊处理
-      {
-        title: "文件夹",
-        description: "文件夹",
-        type: 'user',
-        extName: "folder",
-        namespace: "mybricks-folder",
-        icon: "https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png",
-      },
-      {
-        title: "项目文件夹",
-        description: "通过项目的方式管理文件",
-        type: 'user',
-        extName: "folder-project",
-        namespace: "mybricks-folder-project",
-        icon: FolderProject
-      },
-      {
-        title: "模块文件夹",
-        description: "通过模块的方式管理文件",
-        type: 'user',
-        extName: "folder-module",
-        namespace: "mybricks-folder-module",
-        icon: FolderModule
-      },
+      
     ];
 
     /** 平台默认,侧边栏应用 */
@@ -176,7 +179,7 @@ export default class WorkspaceContext {
 
     const APPSMap: { [key: string]: T_App } = {};
 
-    DesignAPPS.forEach((app: T_App) => {
+    DesignAPPS.concat(this.FolderAPPS).forEach((app: T_App) => {
       APPSMap[app.namespace] = app;
       APPSMap[app.extName] = app;
     });
