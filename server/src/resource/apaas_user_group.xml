@@ -46,6 +46,13 @@
         order by create_time desc
     </select>
 
+    <select id="queryById">
+        select * from apaas_user_group
+        where 
+        id = #{id}
+        and status = 1
+    </select>
+
     <delete id="delete">
         update apaas_user_group
         set

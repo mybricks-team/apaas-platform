@@ -84,6 +84,18 @@ export default class UserGroupDao extends DOBase {
     return result
   }
 
+  @Mapping(UserGroupDO)
+  public async queryById(params: {
+    id: string
+  }): Promise<any> {
+    const result = await this.exe<any>(
+      'apaas_user_group:queryById',
+      params
+    )
+
+    return result && result[0]
+  }
+
   public async delete(params: {
     id: number;
     updatorId: string;

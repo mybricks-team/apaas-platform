@@ -18,7 +18,7 @@ const outputPath = path.resolve(__dirname, `../_nodejs/_assets`)
 module.exports = {
   mode: 'development',//设置mode
   entry: {
-    workspace: path.resolve(__dirname, `../src/workspace/index.tsx`),
+    workspace: path.resolve(__dirname, `../src/index.tsx`),
   },
   output: {
     path: outputPath,

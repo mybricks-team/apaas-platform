@@ -3,6 +3,7 @@ import FileDao from "../dao/FileDao";
 import UserDao from '../dao/UserDao';
 import FilePubDao from "../dao/filePub.dao";
 import FileCooperationDao from "../dao/FileCooperationDao";
+import UserGroupDao from "../dao/UserGroupDao";
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { isNumber } from '../utils'
 
@@ -13,6 +14,7 @@ export default class ConfigService {
   filePubDao: FilePubDao;
   fileCooperationDao: FileCooperationDao;
   userDao: UserDao;
+  userGroupDao: UserGroupDao;
 
   constructor() {
     this.fileDao = new FileDao();
@@ -20,6 +22,7 @@ export default class ConfigService {
     this.filePubDao = new FilePubDao();
     this.fileCooperationDao = new FileCooperationDao();
     this.userDao = new UserDao();
+    this.userGroupDao = new UserGroupDao();
   }
 
   @Get("/file/get")
@@ -338,17 +341,96 @@ export default class ConfigService {
   @Get("/file/getMyFiles")
   async getMyFiles(@Query() query) {
     const { userId, parentId, extNames, status } = query
-    const files = await this.fileDao.getMyFiles({
+    const params: any = {
       userId,
       parentId,
-      extNames: extNames.split(','),
       status
-    })
+    }
+    if (typeof extNames === 'string') {
+      params.extNames = extNames.split(',')
+    }
+
+    const files = await this.fileDao.getMyFiles(params)
 
     return {
       code: 1,
-      data: files
+      data: files.filter((item) => {
+        if (item.hasIcon === "1") {
+          item.icon = `/api/workspace/getFileIcon?fileId=${item.id}`;
+        }
+
+        return item.extName !== "component";
+      }),
     }
+  }
+
+  @Get("/file/getGroupFiles")
+  async getGroupFiles(@Query() query) {
+    const { userId, parentId, extNames, status, groupId } = query
+    const params: any = {
+      userId,
+      parentId,
+      status,
+      groupId
+    }
+    if (typeof extNames === 'string') {
+      params.extNames = extNames.split(',')
+    }
+
+    const files = await this.fileDao.getGroupFiles(params)
+
+    return {
+      code: 1,
+      data: files.filter((item) => {
+        if (item.hasIcon === "1") {
+          item.icon = `/api/workspace/getFileIcon?fileId=${item.id}`;
+        }
+
+        return item.extName !== "component";
+      }),
+    }
+  }
+
+  @Get("/file/getFilePath")
+  async getFilePath(@Query() query) {
+    const { fileId, userId, groupId } = query;
+    const path = [];
+
+    if (fileId) {
+      let [file] = await this.fileDao.getFiles({ id: fileId });
+
+      const folderExtnames = ['folder', 'folder-project', 'folder-module']
+
+      if (file) {
+        let { extName, parentId, groupId } = file;
+
+        if (folderExtnames.includes(extName)) {
+          path.unshift(file);
+
+          while (parentId) {
+            file = await this.fileDao.queryById(parentId);
+            parentId = file?.parentId;
+
+            path.unshift(file);
+          }
+
+          if (groupId) {
+            console.log('查一下协作组')
+            const group = await this.userGroupDao.queryById({id: groupId})
+
+            path.unshift(group)
+          }
+        }
+      }
+    } else if (groupId) {
+      const group = await this.userGroupDao.queryById({id: groupId})
+      path.unshift(group)
+    }
+
+    return {
+      code: 1,
+      data: path,
+    };
   }
 
 }

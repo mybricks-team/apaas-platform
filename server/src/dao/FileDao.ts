@@ -615,5 +615,26 @@ export default class FileDao extends DOBase {
 		
 		return result
   }
+
+  /** 或者协作组的文件 */
+  @Mapping(FileDO)
+  public async getGroupFiles(params: {
+    userId: string;
+    parentId: number;
+    extNames: string[];
+    status?: number;
+    groupId: number;
+  }) {
+    if (typeof params.status !== 'number') {
+      params.status = 1
+    }
+
+    const result = await this.exe<any>(
+			'apaas_file:getGroupFiles',
+			params
+		)
+		
+		return result
+  }
 }
 
