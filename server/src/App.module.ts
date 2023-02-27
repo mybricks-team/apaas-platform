@@ -13,18 +13,20 @@ import { loadModule } from "./module-loader";
 import ConfigService from "./services/config";
 import AppsService from "./services/apps";
 import FileService from "./services/file";
-import SystemService from "./services/system";
 import IntelligenceService from './services/intelligence';
 import FilePubDao from "./dao/filePub.dao";
 import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
-import FlowModule from './module/flow/flow.module'
 import PublicService from "./services/public";
 import UserGroupService from "./services/group";
+
+import FlowModule from './module/flow/flow.module'
+import SystemModule from './module/system/system.module'
 
 @Module({
   imports: [
     FlowModule,
+    SystemModule,
     ...loadModule().modules,
   ],
   controllers: [
@@ -38,7 +40,6 @@ import UserGroupService from "./services/group";
     ConfigService,
     AppsService,
     FileService,
-    SystemService,
     HomeService,
     IntelligenceService,
     PublicService
