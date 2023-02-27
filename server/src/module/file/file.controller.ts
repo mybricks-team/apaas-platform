@@ -1,14 +1,14 @@
-import FileContentDao from "./../dao/FileContentDao";
-import FileDao from "../dao/FileDao";
-import UserDao from '../dao/UserDao';
-import FilePubDao from "../dao/filePub.dao";
-import FileCooperationDao from "../dao/FileCooperationDao";
-import UserGroupDao from "../dao/UserGroupDao";
+import FileContentDao from "../../dao/FileContentDao";
+import FileDao from "../../dao/FileDao";
+import UserDao from '../../dao/UserDao';
+import FilePubDao from "../../dao/filePub.dao";
+import FileCooperationDao from "../../dao/FileCooperationDao";
+import UserGroupDao from "../../dao/UserGroupDao";
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import { isNumber } from '../utils'
+import { isNumber } from '../../utils'
 
 @Controller("/paas/api")
-export default class ConfigService {
+export default class FileService {
   fileDao: FileDao;
   fileContentDao: FileContentDao;
   filePubDao: FilePubDao;

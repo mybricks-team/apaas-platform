@@ -5,7 +5,7 @@ import { uuid } from '../../utils/index';
 import { getConnection } from '@mybricks/rocker-dao';
 // @ts-ignore
 import { createVM } from 'vm-node';
-import FileService from '../../services/file'
+import FileService from '../file/file.controller'
 
 @Controller('/paas/api')
 export default class SystemService {
