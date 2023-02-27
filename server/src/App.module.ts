@@ -12,19 +12,22 @@ import FileTaskDao from "./dao/FileTaskDao";
 import { loadModule } from "./module-loader";
 import ConfigService from "./services/config";
 import AppsService from "./services/apps";
-import FileService from "./services/file";
-import SystemService from "./services/system";
 import IntelligenceService from './services/intelligence';
 import FilePubDao from "./dao/filePub.dao";
 import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
-import FlowModule from './module/flow/flow.module'
 import PublicService from "./services/public";
 import UserGroupService from "./services/group";
+
+import FlowModule from './module/flow/flow.module'
+import SystemModule from './module/system/system.module'
+import FileModule from './module/file/file.module'
 
 @Module({
   imports: [
     FlowModule,
+    SystemModule,
+    FileModule,
     ...loadModule().modules,
   ],
   controllers: [
@@ -37,8 +40,6 @@ import UserGroupService from "./services/group";
     GroundService,
     ConfigService,
     AppsService,
-    FileService,
-    SystemService,
     HomeService,
     IntelligenceService,
     PublicService

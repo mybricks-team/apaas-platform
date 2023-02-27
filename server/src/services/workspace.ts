@@ -7,7 +7,7 @@ import FilePubDao from "../dao/filePub.dao";
 import { getNextVersion } from "../utils";
 import ConfigDao from "../dao/config.dao";
 import * as axios from "axios";
-import FileService from './file'
+import FileService from '../module/file/file.controller'
 import ConfigService from './config'
 import { getRealDomain } from "../utils";
 

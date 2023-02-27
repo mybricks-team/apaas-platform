@@ -1,18 +1,16 @@
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
-import FileDao from '../dao/FileDao';
-import FilePubDao from '../dao/filePub.dao';
-import { uuid } from '../utils/index';
+import FileDao from '../../dao/FileDao';
+import FilePubDao from '../../dao/filePub.dao';
+import { uuid } from '../../utils/index';
 import { getConnection } from '@mybricks/rocker-dao';
 // @ts-ignore
 import { createVM } from 'vm-node';
-import FileService from './file'
+import FileService from '../file/file.controller'
 
 @Controller('/paas/api')
 export default class SystemService {
-  @Inject(FileDao)
   fileDao: FileDao;
 
-  @Inject(FilePubDao)
   filePubDao: FilePubDao;
 
   fileService: FileService
@@ -22,6 +20,8 @@ export default class SystemService {
   nodeVMIns: any;
 
   constructor() {
+    this.fileDao = new FileDao();
+    this.filePubDao = new FilePubDao();
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
@@ -242,7 +242,8 @@ export default class SystemService {
           typeof pubContent.content === 'string'
             ? JSON.parse(pubContent.content)
             : pubContent.content;
-        if (contentObj?.serviceAry) {
+        //  过滤服务
+        if (contentObj?.serviceAry?.length > 0) {
           let service = {
             fileId: pubContent.fileId,
             fileName: fileInfoMap[pubContent.fileId]?.name,
