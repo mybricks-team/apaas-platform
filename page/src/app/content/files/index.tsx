@@ -23,6 +23,7 @@ export default function Files() {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const ctx = useObservable(Ctx, next => {
     next({
+      user: appCtx.user,
       setPath({parentId, groupId}) {
         ctx.projectList = null
         const path = !groupId ? [{id: null, name: '我的项目', parentId: null, extName: null}] : []
