@@ -131,7 +131,6 @@ function Group() {
       }}
       onClick={(id) => {
         const [groupId, parentId] = id.split('-');
-        console.log('协作组 onClick: ', {groupId, parentId})
         history.pushState(null, '', `?appId=files${groupId ? `&groupId=${groupId}` : ''}${parentId ? `&parentId=${parentId}` : ''}`)
       }}
     />

@@ -138,7 +138,6 @@ function Projects() {
     if (Array.isArray(ctx.projectList)) {
       if (ctx.projectList.length) {
         const {APPSMap} = appCtx;
-        console.log(APPSMap, 'APPSMap')
         JSX = ctx.projectList.map((project) => {
           const {extName} = project
           const appReg = APPSMap[extName];

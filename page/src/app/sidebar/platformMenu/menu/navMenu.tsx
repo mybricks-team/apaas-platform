@@ -130,7 +130,7 @@ function RenderList ({id, CustomList, level, child, menuCtx}): JSX.Element {
   return useComputed(() => {
     if (menuCtx.open) {
       return (
-        <div style={{marginLeft: level * 24}}>
+        <div style={{marginLeft: level * 28}}>
           {CustomList ? <CustomList menuCtx={menuCtx} child={child.child} /> : <ItemList id={id} child={child.child} menuCtx={menuCtx} />}
         </div>
       );
