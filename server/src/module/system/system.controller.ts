@@ -242,7 +242,8 @@ export default class SystemService {
           typeof pubContent.content === 'string'
             ? JSON.parse(pubContent.content)
             : pubContent.content;
-        if (contentObj?.serviceAry) {
+        //  过滤服务
+        if (contentObj?.serviceAry?.length > 0) {
           let service = {
             fileId: pubContent.fileId,
             fileName: fileInfoMap[pubContent.fileId]?.name,
