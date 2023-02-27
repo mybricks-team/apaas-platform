@@ -108,6 +108,7 @@ export default class FileDao extends DOBase {
   @Mapping(FileDO)
   public async pureQuery(query?: {
     id?: number
+    ids?: number[],
     extName?: string
   }): Promise<Array<FileDO>> {
     query = Object.assign({}, query)

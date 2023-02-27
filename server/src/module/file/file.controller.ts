@@ -6,6 +6,7 @@ import FileCooperationDao from "../../dao/FileCooperationDao";
 import UserGroupDao from "../../dao/UserGroupDao";
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { isNumber } from '../../utils'
+const path = require('path');
 
 @Controller("/paas/api")
 export default class FileService {
@@ -289,26 +290,55 @@ export default class FileService {
 
   async _getParentModuleAndProjectInfo(id: number) {
     let res = {
-      projectId: null,
-	    moduleId: null,
-      hierarchy: {}
+      projectId: null, // 只存储最近的projectId，因为project不存在嵌套，只会有一个
+	    moduleId: null, // 只存储最近的module，往上遍历会存在多次嵌套
+      hierarchy: {},
+      absolutePath: ''
     }
+    let pPointer: any = res.hierarchy;
+    let qPointer: any = res.hierarchy;
     try {
       let count = 0;
       let tempItem = await this.fileDao.queryById(id)
+      res.absolutePath = `/${tempItem.name}.${tempItem.extName}`
       if(tempItem.extName === 'folder-module') {
-        res.moduleId = tempItem.id
+        if(!res.moduleId) {
+          res.moduleId = tempItem.id
+        }
       }
-      while(tempItem?.parentId && count < 5) {
+      // 最多遍历七层
+      while(tempItem?.parentId && count < 7) {
         count++;
         tempItem = await this.fileDao.queryById(tempItem.parentId);
+        switch(tempItem.extName) {
+          case 'folder-module': 
+          case 'folder-project':
+          case 'folder': {
+            qPointer.parent = {
+              fileId: tempItem.id,
+              isProject: true,
+              parent: {}
+            }
+            pPointer = pPointer.parent;
+            qPointer = pPointer;
+            res.absolutePath = `/${tempItem.name}${res.absolutePath}`
+            break;
+          }
+        }
         // todo: build hierarchy
         if(tempItem.extName === 'folder-module') {
-	        res.moduleId = tempItem.id
+          if(!res.moduleId) {
+            res.moduleId = tempItem.id
+          }
         } else if(tempItem.extName === 'folder-project') {
           res.projectId = tempItem.id
-          break
+          // break
         }
+      }
+      if(!tempItem?.parentId && tempItem?.groupId) {
+        // 补充协作组信息，作为文件的绝对路径
+        const [coopGroupInfo] = await this.userGroupDao.queryByIds({ids: [tempItem?.groupId]})
+        res.absolutePath = `/${coopGroupInfo.name}${res.absolutePath}`
       }
       return res
     } catch(e) {
@@ -433,4 +463,28 @@ export default class FileService {
     };
   }
 
+  // 相对于relativeId, baseId的相对位置关系
+  @Post("/file/getRelativePathBetweenFileId")
+  async getRelativePathBetweenFileId(
+    @Body('baseFileId') baseFileId: number,
+    @Body('relativeId') relativeId: number
+  ) {
+    try {
+      const basicFileHierarchy = await this._getParentModuleAndProjectInfo(baseFileId)
+      const relativeFileHierarchy = await this._getParentModuleAndProjectInfo(relativeId)
+      
+      // "../../../测试数据源.domain"
+      const relativePath = path.relative(path.dirname(basicFileHierarchy.absolutePath), relativeFileHierarchy.absolutePath)
+      
+      return {
+        code: 1,
+        data: relativePath
+      }
+    } catch (error) {
+      return {
+        code: -1,
+        msg: error.message,
+      }
+    }
+  }
 }
