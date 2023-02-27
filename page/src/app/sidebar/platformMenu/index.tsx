@@ -13,8 +13,10 @@ import {MYBRICKS_WORKSPACE_DEFAULT_NAV_MY_EXPAND, MYBRICKS_WORKSPACE_DEFAULT_NAV
 export default function PlatformMenu() {
   return (
     <>
-      <My />
-      <Group />
+      <div style={{overflow: 'scroll'}}>
+        <My />
+        <Group />
+      </div>
       <div style={{marginTop: 'auto'}}>
         <Item
           icon="https://assets.mybricks.world/icon/163921.png"

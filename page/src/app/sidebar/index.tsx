@@ -76,7 +76,10 @@ export default function Sidebar({logo}) {
         <Catelog>
           {TopMenus}
         </Catelog>
-        <Catelog style={{flex: '1 0 auto', height: 0, overflow: 'auto'}}>
+        <Catelog style={{flex: '1 0 auto', height: 0, 
+        // overflow: 'auto'
+        overflow: 'hidden'
+        }}>
           <PlatformMenu />
         </Catelog>
         <Catelog style={{marginTop: 'auto'}}>
