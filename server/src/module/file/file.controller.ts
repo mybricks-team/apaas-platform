@@ -293,14 +293,18 @@ export default class FileService {
       projectId: null, // 只存储最近的projectId，因为project不存在嵌套，只会有一个
 	    moduleId: null, // 只存储最近的module，往上遍历会存在多次嵌套
       hierarchy: {},
-      absolutePath: ''
+      absolutePath: '',
+      absoluteUUIDPath: ''
     }
     let pPointer: any = res.hierarchy;
     let qPointer: any = res.hierarchy;
     try {
       let count = 0;
       let tempItem = await this.fileDao.queryById(id)
+      console.log('1111', tempItem.uuid)
       res.absolutePath = `/${tempItem.name}.${tempItem.extName}`
+      // @ts-ignore
+      res.absoluteUUIDPath = `/${tempItem.uuid}`
       if(tempItem.extName === 'folder-module') {
         if(!res.moduleId) {
           res.moduleId = tempItem.id
@@ -322,6 +326,8 @@ export default class FileService {
             pPointer = pPointer.parent;
             qPointer = pPointer;
             res.absolutePath = `/${tempItem.name}${res.absolutePath}`
+            // @ts-ignore
+            res.absoluteUUIDPath = `/${tempItem.uuid}${res.absoluteUUIDPath}`
             break;
           }
         }
@@ -339,6 +345,8 @@ export default class FileService {
         // 补充协作组信息，作为文件的绝对路径
         const [coopGroupInfo] = await this.userGroupDao.queryByIds({ids: [tempItem?.groupId]})
         res.absolutePath = `/${coopGroupInfo.name}${res.absolutePath}`
+        // @ts-ignore
+        res.absoluteUUIDPath = `/${coopGroupInfo.name}${res.absoluteUUIDPath}`
       }
       return res
     } catch(e) {
@@ -474,7 +482,7 @@ export default class FileService {
       const relativeFileHierarchy = await this._getParentModuleAndProjectInfo(relativeId)
       
       // "../../../测试数据源.domain"
-      const relativePath = path.relative(path.dirname(basicFileHierarchy.absolutePath), relativeFileHierarchy.absolutePath)
+      const relativePath = path.relative(path.dirname(basicFileHierarchy.absoluteUUIDPath), relativeFileHierarchy.absoluteUUIDPath)
       
       return {
         code: 1,
@@ -485,6 +493,23 @@ export default class FileService {
         code: -1,
         msg: error.message,
       }
+    }
+  }
+
+  @Post('/paas/api/file/getLatestSave')
+  async getLatestSave(@Body('fileId') fileId: number) {
+    if(!fileId) {
+      return {
+        code: -1,
+        msg: '缺少fileId'
+      }
+    }
+    const res = await this.fileContentDao.queryLatestSave({
+      fileId: +fileId
+    })
+    return {
+      code: 1,
+      data: res
     }
   }
 }

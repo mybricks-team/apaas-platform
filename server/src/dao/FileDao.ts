@@ -11,6 +11,9 @@ export class FileDO {
   @Column
   id;
 
+  @Column("uuid")
+  uuid;
+
   @Column("group_id")
   groupId;
 
@@ -200,6 +203,26 @@ export default class FileDao extends DOBase {
 
     return files && files.length > 0 ? files[0] : void 0
   }
+
+  /**
+   * 获取文件信息
+   * @param id
+   * @param status
+   */
+    @Mapping(FileDO)
+    public async queryByUUIDAndParentId(params): Promise<FileDO> {
+      const {
+        uuid, 
+        parentId,
+        status = [EffectStatus.EFFECT]
+      } = params
+      const files = await this.exe<FileDO[]>("apaas_file:queryByUUIDAndParentId", {
+        uuid: uuid,
+        parentId: parentId,
+        status
+      })
+      return files && files.length > 0 ? files[0] : void 0
+    }
 
   /**
    * 获取文件信息

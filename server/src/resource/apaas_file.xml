@@ -118,6 +118,17 @@
         </foreach>
     </select>
 
+    <select id="queryByUUIDAndParentId">
+        select * 
+        from apaas_file where
+        uuid = #{uuid}
+        and parent_id = #{parentId}
+        and status in
+        <foreach collection="status" open="(" close=")" separator="," item="item" index="i">
+            #{item}
+        </foreach>
+    </select>
+
     <select id="queryByRef">
         select * 
         from apaas_file where

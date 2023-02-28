@@ -10,3 +10,5 @@ dist
 mybricks.zip
 .idea/
 server/_assets/js
+
+.vscode

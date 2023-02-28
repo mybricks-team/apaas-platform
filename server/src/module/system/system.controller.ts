@@ -272,59 +272,170 @@ export default class SystemService {
     }
   }
 
+  async _execDomainPub(pubInfo, {
+    serviceId,
+    params,
+    fileId
+  }) {
+    try {
+      const contentObj = JSON.parse(pubInfo?.content);
+        let codeStr = '';
+        contentObj?.serviceAry?.forEach((service) => {
+          if (service.id === serviceId) {
+            codeStr = decodeURIComponent(service.code);
+          }
+        });
+        if (codeStr) {
+          const str = codeStr;
+          let res = {
+            code: 1,
+            data: null,
+            msg: '',
+          };
+          try {
+            const { success, data, msg } = await this.nodeVMIns.run(str, {
+              injectParam: params
+            });
+            res = {
+              code: success ? 1 : -1,
+              data,
+              msg,
+            };
+          } catch (e) {
+            console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
+            res.code = -1;
+            res.msg = JSON.stringify(e.msg);
+          }
+          return res;
+        } else {
+          return {
+            code: -1,
+            msg: `未找到 ${fileId} 下的服务 ${serviceId}, 请确认！`,
+          };
+        }
+    } catch (e) {
+
+    }
+  }
+
   // 领域建模运行时
   @Post('/system/domain/run')
   async systemDomainRun(
-    @Body('fileId') fileId: string,
+    // 通用参数
     @Body('serviceId') serviceId: string,
     @Body('params') params: any,
+    // 发布后运行定位
+    @Body('isOnline') isOnline: any,
+    @Body('fileId') fileId: string,
+    @Body('projectId') projectId: any,
+    // debug模式
+    @Body('relativePath') relativePath: any,
+    @Body('baseFileId') baseFileId: any
   ) {
-    if (!fileId || !serviceId) {
+    if (!serviceId) {
       return {
         code: -1,
-        msg: '缺少 fileId 或 serviceId',
+        msg: '缺少 serviceId',
       };
     }
-    const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(
-      +fileId,
-      'prod',
-    );
-    if (pubInfo?.content) {
-      const contentObj = JSON.parse(pubInfo?.content);
-      let codeStr = '';
-      contentObj?.serviceAry?.forEach((service) => {
-        if (service.id === serviceId) {
-          codeStr = decodeURIComponent(service.code);
+    if(isOnline) {
+      // 发布后环境，直接去pub查找服务：项目空间或者
+      const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(
+        +fileId,
+        'prod',
+      );
+      const res = await this._execDomainPub(pubInfo, {
+        fileId: +fileId,
+        serviceId,
+        params
+      })
+      return res
+    } else {
+      /**
+       * 四种case
+        ../ssdsdsd/qweqwew
+        ../dssds
+        dsdsd
+        dsdsd/dsads
+       */
+      // 根据相对路径，找出真实fileId，然后去通用pub里面查找
+      const absoluteUUIDPath = await this.fileService._getParentModuleAndProjectInfo(baseFileId)
+      const relativePartList = relativePath?.split('/');
+      let currentFile = await this.fileDao.queryById(baseFileId);
+      // 根据相对路径，查找源文件ID
+      for(let l=relativePartList.length, i=0; i<l; i++) {
+        const item = relativePartList[i];
+        if(relativePartList[0] === '..') {
+          if(l === 2) {
+            // ../xxx
+            if(item === '..') {
+              // 开头 ../
+              currentFile = await this.fileDao.queryById(currentFile?.parentId)
+              // currentParent = await this.fileDao.queryById(currentFile?.parentId)
+            } else {
+              // 末端 ../pathB
+              currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                uuid: item,
+                parentId: currentFile?.parentId
+              })
+            }
+          } else {
+            if(item === '..') {
+              // 开头 ../
+              currentFile = await this.fileDao.queryById(currentFile?.parentId)
+              // currentParent = await this.fileDao.queryById(currentFile?.parentId)
+            } else {
+              // 末端 ../pathB
+              if(i === l - 1) {
+                currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                  uuid: item,
+                  parentId: currentFile?.id
+                })
+              } else {
+                // 中建文件夹 ../pathA/
+                currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                  uuid: item,
+                  parentId: currentFile?.parentId
+                })
+              }
+            }
+          }
+        } else {
+          if(l === 1) {
+            // 末端 pathA
+            currentFile =  await this.fileDao.queryByUUIDAndParentId({
+              uuid: item,
+              parentId: currentFile?.parentId
+            })
+          } else {
+            // 中间 pathA/pathB
+            if(i === l - 1) {
+              currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                uuid: item,
+                parentId: currentFile?.id
+              })
+            } else {
+              currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                uuid: item,
+                parentId: currentFile?.parentId
+              })
+            }
+          }
         }
-      });
-      if (codeStr) {
-        const str = codeStr;
-        let res = {
-          code: 1,
-          data: null,
-          msg: '',
-        };
-        try {
-          const { success, data, msg } = await this.nodeVMIns.run(str, {
-            injectParam: params
-          });
-          res = {
-            code: success ? 1 : -1,
-            data,
-            msg,
-          };
-        } catch (e) {
-          console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
-          res.code = -1;
-          res.msg = JSON.stringify(e.msg);
-        }
-        return res;
-      } else {
-        return {
-          code: -1,
-          msg: `未找到 ${fileId} 下的服务 ${serviceId}, 请确认！`,
-        };
       }
+      // console.log('--------------------------------')
+      // console.log('文件是', currentFile)
+      const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(
+        +currentFile?.id,
+        'prod',
+      );
+      // console.log('@@@@', pubInfo)
+      const res = await this._execDomainPub(pubInfo, {
+        fileId: +fileId,
+        serviceId,
+        params
+      })
+      return res
     }
   }
 
