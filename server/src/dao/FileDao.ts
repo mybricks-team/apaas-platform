@@ -661,5 +661,24 @@ export default class FileDao extends DOBase {
 		
 		return result
   }
+
+  @Mapping(FileDO)
+  public async exactQuery(params: {
+    name: string;
+    extName: string;
+    parentId: number;
+    groupId: number;
+    creatorId?: string;
+  }) {
+    const result = await this.exe<any>(
+			'apaas_file:exactQuery',
+			{
+        ...params,
+        status: 1
+      }
+		)
+
+    return result && result[0]
+  }
 }
 

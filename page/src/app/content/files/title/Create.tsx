@@ -1,37 +1,36 @@
-import React, {useCallback, useMemo, useState} from 'react';
-import axios from 'axios';
-import {message} from 'antd';
-import {observe, useObservable} from '@mybricks/rxui';
-// 搭建地址 https://mybricks.world/app-cloud-com.html?id=197
-// 搭建地址 https://mybricks.world/app-cloud-com.html?id=243
-import CreateFile from '@mybricks-cloud/create-application';
-import {getApiUrl, getUrlQuery} from '../../../../utils';
-import AppCtx, {T_App} from '../../../AppCtx';
-import {Icon} from '../../../components'
+import React, {
+  useRef,
+  useMemo,
+  useState,
+  useEffect,
+  useCallback
+} from 'react'
 
-import css from './Create.less';
-import Ctx from "../Ctx";
+import axios from 'axios'
+import {observe} from '@mybricks/rxui'
+import {message, Modal, Form, Input} from 'antd'
+
+import Ctx from '../Ctx'
+import {Icon} from '../../../components'
+import AppCtx, {T_App} from '../../../AppCtx'
+import {getApiUrl, getUrlQuery} from '../../../../utils'
+
+import css from './Create.less'
 
 /** 创建项目 */
 export function Create(): JSX.Element {
   const ctx = observe(Ctx, {from: 'parents'})
-
   const appCtx = observe(AppCtx, {from: 'parents'})
-  const {user, APPSMap, DesignAPPS, FolderAPPS} = appCtx
-
-  const createCtx = useObservable({app: null});
-  /** TODO 云组件创建弹窗的显示隐藏，后续所有应用创建应该统一？ */
-    // const [visible, setVisible] = useState<boolean | number>(1);
-  const [createFileVisible, setCreateFileVisible] = useState<any>(1);
+  const [createApp, setCreateApp] = useState(null)
 
   /** 点击新建 */
   const newProject: (app: any) => void = useCallback((app: T_App) => {
-    createCtx.app = app;
-    setCreateFileVisible(true);
+    console.log(`创建app:`, app)
+    setCreateApp(app)
   }, []);
 
   const FolderList: JSX.Element = useMemo(() => {
-    return designAPPSFilter(FolderAPPS, ctx.path).map(app => {
+    return designAPPSFilter(appCtx.FolderAPPS, ctx.path).map(app => {
       const {
         icon,
         title,
@@ -63,8 +62,8 @@ export function Create(): JSX.Element {
   }, [ctx.path])
 
   /** 搭建应用列表 */
-  const AppList: JSX.Element = useMemo(() => {
-    return DesignAPPS.map(app => {
+  const AppList: JSX.Element[] = useMemo(() => {
+    return appCtx.DesignAPPS.map(app => {
       const {
         icon,
         title,
@@ -95,92 +94,86 @@ export function Create(): JSX.Element {
     })
   }, []);
 
-  /** 创建应用弹窗提交事件 */
-  const createFileSubmit = useCallback((value) => {
-    try {
-      const { name } = value;
-      const { extName, isSystem } = createCtx.app;
-
-      // let parentId
-
-      // if (ctx.path.length === 1) {
-      //   parentId = null
-      // } else {
-      //   parentId = ctx.path[ctx.path.length - 1].id;
-      // }
-
-      const item = ctx.path[ctx.path.length - 1]
-
+  const modalOk = useCallback((values, app) => {
+    return new Promise(async (resolve, reject) => {
+      const item = ctx.path.at(-1)
       const isGroup = !!!item.extName && !!item.id
+      const { fileName } = values
+      const { extName, isSystem } = app
 
-      const param: any = {
-        userId: user.email,
-        name: name,
-        extName: extName
+      const params: any = {
+        extName,
+        userId: appCtx.user.email
       }
 
       if (isGroup) {
-        param.groupId = item.id
+        params.groupId = item.id
       } else {
-        param.parentId = item.id
-        param.groupId = item.groupId
+        params.parentId = item.id
+        params.groupId = item.groupId
       }
       
-      if(isSystem) {
-        param.type = 'system';
-      }
-
-      axios({
-        method: "post",
-        url: getApiUrl('/paas/api/workspace/createFile'),
-        data: param
-      }).then(({data}) => {
-        if (data.code === 1) {
-          const appReg = APPSMap[extName];
-          const {homepage} = appReg;
-          
-          ctx.getAll(getUrlQuery());
-          if (typeof homepage === 'string') {
-            setTimeout(() => {
-              window.location.href = `${homepage}?id=${data.data.id}`;
-            }, 0);
-          }
-        } else {
-          message.error(`创建文件错误：${data.message}`)
+      const check = await axios({
+        method: 'get',
+        url: getApiUrl('/paas/api/file/checkFileCanCreate'),
+        params: {
+          ...params,
+          fileName
         }
-      }).finally(() => {
-        setCreateFileVisible(false);
-      });
-    } catch {
-      setCreateFileVisible(false);
-    }
-  }, []);
+      })
 
-  /** 创建应用弹窗关闭事件 */
-  const createFileClose = useCallback(() => {
-    setCreateFileVisible(false);
+      if (check.data?.data?.next) {
+        if (isSystem) {
+          params.type = 'system'
+        }
+  
+        axios({
+          method: 'post',
+          url: getApiUrl('/paas/api/workspace/createFile'),
+          data: {
+            ...params,
+            name: fileName
+          }
+        }).then(({data}) => {
+          if (data.code === 1) {
+            const appReg = appCtx.APPSMap[extName]
+            const {homepage} = appReg
+            
+            ctx.getAll(getUrlQuery())
+
+            if (typeof homepage === 'string') {
+              setTimeout(() => {
+                window.location.href = `${homepage}?id=${data.data.id}`;
+              }, 0);
+            }
+            resolve('创建成功！')
+          } else {
+            reject(`创建文件错误：${data.message}`)
+          }
+        })
+      } else {
+        reject('相同路径下不允许创建同名文件！')
+      }
+    })
   }, [])
 
-  /** 创建各类应用弹窗 */
-  const RenderCreateFile: JSX.Element = useMemo(() => {
-    if (typeof createFileVisible === 'number') {
-      return <></>;
-    }
+  const modalCancel = useCallback(() => {
+    setCreateApp(null)
+  }, [])
+
+  const RenderCreateAppModal = useMemo(() => {
     return (
-      <div style={{display: 'none'}}>
-        <CreateFile
-          title={`新建${createCtx.app.title}`}
-          visible={createFileVisible}
-          submit={createFileSubmit}
-          close={createFileClose}
-        />
-      </div>
+      <CreateFileModal
+        app={createApp}
+        onOk={modalOk}
+        onCancel={modalCancel}
+      />
     )
-  }, [createFileVisible]);
+  }, [createApp])
 
   return (
     <div className={css.createContainer} style={{display: !ctx.popCreate ? 'none' : ''}}>
-      {RenderCreateFile}
+      {RenderCreateAppModal}
       <div className={css.news}>
         {FolderList}
       </div>
@@ -190,6 +183,71 @@ export function Create(): JSX.Element {
       </div>
     </div>
   )
+}
+
+function CreateFileModal({app, onOk, onCancel}) {
+  const [form] = Form.useForm()
+  const [btnLoading, setBtnLoading] = useState(false)
+  const ref = useRef()
+
+  const ok = useCallback(() => {
+    form.validateFields().then((values) => {
+      setBtnLoading(true)
+      onOk(values, app).then((msg) => {
+        message.success(msg)
+        cancel()
+      }).catch((e) => {
+        setBtnLoading(false)
+        message.warn(e)
+      })
+    })
+  }, [app])
+
+  const cancel = useCallback(() => {
+    onCancel()
+    setBtnLoading(false)
+    form.resetFields()
+  }, [])
+
+  useEffect(() => {
+    if (app && ref.current) {
+      setTimeout(() => {
+        (ref.current as any).focus()
+      }, 100)
+    }
+  }, [app])
+
+  return (
+    <Modal
+      open={!!app}
+      title={`新建${app?.title}`}
+      okText={btnLoading ? '校验中...' : '确认'}
+      cancelText={'取消'}
+      centered={true}
+      onOk={ok}
+      onCancel={cancel}
+      confirmLoading={btnLoading}
+      bodyStyle={{
+        minHeight: 104
+      }}
+    >
+      <Form
+        labelCol={{ span: 3 }}
+        wrapperCol={{ span: 21 }}
+        form={form}
+      >
+        <Form.Item
+          label='名称'
+          name="fileName"
+          rules={[{ required: true, message: '请输入名称！' }]}
+        >
+          <Input ref={ref} placeholder={`请输入${app?.title}名称`} autoFocus onPressEnter={ok}/>
+        </Form.Item>
+      </Form>
+    </Modal>
+  )
+
+
 }
 
 function designAPPSFilter (apps, path) {
@@ -204,17 +262,3 @@ function designAPPSFilter (apps, path) {
   
   return finalApps
 }
-
-// function designAPPSFilter (apps, folderExtname) {
-//   let finalApps = apps
-//   switch (folderExtname) {
-//     case 'folder-project':
-//     case 'folder-module':
-//       finalApps = apps.filter((app) => app.extName !== 'folder-project')
-//       break
-//     default:
-//       break
-//   }
-  
-//   return finalApps
-// }

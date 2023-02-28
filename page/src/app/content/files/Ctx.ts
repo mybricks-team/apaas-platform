@@ -9,7 +9,7 @@ export default class Ctx {
 
   folderExtName: null | string | undefined = undefined
 
-  path: Array<{ id: null | number, name: string, parentId: null | number, extName: null | string }> = [{id: null, name: '我的项目', parentId: null, extName: null}]
+  path: Array<{ id: null | number, name: string, parentId: null | number, groupId: null | number, extName: null | string }> = [{id: null, name: '我的项目', parentId: null, groupId: null, extName: null}]
 
   projectList: null | Array<any> = null
 

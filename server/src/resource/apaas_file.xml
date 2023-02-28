@@ -526,4 +526,20 @@
         </if>
         order by create_time desc
     </select>
+
+    <select id="exactQuery">
+        select id from apaas_file 
+        where name = #{name}
+        and ext_name = #{extName}
+        <if test="parentId">
+            and parent_id = #{parentId}
+        </if>
+        <if test="groupId">
+            and group_id = #{groupId}
+        </if>
+         <if test="creatorId">
+            and creator_id = #{creatorId}
+        </if>
+        limit 1
+    </select>
 </mapper>

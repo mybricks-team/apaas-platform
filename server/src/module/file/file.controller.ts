@@ -471,6 +471,30 @@ export default class FileService {
     };
   }
 
+  @Get("/file/checkFileCanCreate")
+  async checkFileCanCreate(@Query() query) {
+    const { fileName, extName, parentId, groupId, userId } = query
+    const params: any = {
+      name: fileName,
+      extName,
+      parentId,
+      groupId
+    }
+
+    if (!groupId) {
+      params.creatorId = userId
+    }
+
+    const file = await this.fileDao.exactQuery(params)
+
+    return {
+      code: 1,
+      data: {
+        next: !!!file
+      }
+    }
+  }
+
   // 相对于relativeId, baseId的相对位置关系
   @Post("/file/getRelativePathBetweenFileId")
   async getRelativePathBetweenFileId(
