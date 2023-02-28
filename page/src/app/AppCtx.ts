@@ -52,6 +52,22 @@ export interface T_App {
 /** 只有管理员才能看见的模块namespaces */
 const adminNameSpaces = ['app-store', 'mybricks-app-workflow']
 
+const MYBRICKS_TEAM_USERS = [
+  'chemingjun',
+  'huangqiuyun03',
+  'lianglihao',
+  'liubiao03',
+  'liulei11',
+  'liuzhigang06',
+  'tangxiaoxin',
+  'yangxian05',
+  'yankewen',
+  'zhaoxing03',
+  'zhulin08',
+  'zhupengqiang',
+  'zouyongsheng'
+]
+
 export default class AppCtx {
 
   urlQuery: any = {}
@@ -148,10 +164,32 @@ export default class AppCtx {
     });
     // 侧边栏应用
     this.DockerAPPS = DockerAPPS.filter(app => this.isAdministrator ? true : !adminNameSpaces.includes(app.namespace));
-    // 搭建应用
-    this.DesignAPPS = DesignAPPS.filter(app => this.isAdministrator ? true : !adminNameSpaces.includes(app.namespace));
     // 原始安装应用列表
     this.InstalledAPPS = apps;
     this.APPSMap = APPSMap;
+
+
+    // TODO:先写死，后续配置化
+    const MYBRICKS_TEAM_USER_EMAILS = MYBRICKS_TEAM_USERS.map((user) => user + '@' + 'ku' + 'ai' + 'sh' + 'ou' + '.com')
+    const IS_MYBRICKS_TEAM_USER = MYBRICKS_TEAM_USER_EMAILS.includes(this.user.email)
+    if (!IS_MYBRICKS_TEAM_USER) {
+      const SHOW_APPS_MAP = {
+        'pc-cgn': true,
+        'pc-page': true
+      }
+      const SHOW_FOLDERS_MAP = {
+        'folder': true
+      }
+      // 搭建应用
+      this.DesignAPPS = DesignAPPS.filter(app => {
+        return (this.isAdministrator ? true : !adminNameSpaces.includes(app.namespace)) && SHOW_APPS_MAP[app.extName]
+      });
+      this.FolderAPPS = this.FolderAPPS.filter((app) => {
+        return SHOW_FOLDERS_MAP[app.extName]
+      })
+    } else {
+      // 搭建应用
+      this.DesignAPPS = DesignAPPS.filter(app => this.isAdministrator ? true : !adminNameSpaces.includes(app.namespace));
+    }
   }
 }
