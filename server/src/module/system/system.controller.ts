@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
+import ProjectPubDao from '../../dao/ProjectPubDao';
 import { uuid } from '../../utils/index';
 import { getConnection } from '@mybricks/rocker-dao';
 // @ts-ignore
@@ -12,6 +13,8 @@ export default class SystemService {
   fileDao: FileDao;
 
   filePubDao: FilePubDao;
+
+  projectPubDao: ProjectPubDao;
 
   fileService: FileService
 
@@ -25,6 +28,7 @@ export default class SystemService {
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
+    this.projectPubDao = new ProjectPubDao()
   }
 
   checkSqlValid(sql) {
@@ -421,16 +425,16 @@ export default class SystemService {
       let res;
       if(projectId) {
         // 发布后环境，项目空间
-        // const [pubInfo]: any = await this.projectPubDao.getLatestPubByProjectIdAndFileId({
-        //   fileId: fileId,
-        //   projectId: projectId,
-        //   type: 'prod',
-        // });
-        // res = await this._execDomainPub(pubInfo, {
-        //   fileId: +fileId,
-        //   serviceId,
-        //   params
-        // })
+        const [pubInfo]: any = await this.projectPubDao.getLatestPubByProjectIdAndFileId({
+          fileId: +fileId,
+          projectId: projectId,
+          type: 'prod',
+        });
+        res = await this._execDomainPub(pubInfo, {
+          fileId: +fileId,
+          serviceId,
+          params
+        })
 
       } else {
         // 发布后环境，普通发布空间
