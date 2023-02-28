@@ -496,7 +496,7 @@ export default class FileService {
     }
   }
 
-  @Post('/paas/api/file/getLatestSave')
+  @Post('/file/getLatestSave')
   async getLatestSave(@Body('fileId') fileId: number) {
     if(!fileId) {
       return {
