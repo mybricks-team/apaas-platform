@@ -318,39 +318,8 @@ export default class SystemService {
     }
   }
 
-  // 领域建模运行时
-  @Post('/system/domain/run')
-  async systemDomainRun(
-    // 通用参数
-    @Body('serviceId') serviceId: string,
-    @Body('params') params: any,
-    // 发布后运行定位
-    @Body('isOnline') isOnline: any,
-    @Body('fileId') fileId: string,
-    @Body('projectId') projectId: any,
-    // debug模式
-    @Body('relativePath') relativePath: any,
-    @Body('baseFileId') baseFileId: any
-  ) {
-    if (!serviceId) {
-      return {
-        code: -1,
-        msg: '缺少 serviceId',
-      };
-    }
-    if(isOnline) {
-      // 发布后环境，直接去pub查找服务：项目空间或者
-      const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(
-        +fileId,
-        'prod',
-      );
-      const res = await this._execDomainPub(pubInfo, {
-        fileId: +fileId,
-        serviceId,
-        params
-      })
-      return res
-    } else {
+  async getFileInfoByBaseFileIdAndRelativePath({ relativePath, baseFileId }) {
+    try {
       /**
        * 四种case
         ../ssdsdsd/qweqwew
@@ -358,8 +327,6 @@ export default class SystemService {
         dsdsd
         dsdsd/dsads
        */
-      // 根据相对路径，找出真实fileId，然后去通用pub里面查找
-      const absoluteUUIDPath = await this.fileService._getParentModuleAndProjectInfo(baseFileId)
       const relativePartList = relativePath?.split('/');
       let currentFile = await this.fileDao.queryById(baseFileId);
       // 根据相对路径，查找源文件ID
@@ -423,6 +390,68 @@ export default class SystemService {
           }
         }
       }
+      return currentFile
+    } catch (e) {
+      console.log('getFileInfoByBaseFileIdAndRelativePath', e.message)
+      return null
+    }
+  }
+
+  // 领域建模运行时
+  @Post('/system/domain/run')
+  async systemDomainRun(
+    // 通用参数
+    @Body('serviceId') serviceId: string,
+    @Body('params') params: any,
+    // 发布后运行定位
+    @Body('isOnline') isOnline: any,
+    @Body('fileId') fileId: string,
+    @Body('projectId') projectId: any,
+    // debug模式
+    @Body('relativePath') relativePath: any,
+    @Body('baseFileId') baseFileId: any
+  ) {
+    if (!serviceId) {
+      return {
+        code: -1,
+        msg: '缺少 serviceId',
+      };
+    }
+    if(isOnline) {
+      let res;
+      if(projectId) {
+        // 发布后环境，项目空间
+        // const [pubInfo]: any = await this.projectPubDao.getLatestPubByProjectIdAndFileId({
+        //   fileId: fileId,
+        //   projectId: projectId,
+        //   type: 'prod',
+        // });
+        // res = await this._execDomainPub(pubInfo, {
+        //   fileId: +fileId,
+        //   serviceId,
+        //   params
+        // })
+
+      } else {
+        // 发布后环境，普通发布空间
+        const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(
+          +fileId,
+          'prod',
+        );
+        res = await this._execDomainPub(pubInfo, {
+          fileId: +fileId,
+          serviceId,
+          params
+        })
+      }
+      return res
+    } else {
+      // 根据相对路径，找出真实fileId，然后去通用pub里面查找
+      let currentFile = await this.getFileInfoByBaseFileIdAndRelativePath({
+        relativePath,
+        baseFileId
+      })
+
       // console.log('--------------------------------')
       // console.log('文件是', currentFile)
       const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(
