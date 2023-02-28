@@ -10,6 +10,7 @@ import * as axios from "axios";
 import FileService from '../module/file/file.controller'
 import ConfigService from './config'
 import { getRealDomain } from "../utils";
+import { uuid } from '../utils/index';
 
 const folderExtnames = ['folder', 'folder-project', 'folder-module']
 
@@ -172,6 +173,7 @@ export default class WorkspaceService {
       const rtn = await this.fileDao.createFile({
         type,
         name,
+        uuid: uuid(10),
         namespace,
         creatorId: userId,
         creatorName: userId,

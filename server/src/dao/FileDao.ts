@@ -229,6 +229,7 @@ export default class FileDao extends DOBase {
     creatorId: string,
     creatorName: string,
     extName: string,
+    uuid: string,
     groupId?: number,
     description?: string,
     parentId?: number,

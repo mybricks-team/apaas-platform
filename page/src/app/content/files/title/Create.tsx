@@ -132,7 +132,7 @@ export function Create(): JSX.Element {
 
       axios({
         method: "post",
-        url: getApiUrl('/api/workspace/createFile'),
+        url: getApiUrl('/paas/api/workspace/createFile'),
         data: param
       }).then(({data}) => {
         if (data.code === 1) {
