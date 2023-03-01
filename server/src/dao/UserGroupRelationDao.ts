@@ -78,6 +78,24 @@ export default class UserGroupRelationDao extends DOBase {
     )
   }
 
+  public async update(params: {
+    updatorId: string;
+    updatorName: string;
+    roleDescription: number;
+    userGroupId: number;
+    userId: string;
+  }) {
+    const time = new Date().getTime()
+    return await this.exe<any>(
+      'apaas_user_group_relation:update',
+      {
+        ...params,
+        status: 1,
+        updateTime: time
+      }
+    )
+  }
+
   @Mapping(UserGroupRelationDO)
   public async queryByUserId(params: {
     userId: string
@@ -95,5 +113,17 @@ export default class UserGroupRelationDao extends DOBase {
       'apaas_user_group_relation:queryByUserGroupId',
       params
     )
+  }
+
+  @Mapping(UserGroupRelationDO)
+  public async queryByUserIdAndUserGroupId(params: {
+    userId: string;
+    userGroupId: number;
+  }) {
+    const result = await this.exe<UserGroupRelationDO>(
+      'apaas_user_group_relation:queryByUserIdAndUserGroupId',
+      params
+    )
+    return result && result[0]
   }
 }

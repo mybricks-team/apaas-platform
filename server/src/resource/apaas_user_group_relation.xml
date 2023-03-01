@@ -31,6 +31,20 @@
         </trim>
     </insert>
 
+    <update id="update">
+        update apaas_user_group_relation
+        set
+        <if test="roleDescription">
+        role_description = #{roleDescription},
+        </if>
+        status = #{status},
+        update_time = #{updateTime},
+        updator_id = #{updatorId},
+        updator_name = #{updatorName}
+        where user_id = #{userId} 
+        and user_group_id = #{userGroupId}
+    </update>
+
     <select id="queryByUserId">
         select user_group_id, role_description from apaas_user_group_relation
         where
@@ -55,5 +69,10 @@
             and apaas_user_group_relation.user_id = apaas_user.email
             and apaas_user_group_relation.user_group_id = #{userGroupId}
         order by apaas_user_group_relation.create_time
+    </select>
+
+    <select id="queryByUserIdAndUserGroupId">
+        select * from apaas_user_group_relation 
+        where user_id = #{userId} and user_group_id = #{userGroupId}
     </select>
 </mapper>

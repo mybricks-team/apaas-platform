@@ -122,21 +122,35 @@ export default class UserGroupService {
 
   @Post('/userGroup/addUserGroupRelation')
   async addUserGroupRelation(@Body() body) {
-    const { userId, userIds, roleDescription, groupId } = body
+    const { userId, userIds, roleDescription = 2, groupId } = body
 
     const [user, users] = await Promise.all([
       await this.userDao.queryByEmail({email: userId}),
       await this.userDao.queryByEmails({emails: userIds})
     ])
 
-    await Promise.all(users.map(async (item) => {
-      return await this.userGroupRelation.create({
-        creatorId: userId,
-        creatorName: user.name || userId,
-        userId: item.email,
-        roleDescription: roleDescription || 1,
-        userGroupId: groupId
-      })
+    await Promise.all((users as any).map(async (item) => {
+      if (item.email === userId) {
+        return
+      }
+      const hasUser = await this.userGroupRelation.queryByUserIdAndUserGroupId({userId: item.email, userGroupId: groupId})
+      if (hasUser) {
+        await this.userGroupRelation.update({
+          updatorId: userId,
+          updatorName: user.name || userId,
+          userGroupId: groupId,
+          userId: item.email,
+          roleDescription
+        })
+      } else {
+        await this.userGroupRelation.create({
+          creatorId: userId,
+          creatorName: user.name || userId,
+          userGroupId: groupId,
+          userId: item.email,
+          roleDescription
+        })
+      }
     }))
 
     return {
