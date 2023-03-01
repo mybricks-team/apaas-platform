@@ -27,6 +27,9 @@ export class FilePublishDO {
   @Column("type")
   type: string;
 
+  @Column("project_id")
+  projectId: string;
+
   @Column("create_time")
   createTime(a) {
     return moment(a).format("YYYY-MM-DD HH:mm:ss");
@@ -52,7 +55,7 @@ export default class FilePubDao extends DOBase {
     status?: EffectStatus;
     commitInfo?: string;
     fileContentId?: number;
-    moduleId?: number
+    projectId?: number
   }): Promise<{ id: number | null }> {
     if (!query.type) {
       query.type = "";
@@ -64,7 +67,7 @@ export default class FilePubDao extends DOBase {
       createTime: Date.now(),
       commitInfo: query.commitInfo ?? "",
       fileContentId: query.fileContentId ?? null,
-      moduleId: query?.moduleId ?? null
+      projectId: query?.projectId ?? null
     });
 
     return {
@@ -153,14 +156,4 @@ export default class FilePubDao extends DOBase {
     );
   }
 
-  @Mapping(FilePublishDO)
-  async getLatestPubByIdAndModuleIds(params: {
-    moduleIds: number[], fileId: string | number
-  }) {
-    return await this.exe<any>(
-      "apaas_file_pub:getLatestPubByIdAndModuleIds",
-      { moduleIds: params.moduleIds, fileId: params.fileId }
-    );
-  }
-  
 }

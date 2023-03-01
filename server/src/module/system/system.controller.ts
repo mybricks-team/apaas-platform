@@ -346,18 +346,6 @@ export default class SystemService {
       let res;
       if(projectId) {
         // 发布后环境，项目空间
-        const [pubInfo]: any = await this.projectPubDao.getLatestPubByProjectIdAndFileId({
-          fileId: +fileId,
-          projectId: projectId,
-          type: 'prod',
-        });
-        res = await this._execDomainPub(pubInfo, {
-          fileId: +fileId,
-          serviceId,
-          params
-        })
-
-      } else {
         // 发布后环境，普通发布空间
         const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(
           +fileId,
