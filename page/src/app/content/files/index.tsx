@@ -11,6 +11,7 @@ import {message, Modal} from 'antd'
 import {ExclamationCircleFilled} from '@ant-design/icons'
 
 import Box from './box'
+import Info from './info'
 import TitleBar from './title'
 import AppCtx from '../../AppCtx'
 import {Content, Block} from '..'
@@ -71,9 +72,9 @@ export default function Files() {
       }
     })
   }, {to: 'children'})
-  const latestPath = useComputed(() => {
-		return ctx.path[ctx.path.length - 1]
-	})
+  // const latestPath = useComputed(() => {
+	// 	return ctx.path[ctx.path.length - 1]
+	// })
 
   useComputed(() => {
     const {urlQuery} = appCtx
@@ -83,6 +84,11 @@ export default function Files() {
     })
   })
 
+  const pathInfo = useComputed(() => {
+    const pathInfo = ctx.path.at(-1)
+    return pathInfo
+  })
+
   return (
     <>
       <Content title={<TitleBar/>}>
@@ -90,11 +96,15 @@ export default function Files() {
 	        <Block style={{ flex: 1, marginBottom: 0 }}>
 		        <Projects/>
 	        </Block>
-	        {latestPath?.extName === 'folder-module' ? (
+	        {/* {latestPath?.extName === 'folder-module' ? (
 		        <Block style={{width: '300px', marginBottom: 0}}>
 			        <Box />
 		        </Block>
-	        ) : null}
+	        ) : null} */}
+          {/* <Block style={{minWidth: 280}}>
+            <div>新的块儿</div>
+          </Block> */}
+          {pathInfo && <Info path={pathInfo}/>}
         </Block>
       </Content>
     </>

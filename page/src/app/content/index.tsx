@@ -75,9 +75,9 @@ export function Content({title, children}) {
 }
 
 /** 块 */
-export function Block({style = {}, children}): JSX.Element {
+export function Block({style = {}, className = '', children}): JSX.Element {
   return (
-    <div style={{marginBottom: 11, ...style}}>
+    <div style={{marginBottom: 11, ...style}} className={className}>
       {children}
     </div>
   )

@@ -437,9 +437,9 @@
         select *, case when icon= '' then '0' else '1' end as has_icon from apaas_file
         where (updator_id = #{userId} or creator_id = #{userId}) 
         and status = -1 
-        and #{currentTime} - update_time < #{timeInterval} 
         order by update_time desc
     </select>
+    <!-- and #{currentTime} - update_time < #{timeInterval}  -->
 
     <update id="recoverFile">
         update apaas_file

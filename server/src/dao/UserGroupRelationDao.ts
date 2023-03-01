@@ -87,4 +87,13 @@ export default class UserGroupRelationDao extends DOBase {
       params
     )
   }
+
+  public async queryByUserGroupId(params: {
+    userGroupId: number
+  }) {
+    return await this.exe<UserGroupRelationDO[]>(
+      'apaas_user_group_relation:queryByUserGroupId',
+      params
+    )
+  }
 }

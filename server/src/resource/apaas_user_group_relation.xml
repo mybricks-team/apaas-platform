@@ -39,4 +39,21 @@
         status = 1
         and role_description <> -1
     </select>
+
+    <select id="queryByUserGroupId">
+        select 
+            apaas_user_group_relation.role_description,
+            apaas_user.name,
+            apaas_user.email,
+            apaas_user.avatar
+        from 
+            apaas_user_group_relation
+        inner join
+            apaas_user
+        on
+            apaas_user_group_relation.status = 1
+            and apaas_user_group_relation.user_id = apaas_user.email
+            and apaas_user_group_relation.user_group_id = #{userGroupId}
+        order by apaas_user_group_relation.create_time
+    </select>
 </mapper>
