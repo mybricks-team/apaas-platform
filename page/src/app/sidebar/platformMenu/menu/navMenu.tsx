@@ -24,7 +24,7 @@ export interface MenuCtx {
 
 interface Props {
   id: string | null;
-  namespace: string;
+  namespace?: string;
   icon: JSX.Element | string | ((...args: any) => JSX.Element);
   name: string;
   child?: {open: boolean, child: Child};

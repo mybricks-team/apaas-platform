@@ -23,23 +23,10 @@ export default function App() {
     useMemo(() => {
       /** 初始化(获取应用、配置和角色) */
       (async () => {
-        try {
-          const user = await API.User.getLoginUser()
-          console.log('login', user)
-          /** 设置用户信息 */
-          appCtx.setUser(user)
-          appCtx.setIsAdministrator(!!user?.isAdmin)
-        } catch(e) {
-          message.error(e.toString())
-          const count = sessionStorage.getItem('_MYBIRCKS_LOGIN_REDIRECT_COUNT_')
-          if(!count) {
-            sessionStorage.setItem('_MYBIRCKS_LOGIN_REDIRECT_COUNT_', count + 1)
-            setTimeout(() => {
-              location.href = '/'
-              message.info('即将重定向到登录页')
-            }, 1000)
-          }
-        }
+        const user = await API.User.getLoginUser()
+        // /** 设置用户信息 */
+        appCtx.setUser(user)
+        appCtx.setIsAdministrator(!!user?.isAdmin)
   
         /** 平台安装的应用 */
         const appRes = await axios({

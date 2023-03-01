@@ -186,22 +186,22 @@ export class UserServices {
       }
     }
     if (!userEmail) {
-      // return {
-      //   code: -1,
-      //   msg: 'sso 缺少username',
-      // };
+      return {
+        code: -1,
+        msg: '未登录',
+      };
       // 本地环境
-      if (
-        process.env.NODE_ENV !== 'staging' &&
-        process.env.NODE_ENV !== 'production'
-      ) {
-        userEmail = 'admin@admin.com';
-      } else {
-        return {
-          code: -1,
-          msg: 'sso 缺少username',
-        };
-      }
+      // if (
+      //   process.env.NODE_ENV !== 'staging' &&
+      //   process.env.NODE_ENV !== 'production'
+      // ) {
+      //   userEmail = 'admin@admin.com';
+      // } else {
+      //   return {
+      //     code: -1,
+      //     msg: 'sso 缺少username',
+      //   };
+      // }
     }
     const userInfo = await this.userDao.queryByEmail({
       email: userEmail,
