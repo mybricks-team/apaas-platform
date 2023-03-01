@@ -1,23 +1,26 @@
-import React, {useCallback, useEffect} from 'react'
+import React, {useCallback} from 'react'
 
 import axios from 'axios'
-import {message} from 'antd'
 import {
   evt,
   observe,
   useComputed,
   useObservable
 } from '@mybricks/rxui'
+import {message, Modal} from 'antd'
+import {ExclamationCircleFilled} from '@ant-design/icons'
 
 import Box from './box'
 import TitleBar from './title'
 import AppCtx from '../../AppCtx'
 import {Content, Block} from '..'
-import {getApiUrl} from '../../../utils'
+import {getApiUrl, getUrlQuery} from '../../../utils'
 import Ctx, {folderExtnames} from './Ctx'
 import {Icon, Trash} from '../../components'
 
 import css from './index.less'
+
+const {confirm} = Modal
 
 export default function Files() {
   const appCtx = observe(AppCtx, {from: 'parents'})
@@ -26,7 +29,7 @@ export default function Files() {
       user: appCtx.user,
       setPath({parentId, groupId}) {
         ctx.projectList = null
-        const path = !groupId ? [{id: null, name: '我的项目', parentId: null, extName: null}] : []
+        const path = !groupId ? [{id: null, name: '我的项目', parentId: null, groupId: null, extName: null}] : []
 
         axios({
           method: "get",
@@ -114,19 +117,33 @@ function Projects() {
         }
         break;
       case 'delete':
-        if (confirm('您确定要删除该项目吗?')) {
-          axios({
-            method: "post",
-            url: getApiUrl('/api/workspace/deleteFile'),
-            data: {id: item.id, userId: appCtx.user.email}
-          }).then(({data}) => {
-            if (data.code === 1) {
-              ctx.getAll(true);
-            } else {
-              message.error(`删除项目错误：${data.message}`);
-            }
-          });
-        }
+        confirm({
+          title: `确定要删除"${name}"吗？`,
+          icon: <ExclamationCircleFilled />,
+          centered: true,
+          okText: '确认',
+          cancelText: '取消',
+          onOk() {
+            return new Promise((resolve) => {
+              axios({
+                method: "post",
+                url: getApiUrl('/api/workspace/deleteFile'),
+                data: {id: item.id, userId: appCtx.user.email}
+              }).then(async ({data}) => {
+                if (data.code === 1) {
+                  ctx.getAll(getUrlQuery());
+                  if (folderExtnames.includes(extName)) {
+                    await appCtx.refreshSidebar();
+                  }
+                  resolve(true);
+                } else {
+                  message.error(`删除项目错误：${data.message}`);
+                }
+              });
+            })
+          },
+          onCancel() {},
+        })
         break;
       default:
         break;

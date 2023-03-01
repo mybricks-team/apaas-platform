@@ -9,10 +9,7 @@ import Ctx from "../Ctx";
 export default function TitleBar(): JSX.Element {
   const ctx = observe(Ctx, {from: "parents"})
 
-  const titleClick = useCallback((item, idx) => {
-    // ctx.path = ctx.path.slice(0, idx + 1);
-    // ctx.getAll(true);
-
+  const titleClick = useCallback((item) => {
     const {groupId, id, extName} = item
     const isGroup = !!!extName && !!id
 
@@ -47,10 +44,11 @@ export default function TitleBar(): JSX.Element {
           return (
             <Breadcrumb.Item
               key={id}
+              // @ts-ignore
               style={{cursor: pathLastIndex !== idx ? 'pointer' : 'default'}}
               onClick={() => {
                 if (pathLastIndex !== idx) {
-                  titleClick(item, idx);
+                  titleClick(item);
                 }
               }}
             >{name}</Breadcrumb.Item>

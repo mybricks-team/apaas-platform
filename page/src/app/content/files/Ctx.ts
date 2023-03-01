@@ -16,7 +16,7 @@ export default class Ctx {
   /**
    * @param pushState 是否操作路由
    */
-  getAll: (pushState?: boolean) => void;
+  getAll: (any) => void;
 
   /**
    * @param id 文件夹Id
