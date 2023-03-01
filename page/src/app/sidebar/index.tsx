@@ -145,6 +145,7 @@ function SystemMenus() {
             ) : <>消息通知</>}
             modal={{
               title: '消息通知',
+              // @ts-ignore
               content: <MessageModal messages={messages}/>
             }}
           />

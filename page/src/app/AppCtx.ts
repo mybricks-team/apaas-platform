@@ -193,4 +193,18 @@ export default class AppCtx {
       this.DesignAPPS = DesignAPPS.filter(app => this.isAdministrator ? true : !adminNameSpaces.includes(app.namespace));
     }
   }
+
+  /** TODO:侧边栏相关操作 */
+  sidebarInfo: {[key: string]: any} = {}
+
+  refreshSidebar(namespace?: string) {
+    return new Promise(async (resolve) => {
+      const sideMenu = this.sidebarInfo[namespace || this.locationSearch]
+      if (sideMenu?.open) {
+        const items = await sideMenu.getFiles(sideMenu.id)
+        sideMenu.items = items
+      }
+      resolve(true)
+    })
+  }
 }

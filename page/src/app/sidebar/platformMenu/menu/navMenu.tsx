@@ -1,13 +1,11 @@
-import React, { useMemo, useCallback } from 'react';
+import React, {useMemo, useCallback, useEffect} from 'react'
 
-import { useComputed, useObservable } from '@mybricks/rxui';
+import {useComputed, useObservable} from '@mybricks/rxui'
 
-import ItemList from './itemList';
-import NavSwitch from './navSwitch';
-import { Item } from '../..';
-
-// @ts-ignore
-import css from './navMenu.less';
+import {appCtx} from '..'
+import {Item} from '../..'
+import ItemList from './itemList'
+import NavSwitch from './navSwitch'
 
 export type Child = {[key: string]: {
   open: boolean;
@@ -65,6 +63,7 @@ export default function NavMenu ({
   suffix
 }: Props): JSX.Element {
   const menuCtx: MenuCtx = useObservable({
+    id,
     open: child?.open || false,
     loading: false,
     items: [],
@@ -81,6 +80,17 @@ export default function NavMenu ({
       menuCtx.loading = true;
     }
   }, []);
+
+  useEffect(() => {
+    if (namespace) {
+      appCtx.sidebarInfo[namespace] = menuCtx
+    }
+    return () => {
+      if (namespace) {
+        Reflect.deleteProperty(appCtx.sidebarInfo, namespace)
+      }
+    }
+  }, [])
 
   const Switch: JSX.Element = useMemo(() => {
     return !child ? (<></>) : (

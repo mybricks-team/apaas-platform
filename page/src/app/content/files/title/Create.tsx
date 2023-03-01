@@ -10,8 +10,8 @@ import axios from 'axios'
 import {observe} from '@mybricks/rxui'
 import {message, Modal, Form, Input} from 'antd'
 
-import Ctx from '../Ctx'
 import {Icon} from '../../../components'
+import Ctx, {folderExtnames} from '../Ctx'
 import AppCtx, {T_App} from '../../../AppCtx'
 import {getApiUrl, getUrlQuery} from '../../../../utils'
 
@@ -100,7 +100,6 @@ export function Create(): JSX.Element {
       const isGroup = !!!item.extName && !!item.id
       const { fileName } = values
       const { extName, isSystem } = app
-
       const params: any = {
         extName,
         userId: appCtx.user.email
@@ -134,7 +133,7 @@ export function Create(): JSX.Element {
             ...params,
             name: fileName
           }
-        }).then(({data}) => {
+        }).then(async ({data}) => {
           if (data.code === 1) {
             const appReg = appCtx.APPSMap[extName]
             const {homepage} = appReg
@@ -146,6 +145,11 @@ export function Create(): JSX.Element {
                 window.location.href = `${homepage}?id=${data.data.id}`;
               }, 0);
             }
+
+            if (folderExtnames.includes(extName)) {
+              await appCtx.refreshSidebar()
+            }
+
             resolve('创建成功！')
           } else {
             reject(`创建文件错误：${data.message}`)
