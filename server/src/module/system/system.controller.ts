@@ -212,7 +212,7 @@ export default class SystemService {
         allDomainFileHierarchyTask.push(this.fileService._getParentModuleAndProjectInfo(i.id))
       })
       let allDomainFileHierarchy = await Promise.all(allDomainFileHierarchyTask);
-      
+
       if (currentFileHierarchy.projectId) {
         // 项目内，必须是同一项目
         domainFiles?.forEach((i, index) => {
@@ -240,7 +240,7 @@ export default class SystemService {
           envType: 'prod',
         });
       }
-      
+
       pubContentList?.forEach((pubContent) => {
         const contentObj =
           typeof pubContent.content === 'string'
@@ -322,85 +322,6 @@ export default class SystemService {
     }
   }
 
-  async getFileInfoByBaseFileIdAndRelativePath({ relativePath, baseFileId }) {
-    try {
-      /**
-       * 四种case
-        ../ssdsdsd/qweqwew
-        ../dssds
-        dsdsd
-        dsdsd/dsads
-       */
-      const relativePartList = relativePath?.split('/');
-      let currentFile = await this.fileDao.queryById(baseFileId);
-      // 根据相对路径，查找源文件ID
-      for(let l=relativePartList.length, i=0; i<l; i++) {
-        const item = relativePartList[i];
-        if(relativePartList[0] === '..') {
-          if(l === 2) {
-            // ../xxx
-            if(item === '..') {
-              // 开头 ../
-              currentFile = await this.fileDao.queryById(currentFile?.parentId)
-              // currentParent = await this.fileDao.queryById(currentFile?.parentId)
-            } else {
-              // 末端 ../pathB
-              currentFile =  await this.fileDao.queryByUUIDAndParentId({
-                uuid: item,
-                parentId: currentFile?.parentId
-              })
-            }
-          } else {
-            if(item === '..') {
-              // 开头 ../
-              currentFile = await this.fileDao.queryById(currentFile?.parentId)
-              // currentParent = await this.fileDao.queryById(currentFile?.parentId)
-            } else {
-              // 末端 ../pathB
-              if(i === l - 1) {
-                currentFile =  await this.fileDao.queryByUUIDAndParentId({
-                  uuid: item,
-                  parentId: currentFile?.id
-                })
-              } else {
-                // 中建文件夹 ../pathA/
-                currentFile =  await this.fileDao.queryByUUIDAndParentId({
-                  uuid: item,
-                  parentId: currentFile?.parentId
-                })
-              }
-            }
-          }
-        } else {
-          if(l === 1) {
-            // 末端 pathA
-            currentFile =  await this.fileDao.queryByUUIDAndParentId({
-              uuid: item,
-              parentId: currentFile?.parentId
-            })
-          } else {
-            // 中间 pathA/pathB
-            if(i === l - 1) {
-              currentFile =  await this.fileDao.queryByUUIDAndParentId({
-                uuid: item,
-                parentId: currentFile?.id
-              })
-            } else {
-              currentFile =  await this.fileDao.queryByUUIDAndParentId({
-                uuid: item,
-                parentId: currentFile?.parentId
-              })
-            }
-          }
-        }
-      }
-      return currentFile
-    } catch (e) {
-      console.log('getFileInfoByBaseFileIdAndRelativePath', e.message)
-      return null
-    }
-  }
-
   // 领域建模运行时
   @Post('/system/domain/run')
   async systemDomainRun(
@@ -451,7 +372,7 @@ export default class SystemService {
       return res
     } else {
       // 根据相对路径，找出真实fileId，然后去通用pub里面查找
-      let currentFile = await this.getFileInfoByBaseFileIdAndRelativePath({
+      let currentFile = await this.fileService._getFileInfoByBaseFileIdAndRelativePath({
         relativePath,
         baseFileId
       })
