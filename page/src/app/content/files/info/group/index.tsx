@@ -16,8 +16,9 @@ import {
   Tooltip
 } from 'antd'
 import {UserOutlined} from '@ant-design/icons'
-import {evt, observe, useObservable} from '@mybricks/rxui'
+import {observe, useObservable} from '@mybricks/rxui'
 
+import {Title} from '..'
 import AppCtx from '../../../../AppCtx'
 import {getApiUrl} from '../../../../../utils'
 
@@ -57,22 +58,24 @@ export default function Group(props) {
     ctx.getInfo(props.id)
   }, [])
 
-  return !info ? (
-    <div>加载中...</div>
-  ) : (
+  return (
     <div className={css.container}>
-      <div className={css.title}>{info.name}</div>
-      <DescriptionWrapper
-        label='成员'
-        LabelRender={appCtx.user.email === info.creatorId && (
-          <UserConfig />
-        )}
-        DetailRender={<UserList data={info.users}/>}
-      />
-      <DescriptionWrapper
-        label='协作组所有者'
-        value={info.creatorName || info.creatorId}
-      />
+      <Title content={info?.name}/>
+      {info && (
+        <>
+          <DescriptionWrapper
+            label='成员'
+            LabelRender={appCtx.user.email === info.creatorId && (
+              <UserConfig />
+            )}
+            DetailRender={<UserList data={info.users}/>}
+          />
+          <DescriptionWrapper
+            label='协作组所有者'
+            value={info.creatorName || info.creatorId}
+          />
+        </>
+      )}
     </div>
   )
 }

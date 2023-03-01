@@ -1,0 +1,99 @@
+@import '../../../../../theme.less';
+
+.container {
+  .appCard {
+    background-color: #fff;
+    border-radius: 0;
+    box-shadow: 0 2px 4px 0 rgb(54 58 80 / 32%);
+    color: rgba(0,0,0,.9);
+    margin-bottom: 12px;
+    padding: 6px;
+    &:hover {
+      box-shadow: 0 2px 10px 0 rgb(0 0 0 / 20%);
+    }
+
+    .flex {
+      display: flex;
+      align-items: center;
+    }
+
+    .title {
+      .flex();
+      font-size: 14px;
+      margin-bottom: 6px;
+      font-weight: 600;
+
+      .appName {
+        margin-left: 4px;
+      }
+    }
+
+    .statusContent {
+      .flex();
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      .publishStatus {
+        height: 6px;
+        width: 6px;
+        border-radius: 50%;
+        background-color: #0abf5b;
+      }
+  
+      .noPublishStatus {
+        .publishStatus();
+        background-color: #00000040;
+      }
+    }
+
+    .publishContent {
+      color: #0abf5b;;
+      font-size: 12px;
+      margin-left: 4px
+    }
+
+    .noPublishContent {
+      .publishContent();
+      color: #00000040;
+    }
+
+    .footBtns {
+      .flex();
+      margin-top: 16px;
+      justify-content: space-around;
+
+      button {
+        border-radius: 0;
+        box-sizing: border-box;
+        cursor: pointer;
+        display: inline-block;
+        font-size: 12px;
+        line-height: 28px;
+        min-width: 24px;
+        outline: 0 none;
+        padding: 0 20px;
+        text-align: center;
+        text-decoration: none;
+        user-select: none;
+        vertical-align: middle;
+        white-space: nowrap;
+        background-color: #f5f8fb;
+        border: none;
+        height: inherit;
+        position: relative;
+        color: #fa64008c;
+        border-radius: @border-radius;
+
+        &:hover {
+          background-color: #ebeef2;
+          color: @color-primary;
+        }
+        &:disabled {
+          cursor: not-allowed;
+          color: @font-color-disabled;
+          background-color: #f5f8fb;
+        }
+      }
+    }
+  }
+}

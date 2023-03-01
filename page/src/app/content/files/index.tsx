@@ -30,7 +30,7 @@ export default function Files() {
       user: appCtx.user,
       setPath({parentId, groupId}) {
         ctx.projectList = null
-        const path = !groupId ? [{id: null, name: '我的项目', parentId: null, groupId: null, extName: null}] : []
+        const path = !groupId ? [{id: null, name: '我的', parentId: null, groupId: null, extName: null}] : []
 
         axios({
           method: "get",

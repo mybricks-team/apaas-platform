@@ -680,5 +680,19 @@ export default class FileDao extends DOBase {
 
     return result && result[0]
   }
+
+  @Mapping(FileDO)
+  public async getFilesByParentId(params: {
+    id: number;
+    extNames?: Array<string>;
+  }) {
+    return await this.exe<any>(
+			'apaas_file:getFilesByParentId',
+			{
+        ...params,
+        status: 1
+      }
+		)
+  }
 }
 

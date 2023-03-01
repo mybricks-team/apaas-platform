@@ -3,6 +3,7 @@ import React from 'react'
 import Group from './group'
 import {Block} from '../../'
 import FolderModule from './folderModule'
+import FolderProject from './folderProject'
 
 import css from './index.less'
 
@@ -17,13 +18,21 @@ export default function Info({path}) {
       break
     case extName === 'folder-module':
       JSX = FolderModule
+      break
+    case extName === 'folder-project':
+      JSX = FolderProject
+      break
     default:
       break
   }
 
   return JSX && (
     <Block style={{minWidth: 280}} className={css.InfoContainer}>
-      <JSX key={Math.random()} {...path}/>
+      <JSX key={id} {...path}/>
     </Block>
   )
+}
+
+export function Title({content}) {
+  return <div className={css.title}>{content || '加载中...'}</div>
 }

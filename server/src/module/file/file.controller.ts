@@ -638,4 +638,45 @@ export default class FileService {
       data: res
     }
   }
+
+  // TODO:写死查询的应用
+  async getFolderProjectAppsByParentId({id, extNames}, files = []) {
+    const items = await this.fileDao.getFilesByParentId({id, extNames})
+    const promiseAry = []
+
+    items.forEach(async (item) => {
+      if (item.extName === 'pc-website') {
+        files.push(item)
+      } else {
+        promiseAry.push(item)
+      }
+    })
+    await Promise.all(promiseAry.map(async (item) => {
+      await this.getFolderProjectAppsByParentId({id: item.id, extNames}, files)
+    }))
+
+    await Promise.all(files.map(async (file) => {
+      const [pubInfo] = await this.filePubDao.getLatestPubByFileId(file.id)
+      file.pubInfo = pubInfo
+    }))
+
+    return files
+  }
+
+  @Get('/file/getFolderProjectInfoByProjectId')
+  async getFolderProjectInfoByProjectId(@Query() query) {
+    const { id } = query
+    const [folder, files] = await Promise.all([
+      await this.fileDao.queryById(id),
+      await this.getFolderProjectAppsByParentId({id, extNames: ['pc-website', 'folder', 'folder-project', 'folder-module']})
+    ])
+
+    return {
+      code: 1,
+      data: {
+        ...folder,
+        apps: files
+      }
+    }
+  }
 }

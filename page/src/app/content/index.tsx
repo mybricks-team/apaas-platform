@@ -59,7 +59,7 @@ function Render(): JSX.Element {
     history.pushState(null, "", `?appId=files`)
   }
 
-  return JSX || <div>当前页面不存在，跳转回“我的项目”</div>
+  return JSX || <div>当前页面不存在，跳转回“我的”</div>
 }
 
 /** 内容区 */
