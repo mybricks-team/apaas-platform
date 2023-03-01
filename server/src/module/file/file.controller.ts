@@ -126,7 +126,7 @@ export default class FileService {
     // }
 
     if (curUser) {
-      /** 
+      /**
        * 是，更新状态
        *  已在线，状态不变
        *  未在线，状态使用finalStatus
@@ -315,7 +315,7 @@ export default class FileService {
         count++;
         tempItem = await this.fileDao.queryById(tempItem.parentId);
         switch(tempItem.extName) {
-          case 'folder-module': 
+          case 'folder-module':
           case 'folder-project':
           case 'folder': {
             qPointer.parent = {
@@ -504,10 +504,10 @@ export default class FileService {
     try {
       const basicFileHierarchy = await this._getParentModuleAndProjectInfo(baseFileId)
       const relativeFileHierarchy = await this._getParentModuleAndProjectInfo(relativeId)
-      
+
       // "../../../测试数据源.domain"
       const relativePath = path.relative(path.dirname(basicFileHierarchy.absoluteUUIDPath), relativeFileHierarchy.absoluteUUIDPath)
-      
+
       return {
         code: 1,
         data: relativePath
@@ -530,6 +530,108 @@ export default class FileService {
     }
     const res = await this.fileContentDao.queryLatestSave({
       fileId: +fileId
+    })
+    return {
+      code: 1,
+      data: res
+    }
+  }
+
+  async _getFileInfoByBaseFileIdAndRelativePath({ relativePath, baseFileId }) {
+    try {
+      /**
+       * 四种case
+        ../ssdsdsd/qweqwew
+        ../dssds
+        dsdsd
+        dsdsd/dsads
+       */
+      const relativePartList = relativePath?.split('/');
+      let currentFile = await this.fileDao.queryById(baseFileId);
+      // 根据相对路径，查找源文件ID
+      for(let l=relativePartList.length, i=0; i<l; i++) {
+        const item = relativePartList[i];
+        if(relativePartList[0] === '..') {
+          if(l === 2) {
+            // ../xxx
+            if(item === '..') {
+              // 开头 ../
+              currentFile = await this.fileDao.queryById(currentFile?.parentId)
+              // currentParent = await this.fileDao.queryById(currentFile?.parentId)
+            } else {
+              // 末端 ../pathB
+              currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                uuid: item,
+                parentId: currentFile?.parentId
+              })
+            }
+          } else {
+            if(item === '..') {
+              // 开头 ../
+              currentFile = await this.fileDao.queryById(currentFile?.parentId)
+              // currentParent = await this.fileDao.queryById(currentFile?.parentId)
+            } else {
+              // 末端 ../pathB
+              if(i === l - 1) {
+                currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                  uuid: item,
+                  parentId: currentFile?.id
+                })
+              } else {
+                // 中建文件夹 ../pathA/
+                currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                  uuid: item,
+                  parentId: currentFile?.parentId
+                })
+              }
+            }
+          }
+        } else {
+          if(l === 1) {
+            // 末端 pathA
+            currentFile =  await this.fileDao.queryByUUIDAndParentId({
+              uuid: item,
+              parentId: currentFile?.parentId
+            })
+          } else {
+            // 中间 pathA/pathB
+            if(i === l - 1) {
+              currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                uuid: item,
+                parentId: currentFile?.id
+              })
+            } else {
+              currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                uuid: item,
+                parentId: currentFile?.parentId
+              })
+            }
+          }
+        }
+      }
+      return currentFile
+    } catch (e) {
+      console.log('_getFileInfoByBaseFileIdAndRelativePath', e.message)
+      return null
+    }
+  }
+
+  // 领域建模运行时
+  @Post('/file/getFileInfoByBaseFileIdAndRelativePath')
+  async getFileInfoByBaseFileIdAndRelativePath(
+    // 通用参数
+    @Body('relativePath') relativePath: string,
+    @Body('baseFileId') baseFileId: any
+  ) {
+    if(!relativePath && !baseFileId) {
+      return {
+        code: -1,
+        msg: 'relativePath 或 baseFileId 不可为空'
+      }
+    }
+    const res = await this._getFileInfoByBaseFileIdAndRelativePath({
+      relativePath,
+      baseFileId
     })
     return {
       code: 1,

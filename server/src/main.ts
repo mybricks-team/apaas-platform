@@ -29,7 +29,7 @@ async function bootstrap() {
       index: false,
     });
   }
-  
+
   enhanceApp(app, {
     appNamespaceList: loadedModule.namespace,
   });
