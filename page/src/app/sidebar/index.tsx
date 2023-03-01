@@ -30,7 +30,7 @@ export default function Sidebar({logo}) {
   const Logo = useMemo(() => {
     // TODO 点击跳转“我的”
     function logoClick() {
-      console.log('TODO: logo点击跳转“我的”', logo)
+      history.pushState(null, '', '?appId=files')
     }
 
     if (logo) {
@@ -76,10 +76,7 @@ export default function Sidebar({logo}) {
         <Catelog>
           {TopMenus}
         </Catelog>
-        <Catelog style={{flex: '1 0 auto', height: 0, 
-        // overflow: 'auto'
-        overflow: 'hidden'
-        }}>
+        <Catelog style={{flex: '1 0 auto', height: 0, overflow: 'hidden'}}>
           <PlatformMenu />
         </Catelog>
         <Catelog style={{marginTop: 'auto'}}>

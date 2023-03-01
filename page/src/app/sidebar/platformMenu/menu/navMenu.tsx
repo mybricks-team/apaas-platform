@@ -25,7 +25,7 @@ export interface MenuCtx {
 interface Props {
   id: string | null;
   namespace: string;
-  icon: JSX.Element | string;
+  icon: JSX.Element | string | ((...args: any) => JSX.Element);
   name: string;
   child?: {open: boolean, child: Child};
   level?: number;
@@ -34,6 +34,7 @@ interface Props {
   CustomList?: ({menuCtx, child}: {menuCtx: MenuCtx, child: Child}) => JSX.Element;
   getFiles: (...args: any) => Promise<any>;
   onClick: (...args) => void;
+  suffix?: React.ReactNode
 }
 
 /**
@@ -60,7 +61,8 @@ export default function NavMenu ({
   switchOnly = false,
   CustomList,
   getFiles,
-  onClick
+  onClick,
+  suffix
 }: Props): JSX.Element {
   const menuCtx: MenuCtx = useObservable({
     open: child?.open || false,
@@ -99,7 +101,6 @@ export default function NavMenu ({
   const navClick: () => void = useCallback(() => {
     if (focusable) {
       onClick(id);
-      // appContext.setSelectedMenu(id);
     }
 
     if (!child) return;
@@ -116,6 +117,7 @@ export default function NavMenu ({
     <>
       <Item
         prefix={Switch}
+        suffix={suffix}
         icon={icon}
         title={name}
         namespace={namespace}

@@ -239,15 +239,21 @@ function CreateFileModal({app, onOk, onCancel}) {
         <Form.Item
           label='名称'
           name="fileName"
-          rules={[{ required: true, message: '请输入名称！' }]}
+          rules={[{ required: true, message: `请输入${app?.title}名称`, validator(rule, value) {
+            return new Promise((resolve, reject) => {
+              if (!value.trim()) {
+                reject(rule.message)
+              } else [
+                resolve(true)
+              ]
+            })
+          }}]}
         >
           <Input ref={ref} placeholder={`请输入${app?.title}名称`} autoFocus onPressEnter={ok}/>
         </Form.Item>
       </Form>
     </Modal>
   )
-
-
 }
 
 function designAPPSFilter (apps, path) {
