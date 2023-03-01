@@ -18,7 +18,6 @@ import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
 import PublicService from "./services/public";
 import UserGroupService from "./services/group";
-import ProjectPubDao from "./dao/ProjectPubDao";
 
 import FlowModule from './module/flow/flow.module'
 import SystemModule from './module/system/system.module'
@@ -51,8 +50,7 @@ import FileModule from './module/file/file.module'
     FileDao,
     FileTaskDao,
     FilePubDao,
-    ConfigDao,
-    ProjectPubDao
+    ConfigDao
   ],
 })
 export class AppModule {

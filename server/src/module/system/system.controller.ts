@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
-import ProjectPubDao from '../../dao/ProjectPubDao';
 import { uuid } from '../../utils/index';
 import { getConnection } from '@mybricks/rocker-dao';
 // @ts-ignore
@@ -13,8 +12,6 @@ export default class SystemService {
   fileDao: FileDao;
 
   filePubDao: FilePubDao;
-
-  projectPubDao: ProjectPubDao;
 
   fileService: FileService
 
@@ -28,7 +25,6 @@ export default class SystemService {
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
-    this.projectPubDao = new ProjectPubDao()
   }
 
   checkSqlValid(sql) {
