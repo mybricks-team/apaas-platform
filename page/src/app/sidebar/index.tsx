@@ -1,27 +1,29 @@
 import React, {
   useMemo,
   useState,
-  useEffect,
-  useCallback
+  useEffect
 } from 'react'
 
 import axios from 'axios'
-import {Badge} from 'antd'
+import {Badge, Modal as AntdModal} from 'antd'
 import {evt, observe, useComputed} from '@mybricks/rxui'
+import { ExclamationCircleFilled } from '@ant-design/icons'
 
 import AppCtx from '../AppCtx'
 import AppStore from './appStore'
 import {Icon} from '../components'
-import {getApiUrl} from '../../utils'
 import PlatformMenu from './platformMenu'
 import MessageModal from './MessageModal'
 import GlobalSetting from './globalSetting'
+import {getApiUrl, removeCookie} from '../../utils'
 import {PlatformSetting, PlatformMessage} from '../components'
 import {usePanelItem, Props as PanelItemProps} from '../hooks/usePanelItem'
 
 import css from './index.less'
 
 let appCtx
+
+const { confirm } = AntdModal
 
 export default function Sidebar({logo}) {
   appCtx = observe(AppCtx, {from: 'parents'})
@@ -87,6 +89,22 @@ export default function Sidebar({logo}) {
   )
 }
 
+/** 退出登录，跳回登录页 */
+function signOut() {
+  confirm({
+    title: '确定退出登录吗？',
+    icon: <ExclamationCircleFilled />,
+    centered: true,
+    okText: '确认',
+    cancelText: '取消',
+    onOk() {
+      removeCookie('mybricks-login-user')
+      location.href = '/'
+    },
+    onCancel() {},
+  })
+}
+
 /** 平台 */
 function SystemMenus() {
   const appCtx = observe(AppCtx, {from: 'parents'})
@@ -106,7 +124,6 @@ function SystemMenus() {
       })
     }
   }, []);
-
 
   return (
     <>
@@ -143,7 +160,7 @@ function SystemMenus() {
       ) : (
         <></>
       )}
-      <div className={css.user}>{appCtx.user.email}</div>
+      <div className={css.user} onClick={signOut}>{appCtx.user.email}</div>
     </>
   )
 }
