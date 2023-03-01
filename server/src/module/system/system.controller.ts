@@ -343,9 +343,21 @@ export default class SystemService {
       if(projectId) {
         // 发布后环境，项目空间
         // 发布后环境，普通发布空间
+        // console.log('进来了')
+        const [pubInfo]: any = await this.filePubDao.getLatestPubByFileIdAndProjectId({
+          fileId: +fileId,
+          type: 'prod',
+          projectId: projectId
+        });
+        res = await this._execDomainPub(pubInfo, {
+          fileId: +fileId,
+          serviceId,
+          params
+        })
+      } else {
         const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(
           +fileId,
-          'prod',
+          'prod'
         );
         res = await this._execDomainPub(pubInfo, {
           fileId: +fileId,

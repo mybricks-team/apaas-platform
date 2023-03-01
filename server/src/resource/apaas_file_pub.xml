@@ -105,6 +105,19 @@
         limit 1 offset 0;
     </select>
 
+    <select id='getLatestPubByFileIdAndProjectId'>
+        select *
+        from apaas_file_pub
+        where
+        file_id = #{fileId} and
+        project_id = #{projectId}
+        <if test="type">
+            and type = #{type}
+        </if>
+        order by update_time desc
+        limit 1 offset 0;
+    </select>
+
     <select id="getContentVersions">
         select
             id,

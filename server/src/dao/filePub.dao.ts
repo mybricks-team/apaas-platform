@@ -109,6 +109,14 @@ export default class FilePubDao extends DOBase {
   }
 
   @Mapping(FilePublishDO)
+  async getLatestPubByFileIdAndProjectId({fileId, type, projectId}) {
+    return await this.exe<{ id: number; file_id: number; version: string }[]>(
+      "apaas_file_pub:getLatestPubByFileIdAndProjectId",
+      { fileId, type, projectId }
+    );
+  }
+
+  @Mapping(FilePublishDO)
   async getContentVersions(params: {
     fileId: number;
     limit: number;
