@@ -69,10 +69,18 @@
             and apaas_user_group_relation.user_id = apaas_user.email
             and apaas_user_group_relation.user_group_id = #{userGroupId}
         order by apaas_user_group_relation.create_time
+        limit #{limit} offset #{offset}
     </select>
 
     <select id="queryByUserIdAndUserGroupId">
         select * from apaas_user_group_relation 
         where user_id = #{userId} and user_group_id = #{userGroupId}
+    </select>
+
+    <select id="queryUserTotalByUserGroupId">
+        select count(*) from apaas_user_group_relation
+        where
+        user_group_id = #{userGroupId}
+        and status = 1
     </select>
 </mapper>

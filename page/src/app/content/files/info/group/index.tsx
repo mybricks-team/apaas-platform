@@ -43,7 +43,7 @@ export default function Group(props) {
       return new Promise((resolve) => {
         axios({
           method: "get",
-          url: getApiUrl(`/paas/api/userGroup/getGroupInfoByGroupId?id=${id}`)
+          url: getApiUrl(`/paas/api/userGroup/getGroupInfoByGroupId?id=${id}&pagtIndex=0&pageSize=5`)
         }).then(({data: {data}}) => {
           ctx.info = data
           resolve(true)
@@ -68,7 +68,7 @@ export default function Group(props) {
             LabelRender={appCtx.user.email === info.creatorId && (
               <UserConfig />
             )}
-            DetailRender={<UserList data={info.users}/>}
+            DetailRender={<UserList data={info.users} total={info.userTotal}/>}
           />
           <DescriptionWrapper
             label='协作组所有者'
@@ -169,14 +169,14 @@ interface User {
 }
 
 interface UserListProps {
-  data: User[]
+  data: User[];
+  total: number;
 }
 
-function UserList ({ data = [] }: UserListProps) {
-  // const total = data.length
+function UserList ({ data = [], total = 0 }: UserListProps) {
   return (
     <div className={css.userList}>
-      {/* {data.slice(0, 5).map(user => {
+      {data.slice(0, 5).map(user => {
         return (
           <DefaultAvatar
             avatar={user.avatar}
@@ -186,15 +186,7 @@ function UserList ({ data = [] }: UserListProps) {
       })}
       {total > 5 && (
         <DefaultAvatar content={total}/>
-      )} */}
-      {data.map(user => {
-        return (
-          <DefaultAvatar
-            avatar={user.avatar}
-            content={user.name || user.email}
-          />
-        )
-      })}
+      )}
     </div>
   )
 }
@@ -215,7 +207,7 @@ function DefaultAvatar({avatar = '', content}) {
               size={32}
               style={{backgroundColor: '#ebedf0', fontSize: 14, fontWeight: 600, color: '#95999e'}}
             >
-              {content[0].toUpperCase()}
+              {typeof content === 'string' ? content[0].toUpperCase() : content}
             </Avatar>
           )}
         </div>

@@ -161,17 +161,19 @@ export default class UserGroupService {
 
   @Get('/userGroup/getGroupInfoByGroupId')
   async getGroupInfoByGroupId(@Query() query) {
-    const { id } = query
+    const { id, pageIndex, pageSize } = query
   
-    const [group, groupUsers] = await Promise.all([
+    const [group, groupUsers, userTotal] = await Promise.all([
       await this.userGroupDao.queryById({id}),
-      await this.userGroupRelation.queryByUserGroupId({userGroupId: id})
+      await this.userGroupRelation.queryByUserGroupId({userGroupId: id, limit: pageSize, offset: pageSize * pageIndex}),
+      await this.userGroupRelation.queryUserTotalByUserGroupId({userGroupId: id})
     ])
 
     return {
       code: 1,
       data: {
         ...group,
+        userTotal,
         users: groupUsers.map((user: any) => {
           const { role_description, ...other } = user
           return {...other, roleDescription: role_description}

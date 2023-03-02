@@ -107,12 +107,37 @@ export default class UserGroupRelationDao extends DOBase {
   }
 
   public async queryByUserGroupId(params: {
-    userGroupId: number
+    userGroupId: number;
+    limit?: number;
+    offset?: number;
   }) {
+    params = Object.assign({}, params)
+
+    if (!params.limit) {
+      params.limit = 1
+    } else {
+      params.limit = Number(params.limit)
+    }
+    if (!params.offset) {
+      params.offset = 0
+    } else {
+      params.offset = Number(params.offset)
+    }
     return await this.exe<UserGroupRelationDO[]>(
       'apaas_user_group_relation:queryByUserGroupId',
       params
     )
+  }
+
+  public async queryUserTotalByUserGroupId(params: {
+    userGroupId: number;
+  }) {
+
+    const [result] = await this.exe<any>(
+      'apaas_user_group_relation:queryUserTotalByUserGroupId', params
+    )
+
+    return result['count(*)']
   }
 
   @Mapping(UserGroupRelationDO)
