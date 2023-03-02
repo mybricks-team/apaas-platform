@@ -52,6 +52,7 @@ export default function FolderProject(props) {
   return (
     <div className={css.container}>
       <Title content={info?.name}/>
+      {/* TODO: AppList 内部滚动 */}
       {info?.apps.length ? <AppList apps={info.apps}/> : (
         <div style={{
           color: '#AAA',

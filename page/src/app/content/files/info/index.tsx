@@ -27,7 +27,7 @@ export default function Info({path}) {
   }
 
   return JSX && (
-    <Block style={{minWidth: 280}} className={css.InfoContainer}>
+    <Block style={{minWidth: 280, marginBottom: 0, overflow: 'scroll'}} className={css.InfoContainer}>
       <JSX key={id} {...path}/>
     </Block>
   )

@@ -205,6 +205,7 @@ function Projects() {
                     {project.creatorName}
                   </div>
                 </div>
+                {/* TODO: 如果文件在底部，操作项被遮挡 */}
                 {showOperate && <div className={css.btns} onClick={evt(() => {}).stop}>
                   <ClickableIconContainer size={28}>
                     <More />

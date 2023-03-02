@@ -46,7 +46,7 @@ export default function Sidebar({logo}) {
         <div>
           <Icon icon={'./icon.png'}/>
         </div>
-        <span>My<i>B</i>ricks</span>
+        <span>MyBricks</span>
       </div>
     )
   }, [])
