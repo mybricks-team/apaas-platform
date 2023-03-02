@@ -53,6 +53,7 @@ export interface T_App {
 const adminNameSpaces = ['app-store', 'mybricks-app-workflow']
 
 const MYBRICKS_TEAM_USERS = [
+  'charleszpq1995@gmail.com',
   'chemingjun@126.com',
   'chemingjun@kuaishou.com',
   'huangqiuyun03@kuaishou.com',
