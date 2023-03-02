@@ -553,4 +553,18 @@
         </foreach> 
     </if>
     </select>
+
+    <select id="getEmptyListOfUUID">
+        SELECT id from apaas_file WHERE uuid IS NULL or uuid=''
+    </select>
+
+    <update id="initialUUID">
+        update apaas_file
+        set
+        <if test="uuid">
+            uuid = #{uuid}
+        </if>
+        where id = #{id}
+    </update>
+    
 </mapper>
