@@ -5,7 +5,7 @@ import FilePubDao from "../../dao/filePub.dao";
 import FileCooperationDao from "../../dao/FileCooperationDao";
 import UserGroupDao from "../../dao/UserGroupDao";
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import { isNumber } from '../../utils'
+import { isNumber, uuid } from '../../utils'
 const path = require('path');
 
 @Controller("/paas/api")
@@ -692,6 +692,24 @@ export default class FileService {
         ...folder,
         apps: files
       }
+    }
+  }
+
+  @Post('/file/initialUUID')
+  async initialUUID() {
+    const files = await this.fileDao.getEmptyListOfUUID()
+    const task = []
+    files.forEach(file => {
+      task.push(this.fileDao.initialUUID({
+        id: file.id,
+        uuid: uuid(10)
+      }))
+    })
+    await Promise.all(task)
+    console.log('更新结束')
+    return {
+      code: 1,
+      msg: '更新结束'
     }
   }
 }

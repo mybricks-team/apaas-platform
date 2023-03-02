@@ -694,5 +694,22 @@ export default class FileDao extends DOBase {
       }
 		)
   }
+
+  @Mapping(FileDO)
+  public async getEmptyListOfUUID() {
+    return await this.exe<any>(
+			'apaas_file:getEmptyListOfUUID',
+			{
+      }
+		)
+  }
+
+  public async initialUUID(query: {
+    id: number
+    uuid: string
+  }) {
+    const result = await this.exe<any>('apaas_file:initialUUID', query)
+    return {id: result.insertId}
+  }
 }
 
