@@ -1,4 +1,10 @@
-import React, {useCallback} from 'react'
+import React, {
+  useRef,
+  useMemo,
+  useState,
+  useEffect,
+  useCallback
+} from 'react'
 
 import axios from 'axios'
 import {
@@ -7,17 +13,16 @@ import {
   useComputed,
   useObservable
 } from '@mybricks/rxui'
-import {message, Modal} from 'antd'
+import {Form, message, Modal, Input} from 'antd'
 import {ExclamationCircleFilled} from '@ant-design/icons'
 
-import Box from './box'
 import Info from './info'
 import TitleBar from './title'
 import AppCtx from '../../AppCtx'
 import {Content, Block} from '..'
-import {getApiUrl, getUrlQuery} from '../../../utils'
 import Ctx, {folderExtnames} from './Ctx'
-import {Icon, Trash} from '../../components'
+import {getApiUrl, getUrlQuery} from '../../../utils'
+import {Icon, Trash, More, Rename} from '../../components'
 
 import css from './index.less'
 
@@ -93,7 +98,7 @@ export default function Files() {
     <>
       <Content title={<TitleBar/>}>
         <Block style={{flex: 1, height: 0, marginBottom: 0, display: 'flex'}}>
-	        <Block style={{ flex: 1, marginBottom: 0 }}>
+	        <Block style={{ flex: 1, marginBottom: 0, overflowY: 'auto' }}>
 		        <Projects/>
 	        </Block>
 	        {/* {latestPath?.extName === 'folder-module' ? (
@@ -114,6 +119,7 @@ export default function Files() {
 function Projects() {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const ctx = observe(Ctx, {from: "parents"})
+  const [createApp, setCreateApp] = useState(null)
 
   /** 各种操作 */
   const operate = useCallback((type, item) => {
@@ -155,6 +161,9 @@ function Projects() {
           onCancel() {},
         })
         break;
+      case 'rename':
+        setCreateApp(item)
+        break;
       default:
         break;
     }
@@ -163,6 +172,7 @@ function Projects() {
   /** 渲染项目列表 */
   const Render: JSX.Element | JSX.Element[] = useComputed(() => {
     let JSX: JSX.Element | JSX.Element[] = <></>;
+    const userId = appCtx.user.email
     if (Array.isArray(ctx.projectList)) {
       if (ctx.projectList.length) {
         const {APPSMap} = appCtx;
@@ -176,6 +186,7 @@ function Projects() {
 
           const {icon, homepage} = appReg;
           const bigIcon = folderExtnames.includes(extName) || project.icon
+          const showOperate = project.creatorId === userId
 
           return (
             <div key={project.id} className={css.file} onClick={() => operate('open', {...project, homepage})}>
@@ -194,11 +205,22 @@ function Projects() {
                     {project.creatorName}
                   </div>
                 </div>
-                <div className={css.btns}>
-                  <span onClick={evt(() => operate('delete', project)).stop}>
-                    <Trash width={32} height={32}/>
-                  </span>
-                </div>
+                {showOperate && <div className={css.btns} onClick={evt(() => {}).stop}>
+                  <ClickableIconContainer size={28}>
+                    <More />
+                    <div className={css.operateContainer}>
+                      <div className={css.operateItem} onClick={() => operate('rename', project)}>
+                        <Rename width={16} height={16}/>
+                        <div className={css.label}>重命名</div>
+                      </div>
+                      <div className={css.divider}/>
+                      <div className={css.operateItem} onClick={() => operate('delete', project)}>
+                        <Trash width={16} height={16}/>
+                        <div className={css.label}>删除</div>
+                      </div>
+                    </div>
+                  </ClickableIconContainer>
+                </div>}
               </div>
             </div>
           );
@@ -224,9 +246,162 @@ function Projects() {
     );
   });
 
+  const modalOk = useCallback((values, app) => {
+    return new Promise(async (resolve, reject) => {
+      const { name } = values
+      const item = ctx.path.at(-1)
+      const isGroup = !!!item.extName && !!item.id
+      const { extName, isSystem } = app
+      const params: any = {
+        extName,
+        userId: appCtx.user.email
+      }
+
+      if (isGroup) {
+        params.groupId = item.id
+      } else {
+        params.parentId = item.id
+        params.groupId = item.groupId
+      }
+      
+      const check = await axios({
+        method: 'get',
+        url: getApiUrl('/paas/api/file/checkFileCanCreate'),
+        params: {
+          ...params,
+          fileName: name
+        }
+      })
+
+      if (check.data?.data?.next) {
+        if (isSystem) {
+          params.type = 'system'
+        }
+  
+        axios({
+          method: 'post',
+          url: getApiUrl('/paas/api/file/rename'),
+          data: {
+            id: app.id,
+            name,
+            userId: appCtx.user.email
+          }
+        }).then(async ({data}) => {
+          if (data.code === 1) {
+            ctx.getAll(getUrlQuery())
+
+            if (folderExtnames.includes(extName)) {
+              await appCtx.refreshSidebar()
+            }
+
+            resolve('重命名成功！')
+          } else {
+            reject(`重命名错误：${data.message}`)
+          }
+        })
+      } else {
+        reject('相同路径下不允许有同名文件！')
+      }
+    })
+  }, [])
+
+  const modalCancel = useCallback(() => {
+    setCreateApp(null)
+  }, [])
+
+  const RenderRenameFileModal = useMemo(() => {
+    return (
+      <RenameFileModal
+        app={createApp}
+        onOk={modalOk}
+        onCancel={modalCancel}
+      />
+    )
+  }, [createApp])
+
   return (
     <>
       {Render}
+      {RenderRenameFileModal}
     </>
   );
+}
+
+function ClickableIconContainer({className = '', size = 28, children}) {
+  return (
+    <div className={`${css.clickableIconContainer} ${className}`} style={{width: size, height: size}}>
+      {children}
+    </div>
+  )
+}
+
+function RenameFileModal({app, onOk, onCancel}) {
+  const [form] = Form.useForm()
+  const [btnLoading, setBtnLoading] = useState(false)
+  const ref = useRef()
+
+  const ok = useCallback(() => {
+    form.validateFields().then((values) => {
+      setBtnLoading(true)
+      onOk(values, app).then((msg) => {
+        message.success(msg)
+        cancel()
+      }).catch((e) => {
+        setBtnLoading(false)
+        message.warn(e)
+      })
+    })
+  }, [app])
+
+  const cancel = useCallback(() => {
+    onCancel()
+    setBtnLoading(false)
+    form.resetFields()
+  }, [])
+
+  useEffect(() => {
+    if (app && ref.current) {
+      setTimeout(() => {
+        (ref.current as any).focus()
+      }, 100)
+    }
+  }, [app])
+
+  return (
+    <Modal
+      open={!!app}
+      title={'重命名'}
+      okText={btnLoading ? '校验中...' : '确认'}
+      cancelText={'取消'}
+      centered={true}
+      onOk={ok}
+      onCancel={cancel}
+      confirmLoading={btnLoading}
+      bodyStyle={{
+        minHeight: 104
+      }}
+    >
+      <Form
+        labelCol={{ span: 3 }}
+        wrapperCol={{ span: 21 }}
+        form={form}
+      >
+        <Form.Item
+          label='名称'
+          name='name'
+          rules={[{ required: true, message: '请输入新的名称', validator(rule, value) {
+            return new Promise((resolve, reject) => {
+              if (!value.trim()) {
+                reject(rule.message)
+              } else [
+                resolve(true)
+              ]
+            })
+          }}]}
+        >
+          <Input ref={ref} placeholder='请输入新的名称' autoFocus onPressEnter={ok}/>
+        </Form.Item>
+      </Form>
+    </Modal>
+  )
 }

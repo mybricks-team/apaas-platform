@@ -50,6 +50,21 @@ export default class FileService {
     };
   }
 
+  @Post("/file/rename")
+  async rename(
+    @Body("id") id: number,
+    @Body("name") name: string,
+    @Body("userId") userId: string,
+  ) {
+    const user = await this.userDao.queryByEmail({email: userId})
+    const result = await this.fileDao.update({id, name, updatorId: user.email, updatorName: user.name || user.email})
+
+    return {
+      code: 1,
+      data: result
+    }
+  }
+
   @Get("/file/getSysTemFiles")
   async getSysTemFiles(@Query() query) {
     const { extName, name, creatorId } = query ?? {};
