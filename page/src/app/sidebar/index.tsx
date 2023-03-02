@@ -193,6 +193,8 @@ interface ItemProps {
   prefix?: React.ReactNode;
 
   suffix?: React.ReactNode;
+
+  focusable?: boolean;
 }
 
 interface ModalProps extends PanelItemProps {
@@ -212,7 +214,7 @@ function Modal(props: ModalProps) {
 }
 
 /** 菜单项封装 */
-export function Item({icon, title, namespace, onClick, modal, prefix, suffix}: ItemProps): JSX.Element {
+export function Item({icon, title, namespace, onClick, modal, prefix, suffix, focusable = true}: ItemProps): JSX.Element {
   const [itemContext] = useState({
     /** 菜单项点击 */
     onClick() {
@@ -234,7 +236,7 @@ export function Item({icon, title, namespace, onClick, modal, prefix, suffix}: I
         className = className + ` ${css.menuItemActive}`;
       }
     }
-    return className
+    return className + (focusable ? ` ${css.focusable}` : '')
   })
 
   /** 菜单项信息 */

@@ -132,6 +132,7 @@ export default function NavMenu ({
         title={name}
         namespace={namespace}
         onClick={navClick}
+        focusable={focusable}
       />
       {List}
     </>
