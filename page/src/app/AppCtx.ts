@@ -53,19 +53,20 @@ export interface T_App {
 const adminNameSpaces = ['app-store', 'mybricks-app-workflow']
 
 const MYBRICKS_TEAM_USERS = [
-  'chemingjun',
-  'huangqiuyun03',
-  'lianglihao',
-  'liubiao03',
-  'liulei11',
-  'liuzhigang06',
-  'tangxiaoxin',
-  'yangxian05',
-  'yankewen',
-  'zhaoxing03',
-  'zhulin08',
-  'zhupengqiang',
-  'zouyongsheng'
+  'chemingjun@126.com',
+  'chemingjun@kuaishou.com',
+  'huangqiuyun03@kuaishou.com',
+  'lianglihao@kuaishou.com',
+  'liubiao03@kuaishou.com',
+  'liulei11@kuaishou.com',
+  'liuzhigang06@kuaishou.com',
+  'tangxiaoxin@kuaishou.com',
+  'yangxian05@kuaishou.com',
+  'yankewen@kuaishou.com',
+  'zhaoxing03@kuaishou.com',
+  'zhulin08@kuaishou.com',
+  'zhupengqiang@kuaishou.com',
+  'zouyongsheng@kuaishou.com'
 ]
 
 export default class AppCtx {
@@ -171,7 +172,7 @@ export default class AppCtx {
 
 
     // TODO:先写死，后续配置化
-    const MYBRICKS_TEAM_USER_EMAILS = MYBRICKS_TEAM_USERS.map((user) => user + '@' + 'ku' + 'ai' + 'sh' + 'ou' + '.com')
+    const MYBRICKS_TEAM_USER_EMAILS = MYBRICKS_TEAM_USERS
     const IS_MYBRICKS_TEAM_USER = MYBRICKS_TEAM_USER_EMAILS.includes(this.user.email)
     if (!IS_MYBRICKS_TEAM_USER) {
       const SHOW_APPS_MAP = {
