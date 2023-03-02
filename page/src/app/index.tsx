@@ -24,6 +24,10 @@ export default function App() {
       /** 初始化(获取应用、配置和角色) */
       (async () => {
         const user = await API.User.getLoginUser()
+        if (!user) {
+          location.href = `/?redirectUrl=${encodeURIComponent(location.href)}`
+          return
+        }
         // /** 设置用户信息 */
         appCtx.setUser(user)
         appCtx.setIsAdministrator(!!user?.isAdmin)
@@ -100,10 +104,10 @@ export default function App() {
     }, [])
 
     return loading ? (
-      <div>加载中...</div>
-    ) : !appCtx.user ? (
-      <div>
-        请登录
+      <div className={css.loadingContainer}>
+        <div className={css.loadingText}>
+          加载中，请稍后...
+        </div>
       </div>
     ) : (
       <div className={css.app}>
