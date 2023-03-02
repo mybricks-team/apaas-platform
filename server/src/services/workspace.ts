@@ -304,7 +304,7 @@ export default class WorkspaceService {
         commitInfo,
         type,
         fileContentId,
-        moduleId
+        projectId
       } = body;
 
       /** 不存在 fileContentId 则取最新一条记录 */
@@ -341,7 +341,7 @@ export default class WorkspaceService {
         creatorId: userId,
         creatorName: userId,
         fileContentId,
-        moduleId
+        projectId
       });
       data.pib_id = id;
 
@@ -365,16 +365,7 @@ export default class WorkspaceService {
     } = body;
     try {
       const { projectId, moduleId } = (await this.fileService._getParentModuleAndProjectInfo(fileId));
-      const pcConfig = await this.configService.getAll(['mybricks-pc-page']);
       const domainName = getRealDomain(req)
-      
-      let pcCompileTaskInfo = null;
-      Object.values(pcConfig?.data?.['mybricks-pc-page']?.config?.compileTask).forEach(val => {
-        // @ts-ignore
-        if(val?.isModule) {
-          pcCompileTaskInfo = val
-        }
-      })
 
       // 先写两层，后续如果有需求改为bfs
       let validFiles = []
@@ -397,7 +388,6 @@ export default class WorkspaceService {
       })
 
       let publishTask = []
-	    const domainToJSONList = [];
       for(let l = validFiles.length, i = 0; i < l; i++) {
         let file = validFiles[i]
         const { extName } = file;
@@ -405,81 +395,33 @@ export default class WorkspaceService {
           case 'domain': {
             // todo: 物料接口，理论不应该让平台感知，后面通过协议暴露
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id });
-						
-	          domainToJSONList.push(JSON.parse(latestSave.content).toJSON);
+            publishTask.push(
+              (axios as any).post(
+                `${domainName}/api/domain/publish`,
+                {
+                  fileId: file.id,
+                  projectId: projectId,
+                  userId: email,
+                  json: JSON.parse(latestSave.content).toJSON
+                }
+              )
+            );
             break;
           }
           case 'pc-page': {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
-            publishTask.push((axios as any).post(`${domainName}/paas/api/system/task/run`, {
-	            fileId: pcCompileTaskInfo?.fileId,
-	            version: pcCompileTaskInfo?.version,
-	            injectParam: {
-		            type: 'pc页面发布',
-	              extension: {
-                  json: JSON.parse(latestSave.content),
-                  title: latestSave.name,
-                },
-		            extName: 'pc-page',
-		            fileId: file.id,
-		            userId: email
-              }
+            publishTask.push((axios as any).post(`${domainName}/api/pcpage/publish`, {
+	            fileId: file.id,
+              userId: email,
+              json: JSON.parse(latestSave.content).toJSON,
             }));
             break;
           }
         }
       }
 
-			const entityMap = {}, serviceAry = [];
-	    domainToJSONList.forEach(domain => {
-				domain.entityAry.forEach(entity => {
-					if (!entity.isSystem || (entity.isSystem && (!entityMap[entity.id] || entity.implementEntityId))) {
-						entityMap[entity.id] = entity;
-					}
-				});
-		    serviceAry.push(...domain.service);
-	    });
-      if(domainToJSONList.length !== 0) {
-        publishTask.push(
-          (axios as any).post(
-            `${domainName}/api/domain/publish`,
-            {
-              projectId: projectId,
-              userId: email,
-              json: { entityAry: Object.values(entityMap), service: serviceAry },
-              moduleId
-            }
-          )
-        );
-      }
-
       await Promise.all(publishTask);
 			
-      // 合并项目内的所有最新module发布的信息
-      if(domainToJSONList.length !== 0) {
-        let insertPubRecord: any = {
-          version: null,
-          fileId: projectId,
-          content: {
-            serviceAry: []
-          },
-          creatorId: email,
-          creatorName: email,
-          type: 'prod'
-        }
-        const pubsList = await this.fileDao.getLatestFilePubsByProjectId({
-          projectId
-        })
-        pubsList?.forEach(pubItem => {
-          const obj = JSON.parse(pubItem.content);
-          insertPubRecord.content.serviceAry = insertPubRecord.content.serviceAry.concat(obj.serviceAry)
-        });
-        insertPubRecord.content = JSON.stringify(insertPubRecord.content)
-        insertPubRecord.version = pubsList[0]?.version ? getNextVersion(pubsList[0]?.version) : "1.0.0";
-        await this.filePubDao.create(insertPubRecord)
-        console.log('插入一条新纪录')
-      }
-
       return {
         code: 1,
         data: null

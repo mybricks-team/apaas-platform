@@ -136,46 +136,51 @@ export default class AppsService {
 
   @Get("/apps/update/check")
   async checkAppUpdate() {
-    const applications = require(path.join(
-      process.cwd(),
-      "./application.json"
-    ));
-
-    let remoteApps = [];
     try {
-      const appRes = await (axios as any).get(
-        "https://mybricks.world/api/apps/getLatestAll"
-      );
-      remoteApps = appRes.data.data || [];
-    } catch (e) {
-      console.log("获取远程应用版本失败", e);
-    }
-
-    if (!remoteApps.length) {
-      return { code: 1, data: [] };
-    }
-
-    const res = [];
-    for (const app of applications.installApps) {
-      const [_name, version] = app.path.split("@");
-
-      const remoteApp = remoteApps.find((r) => r.namespace === _name);
-
-      if (remoteApp && versionGreaterThan(remoteApp.version, version)) {
-        res.push({
-          name: remoteApp.name,
-          namespace: remoteApp.namespace,
-          icon: remoteApp.icon,
-          description: remoteApp.description,
-          version: remoteApp.version,
-        });
+      const applications = require(path.join(
+        process.cwd(),
+        "./application.json"
+      ));
+  
+      let remoteApps = [];
+      try {
+        const appRes = await (axios as any).get(
+          "https://mybricks.world/api/apps/getLatestAll"
+        );
+        remoteApps = appRes.data.data || [];
+      } catch (e) {
+        console.log("获取远程应用版本失败", e);
       }
-    }
-
-    return {
-      code: 1,
-      data: res,
-    };
+  
+      if (!remoteApps.length) {
+        return { code: 1, data: [] };
+      }
+  
+      const res = [];
+      for (const app of applications.installApps) {
+        const [_name, version] = app.path.split("@");
+  
+        const remoteApp = remoteApps.find((r) => r.namespace === _name);
+  
+        if (remoteApp && versionGreaterThan(remoteApp.version, version)) {
+          res.push({
+            name: remoteApp.name,
+            namespace: remoteApp.namespace,
+            icon: remoteApp.icon,
+            description: remoteApp.description,
+            version: remoteApp.version,
+          });
+        }
+      }
+  
+      return {
+        code: 1,
+        data: res,
+      };
+    } catch (e) {
+      console.log(e.message);
+      return { code: -1, msg: e.message };
+    }  
   }
 
   @Post("/apps/update")
