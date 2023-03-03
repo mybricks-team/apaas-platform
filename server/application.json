@@ -42,7 +42,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-app-codegen@1.0.10"
+      "path": "mybricks-app-codegen@1.0.20"
     }
   ]
 }
