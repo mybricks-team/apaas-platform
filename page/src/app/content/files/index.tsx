@@ -20,6 +20,7 @@ import Info from './info'
 import TitleBar from './title'
 import AppCtx from '../../AppCtx'
 import {Content, Block} from '..'
+import {Divider, Dropdown} from '../../components'
 import Ctx, {folderExtnames} from './Ctx'
 import {getApiUrl, getUrlQuery} from '../../../utils'
 import {Icon, Trash, More, Rename} from '../../components'
@@ -207,7 +208,7 @@ function Projects() {
                 </div>
                 {/* TODO: 如果文件在底部，操作项被遮挡 */}
                 {showOperate && <div className={css.btns} onClick={evt(() => {}).stop}>
-                  <ClickableIconContainer size={28}>
+                  {/* <ClickableIconContainer size={28}>
                     <More />
                     <div className={css.operateContainer}>
                       <div className={css.operateItem} onClick={() => operate('rename', project)}>
@@ -220,7 +221,40 @@ function Projects() {
                         <div className={css.label}>删除</div>
                       </div>
                     </div>
-                  </ClickableIconContainer>
+                  </ClickableIconContainer> */}
+                  <Dropdown
+                    menus={[
+                      {
+                        key: '1',
+                        label: (
+                          <div className={css.operateItem} onClick={() => operate('rename', project)}>
+                            <Rename width={16} height={16}/>
+                            <div className={css.label}>重命名</div>
+                          </div>
+                        )
+                      },
+                      {
+                        key: '2',
+                        label: (
+                          <Divider />
+                        )
+                      },
+                      {
+                        key: '3',
+                        label: (
+                          <div className={css.operateItem} onClick={() => operate('delete', project)}>
+                            <Trash width={16} height={16}/>
+                            <div className={css.label}>删除</div>
+                          </div>
+                        )
+                      }
+                    ]}
+                    overlayClassName={css.overlayClassName}
+                  >
+                    <ClickableIconContainer size={28}>
+                      <More />
+                    </ClickableIconContainer>
+                  </Dropdown>
                 </div>}
               </div>
             </div>
