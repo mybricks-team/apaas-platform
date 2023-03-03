@@ -101,6 +101,7 @@
         <if test="type">
             and type = #{type}
         </if>
+        AND project_id is NULL or project_id = ''
         order by update_time desc
         limit 1 offset 0;
     </select>

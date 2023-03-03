@@ -102,6 +102,7 @@ export default class FilePubDao extends DOBase {
 
   @Mapping(FilePublishDO)
   async getLatestPubByFileId(fileId: number, type?: string) {
+    // 备注：查询会过滤项目空间下的发布
     return await this.exe<{ id: number; file_id: number; version: string }[]>(
       "apaas_file_pub:getLatestPubByFileId",
       { fileId, type }
