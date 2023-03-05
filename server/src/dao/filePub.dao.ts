@@ -165,4 +165,27 @@ export default class FilePubDao extends DOBase {
     );
   }
 
+  @Mapping(FilePublishDO)
+  public async queryByFileId(params: {
+    fileId: number;
+    limit?: number;
+    offset?: number;
+  }) {
+    params = Object.assign({}, params)
+
+    if (!params.limit) {
+      params.limit = 1
+    } else {
+      params.limit = Number(params.limit)
+    }
+    if (!params.offset) {
+      params.offset = 0
+    } else {
+      params.offset = Number(params.offset)
+    }
+    return await this.exe<FilePublishDO[]>(
+      'apaas_file_pub:queryByFileId',
+      params
+    )
+  }
 }

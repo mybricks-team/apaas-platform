@@ -44,3 +44,9 @@ export default function Info({path}) {
 export function Title({content}) {
   return <div className={css.title}>{content || '加载中...'}</div>
 }
+
+export function Card({children}) {
+  return (
+    <div className={css.card}>{children}</div>
+  )
+}

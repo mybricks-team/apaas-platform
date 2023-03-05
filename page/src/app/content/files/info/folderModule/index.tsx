@@ -1,21 +1,43 @@
-import React, {FC, useCallback, useState} from 'react';
-import {observe, useComputed} from '@mybricks/rxui';
-import axios from 'axios';
-import {message} from "antd";
-import Ctx from '../../Ctx';
+import React, {
+	FC,
+	useMemo,
+	useState,
+	useEffect,
+	useCallback
+} from 'react'
 
-import styles from './index.less';
+import axios from 'axios'
+import {message} from 'antd'
+import {observe} from '@mybricks/rxui'
 
-const Box: FC = () => {
-	const ctx = observe(Ctx, {from: 'parents'});
-	const [loading, setLoading] = useState(false);
+import {Card, Title} from '..'
+import Ctx from '../../Ctx'
+
+import styles from './index.less'
+
+const FolderModule: FC = () => {
+	const ctx = observe(Ctx, {from: 'parents'})
+	const [loading, setLoading] = useState(false)
+	const [list, setList] = useState(null)
+
+	const getList = useCallback(() => {
+		const { id } = ctx.path.at(-1)
+		axios({
+			method: 'get',
+			url: `/paas/api//file/publish/getVersionsByFileId?id=${id}&pagtIndex=0&pageSize=20`
+		}).then(({data: {data}}) => {
+			setList(data)
+		})
+	}, [])
+
+	useEffect(() => {
+		getList()
+	}, [])
 	
-	const latestPath = useComputed(() => {
-		return ctx.path[ctx.path.length - 1];
-	});
 	const publish = useCallback(async () => {
-		setLoading(true);
-		console.log('latestPath', latestPath, ctx.user);
+		setLoading(true)
+		const latestPath = ctx.path.at(-1)
+		console.log('latestPath', latestPath, ctx.user)
 		try {
 			const allFilesRes = (await axios({
 				method: 'post',
@@ -24,26 +46,64 @@ const Box: FC = () => {
 					fileId: latestPath.id,
 					email: ctx.user.email
 				}
-			})).data;
+			})).data
 			
 			if (allFilesRes.code === -1) {
-				message.error('发布失败');
+				message.error('发布失败')
 			} else {
-				message.success('发布成功');
+				message.success('发布成功')
+				getList()
 			}
 		} catch(e) {
-			console.log('publish error', e);
-			message.error('发布失败');
+			console.log('publish error', e)
+			message.error('发布失败')
 		}
-		setLoading(false);
-	}, [latestPath]);
+		setLoading(false)
+	}, [])
 	
   return (
-	  <div className={styles.rightBox}>
-		  <div className={styles.title}>模块管理</div>
+	  <div className={styles.container}>
+			<Title content='模块管理'/>
 		  <button className={styles.publish} disabled={loading} onClick={publish}>{loading ? '发布中...' : '发布模块'}</button>
+			<PublishList list={list}/>
 	  </div>
-  );
-};
+  )
+}
 
-export default Box;
+function PublishList({list}) {
+	const RenderList = useMemo(() => {
+		if (!list) {
+			return <div>加载中...</div>
+		}
+		if (!list.length) {
+			return <div>暂无发布记录</div>
+		}
+		return list.map((item) => {
+			console.log(item, 'item')
+			return (
+				<Card>
+					<div className={styles.item}>
+						<div className={styles.label}>版本:</div>
+						<div className={styles.value}>{item.version}</div>
+					</div>
+					<div className={styles.item}>
+						<div className={styles.label}>发布人:</div>
+						<div className={styles.value}>{item.creatorName}</div>
+					</div>
+					<div className={styles.item}>
+						<div className={styles.label}>发布时间:</div>
+						<div className={styles.value}>{item.createTime}</div>
+					</div>
+				</Card>
+			)
+		})
+	}, [list])
+	
+	return (
+		<div className={styles.listContainer}>
+			{RenderList}
+		</div>
+	)
+}
+
+export default FolderModule

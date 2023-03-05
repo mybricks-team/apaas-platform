@@ -3,7 +3,7 @@ import React, { useCallback, useEffect } from 'react'
 import axios from 'axios'
 import {evt, observe, useObservable} from '@mybricks/rxui'
 
-import {Title} from '..'
+import {Card, Title} from '..'
 import AppCtx from '../../../../AppCtx'
 import {Icon} from '../../../../components'
 import {getApiUrl} from '../../../../../utils'
@@ -97,7 +97,7 @@ function AppList({apps}) {
     const {extName, pubInfo, positionSearch} = app
     const appReg = APPSMap[extName]
     return (
-      <div className={css.appCard}>
+      <Card>
         <div className={css.title}>
           <Icon icon={appReg.icon} width={20} height={20}/>
           <div className={css.appName}>
@@ -115,7 +115,7 @@ function AppList({apps}) {
           <button disabled={!pubInfo} onClick={evt(() => btnClick(app, appReg, 'gotoPublish')).stop}>查看</button>
           <button disabled={positionSearch === locationSearch} onClick={evt(() => btnClick(app, appReg, 'gotoDir')).stop}>前往目录</button>
         </div>
-      </div>
+      </Card>
     )
   })
 }

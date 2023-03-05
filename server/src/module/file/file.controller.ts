@@ -695,6 +695,18 @@ export default class FileService {
     }
   }
 
+  @Get('/file/publish/getVersionsByFileId')
+  async publishGetVersionsByFileId(@Query() query) {
+    const { id, pageIndex, pageSize } = query
+    const versions = await this.filePubDao.queryByFileId({fileId: id, limit: pageSize, offset: pageSize * pageIndex})
+
+    return {
+      code: 1,
+      data: versions
+    }
+  }
+  
+
   @Post('/file/initialUUID')
   async initialUUID() {
     const files = await this.fileDao.getEmptyListOfUUID()

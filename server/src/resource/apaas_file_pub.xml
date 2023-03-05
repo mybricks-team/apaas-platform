@@ -110,8 +110,15 @@
         select *
         from apaas_file_pub
         where
-        file_id = #{fileId} and
-        project_id = #{projectId}
+        file_id = #{fileId} 
+        <choose>
+            <when test="projectId">
+                and project_id = #{projectId}
+            </when>
+            <otherwise>
+                and project_id is null
+            </otherwise>
+        </choose>
         <if test="type">
             and type = #{type}
         </if>
@@ -168,6 +175,14 @@
                 GROUP BY file_id
             ) as t2
         where t1.id = t2.id
+    </select>
+
+
+    <select id="queryByFileId">
+        select id, version, creator_id, creator_name, create_time from apaas_file_pub 
+        where file_id = ${fileId}
+        order by update_time desc
+        limit #{limit} offset #{offset}
     </select>
 
 </mapper>

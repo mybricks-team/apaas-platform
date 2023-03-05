@@ -6,6 +6,7 @@ import { EffectStatus, ExtName } from "../constants";
 import FilePubDao from "../dao/filePub.dao";
 import { getNextVersion } from "../utils";
 import ConfigDao from "../dao/config.dao";
+import UserDao from "../dao/UserDao";
 import * as axios from "axios";
 import FileService from '../module/file/file.controller'
 import ConfigService from './config'
@@ -22,6 +23,7 @@ export default class WorkspaceService {
   filePubDao: FilePubDao;
   fileService: FileService;
   configService: ConfigService;
+  userDao: UserDao;
 
   constructor() {
     this.fileDao = new FileDao();
@@ -30,6 +32,7 @@ export default class WorkspaceService {
     this.configDao = new ConfigDao();
     this.fileService = new FileService();
     this.configService = new ConfigService()
+    this.userDao = new UserDao();
   }
 
   @Get("/workspace/getAll")
@@ -364,7 +367,11 @@ export default class WorkspaceService {
       email
     } = body;
     try {
-      const { projectId, moduleId } = (await this.fileService._getParentModuleAndProjectInfo(fileId));
+      const [user, { projectId, moduleId }] = await Promise.all([
+        await this.userDao.queryByEmail({email}),
+        (await this.fileService._getParentModuleAndProjectInfo(fileId))
+      ])
+      // const { projectId, moduleId } = (await this.fileService._getParentModuleAndProjectInfo(fileId));
       const domainName = getRealDomain(req)
 
       // 先写两层，后续如果有需求改为bfs
@@ -388,6 +395,7 @@ export default class WorkspaceService {
       })
 
       let publishTask = []
+      const publishFiles = []
       for(let l = validFiles.length, i = 0; i < l; i++) {
         let file = validFiles[i]
         const { extName } = file;
@@ -406,6 +414,7 @@ export default class WorkspaceService {
                 }
               )
             );
+            publishFiles.push(file)
             break;
           }
           case 'pc-page': {
@@ -415,12 +424,35 @@ export default class WorkspaceService {
               userId: email,
               json: JSON.parse(latestSave.content).toJSON,
             }));
+            publishFiles.push(file)
             break;
           }
         }
       }
 
-      await Promise.all(publishTask);
+      // await Promise.all(publishTask);
+
+      const [[pub]] = await Promise.all([
+        await this.filePubDao.getLatestPubByFileIdAndProjectId({fileId, projectId}),
+        ...publishTask
+      ])
+
+      const version = pub?.version ? getNextVersion(pub?.version) : "1.0.0";
+      await this.filePubDao.create({
+        fileId,
+        version,
+        content: JSON.stringify({
+          files: publishFiles.map((file) => {
+            return {id: file.id, uuid: file.uuid}
+          })
+        }),
+        type: 'prod',
+        // commitInfo,
+        creatorId: user.email,
+        creatorName: user.name || user.email,
+        // fileContentId,
+        projectId
+      });
 			
       return {
         code: 1,
