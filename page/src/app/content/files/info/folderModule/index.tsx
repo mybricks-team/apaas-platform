@@ -24,7 +24,7 @@ const FolderModule: FC = () => {
 		const { id } = ctx.path.at(-1)
 		axios({
 			method: 'get',
-			url: `/paas/api//file/publish/getVersionsByFileId?id=${id}&pagtIndex=0&pageSize=20`
+			url: `/paas/api/file/publish/getVersionsByFileId?id=${id}&pagtIndex=0&pageSize=20`
 		}).then(({data: {data}}) => {
 			setList(data)
 		})
