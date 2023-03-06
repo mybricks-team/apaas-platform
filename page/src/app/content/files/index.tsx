@@ -14,7 +14,7 @@ import {
   useObservable
 } from '@mybricks/rxui'
 import {Form, message, Modal, Input} from 'antd'
-import {ExclamationCircleFilled} from '@ant-design/icons'
+import {EditOutlined, ExclamationCircleFilled} from '@ant-design/icons'
 
 import Info from './info'
 import TitleBar from './title'
@@ -23,7 +23,7 @@ import {Content, Block} from '..'
 import {Divider, Dropdown} from '../../components'
 import Ctx, {folderExtnames} from './Ctx'
 import {getApiUrl, getUrlQuery} from '../../../utils'
-import {Icon, Trash, More, Rename} from '../../components'
+import {Icon, Trash, More} from '../../components'
 
 import css from './index.less'
 
@@ -208,27 +208,13 @@ function Projects() {
                 </div>
                 {/* TODO: 如果文件在底部，操作项被遮挡 */}
                 {showOperate && <div className={css.btns} onClick={evt(() => {}).stop}>
-                  {/* <ClickableIconContainer size={28}>
-                    <More />
-                    <div className={css.operateContainer}>
-                      <div className={css.operateItem} onClick={() => operate('rename', project)}>
-                        <Rename width={16} height={16}/>
-                        <div className={css.label}>重命名</div>
-                      </div>
-                      <div className={css.divider}/>
-                      <div className={css.operateItem} onClick={() => operate('delete', project)}>
-                        <Trash width={16} height={16}/>
-                        <div className={css.label}>删除</div>
-                      </div>
-                    </div>
-                  </ClickableIconContainer> */}
                   <Dropdown
                     menus={[
                       {
                         key: '1',
                         label: (
                           <div className={css.operateItem} onClick={() => operate('rename', project)}>
-                            <Rename width={16} height={16}/>
+                            <EditOutlined width={16} height={16}/>
                             <div className={css.label}>重命名</div>
                           </div>
                         )

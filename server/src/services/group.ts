@@ -71,6 +71,44 @@ export default class UserGroupService {
     }
   }
 
+  @Post('/userGroup/rename')
+  async rename(@Body() body) {
+    const { userId, name, id } = body;
+    if (!userId) {
+      return {
+        code: -1,
+        message: '未获取userId',
+      };
+    }
+
+    try {
+      const user = await this.userDao.queryByEmail({email: userId})
+      if (!user) {
+        return {
+          code: -1,
+          message: '用户不存在'
+        };
+      }
+
+      await this.userGroupDao.update({
+        id,
+        name,
+        updatorId: userId,
+        updatorName: user.name || userId
+      })
+
+      return {
+        code: 1,
+        data: { id },
+      };
+    } catch (ex) {
+      return {
+        code: -1,
+        message: ex.message,
+      };
+    }
+  }
+
   @Get('/userGroup/getVisibleGroups')
   async getVisibleGroups(@Query() query) {
     const { userId } = query
@@ -161,12 +199,13 @@ export default class UserGroupService {
 
   @Get('/userGroup/getGroupInfoByGroupId')
   async getGroupInfoByGroupId(@Query() query) {
-    const { id, pageIndex, pageSize } = query
+    const { id, pageIndex, pageSize, userId } = query
   
-    const [group, groupUsers, userTotal] = await Promise.all([
+    const [group, groupUsers, userTotal, userGroupRelation] = await Promise.all([
       await this.userGroupDao.queryById({id}),
       await this.userGroupRelation.queryByUserGroupId({userGroupId: id, limit: pageSize, offset: pageSize * pageIndex}),
-      await this.userGroupRelation.queryUserTotalByUserGroupId({userGroupId: id})
+      await this.userGroupRelation.queryUserTotalByUserGroupId({userGroupId: id}),
+      await this.userGroupRelation.queryByUserIdAndUserGroupId({userId, userGroupId: id})
     ])
 
     return {
@@ -174,6 +213,7 @@ export default class UserGroupService {
       data: {
         ...group,
         userTotal,
+        userGroupRelation,
         users: groupUsers.map((user: any) => {
           const { role_description, ...other } = user
           return {...other, roleDescription: role_description}

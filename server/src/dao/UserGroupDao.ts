@@ -111,4 +111,19 @@ export default class UserGroupDao extends DOBase {
 
     return result;
   }
+
+  public async update(params: {
+    id: number;
+    name?: string;
+    updatorId: string;
+    updatorName: string;
+  }) {
+    return await this.exe<any>(
+      'apaas_user_group:update', 
+      {
+        ...params,
+        updateTime: new Date().getTime()
+      }
+    )
+  }
 }

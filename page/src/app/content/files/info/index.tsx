@@ -41,12 +41,25 @@ export default function Info({path}) {
   )
 }
 
-export function Title({content}) {
-  return <div className={css.title}>{content || '加载中...'}</div>
+export function Title({content, suffix = <></>}) {
+  return (
+    <div className={css.title}>
+      <div className={css.content}>
+        {content || '加载中...'}
+        {suffix}
+      </div>
+    </div>
+  )
 }
 
 export function Card({children}) {
   return (
     <div className={css.card}>{children}</div>
+  )
+}
+
+export function ClickableIcon({children, ...other}) {
+  return (
+    <div className={css.iconContainer} {...other}>{children}</div>
   )
 }
