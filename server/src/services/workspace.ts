@@ -60,7 +60,7 @@ export default class WorkspaceService {
         // TODO
         data: rtn.filter((item) => {
           if (item.hasIcon === "1") {
-            item.icon = `/api/workspace/getFileIcon?fileId=${item.id}`;
+            item.icon = `/paas/api/workspace/getFileIcon?fileId=${item.id}`;
           }
 
           return item.extName !== "component";
@@ -92,7 +92,7 @@ export default class WorkspaceService {
         code: 1,
         data: rtn.filter((item) => {
           if (item.hasIcon === "1") {
-            item.icon = `/api/workspace/getFileIcon?fileId=${item.id}`;
+            item.icon = `/paas/api/workspace/getFileIcon?fileId=${item.id}`;
           }
 
           return item.extName !== "component";
