@@ -79,7 +79,6 @@ function PublishList({list}) {
 			return <div>暂无发布记录</div>
 		}
 		return list.map((item) => {
-			console.log(item, 'item')
 			return (
 				<Card>
 					<div className={styles.item}>
