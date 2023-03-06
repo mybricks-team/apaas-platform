@@ -34,6 +34,18 @@
         </trim>
     </insert>
 
+     <update id="update">
+        update apaas_user_group
+        set
+        <if test="name">
+            name = #{name},
+        </if>
+        updator_name = #{updatorName},
+        updator_id = #{updatorId},
+        update_time = #{updateTime}
+        where id = #{id}
+    </update>
+
     <select id="queryByIds">
         select * from apaas_user_group
         where 

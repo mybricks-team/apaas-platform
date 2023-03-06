@@ -14,7 +14,7 @@ import {
   useObservable
 } from '@mybricks/rxui'
 import {Form, message, Modal, Input} from 'antd'
-import {ExclamationCircleFilled} from '@ant-design/icons'
+import {EditOutlined, ExclamationCircleFilled} from '@ant-design/icons'
 
 import Info from './info'
 import TitleBar from './title'
@@ -23,7 +23,7 @@ import {Content, Block} from '..'
 import {Divider, Dropdown} from '../../components'
 import Ctx, {folderExtnames} from './Ctx'
 import {getApiUrl, getUrlQuery} from '../../../utils'
-import {Icon, Trash, More, Rename} from '../../components'
+import {Icon, Trash, More} from '../../components'
 
 import css from './index.less'
 
@@ -44,7 +44,12 @@ export default function Files() {
           params: {userId: appCtx.user.email, fileId: parentId, groupId}
         }).then(({data: {data}}) => {
           if (data.length) {
-            path.push(...data)
+            if (data[0]) {
+              path.push(...data)
+            } else {
+              history.pushState(null, '', `?appId=files`)
+              return
+            }
           }
           ctx.path = path
         })
@@ -78,9 +83,6 @@ export default function Files() {
       }
     })
   }, {to: 'children'})
-  // const latestPath = useComputed(() => {
-	// 	return ctx.path[ctx.path.length - 1]
-	// })
 
   useComputed(() => {
     const {urlQuery} = appCtx
@@ -102,14 +104,6 @@ export default function Files() {
 	        <Block style={{ flex: 1, marginBottom: 0, overflowY: 'auto' }}>
 		        <Projects/>
 	        </Block>
-	        {/* {latestPath?.extName === 'folder-module' ? (
-		        <Block style={{width: '300px', marginBottom: 0}}>
-			        <Box />
-		        </Block>
-	        ) : null} */}
-          {/* <Block style={{minWidth: 280}}>
-            <div>新的块儿</div>
-          </Block> */}
           {pathInfo && <Info path={pathInfo}/>}
         </Block>
       </Content>
@@ -208,27 +202,13 @@ function Projects() {
                 </div>
                 {/* TODO: 如果文件在底部，操作项被遮挡 */}
                 {showOperate && <div className={css.btns} onClick={evt(() => {}).stop}>
-                  {/* <ClickableIconContainer size={28}>
-                    <More />
-                    <div className={css.operateContainer}>
-                      <div className={css.operateItem} onClick={() => operate('rename', project)}>
-                        <Rename width={16} height={16}/>
-                        <div className={css.label}>重命名</div>
-                      </div>
-                      <div className={css.divider}/>
-                      <div className={css.operateItem} onClick={() => operate('delete', project)}>
-                        <Trash width={16} height={16}/>
-                        <div className={css.label}>删除</div>
-                      </div>
-                    </div>
-                  </ClickableIconContainer> */}
                   <Dropdown
                     menus={[
                       {
                         key: '1',
                         label: (
                           <div className={css.operateItem} onClick={() => operate('rename', project)}>
-                            <Rename width={16} height={16}/>
+                            <EditOutlined width={16} height={16}/>
                             <div className={css.label}>重命名</div>
                           </div>
                         )

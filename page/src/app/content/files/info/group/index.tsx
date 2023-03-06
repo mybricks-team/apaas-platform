@@ -8,51 +8,88 @@ import React, {
 
 import axios from 'axios'
 import {
-  Form,
   Modal,
   Input,
   Avatar,
   message,
-  Tooltip
+  Tooltip,
+  Form as AntdForm
 } from 'antd'
-import {UserOutlined} from '@ant-design/icons'
 import {observe, useObservable} from '@mybricks/rxui'
+import {UserOutlined, EditOutlined} from '@ant-design/icons'
 
-import {Title} from '..'
+import ParentCtx from '../../Ctx'
+import {Title, ClickableIcon} from '..'
 import AppCtx from '../../../../AppCtx'
+import {Divider} from '../../../../components'
 import {getApiUrl} from '../../../../../utils'
 
 const {TextArea} = Input
 
 import css from './index.less'
 
+/** 协作用户信息 */
+interface GroupUser {
+  /** 头像 */
+  avatar?: string;
+  /** 名称 */
+  name?: string;
+  /** ID */
+  email?: string;
+}
+
 class Ctx {
+  /**
+   * 获取协作组信息
+   * @param id 协作组ID
+   */
   getInfo: (id: number) => void;
+  /** 协作组信息 */
   info: null | {
+    /** ID */
     id: number;
+    /** 名称 */
     name: string;
+    /** 创建人ID */
     creatorId: string;
+    /** 创建人名称 */
     creatorName: string;
-    users: Array<any>;
+    /** 协作用户列表 */
+    users: Array<GroupUser>;
+    /** 协作用户总数 */
+    userTotal: number;
+    /** 当前用户协作信息 */
+    userGroupRelation: {
+      /** 权限配置 */
+      roleDescription: number;
+    };
   }
+  /** 可管理 */
+  manageable: boolean;
+  /** 可编辑 */
+  editable: boolean;
 }
 
 export default function Group(props) {
+  const appCtx = observe(AppCtx, {from: 'parents'})
   const ctx = useObservable(Ctx, next => next({
     getInfo(id) {
       return new Promise((resolve) => {
         axios({
           method: "get",
-          url: getApiUrl(`/paas/api/userGroup/getGroupInfoByGroupId?id=${id}&pagtIndex=0&pageSize=5`)
+          url: getApiUrl(`/paas/api/userGroup/getGroupInfoByGroupId?id=${id}&userId=${appCtx.user.email}&pagtIndex=0&pageSize=5`)
         }).then(({data: {data}}) => {
           ctx.info = data
+          const { userGroupRelation } = data
+          const roleDescription = userGroupRelation?.roleDescription
+          ctx.manageable = roleDescription === 1
+          ctx.editable = roleDescription === 2
           resolve(true)
         })
       })
     }
   }), {to: 'children'})
-  const appCtx = observe(AppCtx, {from: 'parents'})
-  const {info} = ctx
+  const {info, manageable} = ctx
 
   useEffect(() => {
     ctx.getInfo(props.id)
@@ -60,12 +97,12 @@ export default function Group(props) {
 
   return (
     <div className={css.container}>
-      <Title content={info?.name}/>
+      <Title content={info?.name} suffix={manageable && <GroupTitleConfig />}/>
       {info && (
         <>
           <DescriptionWrapper
             label='成员'
-            LabelRender={appCtx.user.email === info.creatorId && (
+            LabelRender={manageable && (
               <UserConfig />
             )}
             DetailRender={<UserList data={info.users} total={info.userTotal}/>}
@@ -76,7 +113,195 @@ export default function Group(props) {
           />
         </>
       )}
+      {manageable && <GroupOperate {...info}/>}
     </div>
+  )
+}
+
+function GroupOperate(props) {
+  const appCtx = observe(AppCtx, {from: 'parents'})
+  const [open, setOpen] = useState(false)
+
+  const deleteClick = useCallback(() => {
+    setOpen(true)
+  }, [])
+
+  const modalOk = useCallback(() => {
+    return new Promise(async (resolve, reject) => {
+      axios({
+        method: 'post',
+        url: getApiUrl('/paas/api/userGroup/delete'),
+        data: {
+          userId: appCtx.user.email,
+          id: props.id
+        }
+      }).then(({data}) => {
+        if (data.code === 1) {
+          history.pushState(null, '', `?appId=files`)
+          appCtx.refreshSidebar('group')
+          resolve('删除协作组成功')
+        } else {
+          reject(data.message)
+        }
+      }).catch((e) => {
+        reject('删除协作组失败' + e?.message || '')
+      })
+    })
+  }, [])
+
+  const modalCancel = useCallback(() => {
+    setOpen(false)
+  }, [])
+
+  const RenderDeleteGroupModal = useMemo(() => {
+    return (
+      <DeleteGroupModal
+        open={open}
+        onOk={modalOk}
+        onCancel={modalCancel}
+        groupName={props.name}
+      />
+    )
+  }, [open])
+
+
+  return (
+    <>
+      <Divider />
+      <button className={css.dangerButton} onClick={deleteClick}>删除协作组</button>
+      {RenderDeleteGroupModal}
+    </>
+  )
+}
+
+function DeleteGroupModal({open, onOk, onCancel, groupName}) {
+  return ConfigModal({
+    open,
+    onOk,
+    onCancel,
+    title: '确定要删除当前协作组吗？',
+    Form: ({form, editRef, ok}) => {
+      return (
+        <AntdForm
+          labelCol={{ span: 0 }}
+          wrapperCol={{ span: 24 }}
+          form={form}
+        >
+          <AntdForm.Item
+            name="name"
+            rules={[{ required: true, message: '输入名称与当前协作组不同', validator(rule, value) {
+              return new Promise((resolve, reject) => {
+                if (value !== groupName) {
+                  reject(rule.message)
+                } else [
+                  resolve(true)
+                ]
+              })
+            }}]}
+          >
+            <Input ref={editRef} placeholder={`请输入当前协作组名称以确认删除`} autoFocus onPressEnter={ok}/>
+          </AntdForm.Item>
+        </AntdForm>
+      )
+    }
+  })
+}
+
+function GroupTitleConfig () {
+  const ctx = observe(Ctx, {from: 'parents'})
+  const parentCtx = observe(ParentCtx, {from: 'parents'})
+  const appCtx = observe(AppCtx, {from: 'parents'})
+  const [open, setOpen] = useState(false)
+
+  const iconClick = useCallback(() => {
+    setOpen(true)
+  }, [])
+
+  const modalOk = useCallback((values) => {
+    return new Promise(async (resolve, reject) => {
+      const { name } = values
+      axios({
+        method: 'post',
+        url: getApiUrl('/paas/api/userGroup/rename'),
+        data: {
+          userId: appCtx.user.email,
+          name,
+          id: ctx.info.id
+        }
+      }).then(async ({data}) => {
+        if (data.code === 1) {
+          appCtx.refreshSidebar('group')
+          parentCtx.path.at(-1).name = name
+          ctx.info.name = name
+          resolve('更改协作组名称成功')
+        } else {
+          reject(data.message)
+        }
+      }).catch((e) => {
+        reject('更改协作组名称失败' + e?.message || '')
+      })
+    })
+  }, [])
+
+  const modalCancel = useCallback(() => {
+    setOpen(false)
+  }, [])
+
+  const RenderGroupTitleModal = useMemo(() => {
+    return (
+      <GroupTitleModal
+        open={open}
+        onOk={modalOk}
+        onCancel={modalCancel}
+        defaultValues={{name: ctx.info?.name}}
+      />
+    )
+  }, [open])
+
+  return (
+    <>
+      <ClickableIcon onClick={iconClick}>
+        <EditOutlined style={{fontSize: 14}}/>
+      </ClickableIcon>
+      {RenderGroupTitleModal}
+    </>
+  )
+}
+
+function GroupTitleModal ({open, onOk, onCancel, defaultValues}) {
+  return (
+    <ConfigModal
+      open={open}
+      onOk={onOk}
+      onCancel={onCancel}
+      title='更改协作组名称'
+      defaultValues={defaultValues}
+      Form={({form, editRef, ok}) => {
+        return (
+          <AntdForm
+            labelCol={{ span: 3 }}
+            wrapperCol={{ span: 21 }}
+            form={form}
+          >
+            <AntdForm.Item
+              label='名称'
+              name="name"
+              rules={[{ required: true, message: '请输入协作组名称！', validator(rule, value) {
+                return new Promise((resolve, reject) => {
+                  if (!value.trim()) {
+                    reject(rule.message)
+                  } else [
+                    resolve(true)
+                  ]
+                })
+              }}]}
+            >
+              <Input ref={editRef} placeholder={`请输入协作组名称`} autoFocus onPressEnter={ok}/>
+            </AntdForm.Item>
+          </AntdForm>
+        )
+      }}
+    />
   )
 }
 
@@ -131,12 +356,11 @@ function UserConfig() {
 
   return (
     <>
-      <div className={css.userConfigIcon} onClick={iconClick}>
+      <ClickableIcon onClick={iconClick}>
         <UserOutlined />
-      </div>
+      </ClickableIcon>
       {RenderUserConfigModal}
     </>
-   
   )
 }
 
@@ -217,7 +441,56 @@ function DefaultAvatar({avatar = '', content}) {
 }
 
 function UserConfigModal({open, onOk, onCancel}) {
-  const [form] = Form.useForm()
+  return ConfigModal({
+    open,
+    onOk,
+    onCancel,
+    title: '添加协作用户',
+    bodyStyle: {
+      minHeight: 126
+    },
+    Form: ({form, editRef, ok}) => {
+      return (
+        <AntdForm
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 20 }}
+          form={form}
+        >
+          <AntdForm.Item
+            label='用户邮箱'
+            name="userIds"
+            rules={[{ required: true, message: '协作用户邮箱不允许为空！', validator(rule, value) {
+              return new Promise((resolve, reject) => {
+                if (!value.trim()) {
+                  reject(rule.message)
+                } else [
+                  resolve(true)
+                ]
+              })
+            }}]}
+          >
+            <TextArea ref={editRef} placeholder={`请正确填写协作用户邮箱，以英文逗号隔开（xxx@163.com,www@163.com）`} onPressEnter={ok}/>
+          </AntdForm.Item>
+        </AntdForm>
+      )
+    }
+  })
+}
+
+function ConfigModal({
+  open,
+  onOk,
+  onCancel,
+  Form,
+  title = '标题',
+  okText = '确认',
+  cancelText = '取消',
+  bodyStyle = {
+    minHeight: 104
+  },
+  defaultValues = {}
+}) {
+  const [form] = AntdForm.useForm()
   const [btnLoading, setBtnLoading] = useState(false)
   const ref = useRef()
 
@@ -242,47 +515,30 @@ function UserConfigModal({open, onOk, onCancel}) {
 
   useEffect(() => {
     if (open && ref.current) {
+      form.setFieldsValue(defaultValues)
       setTimeout(() => {
         (ref.current as any).focus()
       }, 100)
     }
   }, [open])
 
+  const RenderForm = useMemo(() => {
+    return <Form form={form} editRef={ref} ok={ok}/>
+  }, [])
+
   return (
     <Modal
       open={open}
-      title={'添加协作用户'}
-      okText={'确认'}
-      cancelText={'取消'}
+      title={title}
+      okText={okText}
+      cancelText={cancelText}
       centered={true}
       onOk={ok}
       onCancel={cancel}
       confirmLoading={btnLoading}
-      bodyStyle={{
-        minHeight: 126
-      }}
+      bodyStyle={bodyStyle}
     >
-      <Form
-        labelCol={{ span: 4 }}
-        wrapperCol={{ span: 20 }}
-        form={form}
-      >
-        <Form.Item
-          label='用户邮箱'
-          name="userIds"
-          rules={[{ required: true, message: '协作用户邮箱不允许为空！', validator(rule, value) {
-            return new Promise((resolve, reject) => {
-              if (!value.trim()) {
-                reject(rule.message)
-              } else [
-                resolve(true)
-              ]
-            })
-          }}]}
-        >
-          <TextArea ref={ref} placeholder={`请正确填写协作用户邮箱，以英文逗号隔开（xxx@163.com,www@163.com）`} autoFocus onPressEnter={ok}/>
-        </Form.Item>
-      </Form>
+      {RenderForm}
     </Modal>
   )
 }
