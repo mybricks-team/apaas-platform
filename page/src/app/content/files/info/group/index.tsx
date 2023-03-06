@@ -18,12 +18,12 @@ import {
 import {observe, useObservable} from '@mybricks/rxui'
 import {UserOutlined, EditOutlined} from '@ant-design/icons'
 
+import ParentCtx from '../../Ctx'
 import {Title, ClickableIcon} from '..'
 import AppCtx from '../../../../AppCtx'
 import {Divider} from '../../../../components'
 import {getApiUrl} from '../../../../../utils'
 
-const {confirm} = Modal
 const {TextArea} = Input
 
 import css from './index.less'
@@ -188,7 +188,6 @@ function DeleteGroupModal({open, onOk, onCancel, groupName}) {
           form={form}
         >
           <AntdForm.Item
-            // label='名称'
             name="name"
             rules={[{ required: true, message: '输入名称与当前协作组不同', validator(rule, value) {
               return new Promise((resolve, reject) => {
@@ -210,6 +209,7 @@ function DeleteGroupModal({open, onOk, onCancel, groupName}) {
 
 function GroupTitleConfig () {
   const ctx = observe(Ctx, {from: 'parents'})
+  const parentCtx = observe(ParentCtx, {from: 'parents'})
   const appCtx = observe(AppCtx, {from: 'parents'})
   const [open, setOpen] = useState(false)
 
@@ -230,7 +230,8 @@ function GroupTitleConfig () {
         }
       }).then(async ({data}) => {
         if (data.code === 1) {
-          await appCtx.refreshSidebar('group')
+          appCtx.refreshSidebar('group')
+          parentCtx.path.at(-1).name = name
           ctx.info.name = name
           resolve('更改协作组名称成功')
         } else {
@@ -268,38 +269,40 @@ function GroupTitleConfig () {
 }
 
 function GroupTitleModal ({open, onOk, onCancel, defaultValues}) {
-  return ConfigModal({
-    open,
-    onOk,
-    onCancel,
-    title: '更改协作组名称',
-    defaultValues,
-    Form: ({form, editRef, ok}) => {
-      return (
-        <AntdForm
-          labelCol={{ span: 3 }}
-          wrapperCol={{ span: 21 }}
-          form={form}
-        >
-          <AntdForm.Item
-            label='名称'
-            name="name"
-            rules={[{ required: true, message: '请输入协作组名称！', validator(rule, value) {
-              return new Promise((resolve, reject) => {
-                if (!value.trim()) {
-                  reject(rule.message)
-                } else [
-                  resolve(true)
-                ]
-              })
-            }}]}
+  return (
+    <ConfigModal
+      open={open}
+      onOk={onOk}
+      onCancel={onCancel}
+      title='更改协作组名称'
+      defaultValues={defaultValues}
+      Form={({form, editRef, ok}) => {
+        return (
+          <AntdForm
+            labelCol={{ span: 3 }}
+            wrapperCol={{ span: 21 }}
+            form={form}
           >
-            <Input ref={editRef} placeholder={`请输入协作组名称`} autoFocus onPressEnter={ok}/>
-          </AntdForm.Item>
-        </AntdForm>
-      )
-    }
-  })
+            <AntdForm.Item
+              label='名称'
+              name="name"
+              rules={[{ required: true, message: '请输入协作组名称！', validator(rule, value) {
+                return new Promise((resolve, reject) => {
+                  if (!value.trim()) {
+                    reject(rule.message)
+                  } else [
+                    resolve(true)
+                  ]
+                })
+              }}]}
+            >
+              <Input ref={editRef} placeholder={`请输入协作组名称`} autoFocus onPressEnter={ok}/>
+            </AntdForm.Item>
+          </AntdForm>
+        )
+      }}
+    />
+  )
 }
 
 function UserConfig() {

@@ -83,9 +83,6 @@ export default function Files() {
       }
     })
   }, {to: 'children'})
-  // const latestPath = useComputed(() => {
-	// 	return ctx.path[ctx.path.length - 1]
-	// })
 
   useComputed(() => {
     const {urlQuery} = appCtx
@@ -107,14 +104,6 @@ export default function Files() {
 	        <Block style={{ flex: 1, marginBottom: 0, overflowY: 'auto' }}>
 		        <Projects/>
 	        </Block>
-	        {/* {latestPath?.extName === 'folder-module' ? (
-		        <Block style={{width: '300px', marginBottom: 0}}>
-			        <Box />
-		        </Block>
-	        ) : null} */}
-          {/* <Block style={{minWidth: 280}}>
-            <div>新的块儿</div>
-          </Block> */}
           {pathInfo && <Info path={pathInfo}/>}
         </Block>
       </Content>
