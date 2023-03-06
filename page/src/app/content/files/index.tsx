@@ -44,7 +44,12 @@ export default function Files() {
           params: {userId: appCtx.user.email, fileId: parentId, groupId}
         }).then(({data: {data}}) => {
           if (data.length) {
-            path.push(...data)
+            if (data[0]) {
+              path.push(...data)
+            } else {
+              history.pushState(null, '', `?appId=files`)
+              return
+            }
           }
           ctx.path = path
         })
