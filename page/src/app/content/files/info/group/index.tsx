@@ -88,12 +88,13 @@ export default function Group(props) {
           const roleDescription = userGroupRelation?.roleDescription
           ctx.manageable = roleDescription === 1
           ctx.editable = roleDescription === 2
+          ctx.isFounder = data.creatorId === appCtx.user.email
           resolve(true)
         })
       })
     }
   }), {to: 'children'})
-  const {info, manageable} = ctx
+  const {info, manageable, isFounder} = ctx
 
   useEffect(() => {
     ctx.getInfo(props.id)
@@ -115,9 +116,9 @@ export default function Group(props) {
             label='协作组所有者'
             value={info.creatorName || info.creatorId}
           />
+          {(manageable && isFounder) && <GroupOperate {...info}/>}
         </>
       )}
-      {manageable && <GroupOperate {...info}/>}
     </div>
   )
 }
