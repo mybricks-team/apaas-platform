@@ -4,6 +4,7 @@ import UserDao from '../../dao/UserDao';
 import FilePubDao from "../../dao/filePub.dao";
 import FileCooperationDao from "../../dao/FileCooperationDao";
 import UserGroupDao from "../../dao/UserGroupDao";
+import UserGroupRelationDao from '../../dao/UserGroupRelationDao'
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { isNumber, uuid } from '../../utils'
 const path = require('path');
@@ -16,6 +17,7 @@ export default class FileService {
   fileCooperationDao: FileCooperationDao;
   userDao: UserDao;
   userGroupDao: UserGroupDao;
+  userGroupRelationDao: UserGroupRelationDao;
 
   constructor() {
     this.fileDao = new FileDao();
@@ -24,6 +26,7 @@ export default class FileService {
     this.fileCooperationDao = new FileCooperationDao();
     this.userDao = new UserDao();
     this.userGroupDao = new UserGroupDao();
+    this.userGroupRelationDao = new UserGroupRelationDao();
   }
 
   @Get("/file/get")
@@ -123,22 +126,33 @@ export default class FileService {
       }
     }
 
-    /** 删除超时用户，status设置为-1 */
-    await this.fileCooperationDao.delete({fileId, timeInterval})
+    const [file] = await Promise.all([
+      await this.fileDao.queryById(fileId),
+      /** 删除超时用户，status设置为-1 */
+      await this.fileCooperationDao.delete({fileId, timeInterval})
+    ])
 
     /** 查userId是否在当前fileId协作过 */
-    let [curUser, numberOfOnlineUsers] = await Promise.all([
+    let [curUser, numberOfOnlineUsers, roleDescription] = await Promise.all([
       await this.fileCooperationDao.query({userId, fileId}),
-      await this.fileCooperationDao.numberOfOnlineUsers({fileId})
+      await this.fileCooperationDao.numberOfOnlineUsers({fileId}),
+      new Promise(async (resolve) => {
+        const { groupId } = file
+        if (!groupId) {
+          resolve((file.creatorId === userId) ? 1 : 3)
+        } else {
+          const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({userId, userGroupId: groupId, status: 1})
+          resolve(userGroupRelation?.roleDescription || 3)
+        }
+      })
     ])
-    // const hasUser = !!numberOfOnlineUsers
+    const hasUser = !!numberOfOnlineUsers
     let finalStatus: -1 | 0 | 1 = 0
 
-    // TODO 权限上线后再开放
-    // if (!hasUser) {
-    //   /** 没有在线用户，默认设置status为1 */
-    //   finalStatus = 1
-    // }
+    /** 没有用户在线，并且有编辑权限，自动上锁, 设置status为1 */
+    if (!hasUser && [1, 2].includes(roleDescription as number)) {
+      finalStatus = 1
+    }
 
     if (curUser) {
       /**
@@ -164,13 +178,85 @@ export default class FileService {
 
     return {
       code: 1,
-      data: cooperationUsers.map((cooperationUser, index) => {
-        return {
-          ...cooperationUser,
-          ...users[index]
-        }
-      })
+      data: {
+        users: cooperationUsers.map((cooperationUser, index) => {
+          const user = users[index]
+          return {
+            name: user.name,
+            userId: user.email,
+            avatar: user.avatar,
+            status: cooperationUser.status,
+            updateTime: cooperationUser.updateTime
+          }
+        }),
+        roleDescription
+      }
     }
+  }
+
+  @Post("/file/toggleFileCooperationStatus")
+  async toggleFileCooperationStatus(@Body() body) {
+    const { userId, status } = body
+    const fileId = Number(body.fileId)
+
+    if (!isNumber(fileId) || !userId) {
+      return {
+        code: -1,
+        data: null,
+        message: '参数fileId或userId不合法'
+      }
+    }
+
+    if (status === 1) {
+      // 上锁
+      const [file, editUser] = await Promise.all([
+        await this.fileDao.queryById(fileId),
+        await this.fileCooperationDao.queryEditUser({fileId})
+      ])
+
+      if (editUser) {
+        return {
+          code: 1,
+          data: null,
+          message: '当前文件已被上锁，无权操作'
+        }
+      }
+
+      let roleDescription = 3
+
+      const { groupId, creatorId } = file
+
+      if (!groupId) {
+        roleDescription = (creatorId === userId) ? 1 : 3
+      } else {
+        const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({userId, userGroupId: groupId, status: 1})
+        roleDescription = userGroupRelation?.roleDescription || 3
+      }
+
+      if ([1, 2].includes(roleDescription)) {
+        await this.fileCooperationDao.update({fileId, userId, status: 1})
+        return {
+          code: 1,
+          data: {}
+        }
+      } else {
+        return {
+          code: 1,
+          data: null,
+          message: '没有当前文件的操作权限'
+        }
+      }
+    } else {
+      // 解锁
+      await this.fileCooperationDao.update({fileId, userId, status: 0})
+      return {
+        code: 1,
+        data: {}
+      }
+    }
+
+
+
   }
 
   @Get("/file/checkInFolderProject")

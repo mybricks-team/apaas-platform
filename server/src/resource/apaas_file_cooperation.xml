@@ -59,4 +59,9 @@
         user_id = #{userId} and
         file_id = #{fileId}
     </update>
+
+    <select id="queryEditUser">
+        select * from apaas_file_cooperation 
+        where file_id = #{fileId} and status = 1
+    </select>
 </mapper>

@@ -49,6 +49,9 @@ export class UserDO {
   @Column
   role: number
 
+  @Column
+  avatar: string
+
   get isAdmin() {
     return this.email === 'chemingjun@126.com'
   }

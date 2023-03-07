@@ -20,7 +20,7 @@
     </select>
 
     <select id="queryByEmails">
-        select name, email 
+        select name, email, avatar  
         from apaas_user
         where status = #{status}
         and email in 
