@@ -84,13 +84,14 @@ export default class UserGroupRelationDao extends DOBase {
     roleDescription: number;
     userGroupId: number;
     userId: string;
+    status?: number;
   }) {
     const time = new Date().getTime()
     return await this.exe<any>(
       'apaas_user_group_relation:update',
       {
         ...params,
-        status: 1,
+        status: params.status || 1,
         updateTime: time
       }
     )
@@ -144,6 +145,7 @@ export default class UserGroupRelationDao extends DOBase {
   public async queryByUserIdAndUserGroupId(params: {
     userId: string;
     userGroupId: number;
+    status?: 1 | -1;
   }) {
     const result = await this.exe<UserGroupRelationDO>(
       'apaas_user_group_relation:queryByUserIdAndUserGroupId',

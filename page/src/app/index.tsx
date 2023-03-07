@@ -4,7 +4,7 @@ import axios from 'axios'
 import {message} from 'antd'
 import {useObservable} from '@mybricks/rxui'
 // import API from '/Users/andyzou/Work/registry/mybricks-team/sdk-for-app/src/api'
-import API from '@mybricks/sdk-for-app/src/api'
+// import API from '@mybricks/sdk-for-app/src/api'
 
 import AppCtx from './AppCtx'
 import Sideber from './sidebar'
@@ -24,7 +24,12 @@ export default function App() {
     useMemo(() => {
       /** 初始化(获取应用、配置和角色) */
       (async () => {
-        const user = await API.User.getLoginUser()
+        // // todo: 暂时注释，等待前端修复
+        // const user = await API.User.getLoginUser()
+        const user = (await axios({
+          method: "post",
+          url: '/paas/api/user/signed'
+        }))?.data?.data
         if (!user) {
           location.href = `/?redirectUrl=${encodeURIComponent(location.href)}`
           return

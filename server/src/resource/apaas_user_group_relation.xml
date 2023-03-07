@@ -74,7 +74,10 @@
 
     <select id="queryByUserIdAndUserGroupId">
         select * from apaas_user_group_relation 
-        where user_id = #{userId} and user_group_id = #{userGroupId} and status = 1
+        where user_id = #{userId} and user_group_id = #{userGroupId}
+        <if test="status">
+            and status = #{status}
+        </if>
     </select>
 
     <select id="queryUserTotalByUserGroupId">

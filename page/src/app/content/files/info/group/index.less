@@ -96,3 +96,138 @@
     align-items: center;
   }
 }
+
+.tableTitleAction {
+  margin-bottom: 6px;
+
+  .addUserButtonContainer {
+    position: relative;
+
+    .addUserButton {
+      padding: 8px 15px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 0 solid #DDD;
+      color: #FFF;
+      border-radius: 3px;
+      background-color: #fa6400;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+  }
+}
+
+.addUserFormContainer {
+  width: 600px;
+
+  :global {
+    .ant-form-item-has-error {
+      margin-bottom: 24px;
+    }
+  }
+}
+
+.table {
+  :global {
+    .ant-table {
+      height: 517px;
+    }
+  }
+}
+
+.tag {
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #FFF;
+  border-radius: 4px;
+  text-align: center;
+  padding-top: 1px;
+}
+
+.tagOwner {
+  .tag();
+  background-color: #f42928;
+}
+
+.tagManageable {
+  .tag();
+  background-color: @color-primary;
+}
+
+.tagEditable {
+  .tag();
+  background-color: @color-success;
+}
+
+.tagViewable {
+  .tag();
+  background-color: #999999;
+}
+
+.actionContainer {
+  .roleDescription {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    color: #1677ff;
+
+    .icon {
+      transition: transform 0.3s, -webkit-transform 0.3s;
+    }
+
+    &:hover {
+      .icon {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .roleDescriptionDisabled {
+    cursor: not-allowed;
+    color: @font-color-disabled;
+
+    .icon {
+      transform: rotate(0deg) !important;
+    }
+  }
+}
+
+.popoverContainer {
+  :global {
+    .ant-popover-inner-content {
+      padding: 10px 6px;
+    }
+  }
+}
+
+.roleDescriptionOptionsContainer {
+  font-size: 14px;
+  color: #1f2329;
+  font-family: PingFangSC, sans-serif;
+
+  .optionItem {
+    cursor: pointer;
+    padding: 2px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &:hover {
+      background-color: #3d5c800d;
+    }
+  }
+
+  .optionItemSelected {
+    cursor: not-allowed;
+    color: #0c63fa;
+    background-color: #FFF!important;
+  }
+}
+
+.optionDescription {
+  font-size: 12px;
+  color: #95999e;
+}
