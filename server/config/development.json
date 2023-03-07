@@ -2,8 +2,8 @@
   "database": {
     "dbType": "MYSQL",
     "host": "47.111.7.45",
-    "user": "apaas-demo",
-    "password": "C6TzXt44AeZDKp3M",
+    "user": "apaas-staging",
+    "password": "mBcLYBXTyJM8CERc",
     "port": 3306,
     "database": "apaas-demo",
     "sqlPath": "../resource"
