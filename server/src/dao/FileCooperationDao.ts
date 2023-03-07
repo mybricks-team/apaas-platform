@@ -115,4 +115,13 @@ export default class FileCooperationDao extends DOBase {
 
     return await this.exe<any>('apaas_file_cooperation:update', params)
   }
+
+  @Mapping(FileCooperationDO)
+  public async queryEditUser(params: {
+    fileId: number;
+  }) {
+    const result = await this.exe('apaas_file_cooperation:queryEditUser', params)
+
+    return result && result[0]
+  }
 }

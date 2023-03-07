@@ -178,7 +178,8 @@ export default class AppCtx {
     if (!IS_MYBRICKS_TEAM_USER) {
       const SHOW_APPS_MAP = {
         'pc-cgn': true,
-        'pc-page': true
+        'pc-page': true,
+        'domain': true
       }
       const SHOW_FOLDERS_MAP = {
         'folder': true
