@@ -279,4 +279,15 @@ export default class UserGroupService {
       }
     }
   }
+
+  @Get('/userGroup/getUserGroupRelation')
+  async getUserGroupRelation(@Query() query) {
+    const { userId, id } = query
+    const userGroupRelation = await this.userGroupRelation.queryByUserIdAndUserGroupId({userId, userGroupId: id, status: 1})
+
+    return {
+      code: 1,
+      data: userGroupRelation
+    }
+  }
 }

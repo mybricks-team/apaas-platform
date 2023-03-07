@@ -35,6 +35,18 @@ export default function Files() {
     next({
       user: appCtx.user,
       setPath({parentId, groupId}) {
+        if (groupId) {
+          if (groupId !== ctx.groupId) {
+            axios({
+              method: 'get',
+              url: getApiUrl(`/paas/api/userGroup/getUserGroupRelation?id=${groupId}&userId=${appCtx.user.email}`)
+            }).then(({data: {data}}) => {
+              ctx.roleDescription = data.roleDescription
+            })
+          }
+        } else {
+          ctx.roleDescription = 1
+        }
         ctx.projectList = null
         const path = !groupId ? [{id: null, name: '我的', parentId: null, groupId: null, extName: null}] : []
 
@@ -54,6 +66,8 @@ export default function Files() {
           ctx.path = path
         })
         ctx.getAll({parentId, groupId})
+        ctx.parentId = parentId
+        ctx.groupId = groupId
       },
       getAll({parentId, groupId}) {
         if (!groupId) {
@@ -171,6 +185,7 @@ function Projects() {
     if (Array.isArray(ctx.projectList)) {
       if (ctx.projectList.length) {
         const {APPSMap} = appCtx;
+        const {roleDescription} = ctx;
         JSX = ctx.projectList.map((project) => {
           const {extName} = project
           const appReg = APPSMap[extName];
@@ -181,7 +196,8 @@ function Projects() {
 
           const {icon, homepage} = appReg;
           const bigIcon = folderExtnames.includes(extName) || project.icon
-          const showOperate = project.creatorId === userId
+          /** 创建人和拥有管理、编辑权限的用户可见操作按钮 */
+          const showOperate = (project.creatorId === userId) || [1, 2].includes(roleDescription)
 
           return (
             <div key={project.id} className={css.file} onClick={() => operate('open', {...project, homepage})}>

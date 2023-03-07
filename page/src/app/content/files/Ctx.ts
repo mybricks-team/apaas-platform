@@ -5,12 +5,15 @@ export default class Ctx {
 
   parentId: string | null
 
+  groupId: string | null
+
   popCreate: boolean
 
   folderExtName: null | string | undefined = undefined
 
   path: Array<{ id: null | number, name: string, parentId: null | number, groupId: null | number, extName: null | string }> = []
 
+  roleDescription: 1 | 2 | 3
 
   projectList: null | Array<any> = null
 
