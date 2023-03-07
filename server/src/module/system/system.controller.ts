@@ -271,6 +271,78 @@ export default class SystemService {
       };
     }
   }
+	
+	
+	@Post('/system/domain/entity/list')
+	async getDomainEntityList(@Body('fileId') fileId: number) {
+		try {
+			const currentFileHierarchy = await this.fileService._getParentModuleAndProjectInfo(fileId)
+			let totalList = [];
+			let domainFiles = await this.fileDao.pureQuery({
+				extName: 'domain',
+			});
+			let filterDomainFiles = []
+			const allDomainFileHierarchyTask = []
+			domainFiles.forEach(i => {
+				allDomainFileHierarchyTask.push(this.fileService._getParentModuleAndProjectInfo(i.id))
+			})
+			let allDomainFileHierarchy = await Promise.all(allDomainFileHierarchyTask);
+			
+			if (currentFileHierarchy.projectId) {
+				// 项目内，必须是同一项目
+				domainFiles?.forEach((i, index) => {
+					if(allDomainFileHierarchy[index]?.projectId === currentFileHierarchy.projectId) {
+						filterDomainFiles.push(i)
+					}
+				})
+			} else {
+				// 非项目内，找到projectID为空的列表
+				domainFiles?.forEach((i, index) => {
+					if(!allDomainFileHierarchy[index]?.projectId) {
+						filterDomainFiles.push(i)
+					}
+				})
+			}
+			const fileInfoMap = {};
+			filterDomainFiles?.map((f) => {
+				fileInfoMap[f.id] = f;
+			});
+			const fileIds: any[] = Object.keys(fileInfoMap) || [];
+			let pubContentList = [];
+			if(fileIds?.length !== 0) {
+				pubContentList =  await this.filePubDao.getLatestPubByIds({
+					ids: fileIds,
+					envType: 'prod',
+				});
+			}
+			
+			pubContentList?.forEach((pubContent) => {
+				const contentObj =
+					typeof pubContent.content === 'string'
+						? JSON.parse(pubContent.content)
+						: pubContent.content;
+				
+				//  过滤服务
+				if (contentObj?.entityAry?.length > 0) {
+					totalList.push({
+						fileId: pubContent.fileId,
+						fileName: fileInfoMap[pubContent.fileId]?.name,
+						entityList: contentObj?.entityAry,
+					});
+				}
+			});
+			return {
+				code: 1,
+				data: totalList,
+			};
+		} catch (e) {
+			return {
+				code: -1,
+				data: [],
+				msg: `获取模型列表失败: ${e.message}`,
+			};
+		}
+	}
 
   async _execDomainPub(pubInfo, {
     serviceId,
