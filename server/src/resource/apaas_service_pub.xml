@@ -10,19 +10,21 @@
         file_id,
         service_id,
         content,
+        name,
         env,
         creator_id,
         creator_name,
         project_id,
         file_pub_id,
         status,
-        create_time,
+        create_time
         )
         <foreach collection="serviceContentList" item="serviceContent" open="values " separator="," close="" index="index">
             <trim prefix="(" suffix=")" suffixOverrides=",">
                 #{fileId},
-                #{serviceContent.serviceId},
-                #{serviceContent.content},
+                #{serviceContent.id},
+                #{serviceContent.code},
+                #{serviceContent.title},
                 #{env},
                 #{creatorId},
                 #{creatorName},

@@ -11,6 +11,9 @@ export class ServicePubDO {
   @Column("service_id")
   serviceId: string;
 
+  @Column("name")
+  name: string;
+
   @Column("file_pub_id")
   filePubId: number;
 
