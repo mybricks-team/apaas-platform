@@ -349,40 +349,38 @@ export default class SystemService {
 	}
 
   async _execServicePub(pubInfo, {
-    serviceId,
     params,
+    serviceId,
     fileId
   }) {
     try {
-      const codeStr = decodeURIComponent(pubInfo?.content);
-      if (codeStr) {
-        const str = codeStr;
-        let res = {
-          code: 1,
-          data: null,
-          msg: '',
-        };
-        try {
-          const { success, data, msg } = await this.nodeVMIns.run(str, {
-            injectParam: params
-          });
-          res = {
-            code: success ? 1 : -1,
-            data,
-            msg,
-          };
-        } catch (e) {
-          console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
-          res.code = -1;
-          res.msg = JSON.stringify(e.msg);
-        }
-        return res;
-      } else {
+      if(!pubInfo) {
         return {
           code: -1,
           msg: `未找到 ${fileId} 下的服务 ${serviceId}, 请确认！`,
         };
       }
+      const codeStr = decodeURIComponent(pubInfo?.content);
+      let res = {
+        code: 1,
+        data: null,
+        msg: '',
+      };
+      try {
+        const { success, data, msg } = await this.nodeVMIns.run(codeStr, {
+          injectParam: params
+        });
+        res = {
+          code: success ? 1 : -1,
+          data,
+          msg,
+        };
+      } catch (e) {
+        console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
+        res.code = -1;
+        res.msg = JSON.stringify(e.msg);
+      }
+      return res;
     } catch (e) {
 
     }
@@ -402,6 +400,7 @@ export default class SystemService {
     @Body('relativePath') relativePath: any,
     @Body('baseFileId') baseFileId: any
   ) {
+    const _uuid = uuid();
     if (!serviceId) {
       return {
         code: -1,
@@ -414,10 +413,11 @@ export default class SystemService {
         // 发布后环境，项目空间
         // 发布后环境，普通发布空间
         // console.log('进来了')
-        const pubInfo = await this.servicePubDao.getLatestPubByProjectIdAndFileId({
+        const pubInfo = await this.servicePubDao.getLatestPubByProjectIdAndFileIdAndServiceId({
           fileId: +fileId,
           env: 'prod',
-          projectId: projectId
+          projectId: projectId,
+          serviceId: serviceId
         })
         res = await this._execServicePub(pubInfo, {
           fileId: +fileId,
@@ -425,15 +425,20 @@ export default class SystemService {
           params
         })
       } else {
-        const pubInfo = await this.servicePubDao.getLatestPubByFileId({
+        console.time('查找数据库')
+        const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
           fileId: +fileId,
-          env: 'prod'
+          env: 'prod',
+          serviceId
         })
+        console.timeEnd('查找数据库')
+        console.time('执行逻辑')
         res = await this._execServicePub(pubInfo, {
           fileId: +fileId,
           serviceId,
           params
         })
+        console.timeEnd('执行逻辑')
       }
       return res
     } else {
@@ -443,14 +448,15 @@ export default class SystemService {
         baseFileId
       })
 
-      const pubInfo = await this.servicePubDao.getLatestPubByFileId({
+      const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
         fileId: +currentFile?.id,
-        env: 'prod'
+        env: 'prod',
+        serviceId
       })
       const res = await this._execServicePub(pubInfo, {
         fileId: +fileId,
         serviceId,
-        params
+        params,
       })
       return res
     }
