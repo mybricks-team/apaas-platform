@@ -791,7 +791,6 @@ export default class FileService {
       data: versions
     }
   }
-  
 
   @Post('/file/initialUUID')
   async initialUUID() {
