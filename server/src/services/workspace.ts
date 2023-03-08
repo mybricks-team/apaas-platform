@@ -488,38 +488,38 @@ export default class WorkspaceService {
       type,
     });
 
-    const fileContentIds = filePubs
-      .filter((t) => t.fileContentId)
-      .map((t) => t.fileContentId);
+    // const fileContentIds = filePubs
+    //   .filter((t) => t.fileContentId)
+    //   .map((t) => t.fileContentId);
 
-    if (Array.isArray(fileContentIds) && fileContentIds.length) {
-      let fileContents = await this.fileContentDao.queryBy({
-        ids: fileContentIds,
-      });
+    // if (Array.isArray(fileContentIds) && fileContentIds.length) {
+    //   let fileContents = await this.fileContentDao.queryBy({
+    //     ids: fileContentIds,
+    //   });
 
-      // 兼容单个查询不为数组的情况
-      // @ts-ignore
-      if (fileContents?.id) {
-        fileContents = [fileContents];
-      }
+    //   // 兼容单个查询不为数组的情况
+    //   // @ts-ignore
+    //   if (fileContents?.id) {
+    //     fileContents = [fileContents];
+    //   }
 
-      if (Array.isArray(fileContents) && fileContents.length) {
-        const fileContentMap = new Map();
-        fileContents.forEach((content) => {
-          fileContentMap.set(content.id, content);
-        });
+    //   if (Array.isArray(fileContents) && fileContents.length) {
+    //     const fileContentMap = new Map();
+    //     fileContents.forEach((content) => {
+    //       fileContentMap.set(content.id, content);
+    //     });
 
-        filePubs.forEach((filePub) => {
-          if (
-            filePub?.fileContentId &&
-            fileContentMap.has(filePub.fileContentId)
-          ) {
-            // @ts-ignore
-            filePub.fileContentInfo = fileContentMap.get(filePub.fileContentId);
-          }
-        });
-      }
-    }
+    //     filePubs.forEach((filePub) => {
+    //       if (
+    //         filePub?.fileContentId &&
+    //         fileContentMap.has(filePub.fileContentId)
+    //       ) {
+    //         // @ts-ignore
+    //         filePub.fileContentInfo = fileContentMap.get(filePub.fileContentId);
+    //       }
+    //     });
+    //   }
+    // }
 
     return { code: 1, data: filePubs };
   }
