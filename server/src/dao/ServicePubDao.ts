@@ -9,7 +9,7 @@ export class ServicePubDO {
   fileId: number;
 
   @Column("service_id")
-  serviceId: number;
+  serviceId: string;
 
   @Column("file_pub_id")
   filePubId: number;
@@ -42,24 +42,30 @@ export class ServicePubDO {
 }
 
 export default class ServicePubDao extends DOBase {
-  public async create(params: {
+  public async batchCreate(params: {
     fileId: number;
-    serviceId: string;
-    filePubId?: number;
-    projectId?: number;
-    content?: string;
+    serviceContentList: any[];
     env: string;
-    status: number;
     creatorId: string;
     creatorName: string;
-    type: string;
+    filePubId?: number;
+    projectId?: number;
+    status?: number;
   }): Promise<{ id: number | null }> {
 
     if (!params.status) {
       params.status = 1
     }
 
-    const result = await this.exe<any>('apaas_service_pub:create', {
+    if (!params.projectId) {
+      params.projectId = null
+    }
+
+    if (!params.filePubId) {
+      params.filePubId = null
+    }
+
+    const result = await this.exe<any>('apaas_service_pub:batchCreate', {
       ...params,
       createTime: new Date().getTime()
     })

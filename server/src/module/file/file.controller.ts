@@ -5,6 +5,7 @@ import FilePubDao from "../../dao/filePub.dao";
 import FileCooperationDao from "../../dao/FileCooperationDao";
 import UserGroupDao from "../../dao/UserGroupDao";
 import UserGroupRelationDao from '../../dao/UserGroupRelationDao'
+import ServicePubDao from '../../dao/ServicePubDao'
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { isNumber, uuid } from '../../utils'
 const path = require('path');
@@ -18,6 +19,7 @@ export default class FileService {
   userDao: UserDao;
   userGroupDao: UserGroupDao;
   userGroupRelationDao: UserGroupRelationDao;
+  servicePubDao: ServicePubDao;
 
   constructor() {
     this.fileDao = new FileDao();
@@ -27,6 +29,7 @@ export default class FileService {
     this.userDao = new UserDao();
     this.userGroupDao = new UserGroupDao();
     this.userGroupRelationDao = new UserGroupRelationDao();
+    this.servicePubDao = new ServicePubDao()
   }
 
   @Get("/file/get")
@@ -789,6 +792,43 @@ export default class FileService {
     return {
       code: 1,
       data: versions
+    }
+  }
+
+  @Post('/file/publish/batchCreateService')
+  async batchCreateServicePublish(
+    @Body('fileId') fileId: number,
+    @Body('filePubId') filePubId: number,
+    @Body('projectId') projectId: number,
+    @Body('serviceContentList') serviceContentList: any[],
+    @Body('env') env: string,
+    @Body('creatorName') creatorName: string
+  ) {
+    try {
+      if(!fileId || !serviceContentList) {
+        return {
+          code: -1,
+          msg: 'fileId 或 serviceContent 为空'
+        }
+      }
+      const res = await this.servicePubDao.batchCreate({
+        fileId,
+        serviceContentList,
+        filePubId,
+        projectId,
+        env,
+        creatorId: creatorName,
+        creatorName: creatorName
+      })
+      return {
+        code: 1,
+        data: res
+      }
+    } catch (err) {
+      return {
+        code: -1,
+        msg: err.message || '出错了'
+      }
     }
   }
 
