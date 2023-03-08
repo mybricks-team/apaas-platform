@@ -348,52 +348,6 @@ export default class SystemService {
 		}
 	}
 
-  async _execDomainPub(pubInfo, {
-    serviceId,
-    params,
-    fileId
-  }) {
-    try {
-      const contentObj = JSON.parse(pubInfo?.content);
-        let codeStr = '';
-        contentObj?.serviceAry?.forEach((service) => {
-          if (service.id === serviceId) {
-            codeStr = decodeURIComponent(service.code);
-          }
-        });
-        if (codeStr) {
-          const str = codeStr;
-          let res = {
-            code: 1,
-            data: null,
-            msg: '',
-          };
-          try {
-            const { success, data, msg } = await this.nodeVMIns.run(str, {
-              injectParam: params
-            });
-            res = {
-              code: success ? 1 : -1,
-              data,
-              msg,
-            };
-          } catch (e) {
-            console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
-            res.code = -1;
-            res.msg = JSON.stringify(e.msg);
-          }
-          return res;
-        } else {
-          return {
-            code: -1,
-            msg: `未找到 ${fileId} 下的服务 ${serviceId}, 请确认！`,
-          };
-        }
-    } catch (e) {
-
-    }
-  }
-
   async _execServicePub(pubInfo, {
     serviceId,
     params,
@@ -460,22 +414,22 @@ export default class SystemService {
         // 发布后环境，项目空间
         // 发布后环境，普通发布空间
         // console.log('进来了')
-        const [pubInfo]: any = await this.filePubDao.getLatestPubByFileIdAndProjectId({
+        const pubInfo = await this.servicePubDao.getLatestPubByProjectIdAndFileId({
           fileId: +fileId,
-          type: 'prod',
+          env: 'prod',
           projectId: projectId
-        });
-        res = await this._execDomainPub(pubInfo, {
+        })
+        res = await this._execServicePub(pubInfo, {
           fileId: +fileId,
           serviceId,
           params
         })
       } else {
-        const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(
-          +fileId,
-          'prod'
-        );
-        res = await this._execDomainPub(pubInfo, {
+        const pubInfo = await this.servicePubDao.getLatestPubByFileId({
+          fileId: +fileId,
+          env: 'prod'
+        })
+        res = await this._execServicePub(pubInfo, {
           fileId: +fileId,
           serviceId,
           params
