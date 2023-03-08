@@ -79,10 +79,20 @@ export default class ServicePubDao extends DOBase {
   }
 
   @Mapping(ServicePubDO)
+  public async getLatestPubByFileId(params: {
+    fileId: number;
+    env: string;
+  }) {
+    const result = await this.exe<any>('apaas_service_pub:getLatestPubByFileId', params)
+
+    return result && result[0]
+  }
+
+  @Mapping(ServicePubDO)
   public async getLatestPubByProjectIdAndFileId(params: {
     projectId: number;
     fileId: number;
-    type: string;
+    env: string;
   }) {
     const result = await this.exe<any>('apaas_service_pub:getLatestPubByProjectIdAndFileId', params)
 

@@ -1,3 +1,4 @@
+import ServicePubDao from './../../dao/ServicePubDao';
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
@@ -13,6 +14,8 @@ export default class SystemService {
 
   filePubDao: FilePubDao;
 
+  servicePubDao: ServicePubDao
+
   fileService: FileService
 
   conn: any;
@@ -22,6 +25,7 @@ export default class SystemService {
   constructor() {
     this.fileDao = new FileDao();
     this.filePubDao = new FilePubDao();
+    this.servicePubDao = new ServicePubDao();
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
@@ -390,6 +394,46 @@ export default class SystemService {
     }
   }
 
+  async _execServicePub(pubInfo, {
+    serviceId,
+    params,
+    fileId
+  }) {
+    try {
+      const codeStr = decodeURIComponent(pubInfo?.content);
+      if (codeStr) {
+        const str = codeStr;
+        let res = {
+          code: 1,
+          data: null,
+          msg: '',
+        };
+        try {
+          const { success, data, msg } = await this.nodeVMIns.run(str, {
+            injectParam: params
+          });
+          res = {
+            code: success ? 1 : -1,
+            data,
+            msg,
+          };
+        } catch (e) {
+          console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
+          res.code = -1;
+          res.msg = JSON.stringify(e.msg);
+        }
+        return res;
+      } else {
+        return {
+          code: -1,
+          msg: `未找到 ${fileId} 下的服务 ${serviceId}, 请确认！`,
+        };
+      }
+    } catch (e) {
+
+    }
+  }
+
   // 领域建模运行时
   @Post('/system/domain/run')
   async systemDomainRun(
@@ -445,14 +489,11 @@ export default class SystemService {
         baseFileId
       })
 
-      // console.log('--------------------------------')
-      // console.log('文件是', currentFile)
-      const [pubInfo]: any = await this.filePubDao.getLatestPubByFileId(
-        +currentFile?.id,
-        'prod',
-      );
-      // console.log('@@@@', pubInfo)
-      const res = await this._execDomainPub(pubInfo, {
+      const pubInfo = await this.servicePubDao.getLatestPubByFileId({
+        fileId: +currentFile?.id,
+        env: 'prod'
+      })
+      const res = await this._execServicePub(pubInfo, {
         fileId: +fileId,
         serviceId,
         params
