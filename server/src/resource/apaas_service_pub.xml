@@ -40,8 +40,8 @@
         select * from apaas_service_pub 
         where file_id = #{fileId} 
         and service_id = #{serviceId}
-        and project_id is NULL or project_id = ''
         and env = #{env}
+        and project_id is NULL
         order by create_time desc 
         limit 1
     </select>
