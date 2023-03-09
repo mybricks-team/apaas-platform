@@ -14,3 +14,4 @@ server/_assets/js
 .vscode
 package-lock.json
 page/package-lock.json
+server/package-lock.json
