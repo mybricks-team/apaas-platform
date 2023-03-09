@@ -531,12 +531,22 @@
         select id from apaas_file 
         where name = #{name}
         and ext_name = #{extName}
-        <if test="parentId">
-            and parent_id = #{parentId}
-        </if>
-        <if test="groupId">
-            and group_id = #{groupId}
-        </if>
+        <choose>
+            <when test="parentId">
+                and parent_id = #{parentId}
+            </when>
+            <otherwise>
+                and parent_id is null
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="groupId">
+                and group_id = #{groupId}
+            </when>
+            <otherwise>
+                and group_id is null
+            </otherwise>
+        </choose>
          <if test="creatorId">
             and creator_id = #{creatorId}
         </if>
