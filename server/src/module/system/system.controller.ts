@@ -398,9 +398,9 @@ export default class SystemService {
     @Body('projectId') projectId: any,
     // debug模式
     @Body('relativePath') relativePath: any,
-    @Body('baseFileId') baseFileId: any
+    @Body('baseFileId') baseFileId: any,
+    @Body('showCost') showCost: boolean
   ) {
-    const _uuid = uuid();
     if (!serviceId) {
       return {
         code: -1,
@@ -425,20 +425,26 @@ export default class SystemService {
           params
         })
       } else {
-        console.time('查找数据库')
+        let dbSearchTimeStart = Date.now()
         const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
           fileId: +fileId,
           env: 'prod',
           serviceId
         })
-        console.timeEnd('查找数据库')
-        console.time('执行逻辑')
+        let dbSearchTimeCost = Date.now() - dbSearchTimeStart;
+        let exeTimeStart = Date.now()
         res = await this._execServicePub(pubInfo, {
           fileId: +fileId,
           serviceId,
           params
         })
-        console.timeEnd('执行逻辑')
+        let exeTimeCost = Date.now() - exeTimeStart;
+        if(showCost) {
+          res['cost'] = {
+            exeTimeCost,
+            dbSearchTimeCost
+          }
+        }
       }
       return res
     } else {
