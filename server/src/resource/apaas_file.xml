@@ -547,7 +547,10 @@
                 and group_id is null
             </otherwise>
         </choose>
-         <if test="creatorId">
+        <if test="status">
+            and status = #{status}
+        </if>
+        <if test="creatorId">
             and creator_id = #{creatorId}
         </if>
         limit 1
