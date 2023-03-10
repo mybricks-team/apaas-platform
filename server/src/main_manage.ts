@@ -1,5 +1,5 @@
 import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./App.module";
+import AppManage from "./AppManage.module";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import * as path from "path";
 import * as cookieParser from "cookie-parser";
@@ -18,7 +18,7 @@ async function bootstrap() {
   const loadedModule = loadModule();
   init();
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppManage);
   app.useStaticAssets(path.join(__dirname, "../_assets/"), {
     prefix: "/",
     index: false,
