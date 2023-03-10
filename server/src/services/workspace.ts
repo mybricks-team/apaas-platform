@@ -427,6 +427,16 @@ export default class WorkspaceService {
             publishFiles.push(file)
             break;
           }
+          case 'cloud-com': {
+            const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
+            publishTask.push((axios as any).post(`${domainName}/api/cloudcom/publish`, {
+	            fileId: file.id,
+              userId: email,
+              json: JSON.parse(latestSave.content).toJSON,
+            }));
+            publishFiles.push(file)
+            break;
+          }
         }
       }
 
