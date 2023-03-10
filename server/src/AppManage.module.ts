@@ -53,6 +53,6 @@ import FileModule from './module/file/file.module'
     ConfigDao
   ],
 })
-export class AppModule {
+export default class AppManageModule {
   constructor() {}
 }
