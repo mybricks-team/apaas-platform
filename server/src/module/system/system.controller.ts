@@ -417,6 +417,7 @@ export default class SystemService {
     @Body('projectId') projectId: any,
     // debug模式
     @Body('relativePath') relativePath: any,
+    @Body('uuid') uuid: any,
     @Body('baseFileId') baseFileId: any,
     @Body('showCost') showCost: boolean
   ) {
@@ -467,14 +468,31 @@ export default class SystemService {
       }
       return res
     } else {
-      // 根据相对路径，找出真实fileId，然后去通用pub里面查找
-      let currentFile = await this.fileService._getFileInfoByBaseFileIdAndRelativePath({
-        relativePath,
-        baseFileId
-      })
+
+      let fileId
+
+      if (uuid) {
+        const info = await this.fileService._getParentModuleAndProjectInfo(baseFileId)
+        const domain = await this.fileDao.queryByUUIDAndParentId({uuid, parentId: info?.hierarchy?.parent?.fileId})
+
+        fileId = +domain?.id
+      } else {
+        // 根据相对路径，找出真实fileId，然后去通用pub里面查找
+        let currentFile = await this.fileService._getFileInfoByBaseFileIdAndRelativePath({
+          relativePath,
+          baseFileId
+        })
+        if(!currentFile) {
+          return {
+            code: -1,
+            msg: `未找到 ${baseFileId} 的文件 ${relativePath}`
+          }
+        }
+        fileId = +currentFile?.id
+      }
 
       const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
-        fileId: +currentFile?.id,
+        fileId,
         env: 'prod',
         serviceId
       })

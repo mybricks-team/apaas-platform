@@ -603,9 +603,19 @@ export default class FileService {
   @Post("/file/getRelativePathBetweenFileId")
   async getRelativePathBetweenFileId(
     @Body('baseFileId') baseFileId: number,
-    @Body('relativeId') relativeId: number
+    @Body('relativeId') relativeId: number,
+    @Body('uuid') uuid: number
   ) {
     try {
+      if (uuid) {
+        const { absoluteUUIDPath } = await this._getParentModuleAndProjectInfo(uuid)
+        const pathAry = absoluteUUIDPath.split('/')
+
+        return {
+          code: 1,
+          data: pathAry[pathAry.length - 1]
+        }
+      }
       const basicFileHierarchy = await this._getParentModuleAndProjectInfo(baseFileId)
       const relativeFileHierarchy = await this._getParentModuleAndProjectInfo(relativeId)
 
@@ -725,18 +735,28 @@ export default class FileService {
   async getFileInfoByBaseFileIdAndRelativePath(
     // 通用参数
     @Body('relativePath') relativePath: string,
+    @Body('uuid') uuid: string,
     @Body('baseFileId') baseFileId: any
   ) {
-    if(!relativePath && !baseFileId) {
+    if((!relativePath && !uuid) && !baseFileId) {
       return {
         code: -1,
         msg: 'relativePath 或 baseFileId 不可为空'
       }
     }
-    const res = await this._getFileInfoByBaseFileIdAndRelativePath({
-      relativePath,
-      baseFileId
-    })
+
+    let res
+
+    if (uuid) {
+      const info = await this._getParentModuleAndProjectInfo(baseFileId)
+      res = await this.fileDao.queryByUUIDAndParentId({uuid, parentId: info?.hierarchy?.parent?.fileId})
+    } else {
+      res = await this._getFileInfoByBaseFileIdAndRelativePath({
+        relativePath,
+        baseFileId
+      })
+    }
+
     return {
       code: 1,
       data: res
