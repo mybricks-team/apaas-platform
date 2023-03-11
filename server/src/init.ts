@@ -22,6 +22,7 @@ export default function init() {
       port: dbConfig.database.port,
       database: dbConfig.database.database,
       sqlPath: dbConfig.database.sqlPath,
+      isGlobal: true,
       bootstrapPath: __dirname
     },
   ]);
