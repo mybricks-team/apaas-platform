@@ -473,7 +473,7 @@ export default class SystemService {
 
       if (uuid) {
         const info = await this.fileService._getParentModuleAndProjectInfo(baseFileId)
-        const domain = await this.fileDao.queryByUUIDAndParentId({uuid, parentId: info.hierarchy.parent.fileId})
+        const domain = await this.fileDao.queryByUUIDAndParentId({uuid, parentId: info?.hierarchy?.parent?.fileId})
 
         fileId = +domain?.id
       } else {

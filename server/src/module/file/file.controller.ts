@@ -749,7 +749,7 @@ export default class FileService {
 
     if (uuid) {
       const info = await this._getParentModuleAndProjectInfo(baseFileId)
-      res = await this.fileDao.queryByUUIDAndParentId({uuid, parentId: info.hierarchy.parent.fileId})
+      res = await this.fileDao.queryByUUIDAndParentId({uuid, parentId: info?.hierarchy?.parent?.fileId})
     } else {
       res = await this._getFileInfoByBaseFileIdAndRelativePath({
         relativePath,
