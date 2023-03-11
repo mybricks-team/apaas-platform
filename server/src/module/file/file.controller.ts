@@ -735,18 +735,28 @@ export default class FileService {
   async getFileInfoByBaseFileIdAndRelativePath(
     // 通用参数
     @Body('relativePath') relativePath: string,
+    @Body('uuid') uuid: string,
     @Body('baseFileId') baseFileId: any
   ) {
-    if(!relativePath && !baseFileId) {
+    if((!relativePath && !uuid) && !baseFileId) {
       return {
         code: -1,
         msg: 'relativePath 或 baseFileId 不可为空'
       }
     }
-    const res = await this._getFileInfoByBaseFileIdAndRelativePath({
-      relativePath,
-      baseFileId
-    })
+
+    let res
+
+    if (uuid) {
+      const info = await this._getParentModuleAndProjectInfo(baseFileId)
+      res = await this.fileDao.queryByUUIDAndParentId({uuid, parentId: info.hierarchy.parent.fileId})
+    } else {
+      res = await this._getFileInfoByBaseFileIdAndRelativePath({
+        relativePath,
+        baseFileId
+      })
+    }
+
     return {
       code: 1,
       data: res
