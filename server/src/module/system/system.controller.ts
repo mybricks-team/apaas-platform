@@ -472,6 +472,12 @@ export default class SystemService {
         relativePath,
         baseFileId
       })
+      if(!currentFile) {
+        return {
+          code: -1,
+          msg: `未找到 ${baseFileId} 的文件 ${relativePath}`
+        }
+      }
 
       const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
         fileId: +currentFile?.id,
