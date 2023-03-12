@@ -22,12 +22,14 @@ import UserGroupService from "./services/group";
 import FlowModule from './module/flow/flow.module'
 import SystemModule from './module/system/system.module'
 import FileModule from './module/file/file.module'
+import DomainModule from "./module/domain/domain.module";
 
 @Module({
   imports: [
     FlowModule,
     SystemModule,
     FileModule,
+    DomainModule,
     ...loadModule().modules,
   ],
   controllers: [

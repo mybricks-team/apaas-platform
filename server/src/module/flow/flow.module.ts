@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
-import FlowService from './flow.service';
+import UploadService from '../upload/upload.service';
 import FlowController from './flow.controller';
 
 @Module({
   controllers: [FlowController],
-  providers: [FlowService],
-  exports: [FlowService],
+  providers: [UploadService]
 })
 export default class FlowModule {}
