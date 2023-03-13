@@ -60,7 +60,7 @@
 
     <select id="getModuleContent">
         select * from apaas_module_pub_info
-        where id = #{id}
+        where module_id = #{id} 
         order by create_time desc
     </select>
 
