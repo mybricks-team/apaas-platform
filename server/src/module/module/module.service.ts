@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import * as axios from "axios";
-import moduleDao from './../../dao/moduleDao'
-import modulePubDao from './../../dao/modulePubDao';
+import ModuleDao from './../../dao/moduleDao'
+import ModulePubDao from './../../dao/modulePubDao';
 import {getNextVersion, getRealDomain} from "../../utils";
 import DomainService from "../domain/domain.service";
 import FlowService from "../flow/flow.service";
 
 @Injectable()
 export default class ModuleService {
-  private readonly moduleDao = new moduleDao();
-  private readonly modulePubDao = new modulePubDao();
+  private readonly moduleDao = new ModuleDao();
+  private readonly modulePubDao = new ModulePubDao();
   private readonly domainService = new DomainService();
   private readonly flowService = new FlowService();
 
