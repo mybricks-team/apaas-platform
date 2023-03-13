@@ -1,10 +1,6 @@
-import { Logger } from '@mybricks/rocker-commons';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import ModuleDao from './../../dao/ModuleDao'
 import ModulePubDao from './../../dao/ModulePubDao';
-const fs = require('fs-extra');
-const env = require('../../../env.js')
-const path = require('path');
 
 @Injectable()
 export default class ModuleService {
@@ -43,5 +39,31 @@ export default class ModuleService {
 
   async getLatestPubByFileId(fileId: number) {
     return await this.ModuleDao.getLatestPubByFileId({ fileId })
-  } 
+  }
+	
+  async getModuleList() {
+    return await this.ModuleDao.getModules();
+  }
+	
+  async installModule(params: { id: number; projectId: number }) {
+    const [module] = await this.ModuleDao.getModules({ id: params.id });
+		
+		const pubInfo = await this.ModuleDao.getModuleContent({ id: params.id });
+	  pubInfo.map(pub => {
+			switch (pub.ext_name) {
+				case 'domain': {
+					const info = JSON.parse(pub.content);
+					// info.entityAry
+					break;
+				}
+				case 'cdm': { break; }
+				case 'html': { break; }
+				case 'mp': { break; }
+			}
+	  });
+		
+		if (!module) {
+			return { code: 0, message: '对应模块不存在' };
+		}
+  }
 }
