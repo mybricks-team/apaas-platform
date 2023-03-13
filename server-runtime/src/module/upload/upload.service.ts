@@ -5,7 +5,7 @@ const env = require('../../../env.js')
 const path = require('path');
 
 @Injectable()
-export default class FlowService {
+export default class UploadService {
 
   fileLocalFolder = env.FILE_LOCAL_STORAGE_FOLDER
 

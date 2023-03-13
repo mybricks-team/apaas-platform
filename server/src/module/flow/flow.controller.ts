@@ -10,7 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import FlowService from './flow.service';
+import UploadService from '../upload/upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 const env = require('../../../env.js')
 import { getRealDomain } from '../../utils/index'
@@ -18,7 +18,7 @@ import { getRealDomain } from '../../utils/index'
 @Controller('/paas/api/flow')
 export default class FlowController {
   @Inject()
-  flowService: FlowService;
+  uploadService: UploadService;
 
   @Get('/test')
   async test(@Request() request) {
@@ -49,7 +49,7 @@ export default class FlowController {
     const domainName = getRealDomain(request)
     console.log('saveFile请求头是', `${domainName}`,)
     try {
-      const subPath = await this.flowService.saveFile({
+      const subPath = await this.uploadService.saveFile({
         str: file.buffer,
         filename: file.originalname,
         folderPath: body.folderPath
@@ -80,7 +80,7 @@ export default class FlowController {
       }
       const cdnList = await Promise.all(
         files.map((file) => {
-          return this.flowService.saveFile({
+          return this.uploadService.saveFile({
             str: file.buffer,
             filename: file.originalname,
             folderPath: body.folderPath
