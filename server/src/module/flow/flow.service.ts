@@ -4,7 +4,6 @@ const fs = require('fs-extra');
 const env = require('../../../env.js')
 const path = require('path');
 import UploadService from '../upload/upload.service';
-import { DOMAIN_EXE_CODE_TEMPLATE } from '../domain/domain.template'
 
 @Injectable()
 export default class FlowService {
@@ -15,6 +14,7 @@ export default class FlowService {
   }
 
   // 模块安装时，发布到运行容器
+  // fileName示例：a.html
   async batchCreateProjectFile({ fileId, codeStrList, projectId }: { fileId: number, codeStrList: {fileName: string, content: string}[], projectId: number}, { domainName }) {
     let folderPath = `/project/${fileId}`;
       if(projectId) {
