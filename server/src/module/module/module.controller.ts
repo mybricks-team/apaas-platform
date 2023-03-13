@@ -104,7 +104,8 @@ export default class ModuleController {
                 `${domainName}/api/domain/generateServiceCode`,
                 {
                   fileId: file.id,
-                  projectId: projectId,
+                  // projectId: projectId,
+                  projectId: '--slot-project-id--',
                   userId: email,
                   json: JSON.parse(latestSave.content).toJSON
                 }
@@ -234,4 +235,22 @@ export default class ModuleController {
       data: versions
     }
   }
+	
+	@Get('/list')
+	async getModuleList() {
+		const moduleList = await this.moduleService.getModuleList();
+		
+		return { code: 1, data: moduleList };
+	}
+	
+	@Post('/install')
+	async installModule(@Body() body) {
+		const { id, projectId } = body;
+		
+		if (!id) {
+			return { code: 0, message: '参数 id 不能为空' };
+		}
+		
+		return await this.moduleService.installModule({ id, projectId });
+	}
 }

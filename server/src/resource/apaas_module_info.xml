@@ -47,16 +47,20 @@
 
     <select id="getModules">
         select * from apaas_module_info
-        where id
-        <if test="id">
-            and id = #{id}
-        </if>
-        <if test="status != null">
-            and status = #{status}
-        </if>
-        <if test="creatorId">
-            and creator_id = #{creatorId}
-        </if>
+        where id in (
+            select max(id)
+            from apaas_module_info
+            <if test="id">
+                where id = #{id}
+            </if>
+            group by origin_file_id
+        )
+        order by create_time desc
+    </select>
+
+    <select id="getModuleContent">
+        select * from apaas_module_pub_info
+        where id = #{id}
         order by create_time desc
     </select>
 </mapper>
