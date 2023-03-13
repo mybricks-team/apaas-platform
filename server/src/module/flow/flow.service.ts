@@ -15,7 +15,7 @@ export default class FlowService {
   }
 
   // 模块安装时，发布到运行容器
-  async batchCreateProjectFile({ fileId, codeStrList, projectId }: { fileId: string, codeStrList: {fileName: string, content: string}[], projectId: string}, { domainName }) {
+  async batchCreateProjectFile({ fileId, codeStrList, projectId }: { fileId: number, codeStrList: {fileName: string, content: string}[], projectId: number}, { domainName }) {
     let folderPath = `/project/${fileId}`;
       if(projectId) {
         folderPath = `/project/${projectId}/${fileId}`;
