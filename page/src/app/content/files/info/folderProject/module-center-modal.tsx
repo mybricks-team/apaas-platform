@@ -25,8 +25,8 @@ interface Module {
 }
 
 const ModuleCenterModal: FC<ModuleCenterModal> = props => {
-	const { visible, onClose, onFinish, projectId } = props;
-	const appCtx = observe(AppCtx, {from: 'parents'})
+	const { visible, onClose, onFinish, projectId, installedModuleList } = props;
+	const appCtx = observe(AppCtx, {from: 'parents'});
 	const [moduleList, setModuleList] = useState<Module[]>([]);
 	const [moduleId, setModuleId] = useState(-1);
 	
@@ -64,6 +64,7 @@ const ModuleCenterModal: FC<ModuleCenterModal> = props => {
 		  <div className={styles.container}>
 			  {moduleList.map(module => {
 				  const installing = module.id === moduleId;
+					const installed = !!installedModuleList.find(m => m.id === module.id);
 					
 				  return (
 						<div key={module.id} className={styles.module}>
@@ -71,10 +72,10 @@ const ModuleCenterModal: FC<ModuleCenterModal> = props => {
 							<div className={styles.moduleVersion}>版本：{module.version}</div>
 							<div>发布时间：{module.create_time}</div>
 							<div
-								className={`${styles.operateBox} ${installing ? styles.installing : ''}`}
-								onClick={installing ? undefined : () => install(module.id)}
+								className={`${styles.operateBox} ${installing ? styles.installing : ''} ${installed ? styles.installed : ''}`}
+								onClick={(installed || installing) ? undefined : () => install(module.id)}
 							>
-								{installing? '安装中...' : '安装'}
+								{installed ? '已安装' : (installing? '安装中...' : '安装')}
 							</div>
 						</div>
 					);
