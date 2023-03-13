@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="apaas_module_info">
+    <insert id="create">
+      insert into apaas_module_info
+      (
+      name,
+      description,
+      origin_file_id,
+      version,
+      status,
+      creator_id,
+      creator_name,
+      create_time
+      )
+      values
+      (
+      #{name},
+      #{description},
+      #{originFileId},
+      #{version},
+      1,
+      #{creatorId},
+      #{creatorName},
+      #{createTime}
+      )
+    </insert>
+
+    <select id='getLatestPubByFileId'>
+      select *
+      from apaas_module_info
+      where
+      origin_file_id = #{fileId}
+      order by create_time desc
+      limit 1 offset 0;
+    </select>
+
+    <select id="queryByFileId">
+       select *
+        from apaas_module_info
+        where origin_file_id = ${fileId}
+        order by create_time desc
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="getModules">
+        select * from apaas_module_info
+        where id
+        <if test="id">
+            and id = #{id}
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="creatorId">
+            and creator_id = #{creatorId}
+        </if>
+        order by create_time desc
+    </select>
+</mapper>

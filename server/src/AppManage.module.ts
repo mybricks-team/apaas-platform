@@ -20,12 +20,14 @@ import PublicService from "./services/public";
 import UserGroupService from "./services/group";
 
 import FlowModule from './module/flow/flow.module'
+import ModuleModule from './module/module/module.module'
 import SystemModule from './module/system/system.module'
 import FileModule from './module/file/file.module'
 
 @Module({
   imports: [
     FlowModule,
+    ModuleModule,
     SystemModule,
     FileModule,
     ...loadModule().modules,
