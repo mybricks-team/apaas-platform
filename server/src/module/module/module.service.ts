@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as axios from "axios";
-import ModuleDao from './../../dao/moduleDao'
-import ModulePubDao from './../../dao/modulePubDao';
+import ModuleDao from './../../dao/ModuleDao'
+import ModulePubDao from './../../dao/ModulePubDao';
 import {getNextVersion, getRealDomain} from "../../utils";
 import DomainService from "../domain/domain.service";
 import FlowService from "../flow/flow.service";
