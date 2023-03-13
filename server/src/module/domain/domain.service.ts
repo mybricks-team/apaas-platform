@@ -24,7 +24,7 @@ export default class DomainService {
         return this.uploadService.saveFile({
           str: `
             ${DOMAIN_EXE_CODE_TEMPLATE}
-            ${serviceContent.code}
+            ${decodeURIComponent(serviceContent.code)}
           `,
           filename: `${serviceContent.id}.js`,
           folderPath: folderPath

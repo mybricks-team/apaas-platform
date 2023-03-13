@@ -156,7 +156,7 @@ function ModuleArea({ ctx }) {
 				) : null}
 				<button onClick={() => setShowModal(true)}>添加模块</button>
 			</div>
-			<ModuleCenterModal onFinish={ctx.getInfo} projectId={ctx.id} visible={showModal} onClose={onClose} />
+			<ModuleCenterModal installedModuleList={ctx.moduleList || []} onFinish={ctx.getInfo} projectId={ctx.id} visible={showModal} onClose={onClose} />
 		</>
 	);
 }

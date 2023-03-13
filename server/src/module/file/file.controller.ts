@@ -8,6 +8,7 @@ import UserGroupRelationDao from '../../dao/UserGroupRelationDao'
 import ServicePubDao from '../../dao/ServicePubDao'
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { isNumber, uuid } from '../../utils'
+import ModuleDao from "../../dao/ModuleDao";
 const path = require('path');
 
 @Controller("/paas/api")
@@ -20,6 +21,7 @@ export default class FileService {
   userGroupDao: UserGroupDao;
   userGroupRelationDao: UserGroupRelationDao;
   servicePubDao: ServicePubDao;
+  moduleDao: ModuleDao;
 
   constructor() {
     this.fileDao = new FileDao();
@@ -30,6 +32,7 @@ export default class FileService {
     this.userGroupDao = new UserGroupDao();
     this.userGroupRelationDao = new UserGroupRelationDao();
     this.servicePubDao = new ServicePubDao()
+    this.moduleDao = new ModuleDao()
   }
 
   @Get("/file/get")
@@ -778,8 +781,9 @@ export default class FileService {
   @Get('/file/getFolderProjectInfoByProjectId')
   async getFolderProjectInfoByProjectId(@Query() query) {
     const { id } = query
-    const [folder, files] = await Promise.all([
+    const [folder, [projectModuleInfo], files] = await Promise.all([
       await this.fileDao.queryById(id),
+      await this.moduleDao.getProjectModuleInfo(id),
       await this.getFolderProjectAppsByParentId({id, extNames: ['pc-website', 'folder', 'folder-project', 'folder-module']})
     ])
 
@@ -787,7 +791,8 @@ export default class FileService {
       code: 1,
       data: {
         ...folder,
-        apps: files
+        apps: files,
+	      moduleList: JSON.parse(projectModuleInfo?.module_info || '{}')?.moduleList || []
       }
     }
   }

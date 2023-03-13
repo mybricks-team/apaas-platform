@@ -95,6 +95,14 @@ export default class ModuleDao extends DOBase {
     });
     return { id: result.insertId };
   }
+	
+	async getProjectModuleInfo(projectId: number) {
+		return await this.exe<any[]>('apaas_module_info:getProjectModuleInfo', { projectId });
+	}
+	
+	async createProjectModuleInfo(params: { file_id: number; version: string; module_info: string; creator_name: string; create_time: number }) {
+		return await this.exe('apaas_module_info:createProjectModuleInfo', params);
+	}
 
   // async update(params: {
   //   updatorId: string;

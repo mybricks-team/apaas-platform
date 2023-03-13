@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import * as axios from "axios";
-import moduleDao from './../../dao/moduleDao'
-import modulePubDao from './../../dao/modulePubDao';
-import {getRealDomain} from "../../utils";
+import ModuleDao from './../../dao/ModuleDao'
+import ModulePubDao from './../../dao/ModulePubDao';
+import {getNextVersion, getRealDomain} from "../../utils";
 import DomainService from "../domain/domain.service";
 import FlowService from "../flow/flow.service";
 
 @Injectable()
 export default class ModuleService {
-  private readonly moduleDao = new moduleDao();
-  private readonly modulePubDao = new modulePubDao();
+  private readonly moduleDao = new ModuleDao();
+  private readonly modulePubDao = new ModulePubDao();
   private readonly domainService = new DomainService();
   private readonly flowService = new FlowService();
 
@@ -52,7 +52,8 @@ export default class ModuleService {
 	
   async installModule(params: { id: number; projectId: number; userId: string }, request: Request) {
 		const { id, projectId, userId } = params;
-    const [module] = await this.moduleDao.getModules({ id: id });
+	  const [module] = await this.moduleDao.getModules({ id: id });
+	  const [projectModule] = await this.moduleDao.getProjectModuleInfo(projectId);
 	
 	  if (!module) {
 		  return { code: 0, message: '对应模块不存在' };
@@ -82,7 +83,8 @@ export default class ModuleService {
 				}
 				case 'cdm': { break; }
 				case 'html': {
-					staticFile.push({ fileId: pub.file_id, fileName: `${pub.file_id}.html`, content: pub.content });
+					let newContent = pub.content.replace(/--slot-project-id--/, projectId);
+					staticFile.push({ fileId: pub.file_id, fileName: `${pub.file_id}.html`, content: newContent });
 					break;
 				}
 				case 'mp': { break; }
@@ -91,6 +93,34 @@ export default class ModuleService {
 	
 	  staticFile.length && (await this.flowService.batchCreateProjectFile({ codeStrList: staticFile, projectId }, { domainName }));
 	
+		if (projectModule) {
+			const moduleList = projectModule.module_info?.moduleList || [];
+			const findModule = moduleList.find(m => m.originFileId === module.originFileId);
+			
+			if (findModule) {
+				findModule.version = module.version;
+				findModule.id = module.id;
+				findModule.name = module.name;
+			} else {
+				moduleList.push({ id: module.id, name: module.name, version: module.version, originFileId: module.originFileId });
+			}
+			await this.moduleDao.createProjectModuleInfo({
+				file_id: projectId,
+				module_info: JSON.stringify({ ...JSON.parse(projectModule.module_info || '{}'), moduleList }),
+				create_time: Date.now(),
+				creator_name: userId,
+				version: projectModule.version ? getNextVersion(projectModule.version) : '1.0.0',
+			});
+		} else {
+			await this.moduleDao.createProjectModuleInfo({
+				file_id: projectId,
+				module_info: JSON.stringify({ moduleList: [{ id: module.id, name: module.name, version: module.version, originFileId: module.originFileId }] }),
+				create_time: Date.now(),
+				creator_name: userId,
+				version: '1.0.0',
+			});
+		}
+		
 	  return { code: 1, message: '安装成功' };
   }
 }
