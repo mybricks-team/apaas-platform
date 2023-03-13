@@ -150,29 +150,11 @@ export default class ModuleController {
             publishFiles.push(file)
             break;
           }
-          case 'cloud-com': {
-            const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
-            publishTask.push((axios as any).post(`${domainName}/api/cloudcom/publish`, {
-	            fileId: file.id,
-              userId: email,
-              json: JSON.parse(latestSave.content).toJSON,
-            }).then(res => {
-              if (res?.data?.code === 1 && res?.data?.data) {
-                return {
-                  extName: res?.data?.data?.extName,
-                  bundle: res?.data?.data?.bundle,
-                }
-              } else {
-                throw new Error(`编译${file.name}(${file.id}).${extName}失败，${res?.data?.message ?? '服务异常'}`)
-              }
-            }));
-            publishTaskIndexMap[file.id] = publishTask.length - 1
-            publishFiles.push(file)
-            break;
-          }
-
           /** 不需要编译的类型 */
           default: {
+            /** 直接返回原来文件的extName */
+            publishTask.push(Promise.resolve({ extName: file.extName }))
+            publishTaskIndexMap[file.id] = publishTask.length - 1
             publishFiles.push(file)
             break;
           }
