@@ -1,0 +1,33 @@
+@import '../../../../../theme.less';
+
+.container {
+}
+
+.module {
+  cursor: pointer;
+  width: 250px;
+  padding-top: 12px;
+  display: inline-flex;
+  flex-direction: column;
+  white-space: nowrap;
+  border: 1px solid #EEE;
+  border-radius: 5px;
+  margin: 10px;
+
+  & > div {
+    margin: 4px 0 4px 12px;
+  }
+
+  .operateBox {
+    border-top: 1px solid #EEE;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0;
+
+    &:hover {
+      color: @color-primary;
+    }
+  }
+}

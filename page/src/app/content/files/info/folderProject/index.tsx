@@ -1,16 +1,13 @@
-import React, { useCallback, useEffect } from 'react'
+import React, {useCallback, useEffect, useState} from 'react';
+import axios from 'axios';
+import {evt, observe, useObservable} from '@mybricks/rxui';
+import {Card, Title} from '..';
+import AppCtx from '../../../../AppCtx';
+import {Icon} from '../../../../components';
+import {getApiUrl} from '../../../../../utils';
+import ModuleCenterModal from './module-center-modal';
 
-import axios from 'axios'
-import {evt, observe, useObservable} from '@mybricks/rxui'
-
-import {Card, Title} from '..'
-import AppCtx from '../../../../AppCtx'
-import {Icon} from '../../../../components'
-import {getApiUrl} from '../../../../../utils'
-
-
-
-import css from './index.less'
+import css from './index.less';
 
 class Ctx {
   getInfo: (id: number) => void;
@@ -18,36 +15,49 @@ class Ctx {
     id: number;
     name: string;
     apps: Array<any>;
-  }
+  };
+	moduleList: { name: string; id: number; version: string }[];
 }
 
 export default function FolderProject(props) {
-  const ctx = useObservable(Ctx, next => next({
-    getInfo(id) {
-      return new Promise((resolve) => {
-        axios({
-          method: "get",
-          url: getApiUrl(`/paas/api/file/getFolderProjectInfoByProjectId?id=${id}`)
-        }).then(({data: {data}}) => {
-          ctx.info = {...data, apps: data.apps.map((app) => {
-            const {groupId, parentId} = app
-            return {
-              ...app,
-              positionSearch: `?appId=files${groupId ? `&groupId=${groupId}` : ''}${parentId ? `&parentId=${parentId}` : ''}`
-            }
-          })}
-          resolve(true)
-        })
-      })
-    }
-  }), {to: 'children'})
-  const {info} = ctx
+	const ctx = useObservable(Ctx, next => next({
+		getInfo() {
+			return new Promise((resolve) => {
+				axios({
+					method: "get",
+					url: getApiUrl(`/paas/api/file/getFolderProjectInfoByProjectId?id=${props.id}`)
+				}).then(({data: {data}}) => {
+					ctx.info = {
+						...data,
+						apps: data.apps.map((app) => {
+							const {groupId, parentId} = app
+							return {
+								...app,
+								positionSearch: `?appId=files${groupId ? `&groupId=${groupId}` : ''}${parentId ? `&parentId=${parentId}` : ''}`
+							}
+						}),
+					};
+					ctx.moduleList = data.moduleList ?? [{ id: 1, name: '会员', version: '1.0.1' }, { id: 2, name: '活动', version: '1.0.1' }]
+					resolve(true)
+				})
+			})
+		}
+	}), {to: 'children'});
+	
+	useEffect(() => {
+		ctx.getInfo()
+	}, []);
+	
+	return (
+		<div className={css.folderProjectContainer}>
+			<FolderProjectList info={ctx.info} />
+			<ModuleArea ctx={ctx} />
+		</div>
+	);
+}
 
-  useEffect(() => {
-    ctx.getInfo(props.id)
-  }, [])
-
-  
+function FolderProjectList(props) {
+  const { info } = props;
 
   return (
     <div className={css.container}>
@@ -118,4 +128,33 @@ function AppList({apps}) {
       </Card>
     )
   })
+}
+
+function ModuleArea({ ctx }) {
+	const [showModal, setShowModal] = useState(false);
+	const onClose = useCallback(() => setShowModal(false), []);
+	
+	return (
+		<>
+			<div className={css.moduleArea}>
+				{ctx.moduleList?.length ? (
+					<>
+						<Title content="已安装模块" />
+						<div className={css.moduleList}>
+							{ctx.moduleList.map(module => {
+								return (
+									<div className={css.moduleItem} key={module.id}>
+										<div className={css.moduleName}>{module.name}</div>
+										<div className={css.moduleVersion}>@{module.version}</div>
+									</div>
+								);
+							})}
+						</div>
+					</>
+				) : null}
+				<button onClick={() => setShowModal(true)}>添加模块</button>
+			</div>
+			<ModuleCenterModal onFinish={ctx.getInfo} visible={showModal} onClose={onClose} />
+		</>
+	);
 }
