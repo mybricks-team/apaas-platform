@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as axios from "axios";
 import ModuleDao from './../../dao/ModuleDao'
 import ModulePubDao from './../../dao/ModulePubDao';
-import {getRealDomain} from "../../utils";
+import {getNextVersion, getRealDomain} from "../../utils";
 import DomainService from "../domain/domain.service";
 import FlowService from "../flow/flow.service";
 
@@ -54,6 +54,7 @@ export default class ModuleService {
   async installModule(params: { id: number; projectId: number; userId: string }, request: Request) {
 		const { id, projectId, userId } = params;
     const [module] = await this.ModuleDao.getModules({ id: id });
+    const [projectModule] = await this.ModuleDao.getProjectModuleInfo(projectId);
 	
 	  if (!module) {
 		  return { code: 0, message: '对应模块不存在' };
@@ -92,6 +93,33 @@ export default class ModuleService {
 	
 	  staticFile.length && (await this.flowService.batchCreateProjectFile({ codeStrList: staticFile, projectId }, { domainName }));
 	
+		if (projectModule) {
+			const moduleList = projectModule.module_info?.moduleList || [];
+			const findModule = moduleList.find(m => m.originFileId === module.originFileId);
+			
+			if (findModule) {
+				findModule.version = module.version;
+				findModule.id = module.id;
+			} else {
+				moduleList.push({ id: module.id, version: module.version, originFileId: module.originFileId });
+			}
+			await this.ModuleDao.createProjectModuleInfo({
+				file_id: projectId,
+				module_info: JSON.stringify({ ...JSON.parse(projectModule.module_info || '{}'), moduleList }),
+				create_time: Date.now(),
+				creator_name: userId,
+				version: projectModule.version ? getNextVersion(projectModule.version) : '1.0.0',
+			});
+		} else {
+			await this.ModuleDao.createProjectModuleInfo({
+				file_id: projectId,
+				module_info: JSON.stringify({ moduleList: [{ id: module.id, version: module.version, originFileId: module.originFileId }] }),
+				create_time: Date.now(),
+				creator_name: userId,
+				version: '1.0.0',
+			});
+		}
+		
 	  return { code: 1, message: '安装成功' };
   }
 }

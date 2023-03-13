@@ -63,4 +63,32 @@
         where id = #{id}
         order by create_time desc
     </select>
+
+    <select id="getProjectModuleInfo">
+        select * from apaas_project_info
+        where file_id = #{projectId}
+        order by create_time desc
+        limit 1
+    </select>
+
+    <insert id="createProjectModuleInfo">
+        insert into apaas_project_info
+        (
+        file_id,
+        version,
+        module_info,
+        status,
+        creator_name,
+        create_time
+        )
+        values
+        (
+        #{file_id},
+        #{version},
+        #{module_info},
+        1,
+        #{creator_name},
+        #{create_time}
+        )
+    </insert>
 </mapper>
