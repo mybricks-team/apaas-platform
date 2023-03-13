@@ -15,7 +15,6 @@ import UploadService from '../upload/upload.service';
 import { getRealDomain } from '../../utils/index'
 // @ts-ignore
 import { createVM } from 'vm-node';
-import { DOMAIN_EXE_CODE_TEMPLATE } from './domain.template'
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
@@ -35,14 +34,14 @@ export default class FlowController {
   fileDao: FileDao;
   servicePubDao: ServicePubDao
 
-
-  
   constructor() {
     this.nodeVMIns = createVM({ openLog: true });
     this.fileDao = new FileDao();
     this.servicePubDao = new ServicePubDao();
   }
 
+
+  
   @Post('/service/batchCreate')
   async batchCreateService(
     @Body('fileId') fileId: number,
@@ -51,40 +50,22 @@ export default class FlowController {
     @Request() request,
   ) {
     const domainName = getRealDomain(request)
+    if(!fileId || !serviceContentList) {
+      return {
+        code: -1,
+        msg: 'fileId 或 serviceContent 为空'
+      }
+    }
     try {
-      if(!fileId || !serviceContentList) {
-        return {
-          code: -1,
-          msg: 'fileId 或 serviceContent 为空'
-        }
-      }
-      let folderPath = `/project/${fileId}`;
-      if(projectId) {
-        folderPath = `/project/${projectId}/${fileId}`;
-      }
-      const cdnList = await Promise.all(
-        serviceContentList.map((serviceContent) => {
-          return this.uploadService.saveFile({
-            str: `
-              ${DOMAIN_EXE_CODE_TEMPLATE}
-              ${serviceContent.code}
-            `,
-            filename: `${serviceContent.id}.js`,
-            folderPath: folderPath
-          });
-        }),
-      );
-      if (
-        Array.isArray(cdnList) &&
-        cdnList.length &&
-        !cdnList.some((url) => !url)
-      ) {
-        return {
-          data: cdnList?.map((subPath) => {
-            return `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`
-          }),
-          code: 1,
-        };
+      const cdnList = await this.domainService.batchCreateService({
+        fileId,
+        projectId,
+        serviceContentList
+      }, { domainName })
+      
+      return {
+        code: 1,
+        data: cdnList
       }
     } catch (err) {
       return {
