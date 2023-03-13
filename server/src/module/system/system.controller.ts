@@ -411,98 +411,26 @@ export default class SystemService {
     // 通用参数
     @Body('serviceId') serviceId: string,
     @Body('params') params: any,
-    // 发布后运行定位
-    @Body('isOnline') isOnline: any,
-    @Body('fileId') fileId: string,
-    @Body('projectId') projectId: any,
-    // debug模式
-    @Body('relativePath') relativePath: any,
-    @Body('uuid') uuid: any,
-    @Body('baseFileId') baseFileId: any,
-    @Body('showCost') showCost: boolean
+    @Body('fileId') fileId: number
   ) {
-    if (!serviceId) {
+    if (!serviceId || !fileId) {
       return {
         code: -1,
-        msg: '缺少 serviceId',
+        msg: '缺少 serviceId 或 fileId',
       };
     }
-    if(isOnline) {
-      let res;
-      if(projectId) {
-        // 发布后环境，项目空间
-        // 发布后环境，普通发布空间
-        // console.log('进来了')
-        const pubInfo = await this.servicePubDao.getLatestPubByProjectIdAndFileIdAndServiceId({
-          fileId: +fileId,
-          env: 'prod',
-          projectId: projectId,
-          serviceId: serviceId
-        })
-        res = await this._execServicePub(pubInfo, {
-          fileId: +fileId,
-          serviceId,
-          params
-        })
-      } else {
-        let dbSearchTimeStart = Date.now()
-        const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
-          fileId: +fileId,
-          env: 'prod',
-          serviceId
-        })
-        let dbSearchTimeCost = Date.now() - dbSearchTimeStart;
-        let exeTimeStart = Date.now()
-        res = await this._execServicePub(pubInfo, {
-          fileId: +fileId,
-          serviceId,
-          params
-        })
-        let exeTimeCost = Date.now() - exeTimeStart;
-        if(showCost) {
-          res['cost'] = {
-            exeTimeCost,
-            dbSearchTimeCost
-          }
-        }
-      }
-      return res
-    } else {
 
-      let fileId
-
-      if (uuid) {
-        const info = await this.fileService._getParentModuleAndProjectInfo(baseFileId)
-        const domain = await this.fileDao.queryByUUIDAndParentId({uuid, parentId: info?.hierarchy?.parent?.fileId})
-
-        fileId = +domain?.id
-      } else {
-        // 根据相对路径，找出真实fileId，然后去通用pub里面查找
-        let currentFile = await this.fileService._getFileInfoByBaseFileIdAndRelativePath({
-          relativePath,
-          baseFileId
-        })
-        if(!currentFile) {
-          return {
-            code: -1,
-            msg: `未找到 ${baseFileId} 的文件 ${relativePath}`
-          }
-        }
-        fileId = +currentFile?.id
-      }
-
-      const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
-        fileId,
-        env: 'prod',
-        serviceId
-      })
-      const res = await this._execServicePub(pubInfo, {
-        fileId: +fileId,
-        serviceId,
-        params,
-      })
-      return res
-    }
+    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+      fileId,
+      env: 'prod',
+      serviceId
+    })
+    const res = await this._execServicePub(pubInfo, {
+      fileId,
+      serviceId,
+      params,
+    })
+    return res
   }
 
   @Post('/system/domain/execSql')
