@@ -54,13 +54,11 @@ export default class ModuleController {
     const { email, fileId, commitInfo } = body;
 
     try {
-      const [user, { data: files }, { projectId }] = await Promise.all([
+      const [user, file, { projectId }] = await Promise.all([
         await this.userDao.queryByEmail({ email }),
-        await this.fileService.getAll({ id: fileId }),
+        await this.fileDao.queryById(fileId),
         await this.fileService._getParentModuleAndProjectInfo(fileId)
       ])
-
-      const file = files?.[0]
 
       const domainName = getRealDomain(request)
 
