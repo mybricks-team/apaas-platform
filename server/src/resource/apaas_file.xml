@@ -108,6 +108,24 @@
         order by update_time desc
     </select>
 
+    <select id="getFlattenFileTreeByParentId">
+        SELECT T2.find_level, T3.*
+        FROM (
+            SELECT @ids AS _ids
+                , (
+                    SELECT @ids := GROUP_CONCAT(id)
+                    FROM apaas_file
+                    WHERE FIND_IN_SET(apaas_file.parent_id, @ids)
+                ) AS T1, @l := @l + 1 AS find_level
+            FROM apaas_file, (
+                    SELECT @ids := #{id}, @l := -1
+                ) T4
+        ) T2, apaas_file T3
+        WHERE FIND_IN_SET(T3.id, T2._ids)
+            AND id != #{id}
+        ORDER BY find_level, id
+    </select>
+
     <select id="queryById">
         select * 
         from apaas_file where

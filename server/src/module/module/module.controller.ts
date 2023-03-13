@@ -64,36 +64,36 @@ export default class ModuleController {
 
       const domainName = getRealDomain(request)
 
+      const flattenFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: fileId })
       // 先写两层，后续如果有需求改为bfs
-      let validFiles = []
-      const firstLevelChildren = await this.fileDao.queryAllFilesByParentId({parentId: fileId})
-      let task = []
-      /** 记录task的parentId */
-      firstLevelChildren?.forEach(file => {
-        if(file.extName !== 'folder') {
-          validFiles.push(file)
-        } else {
-          validFiles.push(file)
-          task.push(this.fileDao.queryAllFilesByParentId({parentId: file.id}))
-        }
-      })
-      const res = await Promise.all(task)
-      res?.forEach(single => {
-        single?.forEach((file) => {
-          if(file.extName !== 'folder') {
-            validFiles.push(file)
-          } else {
-            validFiles.push(file)
-          }
-        });
-      })
+      // const firstLevelChildren = await this.fileDao.queryAllFilesByParentId({parentId: fileId})
+      // let task = []
+      // /** 记录task的parentId */
+      // firstLevelChildren?.forEach(file => {
+      //   if(file.extName !== 'folder') {
+      //     validFiles.push(file)
+      //   } else {
+      //     validFiles.push(file)
+      //     task.push(this.fileDao.queryAllFilesByParentId({parentId: file.id}))
+      //   }
+      // })
+      // const res = await Promise.all(task)
+      // res?.forEach(single => {
+      //   single?.forEach((file) => {
+      //     if(file.extName !== 'folder') {
+      //       validFiles.push(file)
+      //     } else {
+      //       validFiles.push(file)
+      //     }
+      //   });
+      // })
 
       let publishTask = []
       /** 存储fileId和publishTask的索引关系 */
       const publishTaskIndexMap = {}
       const publishFiles = []
-      for(let l = validFiles.length, i = 0; i < l; i++) {
-        let file = validFiles[i]
+      for(let l = flattenFiles.length, i = 0; i < l; i++) {
+        let file = flattenFiles[i]
         const { extName } = file;
         switch(extName) {
           case 'domain': {
@@ -111,12 +111,15 @@ export default class ModuleController {
                 }
               ).then(res => {
                 if (res?.data?.code === 1 && res?.data?.data) {
+                  if (typeof res?.data?.data?.bundle !== 'string') {
+                    throw new Error(`编译${file.name}(${file.id}).${extName}失败，产物格式不正确`)
+                  }
                   return {
                     extName: res?.data?.data?.ext_name,
                     bundle: res?.data?.data?.bundle,
                   }
                 } else {
-                  throw new Error(res.msg || `编译${file.id}.${extName}失败`)
+                  throw new Error(`编译${file.name}(${file.id}).${extName}失败，${res?.data?.message ?? '服务异常'}`)
                 }
               })
             );
@@ -132,12 +135,15 @@ export default class ModuleController {
               json: JSON.parse(latestSave.content).toJSON,
             }).then(res => {
               if (res?.data?.code === 1 && res?.data?.data) {
+                if (typeof res?.data?.data?.bundle !== 'string') {
+                  throw new Error(`编译${file.name}(${file.id}).${extName}失败，产物格式不正确`)
+                }
                 return {
                   extName: res?.data?.data?.ext_name,
                   bundle: res?.data?.data?.bundle,
                 }
               } else {
-                throw new Error(res.msg || `编译${file.id}.${extName}失败`)
+                throw new Error(`编译${file.name}(${file.id}).${extName}失败，${res?.data?.message ?? '服务异常'}`)
               }
             }));
             publishTaskIndexMap[file.id] = publishTask.length - 1
@@ -157,7 +163,7 @@ export default class ModuleController {
                   bundle: res?.data?.data?.bundle,
                 }
               } else {
-                throw new Error(res.msg || `编译${file.id}.${extName}失败`)
+                throw new Error(`编译${file.name}(${file.id}).${extName}失败，${res?.data?.message ?? '服务异常'}`)
               }
             }));
             publishTaskIndexMap[file.id] = publishTask.length - 1
@@ -200,9 +206,8 @@ export default class ModuleController {
             content: compiledBundle?.bundle,
             extName: compiledBundle?.extName,
             fileName: file.name,
-            fileUuid: file.uuid,
             fileId: file.id,
-            parentId: file.parentId,
+            parentId: file.parentId
           }
         }),
         commitInfo: commitInfo ?? '',
@@ -213,7 +218,7 @@ export default class ModuleController {
 
       return {
         data: {
-          
+          succeedFiles: publishFiles
         },
         msg: '发布模块成功',
         code: 1,
@@ -221,7 +226,7 @@ export default class ModuleController {
     } catch (err) {
       return {
         code: -1,
-        msg: `发布失败: ${err}`,
+        msg: `${err?.message ?? '服务异常'}`,
       };
     }
   }

@@ -49,14 +49,13 @@ const FolderModule: FC = () => {
 			})).data
 			
 			if (allFilesRes.code === -1) {
-				message.error('发布失败')
+				throw new Error(`${allFilesRes.msg ?? '服务异常'}`)
 			} else {
 				message.success('发布成功')
 				getList()
 			}
 		} catch(e) {
-			console.log('publish error', e)
-			message.error('发布失败')
+			message.error(`发布失败，${e.message ?? '服务异常'}`)
 		}
 		setLoading(false)
 	}, [])
