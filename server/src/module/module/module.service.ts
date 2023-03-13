@@ -99,8 +99,9 @@ export default class ModuleService {
 			if (findModule) {
 				findModule.version = module.version;
 				findModule.id = module.id;
+				findModule.name = module.name;
 			} else {
-				moduleList.push({ id: module.id, version: module.version, originFileId: module.originFileId });
+				moduleList.push({ id: module.id, name: module.name, version: module.version, originFileId: module.originFileId });
 			}
 			await this.moduleDao.createProjectModuleInfo({
 				file_id: projectId,
@@ -112,7 +113,7 @@ export default class ModuleService {
 		} else {
 			await this.moduleDao.createProjectModuleInfo({
 				file_id: projectId,
-				module_info: JSON.stringify({ moduleList: [{ id: module.id, version: module.version, originFileId: module.originFileId }] }),
+				module_info: JSON.stringify({ moduleList: [{ id: module.id, name: module.name, version: module.version, originFileId: module.originFileId }] }),
 				create_time: Date.now(),
 				creator_name: userId,
 				version: '1.0.0',
