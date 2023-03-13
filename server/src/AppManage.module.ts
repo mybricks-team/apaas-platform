@@ -23,6 +23,7 @@ import FlowModule from './module/flow/flow.module'
 import ModuleModule from './module/module/module.module'
 import SystemModule from './module/system/system.module'
 import FileModule from './module/file/file.module'
+import DomainModule from "./module/domain/domain.module";
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import FileModule from './module/file/file.module'
     ModuleModule,
     SystemModule,
     FileModule,
+    DomainModule,
     ...loadModule().modules,
   ],
   controllers: [

@@ -1,5 +1,5 @@
 import { NestFactory } from "@nestjs/core";
-import AppFlowModule from "./AppFlow.module";
+import AppModule from "./App.module";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
@@ -13,7 +13,7 @@ const fs = require('fs-extra')
 async function bootstrap() {
   init();
 
-  const app = await NestFactory.create<NestExpressApplication>(AppFlowModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   if(fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
     app.useStaticAssets(env.FILE_LOCAL_STORAGE_FOLDER, {
       prefix: `/${env.FILE_LOCAL_STORAGE_PREFIX}`,
@@ -35,12 +35,12 @@ async function bootstrap() {
   app.use(cookieParser());
 	app.use(xmlparser());
 
-  await app.listen(
-    +process.env.port ||
-      +process.env.AUTO_PORT0 ||
-      +process.env.AUTO_PORT1 ||
-      3101,
-  );
+  const port = +process.env.port ||
+  +process.env.AUTO_PORT0 ||
+  +process.env.AUTO_PORT1 ||
+  3101
+  await app.listen(port);
+  console.log('service started at: http://localhost:' + port)
 }
 
 bootstrap();

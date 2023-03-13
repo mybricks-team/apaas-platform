@@ -4,15 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:manage": "NODE_ENV=production npx pm2 start index_manage.js",
-    "reload:manage": "npx pm2 reload index_manage",
-    "stop:manage": "npx pm2 stop index_manage",
+    "start:flow": "NODE_ENV=production npx pm2 start index.js",
+    "reload:flow": "npx pm2 reload index_flow",
+    "stop:flow": "npx pm2 stop index_flow",
     "installApplication": "node installApplication.js",
     "start:dev": "node index.js",
     "start:watch": "NODE_ENV=development nodemon --ext ts --exec 'node index.js'",
     "dev:flow": "nodemon --ext js,ts --exec 'node index_flow.js'",
-    "publishToNpm": "npm publish --registry=https://registry.npmjs.org",
-    "zip": "node zip.js"
+    "publishToNpm": "npm publish --registry=https://registry.npmjs.org"
   },
   "author": "",
   "license": "ISC",
