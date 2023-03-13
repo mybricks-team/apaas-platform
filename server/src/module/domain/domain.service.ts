@@ -15,12 +15,6 @@ export default class DomainService {
   }
 
   async batchCreateService({ fileId, serviceContentList, projectId }, { domainName }) {
-    if(!fileId || !serviceContentList) {
-      return {
-        code: -1,
-        msg: 'fileId 或 serviceContent 为空'
-      }
-    }
     let folderPath = `/project/${fileId}`;
     if(projectId) {
       folderPath = `/project/${projectId}/${fileId}`;

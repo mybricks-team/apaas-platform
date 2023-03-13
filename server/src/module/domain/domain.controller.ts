@@ -37,6 +37,7 @@ export default class FlowController {
   }
 
   
+  // 模块安装时，发布到运行容器
   @Post('/service/batchCreate')
   async batchCreateService(
     @Body('fileId') fileId: number,

@@ -10,15 +10,15 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import UploadService from '../upload/upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 const env = require('../../../env.js')
 import { getRealDomain } from '../../utils/index'
+import FlowService from './flow.service';
 
 @Controller('/paas/api/flow')
 export default class FlowController {
   @Inject()
-  uploadService: UploadService;
+  flowService: FlowService;
 
   @Get('/test')
   async test(@Request() request) {
@@ -43,13 +43,48 @@ export default class FlowController {
     }
   }
 
+  // 模块安装时，发布到运行容器
+  @Post('/file/batchCreate')
+  async batchCreateProjectFile(
+    @Body('fileId') fileId: number,
+    @Body('projectId') projectId: number,
+    @Body('codeStrList') codeStrList: {fileName: string, content: string}[],
+    @Request() request,
+  ) {
+    const domainName = getRealDomain(request)
+    if(!fileId || !codeStrList) {
+      return {
+        code: -1,
+        msg: 'fileId 或 codeStrList 为空'
+      }
+    }
+    try {
+      const cdnList = await this.flowService.batchCreateProjectFile({
+        fileId,
+        projectId,
+        codeStrList
+      }, { domainName })
+      
+      return {
+        code: 1,
+        data: cdnList
+      }
+    } catch (err) {
+      return {
+        code: -1,
+        msg: err.message || '出错了'
+      }
+    }
+  }
+  
+
   @Post('/saveFile')
   @UseInterceptors(FileInterceptor('file'))
   async saveFile(@Request() request, @Body() body, @UploadedFile() file) {
     const domainName = getRealDomain(request)
     console.log('saveFile请求头是', `${domainName}`,)
     try {
-      const subPath = await this.uploadService.saveFile({
+      const subPath = await this.flowService.saveFile({
         str: file.buffer,
         filename: file.originalname,
         folderPath: body.folderPath
@@ -80,7 +115,7 @@ export default class FlowController {
       }
       const cdnList = await Promise.all(
         files.map((file) => {
-          return this.uploadService.saveFile({
+          return this.flowService.saveFile({
             str: file.buffer,
             filename: file.originalname,
             folderPath: body.folderPath
