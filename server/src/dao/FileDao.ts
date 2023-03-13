@@ -189,6 +189,19 @@ export default class FileDao extends DOBase {
     });
   }
 
+  @Mapping(FileDO)
+  public async queryFlattenFileTreeByParentId(query?: {
+    parentId: number
+  }): Promise<Array<FileDO>> {
+    if(!query?.parentId) {
+      return Promise.reject('缺少parentId')
+    }
+
+    return await this.exe<Array<FileDO>>("apaas_file:getFlattenFileTreeByParentId", {
+      id: query?.parentId
+    });
+  }
+
   /**
    * 获取文件信息
    * @param id
