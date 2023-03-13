@@ -10,6 +10,7 @@ import ModuleCenterModal from './module-center-modal';
 import css from './index.less';
 
 class Ctx {
+	id: number;
   getInfo: (id: number) => void;
   info: null | {
     id: number;
@@ -21,6 +22,7 @@ class Ctx {
 
 export default function FolderProject(props) {
 	const ctx = useObservable(Ctx, next => next({
+		id: props.id,
 		getInfo() {
 			return new Promise((resolve) => {
 				axios({
@@ -37,7 +39,7 @@ export default function FolderProject(props) {
 							}
 						}),
 					};
-					ctx.moduleList = data.moduleList ?? [{ id: 1, name: '会员', version: '1.0.1' }, { id: 2, name: '活动', version: '1.0.1' }]
+					ctx.moduleList = data.moduleList ?? []
 					resolve(true)
 				})
 			})
@@ -154,7 +156,7 @@ function ModuleArea({ ctx }) {
 				) : null}
 				<button onClick={() => setShowModal(true)}>添加模块</button>
 			</div>
-			<ModuleCenterModal onFinish={ctx.getInfo} visible={showModal} onClose={onClose} />
+			<ModuleCenterModal onFinish={ctx.getInfo} projectId={ctx.id} visible={showModal} onClose={onClose} />
 		</>
 	);
 }

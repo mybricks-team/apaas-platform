@@ -245,13 +245,13 @@ export default class ModuleController {
 	}
 	
 	@Post('/install')
-	async installModule(@Body() body) {
-		const { id, projectId } = body;
+	async installModule(@Body() body, @Request() request) {
+		const { id, projectId, userId } = body;
 		
-		if (!id) {
-			return { code: 0, message: '参数 id 不能为空' };
+		if (!id || !projectId) {
+			return { code: 0, message: '参数 id、projectId 不能为空' };
 		}
 		
-		return await this.moduleService.installModule({ id, projectId });
+		return await this.moduleService.installModule({ id, projectId, userId }, request);
 	}
 }

@@ -1,11 +1,14 @@
 import React, {FC, useCallback, useEffect, useState} from 'react';
 import {message, Modal} from 'antd';
 import axios from "axios";
+import {observe} from "@mybricks/rxui";
+import AppCtx from "../../../../AppCtx";
 import {getApiUrl} from "../../../../../utils";
 
 import styles from './module-center-modal.less';
 
 interface ModuleCenterModal {
+	projectId: number;
 	visible: boolean;
 	onClose(): void;
 	onFinish(): void;
@@ -21,7 +24,8 @@ interface Module {
 }
 
 const ModuleCenterModal: FC<ModuleCenterModal> = props => {
-	const { visible, onClose, onFinish } = props;
+	const { visible, onClose, onFinish, projectId } = props;
+	const appCtx = observe(AppCtx, {from: 'parents'})
 	const [moduleList, setModuleList] = useState<Module[]>([]);
 	const [moduleId, setModuleId] = useState(-1);
 	
@@ -40,7 +44,7 @@ const ModuleCenterModal: FC<ModuleCenterModal> = props => {
 	const install = useCallback((moduleId: number) => {
 		setModuleId(moduleId);
 		
-		axios({ method: "post", url: getApiUrl('/paas/api/module/install'), data: { id: moduleId } })
+		axios({ method: "post", url: getApiUrl('/paas/api/module/install'), data: { id: moduleId, projectId, userId: appCtx.user.email } })
 			.then(res => {
 				if (res.data.code === 1) {
 					message.success('安装成功');
@@ -52,7 +56,7 @@ const ModuleCenterModal: FC<ModuleCenterModal> = props => {
 			})
 			.catch(() => message.error('安装失败'))
 			.finally(() => setModuleId(-1));
-	}, [onClose, onFinish]);
+	}, [onClose, onFinish, projectId]);
 	
   return (
 	  <Modal title="模块中心" width={880} visible={visible} onCancel={onClose} mask maskClosable destroyOnClose footer={null}>
