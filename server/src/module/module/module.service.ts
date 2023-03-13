@@ -1,21 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import * as axios from "axios";
-import ModuleDao from './../../dao/ModuleDao'
-import ModulePubDao from './../../dao/ModulePubDao';
+import moduleDao from './../../dao/moduleDao'
+import modulePubDao from './../../dao/modulePubDao';
 import {getNextVersion, getRealDomain} from "../../utils";
 import DomainService from "../domain/domain.service";
 import FlowService from "../flow/flow.service";
 
 @Injectable()
 export default class ModuleService {
-
-  private readonly ModuleDao = new ModuleDao();
-  private readonly ModulePubDao = new ModulePubDao();
+  private readonly moduleDao = new moduleDao();
+  private readonly modulePubDao = new modulePubDao();
   private readonly domainService = new DomainService();
   private readonly flowService = new FlowService();
 
   async create(param) {
-    const { id } = await this.ModuleDao.create(param)
+    const { id } = await this.moduleDao.create(param)
     return id
   }
 
@@ -31,7 +30,7 @@ export default class ModuleService {
     commitInfo: string,
     creatorName: string
   }) {
-    const { id } = await this.ModulePubDao.batchCreate(param)
+    const { id } = await this.modulePubDao.batchCreate(param)
     return id
   }
 
@@ -40,21 +39,21 @@ export default class ModuleService {
     pageSize: number,
     pageIndex: number
   }) {
-    return await this.ModuleDao.queryByFileId({ fileId: param.fileId, limit: param.pageSize, offset: param.pageSize * param.pageIndex})
+    return await this.moduleDao.queryByFileId({ fileId: param.fileId, limit: param.pageSize, offset: param.pageSize * param.pageIndex})
   }
 
   async getLatestPubByFileId(fileId: number) {
-    return await this.ModuleDao.getLatestPubByFileId({ fileId })
+    return await this.moduleDao.getLatestPubByFileId({ fileId })
   }
 	
   async getModuleList() {
-    return await this.ModuleDao.getModules();
+    return await this.moduleDao.getModules();
   }
 	
   async installModule(params: { id: number; projectId: number; userId: string }, request: Request) {
 		const { id, projectId, userId } = params;
-    const [module] = await this.ModuleDao.getModules({ id: id });
-    const [projectModule] = await this.ModuleDao.getProjectModuleInfo(projectId);
+	  const [module] = await this.moduleDao.getModules({ id: id });
+	  const [projectModule] = await this.moduleDao.getProjectModuleInfo(projectId);
 	
 	  if (!module) {
 		  return { code: 0, message: '对应模块不存在' };
@@ -62,7 +61,7 @@ export default class ModuleService {
 		
 	  const domainName = getRealDomain(request);
 		
-		const pubInfo = await this.ModuleDao.getModuleContent({ id: id });
+		const pubInfo = await this.moduleDao.getModuleContent({ id: id });
 		const staticFile = [];
 	  pubInfo.map(async pub => {
 			switch (pub.ext_name) {
@@ -103,7 +102,7 @@ export default class ModuleService {
 			} else {
 				moduleList.push({ id: module.id, version: module.version, originFileId: module.originFileId });
 			}
-			await this.ModuleDao.createProjectModuleInfo({
+			await this.moduleDao.createProjectModuleInfo({
 				file_id: projectId,
 				module_info: JSON.stringify({ ...JSON.parse(projectModule.module_info || '{}'), moduleList }),
 				create_time: Date.now(),
@@ -111,7 +110,7 @@ export default class ModuleService {
 				version: projectModule.version ? getNextVersion(projectModule.version) : '1.0.0',
 			});
 		} else {
-			await this.ModuleDao.createProjectModuleInfo({
+			await this.moduleDao.createProjectModuleInfo({
 				file_id: projectId,
 				module_info: JSON.stringify({ moduleList: [{ id: module.id, version: module.version, originFileId: module.originFileId }] }),
 				create_time: Date.now(),
