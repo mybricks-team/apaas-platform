@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:flow": "NODE_ENV=production npx pm2 start index.js",
+    "start:flow": "NODE_ENV=production npx pm2 start index_flow.js",
     "reload:flow": "npx pm2 reload index_flow",
     "stop:flow": "npx pm2 stop index_flow",
     "installApplication": "node installApplication.js",
     "start:dev": "node index.js",
-    "start:watch": "NODE_ENV=development nodemon --ext ts --exec 'node index.js'",
+    "start:watch": "NODE_ENV=development nodemon --ext ts --exec 'node index-runtime.js'",
     "dev:flow": "nodemon --ext js,ts --exec 'node index_flow.js'",
     "publishToNpm": "npm publish --registry=https://registry.npmjs.org"
   },
