@@ -95,7 +95,6 @@ export default class ModuleController {
         const { extName } = file;
         switch(extName) {
           case 'domain': {
-            // todo: 物料接口，理论不应该让平台感知，后面通过协议暴露
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id });
             publishTask.push(
               (axios as any).post(
@@ -105,7 +104,7 @@ export default class ModuleController {
                   // projectId: projectId,
                   projectId: '--slot-project-id--',
                   userId: email,
-                  json: JSON.parse(latestSave.content).toJSON
+                  json: JSON.parse(latestSave?.content ?? '{}').toJSON
                 }
               ).then(res => {
                 if (res?.data?.code === 1 && res?.data?.data) {
@@ -130,7 +129,30 @@ export default class ModuleController {
             publishTask.push((axios as any).post(`${domainName}/api/pcpage/generateHTML`, {
 	            fileId: file.id,
               userId: email,
-              json: JSON.parse(latestSave.content).toJSON,
+              json: JSON.parse(latestSave?.content ?? '{}').toJSON,
+            }).then(res => {
+              if (res?.data?.code === 1 && res?.data?.data) {
+                if (typeof res?.data?.data?.bundle !== 'string') {
+                  throw new Error(`编译${file.name}(${file.id}).${extName}失败，产物格式不正确`)
+                }
+                return {
+                  extName: res?.data?.data?.ext_name,
+                  bundle: res?.data?.data?.bundle,
+                }
+              } else {
+                throw new Error(`编译${file.name}(${file.id}).${extName}失败，${res?.data?.message ?? '服务异常'}`)
+              }
+            }));
+            publishTaskIndexMap[file.id] = publishTask.length - 1
+            publishFiles.push(file)
+            break;
+          }
+          case 'mp-page': {
+            const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
+            publishTask.push((axios as any).post(`${domainName}/api/mppage/compile`, {
+	            fileId: file.id,
+              userId: email,
+              json: JSON.parse(latestSave?.content ?? '{}').toJson,
             }).then(res => {
               if (res?.data?.code === 1 && res?.data?.data) {
                 if (typeof res?.data?.data?.bundle !== 'string') {
