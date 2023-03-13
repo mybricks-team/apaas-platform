@@ -9,6 +9,7 @@ import {useObservable} from '@mybricks/rxui'
 import AppCtx from './AppCtx'
 import Sideber from './sidebar'
 import Content from './content'
+import Noaccess from './noaccess'
 import {getApiUrl, getUrlQuery} from '../utils'
 
 import css from './index.less'
@@ -20,6 +21,7 @@ export default function App() {
     /** 获取应用loading状态 */
     const [loading, setLoading] = useState(true)
     const [logo, setLogo] = useState('')
+    const [access, setAccess] = useState(false)
   
     useMemo(() => {
       /** 初始化(获取应用、配置和角色) */
@@ -34,6 +36,7 @@ export default function App() {
           location.href = `/?redirectUrl=${encodeURIComponent(location.href)}`
           return
         }
+        setAccess(user.role > 1)
         // /** 设置用户信息 */
         appCtx.setUser(user)
         appCtx.setIsAdministrator(!!user?.isAdmin)
@@ -116,11 +119,15 @@ export default function App() {
         </div>
       </div>
     ) : (
-      <div className={css.app}>
-        <Sideber logo={logo}/>
-        <div className={css.content}>
-          <Content />
+      access ? (
+        <div className={css.app}>
+          <Sideber logo={logo}/>
+          <div className={css.content}>
+            <Content />
+          </div>
         </div>
-      </div>
+      ) : (
+        <Noaccess />
+      )
     )
 }
