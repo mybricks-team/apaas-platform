@@ -11,7 +11,6 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import DomainService from './domain.service';
-import UploadService from '../upload/upload.service';
 import { getRealDomain } from '../../utils/index'
 // @ts-ignore
 import { createVM } from 'vm-node';
@@ -27,9 +26,6 @@ export default class FlowController {
   @Inject()
   domainService: DomainService;
   
-  @Inject()
-  uploadService: UploadService;
-  
   nodeVMIns: any;
   fileDao: FileDao;
   servicePubDao: ServicePubDao
@@ -39,7 +35,6 @@ export default class FlowController {
     this.fileDao = new FileDao();
     this.servicePubDao = new ServicePubDao();
   }
-
 
   
   @Post('/service/batchCreate')
