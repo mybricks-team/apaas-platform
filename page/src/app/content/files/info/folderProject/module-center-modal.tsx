@@ -10,6 +10,7 @@ import styles from './module-center-modal.less';
 interface ModuleCenterModal {
 	projectId: number;
 	visible: boolean;
+	installedModuleList: Array<{ id: number; version: string; name: string }>;
 	onClose(): void;
 	onFinish(): void;
 }
