@@ -111,6 +111,9 @@ export default class ModuleController {
                 }
               ).then(res => {
                 if (res?.data?.code === 1 && res?.data?.data) {
+                  if (typeof res?.data?.data?.bundle !== 'string') {
+                    throw new Error(`编译${file.name}(${file.id}).${extName}失败，产物格式不正确`)
+                  }
                   return {
                     extName: res?.data?.data?.ext_name,
                     bundle: res?.data?.data?.bundle,
@@ -132,6 +135,9 @@ export default class ModuleController {
               json: JSON.parse(latestSave.content).toJSON,
             }).then(res => {
               if (res?.data?.code === 1 && res?.data?.data) {
+                if (typeof res?.data?.data?.bundle !== 'string') {
+                  throw new Error(`编译${file.name}(${file.id}).${extName}失败，产物格式不正确`)
+                }
                 return {
                   extName: res?.data?.data?.ext_name,
                   bundle: res?.data?.data?.bundle,
