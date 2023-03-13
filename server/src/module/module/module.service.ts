@@ -83,7 +83,8 @@ export default class ModuleService {
 				}
 				case 'cdm': { break; }
 				case 'html': {
-					staticFile.push({ fileId: pub.file_id, fileName: `${pub.file_id}.html`, content: pub.content });
+					let newContent = pub.content.replace(/--slot-project-id--/, projectId);
+					staticFile.push({ fileId: pub.file_id, fileName: `${pub.file_id}.html`, content: newContent });
 					break;
 				}
 				case 'mp': { break; }
