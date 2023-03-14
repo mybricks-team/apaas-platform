@@ -8,7 +8,7 @@
     "reload:manage": "npx pm2 reload index_manage",
     "stop:manage": "npx pm2 stop index_manage",
     "installApplication": "node installApplication.js",
-    "start:dev": "node index.js",
+    "start:dev": "NODE_ENV=development node index.js",
     "start:watch": "NODE_ENV=development nodemon --ext ts --exec 'node index.js'",
     "dev:flow": "nodemon --ext js,ts --exec 'node index_flow.js'",
     "publishToNpm": "npm publish --registry=https://registry.npmjs.org",

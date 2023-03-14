@@ -68,8 +68,8 @@ export default class FileService {
     @Body("name") name: string,
     @Body("userId") userId: string,
   ) {
-    const user = await this.userDao.queryByEmail({email: userId})
-    const result = await this.fileDao.update({id, name, updatorId: user.email, updatorName: user.name || user.email})
+    const user = await this.userDao.queryByEmail({ email: userId })
+    const result = await this.fileDao.update({ id, name, updatorId: user.email, updatorName: user.name || user.email })
 
     return {
       code: 1,
@@ -138,19 +138,19 @@ export default class FileService {
     const [file] = await Promise.all([
       await this.fileDao.queryById(fileId),
       /** 删除超时用户，status设置为-1 */
-      await this.fileCooperationDao.delete({fileId, timeInterval})
+      await this.fileCooperationDao.delete({ fileId, timeInterval })
     ])
 
     /** 查userId是否在当前fileId协作过 */
     let [curUser, numberOfOnlineUsers, roleDescription] = await Promise.all([
-      await this.fileCooperationDao.query({userId, fileId}),
-      await this.fileCooperationDao.numberOfOnlineUsers({fileId}),
+      await this.fileCooperationDao.query({ userId, fileId }),
+      await this.fileCooperationDao.numberOfOnlineUsers({ fileId }),
       new Promise(async (resolve) => {
         const { groupId } = file
         if (!groupId) {
           resolve((file.creatorId === userId) ? 1 : 3)
         } else {
-          const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({userId, userGroupId: groupId, status: 1})
+          const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({ userId, userGroupId: groupId, status: 1 })
           resolve(userGroupRelation?.roleDescription || 3)
         }
       })
@@ -170,20 +170,20 @@ export default class FileService {
        *  未在线，状态使用finalStatus
        */
       const curStatus = curUser.status;
-      await this.fileCooperationDao.update({userId, fileId, status: curStatus === -1 ? finalStatus : curStatus})
+      await this.fileCooperationDao.update({ userId, fileId, status: curStatus === -1 ? finalStatus : curStatus })
     } else {
       /** 否，插入一条status为finalStatus的记录 */
-      await this.fileCooperationDao.create({userId, fileId, status: finalStatus})
+      await this.fileCooperationDao.create({ userId, fileId, status: finalStatus })
     }
 
-    const cooperationUsers = await this.fileCooperationDao.queryOnlineUsers({fileId})
+    const cooperationUsers = await this.fileCooperationDao.queryOnlineUsers({ fileId })
     const curUserIndex = cooperationUsers.findIndex((cooperationUser) => cooperationUser.userId === userId)
     /** 把当前用户提前 */
     cooperationUsers[0] = cooperationUsers.splice(curUserIndex, 1, cooperationUsers[0])[0]
 
     const userIds = cooperationUsers.map((cooperationUser) => cooperationUser.userId)
     /** 查询用户信息 */
-    const users = await this.userDao.queryByEmails({emails: userIds})
+    const users = await this.userDao.queryByEmails({ emails: userIds })
 
     return {
       code: 1,
@@ -220,7 +220,7 @@ export default class FileService {
       // 上锁
       const [file, editUser] = await Promise.all([
         await this.fileDao.queryById(fileId),
-        await this.fileCooperationDao.queryEditUser({fileId})
+        await this.fileCooperationDao.queryEditUser({ fileId })
       ])
 
       if (editUser) {
@@ -238,12 +238,12 @@ export default class FileService {
       if (!groupId) {
         roleDescription = (creatorId === userId) ? 1 : 3
       } else {
-        const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({userId, userGroupId: groupId, status: 1})
+        const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({ userId, userGroupId: groupId, status: 1 })
         roleDescription = userGroupRelation?.roleDescription || 3
       }
 
       if ([1, 2].includes(roleDescription)) {
-        await this.fileCooperationDao.update({fileId, userId, status: 1})
+        await this.fileCooperationDao.update({ fileId, userId, status: 1 })
         return {
           code: 1,
           data: {}
@@ -257,7 +257,7 @@ export default class FileService {
       }
     } else {
       // 解锁
-      await this.fileCooperationDao.update({fileId, userId, status: 0})
+      await this.fileCooperationDao.update({ fileId, userId, status: 0 })
       return {
         code: 1,
         data: {}
@@ -285,7 +285,7 @@ export default class FileService {
 
     let { parentId } = file
 
-    while(parentId) {
+    while (parentId) {
       file = await this.fileDao.queryById(parentId)
 
       if (file?.extName === 'folder-project') {
@@ -328,9 +328,9 @@ export default class FileService {
     const path = []
 
 
-    while(parentId) {
+    while (parentId) {
       file = await this.fileDao.queryById(parentId);
-      const files = await this.fileDao.query({parentId: file.id, groupId: file.groupId,extNames: [extName, 'folder', 'folder-project', 'folder-module']})
+      const files = await this.fileDao.query({ parentId: file.id, groupId: file.groupId, extNames: [extName, 'folder', 'folder-project', 'folder-module'] })
       if (file.extName === folderExtName) {
         // 停止
         parentId = null
@@ -359,7 +359,7 @@ export default class FileService {
     }
 
     if (file.groupId) {
-      const files = await this.fileDao.query({groupId: file.groupId,extNames: [extName, 'folder', 'folder-project', 'folder-module']})
+      const files = await this.fileDao.query({ groupId: file.groupId, extNames: [extName, 'folder', 'folder-project', 'folder-module'] })
 
       map['000'] = {
         data: files,
@@ -367,7 +367,7 @@ export default class FileService {
         _origin: {}
       }
     } else {
-      const files = await this.fileDao.query({extNames: [extName, 'folder', 'folder-project', 'folder-module'], creatorId: file.creatorId})
+      const files = await this.fileDao.query({ extNames: [extName, 'folder', 'folder-project', 'folder-module'], creatorId: file.creatorId })
 
       map['000'] = {
         data: files,
@@ -378,7 +378,7 @@ export default class FileService {
 
     return {
       code: 1,
-      data: {map, path}
+      data: { map, path }
     }
   }
 
@@ -390,7 +390,7 @@ export default class FileService {
       extNames = extNames.split(',')
     }
 
-    const files = await this.fileDao.query({parentId, extNames, groupId})
+    const files = await this.fileDao.query({ parentId, extNames, groupId })
 
     return {
       code: 1,
@@ -401,7 +401,7 @@ export default class FileService {
   async _getParentModuleAndProjectInfo(id: number) {
     let res = {
       projectId: null, // 只存储最近的projectId，因为project不存在嵌套，只会有一个
-	    moduleId: null, // 只存储最近的module，往上遍历会存在多次嵌套
+      moduleId: null, // 只存储最近的module，往上遍历会存在多次嵌套
       hierarchy: {},
       absolutePath: '',
       absoluteUUIDPath: ''
@@ -415,16 +415,16 @@ export default class FileService {
       res.absolutePath = `/${tempItem.name}.${tempItem.extName}`
       // @ts-ignore
       res.absoluteUUIDPath = `/${tempItem.uuid}`
-      if(tempItem.extName === 'folder-module') {
-        if(!res.moduleId) {
+      if (tempItem.extName === 'folder-module') {
+        if (!res.moduleId) {
           res.moduleId = tempItem.id
         }
       }
       // 最多遍历七层
-      while(tempItem?.parentId && count < 7) {
+      while (tempItem?.parentId && count < 7) {
         count++;
         tempItem = await this.fileDao.queryById(tempItem.parentId);
-        switch(tempItem.extName) {
+        switch (tempItem.extName) {
           case 'folder-module':
           case 'folder-project':
           case 'folder': {
@@ -442,31 +442,31 @@ export default class FileService {
           }
         }
         // todo: build hierarchy
-        if(tempItem.extName === 'folder-module') {
-          if(!res.moduleId) {
+        if (tempItem.extName === 'folder-module') {
+          if (!res.moduleId) {
             res.moduleId = tempItem.id
           }
-        } else if(tempItem.extName === 'folder-project') {
+        } else if (tempItem.extName === 'folder-project') {
           res.projectId = tempItem.id
           // break
         }
       }
-      if(!tempItem?.parentId && tempItem?.groupId) {
+      if (!tempItem?.parentId && tempItem?.groupId) {
         // 补充协作组信息，作为文件的绝对路径
-        const [coopGroupInfo] = await this.userGroupDao.queryByIds({ids: [tempItem?.groupId]})
+        const [coopGroupInfo] = await this.userGroupDao.queryByIds({ ids: [tempItem?.groupId] })
         res.absolutePath = `/${coopGroupInfo.name}${res.absolutePath}`
         // @ts-ignore
         res.absoluteUUIDPath = `/${coopGroupInfo.name}${res.absoluteUUIDPath}`
       }
       return res
-    } catch(e) {
+    } catch (e) {
       throw e
     }
   }
 
   @Get("/file/getParentModuleAndProjectInfo")
   async getParentModuleAndProjectInfo(@Query('id') id: number) {
-    if(!id) {
+    if (!id) {
       return {
         code: -1,
         msg: '缺少ID'
@@ -478,7 +478,7 @@ export default class FileService {
         code: 1,
         data: res
       }
-    } catch(e) {
+    } catch (e) {
       return {
         code: -1,
         msg: e.message
@@ -564,14 +564,14 @@ export default class FileService {
 
           if (groupId) {
             console.log('查一下协作组')
-            const group = await this.userGroupDao.queryById({id: groupId})
+            const group = await this.userGroupDao.queryById({ id: groupId })
 
             path.unshift(group)
           }
         }
       }
     } else if (groupId) {
-      const group = await this.userGroupDao.queryById({id: groupId})
+      const group = await this.userGroupDao.queryById({ id: groupId })
       path.unshift(group)
     }
 
@@ -642,7 +642,7 @@ export default class FileService {
 
   @Post('/file/getLatestSave')
   async getLatestSave(@Body('fileId') fileId: number) {
-    if(!fileId) {
+    if (!fileId) {
       return {
         code: -1,
         msg: '缺少fileId'
@@ -669,37 +669,37 @@ export default class FileService {
       const relativePartList = relativePath?.split('/');
       let currentFile = await this.fileDao.queryById(baseFileId);
       // 根据相对路径，查找源文件ID
-      for(let l=relativePartList.length, i=0; i<l; i++) {
+      for (let l = relativePartList.length, i = 0; i < l; i++) {
         const item = relativePartList[i];
-        if(relativePartList[0] === '..') {
-          if(l === 2) {
+        if (relativePartList[0] === '..') {
+          if (l === 2) {
             // ../xxx
-            if(item === '..') {
+            if (item === '..') {
               // 开头 ../
               currentFile = await this.fileDao.queryById(currentFile?.parentId)
               // currentParent = await this.fileDao.queryById(currentFile?.parentId)
             } else {
               // 末端 ../pathB
-              currentFile =  await this.fileDao.queryByUUIDAndParentId({
+              currentFile = await this.fileDao.queryByUUIDAndParentId({
                 uuid: item,
                 parentId: currentFile?.parentId
               })
             }
           } else {
-            if(item === '..') {
+            if (item === '..') {
               // 开头 ../
               currentFile = await this.fileDao.queryById(currentFile?.parentId)
               // currentParent = await this.fileDao.queryById(currentFile?.parentId)
             } else {
               // 末端 ../pathB
-              if(i === l - 1) {
-                currentFile =  await this.fileDao.queryByUUIDAndParentId({
+              if (i === l - 1) {
+                currentFile = await this.fileDao.queryByUUIDAndParentId({
                   uuid: item,
                   parentId: currentFile?.id
                 })
               } else {
                 // 中建文件夹 ../pathA/
-                currentFile =  await this.fileDao.queryByUUIDAndParentId({
+                currentFile = await this.fileDao.queryByUUIDAndParentId({
                   uuid: item,
                   parentId: currentFile?.parentId
                 })
@@ -707,21 +707,21 @@ export default class FileService {
             }
           }
         } else {
-          if(l === 1) {
+          if (l === 1) {
             // 末端 pathA
-            currentFile =  await this.fileDao.queryByUUIDAndParentId({
+            currentFile = await this.fileDao.queryByUUIDAndParentId({
               uuid: item,
               parentId: currentFile?.parentId
             })
           } else {
             // 中间 pathA/pathB
-            if(i === l - 1) {
-              currentFile =  await this.fileDao.queryByUUIDAndParentId({
+            if (i === l - 1) {
+              currentFile = await this.fileDao.queryByUUIDAndParentId({
                 uuid: item,
                 parentId: currentFile?.id
               })
             } else {
-              currentFile =  await this.fileDao.queryByUUIDAndParentId({
+              currentFile = await this.fileDao.queryByUUIDAndParentId({
                 uuid: item,
                 parentId: currentFile?.parentId
               })
@@ -742,7 +742,7 @@ export default class FileService {
     // 通用参数
     @Body('fileId') fileId: any
   ) {
-    if(!fileId) {
+    if (!fileId) {
       return {
         code: -1,
         msg: 'fileId 不可为空'
@@ -758,8 +758,8 @@ export default class FileService {
   }
 
   // TODO:写死查询的应用
-  async getFolderProjectAppsByParentId({id, extNames}, files = []) {
-    const items = await this.fileDao.getFilesByParentId({id, extNames})
+  async getFolderProjectAppsByParentId({ id, extNames }, files = []) {
+    const items = await this.fileDao.getFilesByParentId({ id, extNames })
     const promiseAry = []
 
     items.forEach(async (item) => {
@@ -770,7 +770,7 @@ export default class FileService {
       }
     })
     await Promise.all(promiseAry.map(async (item) => {
-      await this.getFolderProjectAppsByParentId({id: item.id, extNames}, files)
+      await this.getFolderProjectAppsByParentId({ id: item.id, extNames }, files)
     }))
 
     await Promise.all(files.map(async (file) => {
@@ -787,7 +787,7 @@ export default class FileService {
     const [folder, [projectModuleInfo], files] = await Promise.all([
       await this.fileDao.queryById(id),
       await this.moduleDao.getProjectModuleInfo(id),
-      await this.getFolderProjectAppsByParentId({id, extNames: ['pc-website', 'folder', 'folder-project', 'folder-module']})
+      await this.getFolderProjectAppsByParentId({ id, extNames: ['pc-website', 'folder', 'folder-project', 'folder-module'] })
     ])
 
     return {
@@ -795,7 +795,7 @@ export default class FileService {
       data: {
         ...folder,
         apps: files,
-	      moduleList: JSON.parse(projectModuleInfo?.module_info || '{}')?.moduleList || []
+        moduleList: JSON.parse(projectModuleInfo?.module_info || '{}')?.moduleList || []
       }
     }
   }
@@ -803,7 +803,7 @@ export default class FileService {
   @Get('/file/publish/getVersionsByFileId')
   async publishGetVersionsByFileId(@Query() query) {
     const { id, pageIndex, pageSize } = query
-    const versions = await this.filePubDao.queryByFileId({fileId: id, limit: pageSize, offset: pageSize * pageIndex})
+    const versions = await this.filePubDao.queryByFileId({ fileId: id, limit: pageSize, offset: pageSize * pageIndex })
 
     return {
       code: 1,
@@ -821,7 +821,7 @@ export default class FileService {
     @Body('creatorName') creatorName: string
   ) {
     try {
-      if(!fileId || !serviceContentList) {
+      if (!fileId || !serviceContentList) {
         return {
           code: -1,
           msg: 'fileId 或 serviceContent 为空'
@@ -867,7 +867,11 @@ export default class FileService {
   }
 
   @Get('/file/getEditModuleComponentLibraryByProjectId')
-  async getEditModuleComponentLibraryByProjectId(@Query('id') id: number, @Res() res: Response) {
+  async getEditModuleComponentLibraryByProjectId(
+    @Query('id') id: number,
+    @Query('extName') extName: string,
+    @Res() res: Response
+  ) {
     if (!id) {
       res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
       res.status(200).send('').end();
@@ -882,14 +886,19 @@ export default class FileService {
       await Promise.all(projectInfoAry.map(async (projectInfo) => {
         const { module_info } = projectInfo
         const { moduleList } = JSON.parse(module_info)
-        
+
         await Promise.all(moduleList.map(async (module) => {
           const { id, name, version } = module
+
+          console.log("extName", extName);
+
           const cdms = await this.modulePubDao.queryPubInfo({
             moduleId: id,
-            extNameList: ['cdm'],
+            extNameList: [extName || 'cdm'],
             version: version
           })
+
+          console.log("cdms", cdms);
 
           if (cdms?.length) {
             let comsStr = ''
@@ -965,7 +974,7 @@ export default class FileService {
       await Promise.all(projectInfoAry.map(async (projectInfo) => {
         const { module_info } = projectInfo
         const { moduleList } = JSON.parse(module_info)
-        
+
         await Promise.all(moduleList.map(async (module) => {
           const { id, version } = module
           const cdms = await this.modulePubDao.queryPubInfo({

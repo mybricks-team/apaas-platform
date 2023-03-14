@@ -268,6 +268,9 @@ export default class SystemService {
         data: totalList,
       };
     } catch (e) {
+      console.log("~~~~~~~~~~~~~~~~~~~~~~")
+      console.log(e);
+      console.log("~~~~~~~~~~~~~~~~~~~~~~")
       return {
         code: -1,
         data: [],

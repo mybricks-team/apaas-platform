@@ -170,6 +170,33 @@ export default class ModuleController {
             publishFiles.push(file)
             break;
           }
+          case 'mp-cloudcom': {
+            const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
+            publishTask.push((axios as any).post(`${domainName}/api/mpcloudcom/compile`, {
+	            fileId: file.id,
+              userId: email,
+              json: JSON.parse(latestSave.content).toJSON,
+            }).then(res => {
+              if (res?.data?.code === 1 && res?.data?.data) {
+                if (typeof res?.data?.data?.bundle !== 'string') {
+                  throw new Error(`编译${file.name}(${file.id}).${extName}失败，产物格式不正确`)
+                }
+                return {
+                  extName: res?.data?.data?.ext_name,
+                  bundle: res?.data?.data?.bundle,
+                }
+              } else {
+                console.log("=============");
+                console.log(res.data.message);
+                console.log("=============");
+
+                throw new Error(`编译${file.name}(${file.id}).${extName}失败，${res?.data?.message ?? '服务异常'}`)
+              }
+            }));
+            publishTaskIndexMap[file.id] = publishTask.length - 1
+            publishFiles.push(file)
+            break;
+          }
           case 'cloud-com': {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
             publishTask.push((axios as any).post(`${domainName}/api/cloudcom/generateComponentCode`, {
