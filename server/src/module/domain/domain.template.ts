@@ -1,4 +1,6 @@
 const DOMAIN_EXE_CODE_TEMPLATE = `
+  const { SnowFlake } = require('gen-uniqueid');
+  let snowFlake = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
   let DB_CONN = null;
   let GLOBAL_RESOLVE = null;
   let GLOBAL_REJECT = null;

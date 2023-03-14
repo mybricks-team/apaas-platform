@@ -39,4 +39,25 @@ export default class ModulePubDao extends DOBase {
       id: result && result.insertId ? result.insertId : null
     }
   }
+
+  async queryPubInfo(params: {
+    moduleId: number,
+    extNameList: string[],
+    version: string
+  }) {
+    const result = await this.exe('apaas_module_pub_info:queryPubInfo', {
+      ...params,
+      status: 1
+    })
+    return result
+  }
+
+  async getModulePubContent(params: { id: number }) {
+    return await this.exe<any[]>('apaas_module_pub_info:getModulePubContent', params);
+  }
+
+  async getLatestFileList(params: { moduleId: number, parentId?: number }) {
+    return await this.exe<any[]>('apaas_module_pub_info:getLatestFileList', {...params, status: 1});
+  }
+
 }

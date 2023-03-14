@@ -170,6 +170,29 @@ export default class ModuleController {
             publishFiles.push(file)
             break;
           }
+          case 'cloud-com': {
+            const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
+            publishTask.push((axios as any).post(`${domainName}/api/cloudcom/generateComponentCode`, {
+	            fileId: file.id,
+              userId: email,
+              json: JSON.parse(latestSave.content).toJSON,
+            }).then(res => {
+              if (res?.data?.code === 1 && res?.data?.data) {
+                if (typeof res?.data?.data?.bundle !== 'string') {
+                  throw new Error(`编译${file.name}(${file.id}).${extName}失败，产物格式不正确`)
+                }
+                return {
+                  extName: res?.data?.data?.ext_name,
+                  bundle: res?.data?.data?.bundle,
+                }
+              } else {
+                throw new Error(`编译${file.name}(${file.id}).${extName}失败，${res?.data?.message ?? '服务异常'}`)
+              }
+            }));
+            publishTaskIndexMap[file.id] = publishTask.length - 1
+            publishFiles.push(file)
+            break;
+          }
           /** 不需要编译的类型 */
           default: {
             /** 直接返回原来文件的extName */
@@ -260,5 +283,18 @@ export default class ModuleController {
 		}
 		
 		return await this.moduleService.installModule({ id, projectId, userId }, request);
+	}
+
+  @Post('/getLatestFileList')
+	async getLatestFileList(@Body('moduleId') moduleId: number, @Body('parentId') parentId: number) {
+		
+		if (!moduleId) {
+			return { code: 0, message: '参数 moduleId 不能为空' };
+		}
+		const res = await this.moduleService.getLatestFileList({ moduleId });
+		return {
+      code: 1,
+      data: res
+    }
 	}
 }
