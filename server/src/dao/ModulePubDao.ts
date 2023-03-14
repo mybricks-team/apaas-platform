@@ -45,12 +45,15 @@ export default class ModulePubDao extends DOBase {
     extNameList: string[],
     version: string
   }) {
-    const result = await this.exe<{ id }>('apaas_module_pub_info:queryPubInfo', {
+    const result = await this.exe('apaas_module_pub_info:queryPubInfo', {
       ...params,
       status: 1
     })
     return result
   }
 
+  async getModulePubContent(params: { id: number }) {
+    return await this.exe<any[]>('apaas_module_pub_info:getModulePubContent', params);
+  }
   
 }

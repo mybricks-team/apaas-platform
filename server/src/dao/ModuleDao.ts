@@ -76,10 +76,6 @@ export default class ModuleDao extends DOBase {
     return await this.exe<ModuleDO[]>('apaas_module_info:getModules', params ?? {});
   }
 
-  async getModuleContent(params: { id: number }) {
-    return await this.exe<any[]>('apaas_module_info:getModuleContent', params);
-  }
-
   async create(params: {
     id: number;
     name: string;

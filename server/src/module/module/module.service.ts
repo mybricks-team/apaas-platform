@@ -70,9 +70,10 @@ export default class ModuleService {
 		
 	  const domainName = getRealDomain(request);
 		
-		const pubInfo = await this.moduleDao.getModuleContent({ id: id });
+		const pubInfo = await this.modulePubDao.getModulePubContent({ id: id });
 		const staticFile = [];
-	  pubInfo.map(async pub => {
+		for (let l=pubInfo.length, i = 0; i < l; i++) {
+			const pub = pubInfo[i];
 			switch (pub.ext_name) {
 				case 'domain': {
 					const info = JSON.parse(pub.content);
@@ -98,12 +99,16 @@ export default class ModuleService {
 				}
 				case 'mp': { break; }
 			}
-	  });
+		}
 	
-	  staticFile.length && (await this.flowService.batchCreateProjectFile({ codeStrList: staticFile, projectId }, { domainName }));
+		if(staticFile.length) {
+			const res = await this.flowService.batchCreateProjectFile({ codeStrList: staticFile, projectId }, { domainName });
+		}
 	
 		if (projectModule) {
-			const moduleList = projectModule.module_info?.moduleList || [];
+			const moduleInfo = JSON.parse(projectModule.module_info)
+			const moduleList = moduleInfo?.moduleList || [];
+			const fileList = moduleInfo?.fileList || [];
 			const findModule = moduleList.find(m => m.originFileId === module.originFileId);
 			
 			if (findModule) {

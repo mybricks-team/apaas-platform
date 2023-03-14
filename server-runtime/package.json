@@ -9,7 +9,7 @@
     "stop:flow": "npx pm2 stop index_flow",
     "installApplication": "node installApplication.js",
     "start:dev": "node index.js",
-    "start:watch": "NODE_ENV=development nodemon --ext ts --exec 'node index-runtime.js'",
+    "start:watch": "NODE_ENV=development nodemon --ext ts --exec 'node index_flow.js'",
     "dev:flow": "nodemon --ext js,ts --exec 'node index_flow.js'",
     "publishToNpm": "npm publish --registry=https://registry.npmjs.org"
   },
