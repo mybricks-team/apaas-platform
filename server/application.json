@@ -34,7 +34,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-app-ktaro@0.0.40"
+      "path": "mybricks-app-mpcloudcom@0.0.2"
     },
     {
       "type": "npm",
@@ -42,7 +42,7 @@
     },
     {
       "type":"npm",
-      "path":"mybricks-app-mp@0.0.13"
+      "path":"mybricks-app-mpsite@0.0.1"
     },
     {
       "type": "npm",
