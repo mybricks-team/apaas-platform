@@ -422,8 +422,8 @@ export default class FileService {
       // 最多遍历七层
       while(tempItem?.parentId && count < 7) {
         count++;
-        tempItem = await this.fileDao.queryById(tempItem.parentId);
-        console.log('---', tempItem.extName, tempItem.parentId)
+        // 恶心兼容，等待完全删除
+        tempItem = await this.fileDao.queryById(tempItem.parentId, [1, -1]);
         // switch(tempItem.extName) {
         //   case 'folder-module':
         //   case 'folder-project':
