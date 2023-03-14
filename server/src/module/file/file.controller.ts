@@ -6,7 +6,8 @@ import FileCooperationDao from "../../dao/FileCooperationDao";
 import UserGroupDao from "../../dao/UserGroupDao";
 import UserGroupRelationDao from '../../dao/UserGroupRelationDao'
 import ServicePubDao from '../../dao/ServicePubDao'
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import ModulePubDao from '../../dao/ModulePubDao'
+import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
 import { isNumber, uuid } from '../../utils'
 import ModuleDao from "../../dao/ModuleDao";
 const path = require('path');
@@ -22,6 +23,7 @@ export default class FileService {
   userGroupRelationDao: UserGroupRelationDao;
   servicePubDao: ServicePubDao;
   moduleDao: ModuleDao;
+  modulePubDao: ModulePubDao
 
   constructor() {
     this.fileDao = new FileDao();
@@ -33,6 +35,7 @@ export default class FileService {
     this.userGroupRelationDao = new UserGroupRelationDao();
     this.servicePubDao = new ServicePubDao()
     this.moduleDao = new ModuleDao()
+    this.modulePubDao = new ModulePubDao()
   }
 
   @Get("/file/get")
@@ -860,6 +863,131 @@ export default class FileService {
     return {
       code: 1,
       msg: '更新结束'
+    }
+  }
+
+  @Get('/file/getEditModuleComponentLibraryByProjectId')
+  async getEditModuleComponentLibraryByProjectId(@Query('id') id: number, @Res() res: Response) {
+    if (!id) {
+      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+      res.status(200).send('').end();
+    } else {
+      const projectInfoAry = await this.moduleDao.getProjectModuleInfo(id)
+      let componentsStr = ''
+
+      setTimeout(() => {
+        console.log(projectInfoAry, 'projectInfoAry')
+      }, 1000)
+
+      await Promise.all(projectInfoAry.map(async (projectInfo) => {
+        const { module_info } = projectInfo
+        const { moduleList } = JSON.parse(module_info)
+        
+        await Promise.all(moduleList.map(async (module) => {
+          const { id, name, version } = module
+          const cdms = await this.modulePubDao.queryPubInfo({
+            moduleId: id,
+            extNameList: ['cdm'],
+            version: version
+          })
+
+          if (cdms?.length) {
+            let comsStr = ''
+            cdms.forEach((cdm) => {
+              const content = JSON.parse(cdm.content)
+
+              comsStr = comsStr + `
+                {
+                  data: ${JSON.stringify(content.data)},
+                  icon: '${content.icon}',
+                  title: '${content.title}',
+                  version: '${content.version}',
+                  namespace: '${content.namespace}',
+                  inputs: ${JSON.stringify(content.inputs)},
+                  outputs: ${JSON.stringify(content.outputs)},
+                  editors: ${decodeURIComponent(content.editors)},
+                  runtime: ${decodeURIComponent(content.runtime)},
+                  upgrade: ${decodeURIComponent(content.upgrade)}
+                },
+              `
+            })
+
+            if (comsStr) {
+              componentsStr = componentsStr + `
+              comAray.push({
+                id: '${id}',
+                title: '${name}',
+                comAray: [
+                  ${comsStr}
+                ]
+              })
+              `
+            }
+          }
+
+          Promise.resolve()
+        }))
+      }))
+
+      let editJS = `
+        let comlibList = window['__comlibs_edit_'];
+        if(!comlibList){
+          comlibList = window['__comlibs_edit_'] = [];
+        }
+        let comAray = [];
+        const newComlib = {
+          id: '_module_component_library_',
+          title: '模块组件库',
+          version: '1.0.0',
+          comAray
+        };
+        ${componentsStr}
+        comlibList.push(newComlib);
+      `
+
+      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+      res.status(200).send(editJS).end();
+    }
+  }
+
+  @Get('/file/getModuleComponentsByProjectId')
+  async getModuleComponentsByProjectId(@Query('id') id: number) {
+    if (!id) {
+      return {
+        code: 1,
+        data: []
+      }
+    } else {
+      const projectInfoAry = await this.moduleDao.getProjectModuleInfo(id)
+
+      const result = []
+
+      await Promise.all(projectInfoAry.map(async (projectInfo) => {
+        const { module_info } = projectInfo
+        const { moduleList } = JSON.parse(module_info)
+        
+        await Promise.all(moduleList.map(async (module) => {
+          const { id, version } = module
+          const cdms = await this.modulePubDao.queryPubInfo({
+            moduleId: id,
+            extNameList: ['cdm'],
+            version: version
+          })
+
+          if (cdms?.length) {
+            cdms.forEach((cdm) => {
+              result.push(JSON.parse(cdm.content))
+            })
+          }
+
+          Promise.resolve()
+        }))
+      }))
+
+      return {
+        code: 1,
+        data: result
+      }
     }
   }
 }
