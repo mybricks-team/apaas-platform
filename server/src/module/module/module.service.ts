@@ -106,7 +106,7 @@ export default class ModuleService {
 		}
 	
 		if (projectModule) {
-			const moduleInfo  =JSON.parse(projectModule.module_info)
+			const moduleInfo = JSON.parse(projectModule.module_info)
 			const moduleList = moduleInfo?.moduleList || [];
 			const fileList = moduleInfo?.fileList || [];
 			const findModule = moduleList.find(m => m.originFileId === module.originFileId);

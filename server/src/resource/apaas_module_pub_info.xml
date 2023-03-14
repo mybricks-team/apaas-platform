@@ -37,7 +37,13 @@
         </foreach>
     </insert>
 
-     <select id="queryPubInfo">
+    <select id="getModulePubContent">
+        select * from apaas_module_pub_info
+        where module_id = #{id} 
+        order by create_time desc
+    </select>
+
+    <select id="queryPubInfo">
         select * from apaas_module_pub_info where
         status = #{status}
         and version = #{version}
