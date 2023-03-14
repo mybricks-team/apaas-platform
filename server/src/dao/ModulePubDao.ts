@@ -55,5 +55,9 @@ export default class ModulePubDao extends DOBase {
   async getModulePubContent(params: { id: number }) {
     return await this.exe<any[]>('apaas_module_pub_info:getModulePubContent', params);
   }
-  
+
+  async getLatestFileList(params: { moduleId: number, parentId?: number }) {
+    return await this.exe<any[]>('apaas_module_pub_info:getLatestFileList', {...params, status: 1});
+  }
+
 }

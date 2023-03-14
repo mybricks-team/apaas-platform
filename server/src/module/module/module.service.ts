@@ -163,4 +163,8 @@ export default class ModuleService {
 		
 	  return { code: 1, message: '安装成功' };
   }
+
+	async getLatestFileList({ moduleId, parentId }: { moduleId: number, parentId?: number }) {
+		return await this.modulePubDao.getLatestFileList({ moduleId })
+	}
 }
