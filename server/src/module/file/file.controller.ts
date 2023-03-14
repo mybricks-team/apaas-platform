@@ -874,11 +874,6 @@ export default class FileService {
     } else {
       const projectInfoAry = await this.moduleDao.getProjectModuleInfo(id)
       let componentsStr = ''
-
-      setTimeout(() => {
-        console.log(projectInfoAry, 'projectInfoAry')
-      }, 1000)
-
       await Promise.all(projectInfoAry.map(async (projectInfo) => {
         const { module_info } = projectInfo
         const { moduleList } = JSON.parse(module_info)
@@ -905,7 +900,7 @@ export default class FileService {
                   namespace: '${content.namespace}',
                   inputs: ${JSON.stringify(content.inputs)},
                   outputs: ${JSON.stringify(content.outputs)},
-                  editors: ${decodeURIComponent(content.editors)},
+                  editors: (${decodeURIComponent(content.editors)})(),
                   runtime: ${decodeURIComponent(content.runtime)},
                   upgrade: ${decodeURIComponent(content.upgrade)}
                 },
