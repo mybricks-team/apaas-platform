@@ -165,6 +165,6 @@ export default class ModuleService {
   }
 
 	async getLatestFileList({ moduleId, parentId }: { moduleId: number, parentId?: number }) {
-		return await this.modulePubDao.getLatestFileList({ moduleId })
+		return await this.modulePubDao.getLatestFileList({ moduleId, parentId })
 	}
 }

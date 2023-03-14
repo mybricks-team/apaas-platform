@@ -291,7 +291,7 @@ export default class ModuleController {
 		if (!moduleId) {
 			return { code: 0, message: '参数 moduleId 不能为空' };
 		}
-		const res = await this.moduleService.getLatestFileList({ moduleId });
+		const res = await this.moduleService.getLatestFileList({ moduleId, parentId });
 		return {
       code: 1,
       data: res
