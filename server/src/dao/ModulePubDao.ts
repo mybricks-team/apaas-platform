@@ -8,6 +8,24 @@ export class ModulePubDO {
   @Column("version")
   version: string;
 
+  @Column("module_id")
+  moduleId: string;
+
+  @Column("ext_name")
+  extName: string;
+
+  @Column("file_name")
+  fileName: string;
+
+  @Column("file_id")
+  fileId: string;
+
+  @Column("parent_id")
+  parentId: string;
+
+  @Column("commit_info")
+  commitInfo: string;
+
   @Column("status")
   status: number;
 
@@ -56,6 +74,7 @@ export default class ModulePubDao extends DOBase {
     return await this.exe<any[]>('apaas_module_pub_info:getModulePubContent', params);
   }
 
+  @Mapping(ModulePubDO)
   async getLatestFileList(params: { moduleId: number, parentId?: number }) {
     return await this.exe<any[]>('apaas_module_pub_info:getLatestFileList', {...params, status: 1});
   }
