@@ -15,7 +15,7 @@ export default class FlowService {
 
   // 模块安装时，发布到运行容器
   // fileName示例：a.html
-  async batchCreateProjectFile({ codeStrList, projectId }: { codeStrList: {fileId: number, fileName: string, content: string}[], projectId: number}, { domainName }) {
+  async batchCreateProjectFile({ codeStrList, projectId }: { codeStrList: {fileId: number, fileName: string, content: string}[], projectId: number}, { domainName }): Promise<{fileId: number, url: string}[]> {
     let folderPath = `/project`;
       if(projectId) {
         folderPath = `/project/${projectId}`;
@@ -34,8 +34,11 @@ export default class FlowService {
         cdnList.length &&
         !cdnList.some((url) => !url)
       ) {
-        return cdnList?.map((subPath) => {
-          return `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`
+        return cdnList?.map((subPath, index) => {
+          return {
+            fileId: codeStrList[index].fileId,
+            url: `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX_RUNTIME}${subPath}`
+          }
         })
       }
   }
