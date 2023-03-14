@@ -311,4 +311,17 @@ export default class ModuleController {
 		
 		return await this.moduleService.installModule({ id, projectId, userId }, request);
 	}
+
+  @Post('/getLatestFileList')
+	async getLatestFileList(@Body('moduleId') moduleId: number, @Body('parentId') parentId: number) {
+		
+		if (!moduleId) {
+			return { code: 0, message: '参数 moduleId 不能为空' };
+		}
+		const res = await this.moduleService.getLatestFileList({ moduleId, parentId });
+		return {
+      code: 1,
+      data: res
+    }
+	}
 }

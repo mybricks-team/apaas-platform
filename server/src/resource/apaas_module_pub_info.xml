@@ -56,4 +56,26 @@
         </if>
         order by id desc
     </select>
+
+    <select id="getLatestFileList">
+        select
+            id, 
+            module_id,
+            version,
+            ext_name,
+            file_name,
+            file_id,
+            parent_id,
+            creator_id,
+            creator_name,
+            create_time,
+            commit_info
+        from apaas_module_pub_info where
+        status = #{status}
+        and module_id = #{moduleId}
+        <if test="parentId">
+            and parent_id = #{parentId}
+        </if>
+        order by id desc
+    </select>
 </mapper>
