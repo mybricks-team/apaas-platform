@@ -381,13 +381,13 @@ export default class FileService {
 
   @Get("/file/getFiles")
   async getFiles(@Query() query) {
-    let { parentId, extNames, groupId } = query
+    let { parentId, extNames, groupId, creatorId } = query
 
     if (typeof extNames === 'string') {
       extNames = extNames.split(',')
     }
 
-    const files = await this.fileDao.query({parentId, extNames, groupId})
+    const files = await this.fileDao.query({parentId, extNames, groupId, creatorId})
 
     return {
       code: 1,
