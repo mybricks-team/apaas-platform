@@ -36,4 +36,18 @@
             </trim>
         </foreach>
     </insert>
+
+     <select id="queryPubInfo">
+        select * from apaas_module_pub_info where
+        status = #{status}
+        and version = #{version}
+        and module_id = #{moduleId} 
+        <if test="extNameList">
+            and ext_name in
+            <foreach collection="extNameList" open="(" close=")" separator="," item="extName" index="i">
+                #{extName}
+            </foreach>
+        </if>
+        order by id desc
+    </select>
 </mapper>

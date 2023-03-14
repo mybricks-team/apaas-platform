@@ -34,6 +34,15 @@ export default class ModuleService {
     return id
   }
 
+	async queryPubInfo(params: {
+    moduleId: number,
+    version: string,
+		extNameList: string[]
+  }) {
+    const { id } = await this.modulePubDao.queryPubInfo(params)
+    return id
+  }
+
   async queryByFileId(param: {
     fileId: number,
     pageSize: number,
