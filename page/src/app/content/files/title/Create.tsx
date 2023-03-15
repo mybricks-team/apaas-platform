@@ -8,7 +8,7 @@ import React, {
 
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
-import {message, Modal, Form, Input} from 'antd'
+import {message, Modal, Form, Input, Radio} from 'antd'
 
 import {Icon} from '../../../components'
 import Ctx, {folderExtnames} from '../Ctx'
@@ -98,7 +98,7 @@ export function Create(): JSX.Element {
     return new Promise(async (resolve, reject) => {
       const item = ctx.path.at(-1)
       const isGroup = !!!item.extName && !!item.id
-      const { fileName } = values
+      const { fileName, type } = values
       const { extName, isSystem } = app
       const params: any = {
         extName,
@@ -129,10 +129,7 @@ export function Create(): JSX.Element {
         axios({
           method: 'post',
           url: getApiUrl('/paas/api/workspace/createFile'),
-          data: {
-            ...params,
-            name: fileName
-          }
+          data: { ...params, name: fileName, type }
         }).then(async ({data}) => {
           if (data.code === 1) {
             const appReg = appCtx.APPSMap[extName]
@@ -255,6 +252,11 @@ function CreateFileModal({app, onOk, onCancel}) {
         >
           <Input ref={ref} placeholder={`请输入${app?.title}名称`} autoFocus onPressEnter={ok}/>
         </Form.Item>
+	      {['cloud-com', 'mp-cloudcom'].includes(app?.extName) ? (
+		      <Form.Item label='类型' name="type" initialValue="other">
+			      <Radio.Group options={[{ label: '菜单', value: 'menu' }, { label: '登录', value: 'login' }, { label: '其他', value: 'other' }]} />
+		      </Form.Item>
+	      ) : null}
       </Form>
     </Modal>
   )
