@@ -55,7 +55,7 @@ export default class FlowController {
     }
     let readyExePath;
     try {
-      const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_PREFIX_RUNTIME, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
+      const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       const readyExeTemplatePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`)
       readyExePath = path.join(__dirname, `${serviceId}.${uuid(10)}.js`)
       const templateStr = fs.readFileSync(readyExeTemplatePath, 'utf8');
