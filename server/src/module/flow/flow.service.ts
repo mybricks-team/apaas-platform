@@ -4,7 +4,6 @@ const fs = require('fs-extra');
 const env = require('../../../env.js')
 const path = require('path');
 import UploadService from '../upload/upload.service';
-
 @Injectable()
 export default class FlowService {
   uploadService: UploadService;
