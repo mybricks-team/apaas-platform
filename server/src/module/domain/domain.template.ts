@@ -1,6 +1,5 @@
 const DOMAIN_EXE_CODE_TEMPLATE = `
-  const { SnowFlake } = require('gen-uniqueid');
-  let snowFlake = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
+  let SNOW_FLAKE = null;
   let DB_CONN = null;
   let GLOBAL_RESOLVE = null;
   let GLOBAL_REJECT = null;
@@ -15,10 +14,6 @@ const DOMAIN_EXE_CODE_TEMPLATE = `
       return retVal;
   };
   const _execSQL = async (sql, { args }) => {
-      if (!DB_CONN) {
-          const { getConnection } = require("@mybricks/rocker-dao");
-          DB_CONN = await getConnection();
-      }
       const conn = DB_CONN;
       const handledSql = sql?.replace(new RegExp('(?:\\n|\\t|\\r)', 'ig'), ($0, $1) => {
           return ' ';
@@ -107,7 +102,7 @@ const DOMAIN_EXE_CODE_TEMPLATE = `
               });
           },
           genUniqueId: () => {
-              return snowFlake.NextId();
+              return SNOW_FLAKE.NextId();
           }
       };
   };
