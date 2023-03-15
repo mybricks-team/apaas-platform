@@ -114,7 +114,7 @@ function Group() {
     return (
       <NavMenu
         id={''}
-        name='协作组'
+        name='我加入的协作组'
         namespace={`group`}
         child={proxyLocal}
         focusable={false}

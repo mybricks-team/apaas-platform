@@ -391,6 +391,9 @@ function RenameFileModal({app, onOk, onCancel}) {
   }, [])
 
   useEffect(() => {
+		if (app) {
+			form.setFieldsValue({ name: app.name });
+		}
     if (app && ref.current) {
       setTimeout(() => {
         (ref.current as any).focus()
