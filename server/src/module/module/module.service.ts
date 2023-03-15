@@ -167,4 +167,26 @@ export default class ModuleService {
 	async getLatestFileList({ moduleId, parentId }: { moduleId: number, parentId?: number }) {
 		return await this.modulePubDao.getLatestFileList({ moduleId, parentId })
 	}
+
+	async getLatestModulePubByProjectId({ projectId, extNameList }) {
+		const [projectModuleInfo] = await this.moduleDao.getProjectModuleInfo(projectId);
+		let moduleList;
+		try {
+			moduleList = JSON.parse(projectModuleInfo.module_info)?.moduleList
+			for(let l=moduleList.length, i=0; i<l; i++) {
+				const m = moduleList[i]
+				const { id, version } = m;
+				let param: any = { moduleId: id, version: version };
+				if(extNameList?.length > 0) {
+					param.extNameList = extNameList
+				}
+				const res = await this.modulePubDao.queryPubInfo(param)
+				m['pubInfo'] = res
+			}
+		} catch (e) {
+			throw e
+		}
+		
+		return moduleList
+	}
 }

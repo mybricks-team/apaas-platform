@@ -324,4 +324,20 @@ export default class ModuleController {
       data: res
     }
 	}
+
+  @Post('/getLatestModulePubByProjectId')
+  async getLatestModulePubByProjectId(@Body('projectId') projectId: number, @Body('extNameList') extNameList: string[]) {
+    try {
+      const res = await this.moduleService.getLatestModulePubByProjectId({ projectId, extNameList })
+      return {
+        code: 1,
+        data: res
+      }
+    } catch (e) {
+      return {
+        code: -1,
+        msg: e.message || '出错了'
+      }
+    }
+  }
 }
