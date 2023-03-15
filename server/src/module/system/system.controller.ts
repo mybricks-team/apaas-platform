@@ -390,25 +390,6 @@ export default class SystemService {
   }
 
   // 领域建模运行时
-  @Get('/system/domain/test2')
-  async systemDomainTestRun2(
-  ) {
-    const res = {}
-    let exeTimeStart = Date.now()
-    const {run} = require('./code.js')
-    const data = await run()
-    let exeTimeCost = Date.now() - exeTimeStart;
-    res['cost'] = {
-      data,
-      exeTimeCost
-    }
-    return {
-      code: 1,
-      data: res
-    }
-  }
-
-  // 领域建模运行时
   @Post('/system/domain/run')
   async systemDomainRun(
     // 通用参数
