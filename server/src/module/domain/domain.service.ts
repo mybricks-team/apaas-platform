@@ -21,11 +21,9 @@ export default class DomainService {
     }
     const cdnList = await Promise.all(
       serviceContentList.map((serviceContent) => {
+        let newStr = decodeURIComponent(serviceContent.code).replace('//@external_dep', DOMAIN_EXE_CODE_TEMPLATE)
         return this.uploadService.saveFile({
-          str: `
-            ${DOMAIN_EXE_CODE_TEMPLATE}
-            ${decodeURIComponent(serviceContent.code)}
-          `,
+          str: newStr,
           filename: `${serviceContent.id}.js`,
           folderPath: folderPath
         });

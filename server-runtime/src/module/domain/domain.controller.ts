@@ -65,9 +65,9 @@ export default class FlowController {
         this.runtimeDBConnection = await getConnection();
       }
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
-      readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`)
-      const { run } = require(readyExePath)
-      let res = await run(params || {}, {
+      readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
+      const { startExe } = require(readyExePath)
+      let res = await startExe(params || {}, {
         dbConnection: this.runtimeDBConnection,
         snowFlake: this.snowFlake
       })
