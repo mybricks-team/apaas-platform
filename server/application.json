@@ -38,11 +38,11 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-app-mppage@0.0.6"
+      "path": "mybricks-app-mppage@0.0.7"
     },
     {
       "type":"npm",
-      "path":"mybricks-app-mpsite@0.0.3"
+      "path":"mybricks-app-mpsite@0.0.4"
     },
     {
       "type": "npm",
