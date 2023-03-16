@@ -90,10 +90,10 @@ export default class ModuleController {
       /** 存储fileId和publishTask的索引关系 */
       const publishTaskIndexMap = {}
       const publishFiles = []
-      for(let l = flattenFiles.length, i = 0; i < l; i++) {
+      for (let l = flattenFiles.length, i = 0; i < l; i++) {
         let file = flattenFiles[i]
         const { extName } = file;
-        switch(extName) {
+        switch (extName) {
           case 'domain': {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id });
             publishTask.push(
@@ -127,7 +127,7 @@ export default class ModuleController {
           case 'pc-page': {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
             publishTask.push((axios as any).post(`${domainName}/api/pcpage/generateHTML`, {
-	            fileId: file.id,
+              fileId: file.id,
               userId: email,
               json: JSON.parse(latestSave?.content ?? '{}').toJSON,
             }).then(res => {
@@ -150,9 +150,9 @@ export default class ModuleController {
           case 'mp-page': {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
             publishTask.push((axios as any).post(`${domainName}/api/mppage/compile`, {
-	            fileId: file.id,
+              fileId: file.id,
               userId: email,
-              json: JSON.parse(latestSave?.content ?? '{}').toJson,
+              json: JSON.parse(latestSave?.content ?? '{}'),
             }).then(res => {
               if (res?.data?.code === 1 && res?.data?.data) {
                 if (typeof res?.data?.data?.bundle !== 'string') {
@@ -173,9 +173,9 @@ export default class ModuleController {
           case 'mp-cloudcom': {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
             publishTask.push((axios as any).post(`${domainName}/api/mpcloudcom/compile`, {
-	            fileId: file.id,
+              fileId: file.id,
               userId: email,
-              json: JSON.parse(latestSave.content).toJSON,
+              json: JSON.parse(latestSave.content).toJSON || {},
             }).then(res => {
               if (res?.data?.code === 1 && res?.data?.data) {
                 if (typeof res?.data?.data?.bundle !== 'string') {
@@ -200,7 +200,7 @@ export default class ModuleController {
           case 'cloud-com': {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
             publishTask.push((axios as any).post(`${domainName}/api/cloudcom/generateComponentCode`, {
-	            fileId: file.id,
+              fileId: file.id,
               userId: email,
               json: JSON.parse(latestSave.content).toJSON,
             }).then(res => {
@@ -283,7 +283,7 @@ export default class ModuleController {
     }
   }
 
-  @Get('/publish/getVersionsByFileId') 
+  @Get('/publish/getVersionsByFileId')
   async getVersionsByFileId(@Query() query) {
     const { id, pageIndex, pageSize } = query
     const versions = await this.moduleService.queryByFileId({ fileId: id, pageIndex, pageSize })
@@ -293,37 +293,37 @@ export default class ModuleController {
       data: versions
     }
   }
-	
-	@Get('/list')
-	async getModuleList() {
-		const moduleList = await this.moduleService.getModuleList();
-		
-		return { code: 1, data: moduleList };
-	}
-	
-	@Post('/install')
-	async installModule(@Body() body, @Request() request) {
-		const { id, projectId, userId } = body;
-		
-		if (!id || !projectId) {
-			return { code: 0, message: '参数 id、projectId 不能为空' };
-		}
-		
-		return await this.moduleService.installModule({ id, projectId, userId }, request);
-	}
+
+  @Get('/list')
+  async getModuleList() {
+    const moduleList = await this.moduleService.getModuleList();
+
+    return { code: 1, data: moduleList };
+  }
+
+  @Post('/install')
+  async installModule(@Body() body, @Request() request) {
+    const { id, projectId, userId } = body;
+
+    if (!id || !projectId) {
+      return { code: 0, message: '参数 id、projectId 不能为空' };
+    }
+
+    return await this.moduleService.installModule({ id, projectId, userId }, request);
+  }
 
   @Post('/getLatestFileList')
-	async getLatestFileList(@Body('moduleId') moduleId: number, @Body('parentId') parentId: number) {
-		
-		if (!moduleId) {
-			return { code: 0, message: '参数 moduleId 不能为空' };
-		}
-		const res = await this.moduleService.getLatestFileList({ moduleId, parentId });
-		return {
+  async getLatestFileList(@Body('moduleId') moduleId: number, @Body('parentId') parentId: number) {
+
+    if (!moduleId) {
+      return { code: 0, message: '参数 moduleId 不能为空' };
+    }
+    const res = await this.moduleService.getLatestFileList({ moduleId, parentId });
+    return {
       code: 1,
       data: res
     }
-	}
+  }
 
   @Post('/getLatestModulePubByProjectId')
   async getLatestModulePubByProjectId(@Body('projectId') projectId: number, @Body('extNameList') extNameList: string[]) {
