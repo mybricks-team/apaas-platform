@@ -82,6 +82,7 @@ const DOMAIN_EXE_CODE_TEMPLATE = `
         },
         onError: (msg) => {
           GLOBAL_REJECT(msg)
+          throw new Error(msg)
         },
       };
   };
@@ -98,6 +99,7 @@ const DOMAIN_EXE_CODE_TEMPLATE = `
                   }
                   catch (error) {
                       console.log('【执行SQL】：执行沙箱内sql出错: '+ error?.message);
+                        throw error
                   }
               });
           },
