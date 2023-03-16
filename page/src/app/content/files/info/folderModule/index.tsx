@@ -69,6 +69,18 @@ const FolderModule: FC = () => {
   )
 }
 
+const Version = ({ version, name, time }) => {
+	return (
+		<div className={styles.version}>
+			<div className={styles.row}>
+				<div className={styles.ver}>版本：{version}</div>
+				<div className={styles.name}>{name}</div>
+			</div>
+			<div className={`${styles.row} ${styles.time}`}>发布于 {time}</div>
+		</div>
+	)
+}
+
 function PublishList({list}) {
 	const RenderList = useMemo(() => {
 		if (!list) {
@@ -78,8 +90,10 @@ function PublishList({list}) {
 			return <div>暂无发布记录</div>
 		}
 		return list.map((item) => {
+			return <Version key={item?.version} version={item?.version} name={item.creatorName} time={item.createTime} />
+
 			return (
-				<Card>
+				<Card key={item?.version}>
 					<div className={styles.item}>
 						<div className={styles.label}>版本:</div>
 						<div className={styles.value}>{item.version}</div>
