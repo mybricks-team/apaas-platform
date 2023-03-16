@@ -1,10 +1,11 @@
 import React, {useCallback, useEffect} from 'react';
 import {Breadcrumb} from 'antd';
-
-import css from './index.less';
 import {Create} from "./Create";
 import {evt, observe} from "@mybricks/rxui";
 import Ctx from "../Ctx";
+import {FolderModule, FolderProject} from "../../../../app/components";
+
+import css from './index.less';
 
 export default function TitleBar(): JSX.Element {
   const ctx = observe(Ctx, {from: "parents"})
@@ -41,6 +42,12 @@ export default function TitleBar(): JSX.Element {
       <Breadcrumb separator='>' className={css.breadcrumb}>
         {ctx.path.map((item, idx) => {
           const {id, name} = item;
+					let icon = null;
+					if (item.extName === 'folder-project') {
+						icon = <FolderProject width={20} height={20} />;
+					} else if (item.extName === 'folder-module') {
+						icon = <FolderModule width={20} height={20} />;
+					}
           return (
             <Breadcrumb.Item
               key={id}
@@ -51,7 +58,12 @@ export default function TitleBar(): JSX.Element {
                   titleClick(item);
                 }
               }}
-            >{name}</Breadcrumb.Item>
+            >
+	            <div className={css.breadcrumbContent}>
+		            {icon}
+		            <span>{name}</span>
+	            </div>
+            </Breadcrumb.Item>
           );
         })}
       </Breadcrumb>

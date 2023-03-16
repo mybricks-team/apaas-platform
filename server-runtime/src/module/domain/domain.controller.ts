@@ -20,6 +20,8 @@ const fs = require('fs');
 import { uuid } from '../../utils/index'
 import FileDao from '../../dao/FileDao';
 import ServicePubDao from '../../dao/ServicePubDao';
+const { getConnection } = require("@mybricks/rocker-dao");
+const { SnowFlake } = require('gen-uniqueid');
 
 @Controller('/runtime/api/domain')
 export default class FlowController {
@@ -32,11 +34,15 @@ export default class FlowController {
   nodeVMIns: any;
   fileDao: FileDao;
   servicePubDao: ServicePubDao
+  // runtime env
+  runtimeDBConnection: any
+  snowFlake: any
   
   constructor() {
     this.nodeVMIns = createVM({ openLog: true });
     this.fileDao = new FileDao();
     this.servicePubDao = new ServicePubDao();
+    this.snowFlake = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
   }
 
   // 领域建模运行时(运行时)
@@ -55,27 +61,21 @@ export default class FlowController {
     }
     let readyExePath;
     try {
-      const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
-      const readyExeTemplatePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`)
-      readyExePath = path.join(__dirname, `${serviceId}.${uuid(10)}.js`)
-      const templateStr = fs.readFileSync(readyExeTemplatePath, 'utf8');
-      fs.writeFileSync(readyExePath, `
-        ;let PARAMS = ${JSON.stringify(params || {})};
-        ;${templateStr}
-      `)
-      const { run } = require(readyExePath)
-      let res = await run()
-      if(fs.existsSync(readyExePath)) {
-        fs.unlinkSync(readyExePath)
+      if(!this.runtimeDBConnection) {
+        this.runtimeDBConnection = await getConnection();
       }
+      const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
+      readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`)
+      const { run } = require(readyExePath)
+      let res = await run(params || {}, {
+        dbConnection: this.runtimeDBConnection,
+        snowFlake: this.snowFlake
+      })
       return {
         code: 1,
         data: res
       }
     } catch (e) {
-      if(fs.existsSync(readyExePath)) {
-        fs.unlinkSync(readyExePath)
-      }
       return {
         code: -1,
         msg: `执行出错了 ${e.message}`

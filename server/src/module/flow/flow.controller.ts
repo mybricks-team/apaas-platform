@@ -46,13 +46,12 @@ export default class FlowController {
   // 模块安装时，发布到运行容器
   @Post('/file/batchCreate')
   async batchCreateProjectFile(
-    @Body('fileId') fileId: number,
     @Body('projectId') projectId: number,
-    @Body('codeStrList') codeStrList: {fileName: string, content: string}[],
+    @Body('codeStrList') codeStrList: {fileId: number, fileName: string, content: string}[],
     @Request() request,
   ) {
     const domainName = getRealDomain(request)
-    if(!fileId || !codeStrList) {
+    if(!codeStrList) {
       return {
         code: -1,
         msg: 'fileId 或 codeStrList 为空'
@@ -60,7 +59,6 @@ export default class FlowController {
     }
     try {
       const cdnList = await this.flowService.batchCreateProjectFile({
-        fileId,
         projectId,
         codeStrList
       }, { domainName })

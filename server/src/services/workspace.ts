@@ -184,6 +184,16 @@ export default class WorkspaceService {
         groupId,
         parentId,
       });
+			
+			if (rtn.id && ['cloud-com', 'mp-cloudcom'].includes(extName)) {
+				await this.fileContentDao.create({
+					fileId: rtn.id,
+					content: JSON.stringify({ fileType: type }),
+					version: '1.0.0',
+					creatorId: userId,
+					creatorName: userId,
+				});
+			}
 
       return {
         code: 1,
