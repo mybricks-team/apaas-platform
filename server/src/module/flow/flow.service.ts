@@ -16,30 +16,46 @@ export default class FlowService {
   // fileName示例：a.html
   async batchCreateProjectFile({ codeStrList, projectId }: { codeStrList: {fileId: number, fileName: string, content: string}[], projectId: number}, { domainName }): Promise<{fileId: number, url: string}[]> {
     let folderPath = `/project`;
-      if(projectId) {
-        folderPath = `/project/${projectId}`;
-      }
-      const cdnList = await Promise.all(
-        codeStrList.map((codeContent) => {
-          return this.uploadService.saveFile({
-            str: codeContent.content,
-            filename: codeContent.fileName,
-            folderPath: `${folderPath}/${codeContent.fileId}`
-          });
-        }),
-      );
-      if (
-        Array.isArray(cdnList) &&
-        cdnList.length &&
-        !cdnList.some((url) => !url)
-      ) {
-        return cdnList?.map((subPath, index) => {
-          return {
-            fileId: codeStrList[index].fileId,
-            url: `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX_RUNTIME}${subPath}`
-          }
-        })
-      }
+    if(projectId) {
+      folderPath = `/project/${projectId}`;
+    }
+    const cdnList = await Promise.all(
+      codeStrList.map((codeContent) => {
+        return this.uploadService.saveFile({
+          str: codeContent.content,
+          filename: codeContent.fileName,
+          folderPath: `${folderPath}/${codeContent.fileId}`
+        });
+      }),
+    );
+    if (
+      Array.isArray(cdnList) &&
+      cdnList.length &&
+      !cdnList.some((url) => !url)
+    ) {
+      return cdnList?.map((subPath, index) => {
+        return {
+          fileId: codeStrList[index].fileId,
+          url: `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX_RUNTIME}${subPath}`
+        }
+      })
+    }
+  }
+
+  async batchDeleteServiceFileOfProject({ serviceList, projectId }: { serviceList: {fileId: number, serviceId: string}[], projectId: number}) {
+    let folderPath = `/project`;
+    if(projectId) {
+      folderPath = `/project/${projectId}`;
+    }
+    await Promise.all(
+      serviceList.map(({fileId, serviceId}) => {
+        let tempPath = `${folderPath}/${fileId}/${serviceId}.js`;
+        return this.uploadService.deleteFile({
+          subPath: tempPath
+        });
+      }),
+    );
+    return true;
   }
 
   async saveFile(params: any) {

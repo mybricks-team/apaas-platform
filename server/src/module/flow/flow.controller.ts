@@ -74,6 +74,36 @@ export default class FlowController {
       }
     }
   }
+
+  // 模块安装时，删除历史存量页面
+  @Post('/file/batchDeleteService')
+  async batchDeleteServiceFileOfProject(
+    @Body('projectId') projectId: number,
+    @Body('serviceList') serviceList: {fileId: number, serviceId: string}[]
+  ) {
+    if(!serviceList) {
+      return {
+        code: -1,
+        msg: 'fileId 或 codeStrList 为空'
+      }
+    }
+    try {
+      await this.flowService.batchDeleteServiceFileOfProject({
+        projectId,
+        serviceList
+      })
+      
+      return {
+        code: 1,
+        msg: '删除完毕'
+      }
+    } catch (err) {
+      return {
+        code: -1,
+        msg: err.message || '出错了'
+      }
+    }
+  }
   
 
   @Post('/saveFile')

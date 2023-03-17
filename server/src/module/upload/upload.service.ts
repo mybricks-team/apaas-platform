@@ -6,7 +6,6 @@ const path = require('path');
 
 @Injectable()
 export default class UploadService {
-
   fileLocalFolder = env.FILE_LOCAL_STORAGE_FOLDER
 
   async saveFile({
@@ -41,5 +40,15 @@ export default class UploadService {
     }
     fs.writeFileSync(visitPath, str)
     return folderPath ? `${folderPath}/${filename}` : `/${filename}`
+  }
+
+  async deleteFile({subPath}: {subPath: string}) {
+    let wholePath = path.join(this.fileLocalFolder, subPath)
+    console.log('完整路径', wholePath)
+    if(fs.existsSync(wholePath)) {
+      console.log('完整路径', wholePath)
+      fs.unlinkSync(wholePath)
+    }
+    return true
   }
 }
