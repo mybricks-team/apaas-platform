@@ -15,24 +15,28 @@ const path = require('path');
 
 @Controller('/runtime/api/server')
 export default class FlowController {
-  serverStatus: string
   constructor() {
-    this.serverStatus = 'running'
   }
   
   // 领域建模运行时(运行时)
   @Post('/reload')
   async systemDomainRun() {
-    if (this.serverStatus !== 'running') {
-      return {
-        code: -1,
-        msg: '服务不在运行状态，无法重启',
-      };
-    }
     try {
-      const res = childProcess.execSync("npx pm2 reload index_flow", {
-        cwd: path.join(process.cwd()),
-      })
+      childProcess.exec(
+        "npx pm2 reload index_flow",
+        {
+          cwd: path.join(process.cwd()),
+        },
+        (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+          }
+          console.log(`stdout: ${stdout}`);
+          console.log(`stderr: ${stderr}`);
+          
+        }
+      );
       return {
         code: 1,
         msg: 'success'
