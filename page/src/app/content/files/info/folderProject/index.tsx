@@ -6,8 +6,10 @@ import AppCtx from '../../../../AppCtx';
 import {Icon} from '../../../../components';
 import {getApiUrl} from '../../../../../utils';
 import ModuleCenterModal from './module-center-modal';
+import { Server } from '../../../../noaccess/Icons';
 
 import css from './index.less';
+import { message } from 'antd';
 
 class Ctx {
 	id: number;
@@ -53,7 +55,10 @@ export default function FolderProject(props) {
 	return (
 		<div className={css.folderProjectContainer}>
 			<FolderProjectList info={ctx.info} />
-			<ModuleArea ctx={ctx} />
+      <div>
+        <ModuleArea ctx={ctx} />
+        <ContainerArea />
+      </div>
 		</div>
 	);
 }
@@ -130,6 +135,48 @@ function AppList({apps}) {
       </Card>
     )
   })
+}
+
+function ContainerArea() {
+  const [isReload, setIsReload] = useState(false)
+  return (<div className={css.containerArea}>
+      <Card>
+        <div className={css.title}>
+          <span className={css.titleIcon}>
+            { Server }
+            <span style={{marginLeft: 4}}>运行容器状态</span>
+          </span>
+        </div>
+        <div style={{display: 'inline-flex'}}>
+          <div className={css.statusContent}>
+            <div className={isReload ? css.reloadStatus : css.runStatus}/>
+          </div>
+          <div className={isReload ? css.serverReload : css.serverOnline}>{isReload ? '重启中' : '运行中'}</div>
+        </div>
+        <div className={css.footBtns}>
+          <button disabled={isReload} onClick={() => {
+            setIsReload(true);
+            message.info('服务重启中, 请稍后', 2)
+            axios({
+              method: "post",
+              url: getApiUrl(`/runtime/api/server/reload`)
+            }).then(({data}) => {
+              setTimeout(() => {
+                if(data.code === 1) {
+                  message.success('重启完毕')
+                } else {
+                  message.warn('重启失败，请重试')
+                }
+                setIsReload(false);
+              }, 5000)
+            }).catch(e => {
+              message.warn('出错了，请重试' + e.message)
+              setIsReload(false);
+            })
+          }}>重启服务</button>
+        </div>
+      </Card>
+  </div>)
 }
 
 function ModuleArea({ ctx }) {

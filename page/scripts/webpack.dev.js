@@ -82,6 +82,12 @@ module.exports = {
     // open:true,
     proxy: [
       {
+        context: ['/runtime'],
+        target: 'http://localhost:3101',
+        secure: false,
+        changeOrigin: true,
+      },
+      {
         // context: ['*'],
         context: ['/'],
         target: 'http://localhost:3100',
