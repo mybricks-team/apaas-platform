@@ -156,7 +156,7 @@ function ContainerArea() {
         <div className={css.footBtns}>
           <button disabled={isReload} onClick={() => {
             setIsReload(true);
-            message.success('服务重启中, 请稍后', 2000)
+            message.info('服务重启中, 请稍后', 2)
             axios({
               method: "post",
               url: getApiUrl(`/runtime/api/server/reload`)
