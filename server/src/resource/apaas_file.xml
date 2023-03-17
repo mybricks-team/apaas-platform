@@ -576,14 +576,14 @@
     </select>
 
     <select id="getFilesByParentId">
-    select * from apaas_file 
-    where parent_id = #{id}
-    <if test="extNames">
-        and ext_name in 
-        <foreach collection="extNames" open="(" close=")" separator="," item="extName" index="i">
-            #{extName}
-        </foreach> 
-    </if>
+        select * from apaas_file 
+        where parent_id = #{id} and status = 1
+        <if test="extNames">
+            and ext_name in 
+            <foreach collection="extNames" open="(" close=")" separator="," item="extName" index="i">
+                #{extName}
+            </foreach> 
+        </if>
     </select>
 
     <select id="getEmptyListOfUUID">
