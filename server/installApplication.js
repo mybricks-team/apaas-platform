@@ -27,7 +27,7 @@ function injectAjaxScript({ namespace }) {
                       target.oldxhr[prop+'proxy']=function(...funcargs){
                           let newArgs = [...funcargs]
                           try {
-                              if (["GET", "POST"].indexOf(newArgs[0]) !== -1) {
+                              if (["GET", "POST", 'PUT', 'DELETE', 'OPTIONS'].indexOf(newArgs[0]) !== -1) {
                                   if(newArgs[1].indexOf("http") !== 0) {
                                     const pathname = newArgs[1];
                                     let needProxy = true;
