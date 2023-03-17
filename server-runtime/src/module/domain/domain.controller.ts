@@ -78,7 +78,7 @@ export default class FlowController {
     } catch (e) {
       return {
         code: -1,
-        msg: `执行出错了 ${e.message}`
+        msg: `${typeof e === 'string' ? e : e.message}`
       }
     }
   }
