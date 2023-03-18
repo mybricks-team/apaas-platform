@@ -35,7 +35,6 @@ export default class FlowController {
   fileDao: FileDao;
   servicePubDao: ServicePubDao
   // runtime env
-  runtimeDBConnection: any
   snowFlake: any
   
   constructor() {
@@ -61,14 +60,11 @@ export default class FlowController {
     }
     let readyExePath;
     try {
-      if(!this.runtimeDBConnection) {
-        this.runtimeDBConnection = await getConnection();
-      }
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       const { startExe } = require(readyExePath)
       let res = await startExe(params || {}, {
-        dbConnection: this.runtimeDBConnection,
+        dbConnection: await getConnection(),
         snowFlake: this.snowFlake
       })
       return {
