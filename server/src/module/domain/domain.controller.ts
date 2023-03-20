@@ -1,25 +1,15 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Inject,
-  Query,
-  Param,
-  Request,
-  UseInterceptors,
-  UploadedFile,
-} from '@nestjs/common';
+import {Body, Controller, Get, Inject, Post, Query, Request,} from '@nestjs/common';
 import DomainService from './domain.service';
-import { getRealDomain } from '../../utils/index'
+import {getRealDomain} from '../../utils/index'
 // @ts-ignore
-import { createVM } from 'vm-node';
+import {createVM} from 'vm-node';
 // const path = require('path');
 // const env = require('../../../env.js')
 // const fs = require('fs');
 // import { uuid } from '../../utils/index'
 import FileDao from '../../dao/FileDao';
 import ServicePubDao from '../../dao/ServicePubDao';
+import FileContentDao from "../../dao/FileContentDao";
 
 @Controller('/paas/api/domain')
 export default class FlowController {
@@ -28,11 +18,13 @@ export default class FlowController {
   
   nodeVMIns: any;
   fileDao: FileDao;
+	fileContentDao: FileContentDao;
   servicePubDao: ServicePubDao
 
   constructor() {
     this.nodeVMIns = createVM({ openLog: true });
     this.fileDao = new FileDao();
+	  this.fileContentDao = new FileContentDao();
     this.servicePubDao = new ServicePubDao();
   }
 
@@ -71,4 +63,23 @@ export default class FlowController {
     }
   }
 
+	@Get('/bundle')
+	async getToJSON(@Query() query) {
+		const { fileId } = query;
+		
+		if (!fileId) {
+			return { code: -1, message: 'fileId 不能为空' };
+		}
+		
+		const file = await this.fileContentDao.queryLatestSave({ fileId });
+		
+		if (!file) {
+			return { code: -1, message: '对应领域模型文件不存在' };
+		}
+		
+		const toJSON = JSON.parse((file as any).content).toJSON;
+		toJSON.service = toJSON.service.map(service => ({ id: service.id, title: service.title }));
+		
+		return { code: 1, data: toJSON };
+	}
 }
