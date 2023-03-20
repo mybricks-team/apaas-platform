@@ -104,6 +104,36 @@ export default class FlowController {
       }
     }
   }
+
+  // 模块安装时，查询正在提供服务的文件
+  @Post('/file/getOnlineServiceOfProjectAndFile')
+  async getOnlineServiceOfProjectAndFile(
+    @Body('projectId') projectId: number,
+    @Body('domainFileId') domainFileId: number
+  ) {
+    if(!projectId || !domainFileId) {
+      return {
+        code: -1,
+        msg: 'domainFileId 或 domainFileId 为空'
+      }
+    }
+    try {
+      const files = await this.flowService.getOnlineServiceOfProjectAndFile({
+        projectId,
+        domainFileId
+      })
+      
+      return {
+        code: 1,
+        data: files
+      }
+    } catch (err) {
+      return {
+        code: -1,
+        msg: err.message || '出错了'
+      }
+    }
+  }
   
 
   @Post('/saveFile')

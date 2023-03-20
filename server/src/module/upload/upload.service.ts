@@ -42,11 +42,25 @@ export default class UploadService {
     return folderPath ? `${folderPath}/${filename}` : `/${filename}`
   }
 
-  async deleteFile({subPath}: {subPath: string}) {
+  async getFiles({subPath}: {subPath: string}) {
     let wholePath = path.join(this.fileLocalFolder, subPath)
-    console.log('完整路径', wholePath)
+    const fileNames = fs.readdirSync( wholePath)
+    let fileMap = {}
+    fileNames?.forEach(fileName => {
+      let [fileId, ext] = fileName?.split('.')
+      fileMap[fileId] = path.join(wholePath, fileName)
+    }) || []
+    return fileMap
+  }
+
+  async deleteFile({subPath, fullPath}: {subPath?: string, fullPath?: string}) {
+    let wholePath;
+    if(fullPath) {
+      wholePath = fullPath;
+    } else if(subPath){
+      wholePath = path.join(this.fileLocalFolder, subPath)
+    }
     if(fs.existsSync(wholePath)) {
-      console.log('完整路径', wholePath)
       fs.unlinkSync(wholePath)
     }
     return true
