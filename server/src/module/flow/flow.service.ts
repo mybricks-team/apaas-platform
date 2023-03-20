@@ -58,6 +58,29 @@ export default class FlowService {
     return true;
   }
 
+  async batchDeleteServiceFile({ serviceFilesFullPath }: { serviceFilesFullPath: string[]}) {
+    await Promise.all(
+      serviceFilesFullPath.map((serviceFileFullPath) => {
+        return this.uploadService.deleteFile({
+          fullPath: serviceFileFullPath
+        });
+      }),
+    );
+    return true;
+  }
+
+
+
+  async getOnlineServiceOfProjectAndFile({ projectId, domainFileId }: { projectId: number, domainFileId: number }) {
+    let folderPath = `/project`;
+    if(projectId) {
+      folderPath = `/project/${projectId}`;
+    }
+    folderPath = `${folderPath}/${domainFileId}`
+    const files = this.uploadService.getFiles({ subPath: folderPath })
+    return files
+  }
+
   async saveFile(params: any) {
     return await this.uploadService.saveFile(params)
   }
