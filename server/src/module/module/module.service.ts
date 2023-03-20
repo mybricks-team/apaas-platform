@@ -86,10 +86,27 @@ export default class ModuleService {
 						projectId
 					});
 					
+					const latestServiceIdMap = {}
 					info.serviceAry.forEach(service => {
 						service.code = service.code.replace(/--slot-project-id--/g, projectId);
+						latestServiceIdMap[service.id] = service.id
 					});
 					await this.domainService.batchCreateService({ fileId: pub.file_id, projectId, serviceContentList: info.serviceAry }, { domainName });
+					// 当前流量容器正在生效的服务
+					const onlineServiceFiles = await this.flowService.getOnlineServiceOfProjectAndFile({
+						projectId,
+						domainFileId: pub.file_id
+					})
+					let readyDeleted = []
+					// 计算出最新的服务
+					for(let serviceId in onlineServiceFiles) {
+						if(!latestServiceIdMap[serviceId]) {
+							readyDeleted.push(onlineServiceFiles[serviceId])
+						}
+					}
+					// 执行删除操作
+					await this.flowService.batchDeleteServiceFile({ serviceFilesFullPath: readyDeleted })
+
 					break;
 				}
 				case 'cdm': { break; }
