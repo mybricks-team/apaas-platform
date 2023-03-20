@@ -37,10 +37,10 @@ export default function FolderProject(props) {
 							const {groupId, parentId, pubInfo} = app
 							return {
 								...app,
-                pubInfo: {
+                pubInfo: pubInfo ? {
                   ...pubInfo,
                   content: JSON.parse(pubInfo.content)
-                },
+                } : null,
 								positionSearch: `?appId=files${groupId ? `&groupId=${groupId}` : ''}${parentId ? `&parentId=${parentId}` : ''}`
 							}
 						}),
