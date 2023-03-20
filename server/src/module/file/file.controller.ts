@@ -893,8 +893,6 @@ export default class FileService {
             version: version
           })
 
-          console.log("cdms", cdms);
-
           if (cdms?.length) {
             let comsStr = ''
             cdms.forEach((cdm) => {
@@ -955,7 +953,7 @@ export default class FileService {
   }
 
   @Get('/file/getModuleComponentsByProjectId')
-  async getModuleComponentsByProjectId(@Query('id') id: number) {
+  async getModuleComponentsByProjectId(@Query('id') id: number, @Query('extName') extName: string) {
     if (!id) {
       return {
         code: 1,
@@ -974,7 +972,7 @@ export default class FileService {
           const { id, version } = module
           const cdms = await this.modulePubDao.queryPubInfo({
             moduleId: id,
-            extNameList: ['cdm'],
+            extNameList: [extName || 'cdm'],
             version: version
           })
 
