@@ -34,9 +34,13 @@ export default function FolderProject(props) {
 					ctx.info = {
 						...data,
 						apps: data.apps.map((app) => {
-							const {groupId, parentId} = app
+							const {groupId, parentId, pubInfo} = app
 							return {
 								...app,
+                pubInfo: {
+                  ...pubInfo,
+                  content: JSON.parse(pubInfo.content)
+                },
 								positionSearch: `?appId=files${groupId ? `&groupId=${groupId}` : ''}${parentId ? `&parentId=${parentId}` : ''}`
 							}
 						}),
@@ -96,7 +100,7 @@ function AppList({apps}) {
         break
       case 'gotoPublish':
         try {
-          window.open(JSON.parse(app.pubInfo.content).url)
+          window.open(app.pubInfo.content.main.url)
         } catch(e) {
           console.error(e)
         }
