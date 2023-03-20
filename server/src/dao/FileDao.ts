@@ -638,8 +638,8 @@ export default class FileDao extends DOBase {
   @Mapping(FileDO)
   public async getMyFiles(params: {
     userId: string;
-    parentId: number;
-    extNames: string[];
+    parentId?: number;
+    extNames?: string[];
     status?: number;
   }) {
     if (typeof params.status !== 'number') {
@@ -657,9 +657,9 @@ export default class FileDao extends DOBase {
   /** 或者协作组的文件 */
   @Mapping(FileDO)
   public async getGroupFiles(params: {
-    userId: string;
-    parentId: number;
-    extNames: string[];
+    userId?: string;
+    parentId?: number;
+    extNames?: string[];
     status?: number;
     groupId: number;
   }) {

@@ -576,13 +576,13 @@
     </select>
 
     <select id="getFilesByParentId">
-        select * from apaas_file 
+        select id,uuid,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case when icon= '' then '0' else '1' end as has_icon from apaas_file
         where parent_id = #{id} and status = 1
         <if test="extNames">
-            and ext_name in 
+            and ext_name in
             <foreach collection="extNames" open="(" close=")" separator="," item="extName" index="i">
                 #{extName}
-            </foreach> 
+            </foreach>
         </if>
     </select>
 

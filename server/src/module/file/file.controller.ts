@@ -397,6 +397,65 @@ export default class FileService {
       data: files
     }
   }
+	
+	@Get('/file/getFileList')
+	async getFileList(@Query() query) {
+		const { parentId, creatorId, fileId } = query;
+		
+		if (!parentId) {
+			const file = await this.fileDao.queryById(fileId);
+			
+			let current = file ? JSON.parse(JSON.stringify(file)) : null;
+			while (current && current.extName !== 'folder-project') {
+				if (current.parentId) {
+					current = await this.fileDao.queryById(current.parentId);
+				} else if (!current.groupId) {
+					current = null;
+					break;
+				} else {
+					break;
+				}
+			}
+			
+			// 我的
+			if (!current) {
+				return {
+					code: 1,
+					data: (await this.fileDao.getMyFiles({ userId: creatorId })).map(item => {
+						delete item.icon;
+						return item;
+					})
+				};
+			} else if (current.extName === 'folder-project') {
+				return {
+					code: 1,
+					data: (await this.fileDao.getFilesByParentId({ id: current.id })).map(item => {
+						delete item.icon;
+						return item;
+					})
+				};
+			} else if (current.groupId) {
+				return {
+					code: 1,
+					data: (await this.fileDao.getGroupFiles({ groupId: current.groupId })).map(item => {
+						delete item.icon;
+						
+						return item;
+					})
+				};
+			} else {
+				return { code: 1, data: [] };
+			}
+		} else {
+			return {
+				code: 1,
+				data: (await this.fileDao.getFilesByParentId({ id: parentId })).map(item => {
+					delete item.icon;
+					return item;
+				}),
+			};
+		}
+	}
 
   async _getParentModuleAndProjectInfo(id: number) {
     let res = {
