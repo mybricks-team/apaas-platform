@@ -12,14 +12,10 @@ import {
 } from '@nestjs/common';
 import DomainService from './domain.service';
 import UploadService from '../upload/upload.service';
-// @ts-ignore
-import { createVM } from 'vm-node';
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
 import { uuid } from '../../utils/index'
-import FileDao from '../../dao/FileDao';
-import ServicePubDao from '../../dao/ServicePubDao';
 const { getConnection } = require("@mybricks/rocker-dao");
 const { SnowFlake } = require('gen-uniqueid');
 
@@ -31,16 +27,10 @@ export default class FlowController {
   @Inject()
   uploadService: UploadService;
   
-  nodeVMIns: any;
-  fileDao: FileDao;
-  servicePubDao: ServicePubDao
   // runtime env
   snowFlake: any
   
   constructor() {
-    this.nodeVMIns = createVM({ openLog: true });
-    this.fileDao = new FileDao();
-    this.servicePubDao = new ServicePubDao();
     this.snowFlake = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
   }
 
