@@ -5,7 +5,6 @@
     "user": "apaas-staging",
     "password": "mBcLYBXTyJM8CERc",
     "port": 3306,
-    "database": "apaas-staging",
-    "sqlPath": "./resource"
+    "database": "apaas-staging"
   }
 }

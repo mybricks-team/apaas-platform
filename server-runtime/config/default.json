@@ -5,7 +5,6 @@
     "user": "mybricks",
     "password": "C6TzXt44AeZDKp3M",
     "port": 3306,
-    "database": "apaas-demo",
-    "sqlPath": "./resource"
+    "database": "apaas-demo"
   }
 }
