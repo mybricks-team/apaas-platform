@@ -1,35 +1,81 @@
 import React, {
   useRef,
-  useState,
   useEffect,
 } from 'react'
 import {createPortal} from 'react-dom'
 
+import { easyreact } from '../easyreact'
+
 import css from './index.less'
 
-export function Dropdown({menus, children, overlayClassName}) {
-  const ref = useRef(null)
-  const [show, setShow] = useState(false)
-  const [open, setOpen] = useState(false)
+function dropdown ({observable}) {
+  const ref = { current: null }
+  const state = observable({
+    show: false,
+    open: false
+  })
 
-  return (
-    <div
-      ref={ref}
-      onMouseEnter={() => {
-        if (!show) {
-          setShow(true)
-        }
-        setOpen(true)
-      }}
-      onMouseLeave={() => {
-        setOpen(false)
-      }}
-    >
-      {children}
-      {show && createPortal(<Menus menus={menus} positionElement={ref.current} open={open} className={overlayClassName}/>, document.body)}
-    </div>
-  )
+  function setShow(bool) {
+      console.log('setShow:', bool)
+      state.show = bool
+    }
+
+    function setOpen(bool) {
+      console.log('setOpen:', bool)
+      state.open = bool
+    }
+
+  return ({menus, children, overlayClassName}) => {
+    const { show, open } = state
+
+    console.log('变更')
+
+    return (
+      <div
+        ref={ref}
+        onMouseEnter={() => {
+          if (!show) {
+            setShow(true)
+          }
+          setOpen(true)
+        }}
+        onMouseLeave={() => {
+          setOpen(false)
+        }}
+      >
+        {children}
+        {show && createPortal(<Menus menus={menus} positionElement={ref.current} open={open} className={overlayClassName}/>, document.body)}
+      </div>
+    )
+  }
+
 }
+
+export const Dropdown = easyreact(dropdown)
+
+// export function Dropdown2({menus, children, overlayClassName}) {
+//   const ref = useRef(null)
+//   const [show, setShow] = useState(false)
+//   const [open, setOpen] = useState(false)
+
+//   return (
+//     <div
+//       ref={ref}
+//       onMouseEnter={() => {
+//         if (!show) {
+//           setShow(true)
+//         }
+//         setOpen(true)
+//       }}
+//       onMouseLeave={() => {
+//         setOpen(false)
+//       }}
+//     >
+//       {children}
+//       {show && createPortal(<Menus menus={menus} positionElement={ref.current} open={open} className={overlayClassName}/>, document.body)}
+//     </div>
+//   )
+// }
 
 function Menus({menus, positionElement, open, className = ''}) {
   const ref = useRef(null)
