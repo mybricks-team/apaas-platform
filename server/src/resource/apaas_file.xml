@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="apaas_file">
     <select id="query">
-        select * from apaas_file where
+        select id,parent_id,uuid,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status from apaas_file where
         status = 1
         <if test="folderId">
             and parent_id = #{folderId} 
@@ -109,7 +109,9 @@
     </select>
 
     <select id="getFlattenFileTreeByParentId">
-        SELECT T2.find_level, T3.*
+        SELECT 
+            T2.find_level, 
+            T3.id,T3.parent_id,T3.uuid,T3.group_id,T3.name,T3.namespace,T3.version,T3.ext_name,T3.path,T3.creator_id,T3.creator_name,T3.create_time,T3.update_time,T3.updator_id,T3.updator_name,T3.description,T3.type,T3.share_type,T3.status
         FROM (
             SELECT @ids AS _ids
                 , (
@@ -128,7 +130,17 @@
     </select>
 
     <select id="queryById">
-        select * 
+        select id,parent_id,uuid,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
+        from apaas_file where
+        id = #{id}
+        and status in
+        <foreach collection="status" open="(" close=")" separator="," item="item" index="i">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="queryIconById">
+        select icon
         from apaas_file where
         id = #{id}
         and status in
@@ -138,7 +150,7 @@
     </select>
 
     <select id="queryByUUIDAndParentId">
-        select * 
+        select id,parent_id,uuid,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
         from apaas_file where
         uuid = #{uuid}
         and parent_id = #{parentId}
@@ -149,14 +161,14 @@
     </select>
 
     <select id="queryByRef">
-        select * 
+        select id,parent_id,uuid,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
         from apaas_file where
         ref = #{ref} and
         status = 1
     </select>
 
     <select id="queryByNamespace">
-        select * 
+        select id,parent_id,uuid,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
         from apaas_file where
         namespace = #{namespace} and
         status = 1
@@ -287,7 +299,8 @@
     </update>
 
     <select id="getAllFiles">
-        select * from apaas_file
+        select id,parent_id,uuid,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
+        from apaas_file
         where
         status = 1
         order by update_time desc
@@ -333,7 +346,7 @@
     </update>
 
     <select id="getFiles">
-        select * from apaas_file
+        select id,parent_id,uuid,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status from apaas_file
         where id 
         <if test="id">
             and id = #{id}
@@ -471,7 +484,7 @@
     </update>
 
     <select id="getFileListByExtName">
-        select * from apaas_file
+        select id,parent_id,uuid,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status from apaas_file
         where DATE_FORMAT(FROM_UNIXTIME(file.create_time / 1000), "%Y-%m-%d") >= #{startTime}
         and DATE_FORMAT(FROM_UNIXTIME(file.create_time / 1000), "%Y-%m-%d") <= #{endTime}
         and ext_name != 'folder'

@@ -41,7 +41,7 @@ export default class GroundService {
   @Get("/ground/getFileIcon")
   async getFileIcon(@Query() query, @Res() res: Response) {
     try {
-      const file = await this.fileDao.queryById(query.fileId);
+      const file = await this.fileDao.queryIconById(query.fileId);
       const base64 = file.icon.replace(/^data:image\/\w+;base64,/, "");
       const dataBuffer = new Buffer(base64, "base64");
 
