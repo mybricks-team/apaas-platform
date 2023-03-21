@@ -254,7 +254,14 @@ function CreateFileModal({app, onOk, onCancel}) {
         </Form.Item>
 	      {['cloud-com', 'mp-cloudcom'].includes(app?.extName) ? (
 		      <Form.Item label='类型' name="type" initialValue="other">
-			      <Radio.Group options={[{ label: '菜单', value: 'menu' }, { label: '登录', value: 'login' }, { label: '其他', value: 'other' }]} />
+			      <Radio.Group
+              options={[
+                { label: '菜单', value: 'menu' },
+                { label: '登录', value: 'login' },
+                { label: '内容', value: 'content'},
+                { label: '其他', value: 'other' }
+              ]}
+            />
 		      </Form.Item>
 	      ) : null}
       </Form>
