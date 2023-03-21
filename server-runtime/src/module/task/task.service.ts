@@ -5,7 +5,7 @@ const { getConnection } = require("@mybricks/rocker-dao");
 
 @Injectable()
 export default class TaskService {
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron(CronExpression.EVERY_HOUR)
   async activateConnection() {
     try {
       const con = await getConnection()
@@ -16,10 +16,10 @@ export default class TaskService {
         if (error) {
           return
         }
-        console.log(results)
+        console.log('activate connection successfully!')
       })
     } catch (err) {
-      console.log('activateConnection: ' + err.message)
+      console.log('activate connection failed! --' + err.message)
     }
   }
 }
