@@ -473,7 +473,7 @@ export default class FileService {
       // res.absolutePath = `/${tempItem.name}.${tempItem.extName}`
       // @ts-ignore
       // res.absoluteUUIDPath = `/${tempItem.uuid}`
-      if (tempItem.extName === 'folder-module') {
+      if (tempItem?.extName === 'folder-module') {
         if (!res.moduleId) {
           res.moduleId = tempItem.id
         }
