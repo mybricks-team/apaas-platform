@@ -472,8 +472,8 @@ export default class FileService {
       let tempItem = await this.fileDao.queryById(id)
       // res.absolutePath = `/${tempItem.name}.${tempItem.extName}`
       // @ts-ignore
-      res.absoluteUUIDPath = `/${tempItem.uuid}`
-      if (tempItem.extName === 'folder-module') {
+      // res.absoluteUUIDPath = `/${tempItem.uuid}`
+      if (tempItem.extName === 'folder-module')
         if (!res.moduleId) {
           res.moduleId = tempItem.id
         }
