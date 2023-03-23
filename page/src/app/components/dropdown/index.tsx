@@ -16,19 +16,15 @@ function dropdown ({observable}) {
   })
 
   function setShow(bool) {
-      console.log('setShow:', bool)
       state.show = bool
     }
 
     function setOpen(bool) {
-      console.log('setOpen:', bool)
       state.open = bool
     }
 
   return ({menus, children, overlayClassName}) => {
     const { show, open } = state
-
-    console.log('变更')
 
     return (
       <div
