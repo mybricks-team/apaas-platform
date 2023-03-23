@@ -718,6 +718,21 @@ export default class FileService {
     }
   }
 
+  @Post('/file/getLatestPub')
+  async getLatestPub(@Body('fileId') fileId: number, @Body('type') type: string) {
+    if (!fileId) {
+      return {
+        code: -1,
+        msg: '缺少fileId'
+      }
+    }
+    const res = await this.filePubDao.getLatestPubByFileId(+fileId, type)
+    return {
+      code: 1,
+      data: res
+    }
+  }
+
   async _getFileInfoByBaseFileIdAndRelativePath({ relativePath, baseFileId }) {
     try {
       /**
