@@ -188,7 +188,9 @@ export default class FileService {
     return {
       code: 1,
       data: {
-        users: cooperationUsers.map((cooperationUser, index) => {
+        users: cooperationUsers.filter((_, index) => {
+          return users[index]
+        }).map((cooperationUser, index) => {
           const user = users[index]
           return {
             name: user.name,
