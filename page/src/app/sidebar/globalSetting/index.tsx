@@ -9,7 +9,8 @@ import {
   Form,
   Input,
   Button,
-  message
+  message,
+  Switch
 } from 'antd'
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
@@ -61,11 +62,13 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
 
 const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [form] = Form.useForm()
+  const [openSystemWhiteListSwitch, setOpenSystemWhiteListSwitch] = useState(initialValues?.openSystemWhiteList)
 
   useEffect(() => {
     if (!initialValues) {
       return
     }
+    console.log('2@@2', initialValues)
     form?.setFieldsValue?.(initialValues)
   }, [initialValues])
 
@@ -111,6 +114,15 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
           name="chatGptToken"
         >
           <Input />
+        </Form.Item>
+        <Form.Item
+          initialValue=''
+          label="开启系统白名单"
+          name="openSystemWhiteList"
+        >
+          <Switch checked={openSystemWhiteListSwitch} onChange={() => {
+            setOpenSystemWhiteListSwitch(!openSystemWhiteListSwitch)
+          }} />
         </Form.Item>
       </Form>
       <div className={styles.btnGroups}>

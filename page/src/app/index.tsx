@@ -36,7 +36,23 @@ export default function App() {
           location.href = `/?redirectUrl=${encodeURIComponent(location.href)}`
           return
         }
-        setAccess(user.role > 1)
+        // 平台配置
+        const systemConfig = (await axios({
+          method: "post",
+          url: getApiUrl('/paas/api/config/get'),
+          data: {
+            scope: ["system"]
+          }
+        })).data;
+        if (systemConfig?.code === 1) {
+          setLogo(systemConfig?.data?.system?.config?.logo)
+        }
+
+        if(systemConfig?.data?.system?.config?.openSystemWhiteList) {
+          setAccess(user.role > 1)
+        } else {
+          setAccess(true)
+        }
         // /** 设置用户信息 */
         appCtx.setUser(user)
         appCtx.setIsAdministrator(!!user?.isAdmin)
@@ -51,19 +67,6 @@ export default function App() {
           appCtx.setApps(data)
         } else {
           message.error('获取安装应用信息失败')
-        }
-  
-        // 平台配置
-        const systemConfig = await axios({
-          method: "post",
-          url: getApiUrl('/paas/api/config/get'),
-          data: {
-            scope: ["system"]
-          }
-        })
-        if (systemConfig?.data?.code === 1) {
-          console.log('平台配置', systemConfig?.data?.data)
-          setLogo(systemConfig?.data?.data?.system?.config?.logo)
         }
   
       })().finally(() => {
