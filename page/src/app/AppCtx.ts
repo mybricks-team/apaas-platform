@@ -181,8 +181,10 @@ export default class AppCtx {
       const SHOW_APPS_MAP = {
         'pc-cgn': true,
         'pc-page': true,
+        'pc-page-bugu': true,
         'domain': true,
-        'cloud-com': true
+        'cloud-com': true,
+        'cloud-com-bugu': true,
       }
       const SHOW_FOLDERS_MAP = {
         'folder': true

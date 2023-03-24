@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS `apaas_user_group`;
 CREATE TABLE `apaas_user_group` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '组名称',

@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS `apaas_user_group_relation`;
 CREATE TABLE `apaas_user_group_relation` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `status` int NOT NULL DEFAULT '1' COMMENT '状态，-1-删除，1-正常',
