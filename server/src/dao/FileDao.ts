@@ -11,9 +11,6 @@ export class FileDO {
   @Column
   id;
 
-  @Column("uuid")
-  uuid;
-
   @Column("group_id")
   groupId;
 
@@ -235,26 +232,6 @@ export default class FileDao extends DOBase {
   /**
    * 获取文件信息
    * @param id
-   * @param status
-   */
-    @Mapping(FileDO)
-    public async queryByUUIDAndParentId(params): Promise<FileDO> {
-      const {
-        uuid, 
-        parentId,
-        status = [EffectStatus.EFFECT]
-      } = params
-      const files = await this.exe<FileDO[]>("apaas_file:queryByUUIDAndParentId", {
-        uuid: uuid,
-        parentId: parentId,
-        status
-      })
-      return files && files.length > 0 ? files[0] : void 0
-    }
-
-  /**
-   * 获取文件信息
-   * @param id
    */
   @Mapping(FileDO)
   public async queryByRef(ref: string): Promise<FileDO[]> {
@@ -280,7 +257,6 @@ export default class FileDao extends DOBase {
     creatorId: string,
     creatorName: string,
     extName: string,
-    uuid: string,
     groupId?: number,
     description?: string,
     parentId?: number,
@@ -721,23 +697,6 @@ export default class FileDao extends DOBase {
         status: 1
       }
 		)
-  }
-
-  @Mapping(FileDO)
-  public async getEmptyListOfUUID() {
-    return await this.exe<any>(
-			'apaas_file:getEmptyListOfUUID',
-			{
-      }
-		)
-  }
-
-  public async initialUUID(query: {
-    id: number
-    uuid: string
-  }) {
-    const result = await this.exe<any>('apaas_file:initialUUID', query)
-    return {id: result.insertId}
   }
 }
 

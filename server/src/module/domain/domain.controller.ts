@@ -6,7 +6,6 @@ import {createVM} from 'vm-node';
 // const path = require('path');
 // const env = require('../../../env.js')
 // const fs = require('fs');
-// import { uuid } from '../../utils/index'
 import FileDao from '../../dao/FileDao';
 import ServicePubDao from '../../dao/ServicePubDao';
 import FileContentDao from "../../dao/FileContentDao";

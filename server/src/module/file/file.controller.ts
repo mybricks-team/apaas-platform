@@ -8,7 +8,7 @@ import UserGroupRelationDao from '../../dao/UserGroupRelationDao'
 import ServicePubDao from '../../dao/ServicePubDao'
 import ModulePubDao from '../../dao/ModulePubDao'
 import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
-import { isNumber, uuid } from '../../utils'
+import { isNumber } from '../../utils'
 import ModuleDao from "../../dao/ModuleDao";
 const path = require('path');
 
@@ -666,41 +666,6 @@ export default class FileService {
     }
   }
 
-  // 相对于relativeId, baseId的相对位置关系
-  @Post("/file/getRelativePathBetweenFileId")
-  async getRelativePathBetweenFileId(
-    @Body('baseFileId') baseFileId: number,
-    @Body('relativeId') relativeId: number,
-    @Body('uuid') uuid: number
-  ) {
-    try {
-      if (uuid) {
-        const { absoluteUUIDPath } = await this._getParentModuleAndProjectInfo(uuid)
-        const pathAry = absoluteUUIDPath.split('/')
-
-        return {
-          code: 1,
-          data: pathAry[pathAry.length - 1]
-        }
-      }
-      const basicFileHierarchy = await this._getParentModuleAndProjectInfo(baseFileId)
-      const relativeFileHierarchy = await this._getParentModuleAndProjectInfo(relativeId)
-
-      // "../../../测试数据源.domain"
-      const relativePath = path.relative(path.dirname(basicFileHierarchy.absoluteUUIDPath), relativeFileHierarchy.absoluteUUIDPath)
-
-      return {
-        code: 1,
-        data: relativePath
-      }
-    } catch (error) {
-      return {
-        code: -1,
-        msg: error.message,
-      }
-    }
-  }
-
   @Post('/file/getLatestSave')
   async getLatestSave(@Body('fileId') fileId: number) {
     if (!fileId) {
@@ -727,106 +692,6 @@ export default class FileService {
       }
     }
     const res = await this.filePubDao.getLatestPubByFileId(+fileId, type)
-    return {
-      code: 1,
-      data: res
-    }
-  }
-
-  async _getFileInfoByBaseFileIdAndRelativePath({ relativePath, baseFileId }) {
-    try {
-      /**
-       * 四种case
-        ../ssdsdsd/qweqwew
-        ../dssds
-        dsdsd
-        dsdsd/dsads
-       */
-      const relativePartList = relativePath?.split('/');
-      let currentFile = await this.fileDao.queryById(baseFileId);
-      // 根据相对路径，查找源文件ID
-      for (let l = relativePartList.length, i = 0; i < l; i++) {
-        const item = relativePartList[i];
-        if (relativePartList[0] === '..') {
-          if (l === 2) {
-            // ../xxx
-            if (item === '..') {
-              // 开头 ../
-              currentFile = await this.fileDao.queryById(currentFile?.parentId)
-              // currentParent = await this.fileDao.queryById(currentFile?.parentId)
-            } else {
-              // 末端 ../pathB
-              currentFile = await this.fileDao.queryByUUIDAndParentId({
-                uuid: item,
-                parentId: currentFile?.parentId
-              })
-            }
-          } else {
-            if (item === '..') {
-              // 开头 ../
-              currentFile = await this.fileDao.queryById(currentFile?.parentId)
-              // currentParent = await this.fileDao.queryById(currentFile?.parentId)
-            } else {
-              // 末端 ../pathB
-              if (i === l - 1) {
-                currentFile = await this.fileDao.queryByUUIDAndParentId({
-                  uuid: item,
-                  parentId: currentFile?.id
-                })
-              } else {
-                // 中建文件夹 ../pathA/
-                currentFile = await this.fileDao.queryByUUIDAndParentId({
-                  uuid: item,
-                  parentId: currentFile?.parentId
-                })
-              }
-            }
-          }
-        } else {
-          if (l === 1) {
-            // 末端 pathA
-            currentFile = await this.fileDao.queryByUUIDAndParentId({
-              uuid: item,
-              parentId: currentFile?.parentId
-            })
-          } else {
-            // 中间 pathA/pathB
-            if (i === l - 1) {
-              currentFile = await this.fileDao.queryByUUIDAndParentId({
-                uuid: item,
-                parentId: currentFile?.id
-              })
-            } else {
-              currentFile = await this.fileDao.queryByUUIDAndParentId({
-                uuid: item,
-                parentId: currentFile?.parentId
-              })
-            }
-          }
-        }
-      }
-      return currentFile
-    } catch (e) {
-      console.log('_getFileInfoByBaseFileIdAndRelativePath', e.message)
-      return null
-    }
-  }
-
-  // 领域建模运行时
-  @Post('/file/getFileInfoByBaseFileIdAndRelativePath')
-  async getFileInfoByBaseFileIdAndRelativePath(
-    // 通用参数
-    @Body('fileId') fileId: any
-  ) {
-    if (!fileId) {
-      return {
-        code: -1,
-        msg: 'fileId 不可为空'
-      }
-    }
-
-    const res = await this.fileDao.queryById(fileId)
-
     return {
       code: 1,
       data: res
@@ -921,24 +786,6 @@ export default class FileService {
         code: -1,
         msg: err.message || '出错了'
       }
-    }
-  }
-
-  @Post('/file/initialUUID')
-  async initialUUID() {
-    const files = await this.fileDao.getEmptyListOfUUID()
-    const task = []
-    files.forEach(file => {
-      task.push(this.fileDao.initialUUID({
-        id: file.id,
-        uuid: uuid(10)
-      }))
-    })
-    await Promise.all(task)
-    console.log('更新结束')
-    return {
-      code: 1,
-      msg: '更新结束'
     }
   }
 

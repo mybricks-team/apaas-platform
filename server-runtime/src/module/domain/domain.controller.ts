@@ -15,7 +15,6 @@ import UploadService from '../upload/upload.service';
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
-import { uuid } from '../../utils/index'
 const { getConnection } = require("@mybricks/rocker-dao");
 const { SnowFlake } = require('gen-uniqueid');
 
