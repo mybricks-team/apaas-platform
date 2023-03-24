@@ -14,10 +14,6 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-styled-com@0.0.7"
-    },
-    {
-      "type": "npm",
       "path": "mybricks-app-login@0.0.4"
     },
     {
@@ -26,11 +22,11 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-app-pcspa-for-bugu@1.0.4"
+      "path": "mybricks-app-pcspa-for-bugu@1.0.5"
     },
     {
       "type": "npm",
-      "path": "mybricks-app-cdm-for-bugu@1.0.5"
+      "path": "mybricks-app-cdm-for-bugu@1.0.8"
     }
   ]
 }
