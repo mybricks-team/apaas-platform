@@ -1,0 +1,36 @@
+{
+  "installApps": [
+    {
+      "type": "npm",
+      "path": "mybricks-material@0.0.66"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-app-workflow@0.0.46"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-domain@0.1.24"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-styled-com@0.0.7"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-app-login@0.0.4"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-app-codegen@1.0.20"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-app-pcspa-for-bugu@1.0.4"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-app-cdm-for-bugu@1.0.4"
+    }
+  ]
+}
