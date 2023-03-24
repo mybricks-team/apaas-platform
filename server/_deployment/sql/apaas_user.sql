@@ -9,5 +9,6 @@ CREATE TABLE `apaas_user` (
   `update_time` bigint DEFAULT NULL,
   `status` int NOT NULL DEFAULT '1',
   `role` int NOT NULL DEFAULT 1,
+  `avatar` VARCHAR(1024) NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

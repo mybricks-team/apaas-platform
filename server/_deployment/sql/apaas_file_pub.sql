@@ -11,6 +11,7 @@ CREATE TABLE `apaas_file_pub` (
   `file_content_id` bigint DEFAULT NULL COMMENT '对应保存id',
   `update_time` bigint NOT NULL COMMENT '更新时间',
   `type` varchar(50) CHARACTER SET utf8mb4  NOT NULL COMMENT '发布类型，线上、测试、日常等',
+  `project_id` bigint NULL COMMENT '原始文件发布所处的项目ID',
   PRIMARY KEY (`id`),
   KEY `idx_creator_info` (`creator_id`,`creator_name`),
   KEY `idx_file_id` (`file_id`),
