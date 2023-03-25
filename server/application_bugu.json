@@ -22,11 +22,11 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-app-pcspa-for-bugu@1.0.5"
+      "path": "mybricks-app-pcspa-for-bugu@1.0.6"
     },
     {
       "type": "npm",
-      "path": "mybricks-app-cdm-for-bugu@1.0.8"
+      "path": "mybricks-app-cdm-for-bugu@1.0.13"
     }
   ]
 }
