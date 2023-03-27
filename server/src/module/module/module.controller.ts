@@ -63,28 +63,6 @@ export default class ModuleController {
       const domainName = getRealDomain(request)
 
       const flattenFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: fileId })
-      // 先写两层，后续如果有需求改为bfs
-      // const firstLevelChildren = await this.fileDao.queryAllFilesByParentId({parentId: fileId})
-      // let task = []
-      // /** 记录task的parentId */
-      // firstLevelChildren?.forEach(file => {
-      //   if(file.extName !== 'folder') {
-      //     validFiles.push(file)
-      //   } else {
-      //     validFiles.push(file)
-      //     task.push(this.fileDao.queryAllFilesByParentId({parentId: file.id}))
-      //   }
-      // })
-      // const res = await Promise.all(task)
-      // res?.forEach(single => {
-      //   single?.forEach((file) => {
-      //     if(file.extName !== 'folder') {
-      //       validFiles.push(file)
-      //     } else {
-      //       validFiles.push(file)
-      //     }
-      //   });
-      // })
 
       let publishTask = []
       /** 存储fileId和publishTask的索引关系 */

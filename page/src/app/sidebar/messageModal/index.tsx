@@ -81,9 +81,9 @@ const UpgradeButton:FC<{ app: Record<string, unknown>; setCurrentUpgrade(namespa
 		
 		axios({
 			method: 'post',
-			url: getApiUrl('/api/apps/update'),
+			url: getApiUrl('/paas/api/apps/update'),
 			data: otherInfo,
-			timeout: 30000,
+			// timeout: 30000,
 		}).then(res => {
 			if (res.data.code === 1) {
 				checkUpgradeStatus(true)

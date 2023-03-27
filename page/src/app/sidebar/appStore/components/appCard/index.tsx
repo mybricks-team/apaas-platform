@@ -104,9 +104,9 @@ const AppCard: FC<AppCardProps> = props => {
 		
 		axios({
 			method: 'post',
-			url: '/api/apps/update',
+			url: '/paas/api/apps/update',
 			data: otherInfo,
-			timeout: 30000,
+			// timeout: 30000,
 		}).then(res => {
 			if (res.data.code === 1) {
 				checkUpgradeStatus(true)
