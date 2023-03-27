@@ -16,8 +16,7 @@
         update_time,
         content,
         file_content_id,
-        type,
-        project_id
+        type
         )
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             #{fileId},
@@ -30,8 +29,7 @@
             #{createTime},
             #{content},
             #{fileContentId},
-            #{type},
-            #{projectId}
+            #{type}
         </trim>
     </insert>
 
@@ -98,27 +96,6 @@
         from apaas_file_pub
         where
         file_id = #{fileId}
-        <if test="type">
-            and type = #{type}
-        </if>
-        AND project_id is NULL or project_id = ''
-        order by update_time desc
-        limit 1 offset 0;
-    </select>
-
-    <select id='getLatestPubByFileIdAndProjectId'>
-        select *
-        from apaas_file_pub
-        where
-        file_id = #{fileId} 
-        <choose>
-            <when test="projectId">
-                and project_id = #{projectId}
-            </when>
-            <otherwise>
-                and project_id is null
-            </otherwise>
-        </choose>
         <if test="type">
             and type = #{type}
         </if>

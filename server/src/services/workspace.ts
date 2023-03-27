@@ -451,7 +451,7 @@ export default class WorkspaceService {
       // await Promise.all(publishTask);
 
       const [[pub]] = await Promise.all([
-        await this.filePubDao.getLatestPubByFileIdAndProjectId({fileId, projectId}),
+        await this.filePubDao.getLatestPubByFileId(fileId, 'prod'),
         ...publishTask
       ])
 
@@ -468,8 +468,7 @@ export default class WorkspaceService {
         // commitInfo,
         creatorId: user.email,
         creatorName: user.name || user.email,
-        // fileContentId,
-        projectId
+        // fileContentId
       });
 			
       return {
