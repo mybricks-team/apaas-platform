@@ -9,7 +9,7 @@ _localstorage/*
 dist
 mybricks.zip
 .idea/
-# server/_assets/js
+server/_assets/js
 server/_assets/workspace.html
 
 .vscode
