@@ -14,7 +14,7 @@ import {
   useObservable
 } from '@mybricks/rxui'
 import {Form, message, Modal, Input} from 'antd'
-import {EditOutlined, ExclamationCircleFilled} from '@ant-design/icons'
+import {EditOutlined, ExclamationCircleFilled, ShareAltOutlined} from '@ant-design/icons'
 
 import Info from './info'
 import TitleBar from './title'
@@ -23,7 +23,7 @@ import {Content, Block} from '..'
 import {Divider, Dropdown} from '../../components'
 import Ctx, {folderExtnames} from './Ctx'
 import {getApiUrl, getUrlQuery} from '../../../utils'
-import {Icon, Trash, More} from '../../components'
+import {Icon, Trash, More, SharerdIcon} from '../../components'
 
 import css from './index.less'
 
@@ -173,6 +173,39 @@ function Projects() {
       case 'rename':
         setCreateApp(item)
         break;
+      case 'share': 
+      case 'unshare': {
+        const clickShare = type === 'share'
+        confirm({
+          title: clickShare ? `即将分享"${name}"到大家的分享` : `即将取消分享"${name}"`,
+          icon: <ExclamationCircleFilled />,
+          centered: true,
+          okText: '确认',
+          cancelText: '取消',
+          onOk() {
+            return new Promise((resolve) => {
+              axios({
+                method: "post",
+                url: clickShare ? getApiUrl('/paas/api/file/share/mark') : getApiUrl('/paas/api/file/share/unmark'),
+                data: {id: item.id, userId: appCtx.user.email}
+              }).then(async ({data}) => {
+                if (data.code === 1) {
+                  ctx.getAll(getUrlQuery());
+                  if (folderExtnames.includes(extName)) {
+                    await appCtx.refreshSidebar();
+                  }
+                  message.success(clickShare ? `分享成功` : '取消分享成功');
+                } else {
+                  message.error(`${data.msg}`);
+                }
+                resolve(true)
+              });
+            })
+          },
+          onCancel() {},
+        })
+        break
+      }
       default:
         break;
     }
@@ -198,9 +231,70 @@ function Projects() {
           const bigIcon = folderExtnames.includes(extName) || project.icon
           /** 创建人和拥有管理、编辑权限的用户可见操作按钮 */
           const showOperate = (project.creatorId === userId) || [1, 2].includes(roleDescription)
-
+          
+          let dropdownMenus = [
+            {
+              key: '3',
+              label: (
+                <div className={css.operateItem} onClick={() => operate('rename', project)}>
+                  <EditOutlined width={16} height={16}/>
+                  <div className={css.label}>重命名</div>
+                </div>
+              )
+            },
+            {
+              key: '4',
+              label: (
+                <Divider />
+              )
+            },
+            {
+              key: '5',
+              label: (
+                <div className={css.operateItem} onClick={() => operate('delete', project)}>
+                  <Trash width={16} height={16}/>
+                  <div className={css.label}>删除</div>
+                </div>
+              )
+            }
+          ]
+          // 文件夹外，增加分享
+          const alreadyShared = project.shareType === 1;
+          if(project.extName !== 'folder' && project.extName !== 'folder-module' && project.extName !== 'folder-project') {
+            console.log('11', project)
+            dropdownMenus = [
+              {
+                key: '1',
+                label: (
+                  <div className={css.operateItem} onClick={() => {
+                    if(alreadyShared) {
+                      operate('unshare', project)
+                    } else {
+                      operate('share', project)
+                    }
+                  }}>
+                    <ShareAltOutlined width={16} height={16}/>
+                    <div className={css.label}>{ alreadyShared ? '取消分享' : '分享'}</div>
+                  </div>
+                )
+              },
+              {
+                key: '2',
+                label: (
+                  <Divider />
+                )
+              },
+            ].concat(dropdownMenus);
+          }
           return (
             <div key={project.id} className={css.file} onClick={() => operate('open', {...project, homepage})}>
+              {
+                alreadyShared ? (
+                  <div style={{position: "absolute", right: 0, zIndex: 10}}>
+                    <SharerdIcon width={14} height={14} />
+                  </div>
+                ) : null
+              }
               <div className={css.snap}>
                 <Icon icon={project.icon || icon} width={bigIcon ? 140 : 32} height={bigIcon ? '100%' : 32}/>
               </div>
@@ -219,32 +313,7 @@ function Projects() {
                 {/* TODO: 如果文件在底部，操作项被遮挡 */}
                 {showOperate && <div className={css.btns} onClick={evt(() => {}).stop}>
                   <Dropdown
-                    menus={[
-                      {
-                        key: '1',
-                        label: (
-                          <div className={css.operateItem} onClick={() => operate('rename', project)}>
-                            <EditOutlined width={16} height={16}/>
-                            <div className={css.label}>重命名</div>
-                          </div>
-                        )
-                      },
-                      {
-                        key: '2',
-                        label: (
-                          <Divider />
-                        )
-                      },
-                      {
-                        key: '3',
-                        label: (
-                          <div className={css.operateItem} onClick={() => operate('delete', project)}>
-                            <Trash width={16} height={16}/>
-                            <div className={css.label}>删除</div>
-                          </div>
-                        )
-                      }
-                    ]}
+                    menus={dropdownMenus}
                     overlayClassName={css.overlayClassName}
                   >
                     <ClickableIconContainer size={28}>

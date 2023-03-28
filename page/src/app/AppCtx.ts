@@ -136,14 +136,14 @@ export default class AppCtx {
     /** 平台默认,侧边栏应用 */
     const DockerAPPS: Array<T_App> = [
       /** TODO:暂时隐藏，目前应用也没有分享按钮 */
-      // {
-      //   title: '大家的分享',
-      //   description: '大家的分享',
-      //   type: 'user',
-      //   extName: 'ground',
-      //   namespace: 'ground',
-      //   icon: 'https://assets.mybricks.world/icon/leileizi.png'
-      // },
+      {
+        title: '大家的分享',
+        description: '大家的分享',
+        type: 'user',
+        extName: 'share',
+        namespace: 'share',
+        icon: 'https://assets.mybricks.world/icon/leileizi.png'
+      },
     ];
 
     const APPSMap: { [key: string]: T_App } = {};

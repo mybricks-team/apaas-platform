@@ -6,7 +6,7 @@ import React, {
 } from 'react'
 
 import axios from 'axios'
-import {message} from 'antd'
+import {message, Pagination, List} from 'antd'
 import {observe} from '@mybricks/rxui'
 
 import { Content } from '..'
@@ -14,22 +14,29 @@ import AppCtx from '../../AppCtx'
 import { Icon } from '../../components'
 
 import css from './index.less'
+const pageSize = 20;
 
-const Ground: FC = () => {
+const Share: FC = () => {
 	const [fileList, setFileList] = useState([])
-
+	const [total, setTotal] = useState(0)
+	const [pageIndex, setPageIndex] = useState(0)
 	useMemo(() => {
 		axios({
-			method: 'get',
-			url: '/api/ground/getAll'
+			method: 'post',
+			url: '/paas/api/share/getAll',
+			data: {
+				pageSize: pageSize,
+				page: pageIndex
+			}
 		}).then(({data}) => {
 			if (data.code === 1) {
-				setFileList(data.data)
+				setFileList(data.data?.list)
+				setTotal(data.data?.total)
 			} else {
 				message.error(`获取数据发生错误：${data.message}`)
 			}
 		})
-	}, [])
+	}, [pageIndex])
 
 	return (
 		<Content title="大家的分享">
@@ -40,6 +47,18 @@ const Ground: FC = () => {
 							<ProjectItem key={idx} item={item}/>
 						)
 					})}
+				</div>
+				<div style={{display: 'flex', justifyContent: 'flex-end'}}>
+					<Pagination
+						current={pageIndex + 1}
+						total={total}
+						pageSize={pageSize}
+						hideOnSinglePage={true}
+						showTotal={(total) => `Total: ${total} items`}
+						onChange={(newPageIndex) => {
+							setPageIndex(newPageIndex - 1)
+						}}
+					/>
 				</div>
 			</div>
 		</Content>
@@ -61,7 +80,9 @@ const ProjectItem = ({ item }) => {
 				<Icon icon={item.icon || appReg?.icon}/>
 			</div>
 			<div className={css.tt}>
-				<Icon icon={appReg?.icon} width={18}/>
+				<div className={css.typeIcon}>
+					<Icon icon={appReg?.icon} width={18} height={18}/>
+				</div>
 				<div className={css.detail}>
 					<div className={css.name}>
 						{item.name}
@@ -75,4 +96,4 @@ const ProjectItem = ({ item }) => {
 	);
 };
 
-export default Ground;
+export default Share;

@@ -173,6 +173,33 @@ export default class FileDao extends DOBase {
   }
 
   @Mapping(FileDO)
+  public async getAllShareFiles(query?: {
+    page: number
+    pageSize: number,
+    shareType: number
+  }): Promise<any> {
+    query = Object.assign({}, query)
+
+    const limit = query.pageSize || 100
+    const offset = (limit * (query.page || 0)) || 0
+    const fileDOList = await this.exe<Array<FileDO>>("apaas_file:queryAllShareFiles", {
+      ...query,
+      limit,
+      offset
+    })
+    return fileDOList
+  }
+
+  public async getCountOfShareFiles(query?: {
+    shareType: number
+  }): Promise<any> {
+    const count = await this.exe<any>("apaas_file:countShareFiles", {
+      ...query
+    })
+    return count[0] ? count[0].total : 0
+  }
+
+  @Mapping(FileDO)
   public async queryAllFilesByParentId(query?: {
     parentId: number
   }): Promise<Array<FileDO>> {
@@ -412,10 +439,6 @@ export default class FileDao extends DOBase {
     return result
   }
 
-
-  /**
-   * LiangLihao
-   */
   public async update(query: {
     id: number
     updatorId: string
@@ -438,6 +461,20 @@ export default class FileDao extends DOBase {
     
     const result = await this.exe<any>('apaas_file:update', query)
     return {id: result.insertId}
+  }
+
+  public async updateShare(query: {
+    id: number
+    updatorId: string
+    updatorName: string
+    shareType:number
+  }) {
+    query = Object.assign(query, {
+      updateTime: new Date().getTime()
+    })
+    
+    const result = await this.exe<any>('apaas_file:updateShare', query)
+    return result
   }
 
 

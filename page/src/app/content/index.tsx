@@ -4,7 +4,7 @@ import {observe} from '@mybricks/rxui'
 
 import Files from './files'
 import Trash from './trash'
-import Ground from './ground'
+import Share from './share'
 import AppCtx from '../AppCtx'
 import InlineApp from './inlineApp'
 
@@ -35,9 +35,9 @@ function Render(): JSX.Element {
   } else {
     /** 平台默认的应用 */
     switch (appId) {
-      case 'ground':
+      case 'share':
         JSX = (
-          <Ground />
+          <Share />
         )
         break
       case 'trash':

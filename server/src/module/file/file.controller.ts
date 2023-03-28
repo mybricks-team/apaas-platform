@@ -12,7 +12,7 @@ import { isNumber } from '../../utils'
 import ModuleDao from "../../dao/ModuleDao";
 const path = require('path');
 
-@Controller("/paas/api")
+@Controller("/paas/api/file")
 export default class FileService {
   fileDao: FileDao;
   fileContentDao: FileContentDao;
@@ -38,7 +38,7 @@ export default class FileService {
     this.modulePubDao = new ModulePubDao()
   }
 
-  @Get("/file/get")
+  @Get("/get")
   async getAll(@Query() query) {
     const {
       id,
@@ -62,7 +62,7 @@ export default class FileService {
     };
   }
 
-  @Post("/file/rename")
+  @Post("/rename")
   async rename(
     @Body("id") id: number,
     @Body("name") name: string,
@@ -77,7 +77,7 @@ export default class FileService {
     }
   }
 
-  @Get("/file/getSysTemFiles")
+  @Get("/getSysTemFiles")
   async getSysTemFiles(@Query() query) {
     const { extName, name, creatorId } = query ?? {};
     const files = await this.fileDao.getFiles({
@@ -92,7 +92,7 @@ export default class FileService {
     };
   }
 
-  @Post("/file/getFileContentByFileIdAndPubVersion")
+  @Post("/getFileContentByFileIdAndPubVersion")
   async getFileContentByFileIdAndPubVersion(
     @Body("fileId") fileId: string,
     @Body("pubVersion") pubVersion: string
@@ -122,7 +122,7 @@ export default class FileService {
     };
   }
 
-  @Get("/file/getCooperationUsers")
+  @Get("/getCooperationUsers")
   async getCooperationUsers(@Query() query) {
     const { userId, timeInterval } = query;
     const fileId = Number(query.fileId);
@@ -205,7 +205,7 @@ export default class FileService {
     }
   }
 
-  @Post("/file/toggleFileCooperationStatus")
+  @Post("/toggleFileCooperationStatus")
   async toggleFileCooperationStatus(@Body() body) {
     const { userId, status } = body
     const fileId = Number(body.fileId)
@@ -270,7 +270,7 @@ export default class FileService {
 
   }
 
-  @Get("/file/checkInFolderProject")
+  @Get("/checkInFolderProject")
   async checkInFolderProject(@Query() query) {
     const { id } = query
     let file = await this.fileDao.queryById(id)
@@ -306,7 +306,7 @@ export default class FileService {
     }
   }
 
-  @Get("/file/getFileTreeMapByFile")
+  @Get("/getFileTreeMapByFile")
   async getFileTreeMapByFile(@Query() query) {
     const { id, extName, folderExtName } = query
     let file = await this.fileDao.queryById(id)
@@ -384,7 +384,7 @@ export default class FileService {
     }
   }
 
-  @Get("/file/getFiles")
+  @Get("/getFiles")
   async getFiles(@Query() query) {
     let { parentId, extNames, groupId, creatorId } = query
 
@@ -400,7 +400,7 @@ export default class FileService {
     }
   }
 	
-	@Get('/file/getFileList')
+	@Get('/getFileList')
 	async getFileList(@Query() query) {
 		const { parentId, creatorId, fileId } = query;
 		
@@ -525,7 +525,7 @@ export default class FileService {
     }
   }
 
-  @Get("/file/getParentModuleAndProjectInfo")
+  @Get("/getParentModuleAndProjectInfo")
   async getParentModuleAndProjectInfo(@Query('id') id: number) {
     if (!id) {
       return {
@@ -547,7 +547,7 @@ export default class FileService {
     }
   }
 
-  @Get("/file/getMyFiles")
+  @Get("/getMyFiles")
   async getMyFiles(@Query() query) {
     const { userId, parentId, extNames, status } = query
     const params: any = {
@@ -573,7 +573,7 @@ export default class FileService {
     }
   }
 
-  @Get("/file/getGroupFiles")
+  @Get("/getGroupFiles")
   async getGroupFiles(@Query() query) {
     const { userId, parentId, extNames, status, groupId } = query
     const params: any = {
@@ -600,7 +600,7 @@ export default class FileService {
     }
   }
 
-  @Get("/file/getFilePath")
+  @Get("/getFilePath")
   async getFilePath(@Query() query) {
     const { fileId, userId, groupId } = query;
     const path = [];
@@ -642,7 +642,7 @@ export default class FileService {
     };
   }
 
-  @Get("/file/checkFileCanCreate")
+  @Get("/checkFileCanCreate")
   async checkFileCanCreate(@Query() query) {
     const { fileName, extName, parentId, groupId, userId } = query
     const params: any = {
@@ -666,7 +666,7 @@ export default class FileService {
     }
   }
 
-  @Post('/file/getLatestSave')
+  @Post('/getLatestSave')
   async getLatestSave(@Body('fileId') fileId: number) {
     if (!fileId) {
       return {
@@ -683,7 +683,7 @@ export default class FileService {
     }
   }
 
-  @Post('/file/getLatestPub')
+  @Post('/getLatestPub')
   async getLatestPub(@Body('fileId') fileId: number, @Body('type') type: string) {
     if (!fileId) {
       return {
@@ -722,7 +722,7 @@ export default class FileService {
     return files
   }
 
-  @Get('/file/getFolderProjectInfoByProjectId')
+  @Get('/getFolderProjectInfoByProjectId')
   async getFolderProjectInfoByProjectId(@Query() query) {
     const { id } = query
     const [folder, [projectModuleInfo], files] = await Promise.all([
@@ -741,7 +741,7 @@ export default class FileService {
     }
   }
 
-  @Get('/file/publish/getVersionsByFileId')
+  @Get('/publish/getVersionsByFileId')
   async publishGetVersionsByFileId(@Query() query) {
     const { id, pageIndex, pageSize } = query
     const versions = await this.filePubDao.queryByFileId({ fileId: id, limit: pageSize, offset: pageSize * pageIndex })
@@ -752,7 +752,7 @@ export default class FileService {
     }
   }
 
-  @Post('/file/publish/batchCreateService')
+  @Post('/publish/batchCreateService')
   async batchCreateServicePublish(
     @Body('fileId') fileId: number,
     @Body('filePubId') filePubId: number,
@@ -789,7 +789,7 @@ export default class FileService {
     }
   }
 
-  @Get('/file/getEditModuleComponentLibraryByProjectId')
+  @Get('/getEditModuleComponentLibraryByProjectId')
   async getEditModuleComponentLibraryByProjectId(
     @Query('id') id: number,
     @Query('extName') extName: string,
@@ -875,7 +875,7 @@ export default class FileService {
     }
   }
 
-  @Get('/file/getModuleComponentsByProjectId')
+  @Get('/getModuleComponentsByProjectId')
   async getModuleComponentsByProjectId(@Query('id') id: number, @Query('extName') extName: string) {
     if (!id) {
       return {
@@ -913,6 +913,47 @@ export default class FileService {
         code: 1,
         data: result
       }
+    }
+  }
+
+  @Post('/share/mark')
+  async shareMark(@Body('id') id: number, @Body('userId') userId: string) {
+    if(!id || !userId) {
+      return {
+        code: -1,
+        msg: '缺少必要参数 id 或 userId'
+      }
+    }
+    const rtn = await this.fileDao.updateShare({
+      id: id,
+      shareType: 1,
+      updatorId: userId,
+      updatorName: userId
+    })
+    return {
+      code: rtn.affectedRows > 0 ? 1 : -1,
+      msg: rtn.affectedRows <= 0 ? '分享失败' : ''
+    }
+  }
+
+
+  @Post('/share/unmark')
+  async shareUnmark(@Body('id') id: number, @Body('userId') userId: string) {
+    if(!id || !userId) {
+      return {
+        code: -1,
+        msg: '缺少必要参数 id 或 userId'
+      }
+    }
+    const rtn = await this.fileDao.updateShare({
+      id: id,
+      shareType: null,
+      updatorId: userId,
+      updatorName: userId
+    })
+    return {
+      code: rtn.affectedRows > 0 ? 1 : -1,
+      msg: rtn.affectedRows <= 0 ? '取消分享失败' : ''
     }
   }
 }

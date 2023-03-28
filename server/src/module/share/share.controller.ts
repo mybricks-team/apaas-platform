@@ -1,0 +1,53 @@
+import { Body, Controller, Get, Res, Post, Query } from "@nestjs/common";
+import { Response } from "express";
+import FileService from "../file/file.service";
+
+@Controller("/paas/api/share")
+export default class GroundService {
+  fileService: FileService;
+
+  constructor() {
+    this.fileService = new FileService();
+  }
+
+  @Post("/getAll")
+  async getAll(@Body('pageSize') pageSize: number, @Body('page') page: number) {
+    try {
+      const rtn = await this.fileService.getAllShareFiles({
+        pageSize,
+        page
+      });
+      const total = await this.fileService.getCountOfShareFiles()
+      return {
+        code: 1,
+        data: {
+          list: rtn?.filter ? rtn.filter((item) => {
+            if (item.hasIcon === "1") {
+              item.icon = `/paas/api/workspace/getFileIcon?fileId=${item.id}`;
+            }
+            return item.extName !== "component";
+          }) : [],
+          total
+        },
+      };
+    } catch (ex) {
+      return {
+        code: -1,
+        message: ex.message,
+      };
+    }
+  }
+
+  // @Get("/getFileIcon")
+  // async getFileIcon(@Query() query, @Res() res: Response) {
+  //   try {
+  //     const file = await this.fileDao.queryIconById(query.fileId);
+  //     const base64 = file.icon.replace(/^data:image\/\w+;base64,/, "");
+  //     const dataBuffer = new Buffer(base64, "base64");
+
+  //     res.end(dataBuffer);
+  //   } catch (ex) {
+  //     res.end(ex.message);
+  //   }
+  // }
+}

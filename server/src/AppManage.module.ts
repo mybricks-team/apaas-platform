@@ -4,7 +4,6 @@ import { UserServices } from "./services/user";
 import ProductServices from "./services/product";
 
 import WorkspaceService from "./services/workspace";
-import GroundService from "./services/ground";
 import TaskController from "./services/task.controller";
 import TaskService from "./services/task.service";
 import FileDao from "./dao/FileDao";
@@ -24,6 +23,7 @@ import ModuleModule from './module/module/module.module'
 import SystemModule from './module/system/system.module'
 import FileModule from './module/file/file.module'
 import DomainModule from "./module/domain/domain.module";
+import ShareModule from "./module/share/share.module";
 
 @Module({
   imports: [
@@ -32,6 +32,7 @@ import DomainModule from "./module/domain/domain.module";
     SystemModule,
     FileModule,
     DomainModule,
+    ShareModule,
     ...loadModule().modules,
   ],
   controllers: [
@@ -41,7 +42,6 @@ import DomainModule from "./module/domain/domain.module";
     WorkspaceService,
     UserGroupService,
     TaskController,
-    GroundService,
     ConfigService,
     AppsService,
     HomeService,

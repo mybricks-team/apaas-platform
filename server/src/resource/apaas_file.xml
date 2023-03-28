@@ -96,6 +96,26 @@
         limit #{limit} offset #{offset}
     </select>
 
+    <select id="queryAllShareFiles">
+        select
+        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case when icon= '' then '0' else '1' end as has_icon
+        from apaas_file
+        where
+        share_type = #{shareType} and
+        status = 1
+        order by update_time desc
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="countShareFiles">
+        select
+            count(*) as total
+        from apaas_file
+        where
+        share_type = #{shareType} and
+        status = 1
+    </select>
+
     <select id="queryAllFilesByParentId">
         select
         id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case when icon= '' then '0' else '1' end as has_icon 
@@ -332,6 +352,16 @@
         where id = #{id}
     </update>
 
+    <update id="updateShare">
+        update apaas_file
+        set
+        share_type = #{shareType},
+        updator_id = #{updatorId},
+        updator_name = #{updatorName},
+        update_time = #{updateTime} 
+        where id = #{id}
+    </update>
+
     <select id="getFiles">
         select id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status from apaas_file
         where id 
@@ -504,7 +534,7 @@
     </select>
 
     <select id="getMyFiles">
-        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case when icon= '' then '0' else '1' end as has_icon  from apaas_file 
+        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case when icon= '' then '0' else '1' end as has_icon, share_type  from apaas_file 
         where creator_id = #{userId}
         and status = #{status} 
         and group_id is null 
@@ -526,7 +556,7 @@
     </select>
 
     <select id="getGroupFiles">
-        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case when icon= '' then '0' else '1' end as has_icon  from apaas_file 
+        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case when icon= '' then '0' else '1' end as has_icon, share_type  from apaas_file 
         where status = #{status} 
         and group_id = #{groupId}
          <choose>
