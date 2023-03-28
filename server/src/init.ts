@@ -1,5 +1,5 @@
 import env from "./utils/env";
-import { start as startDB } from "@mybricks/rocker-dao";
+import { start as startDB, shutdown as endDB } from "@mybricks/rocker-dao";
 
 export default function init() {
   process.on("unhandledRejection", (e) => {
@@ -26,4 +26,15 @@ export default function init() {
       bootstrapPath: __dirname
     },
   ]);
+
+  process.on('SIGINT', () => {
+    console.log('收到关闭信号，即将关闭资源')
+    endDB().then(() => {
+      console.log('数据库关闭成功')
+      process.exit(0)
+    }).catch((err) => {
+      console.log('数据库关闭失败')
+      process.exit(err ? 1 : 0)
+    })
+ })
 }
