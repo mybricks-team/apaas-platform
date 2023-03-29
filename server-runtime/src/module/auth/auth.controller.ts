@@ -7,54 +7,47 @@ import {
   Query,
   Param,
   Request,
-  UseInterceptors,
-  UploadedFile,
 } from '@nestjs/common';
 import AuthService from './auth.service';
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
 const { getConnection } = require("@mybricks/rocker-dao");
-const { SnowFlake } = require('gen-uniqueid');
 
 @Controller('/runtime/api/auth')
 export default class AuthController {
   @Inject()
   authService: AuthService;
-  
-  // runtime env
-  snowFlake: any
-  
-  constructor() {
-    this.snowFlake = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
-  }
 
   // 领域建模运行时(运行时)
-  @Post('/service/run')
-  async systemDomainRun(
-    @Body('serviceId') serviceId: string,
+  @Post('/getUserAuth')
+  async getUserAuth(
     @Body('params') params: any,
-    @Body('fileId') fileId: number,
     @Body('projectId') projectId: number
   ) {
-    if (!serviceId) {
-      return {
-        code: -1,
-        msg: '缺少 serviceId',
-      };
-    }
     let readyExePath;
     try {
-      const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
+      const serviceId = `SYS_AUTH`;
+      const readyExeTemplateFolderPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
+      if (!fs.existsSync(readyExePath)) {
+        return {
+          code: 1,
+          data: {
+            openAuth: false
+          },
+        }
+      }
       const { startExe } = require(readyExePath)
       let res = await startExe(params || {}, {
-        dbConnection: await getConnection(),
-        snowFlake: this.snowFlake
+        dbConnection: await getConnection()
       })
       return {
         code: 1,
-        data: res
+        data: {
+          openAuth: true,
+          data: res
+        }
       }
     } catch (e) {
       return {
@@ -63,5 +56,4 @@ export default class AuthController {
       }
     }
   }
-
 }

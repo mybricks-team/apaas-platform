@@ -18,6 +18,9 @@ import FileContentDao from './../../dao/FileContentDao';
 import FilePubDao from './../../dao/filePub.dao';
 const env = require('../../../env.js')
 import { getRealDomain, getNextVersion } from '../../utils/index'
+import UploadService from '../upload/upload.service';
+const fs = require('fs');
+const path = require('path');
 
 @Controller('/paas/api/module')
 export default class ModuleController {
@@ -27,6 +30,7 @@ export default class ModuleController {
   moduleService: ModuleService;
   fileContentDao: FileContentDao;
   filePubDao: FilePubDao;
+  uploadService: UploadService;
 
   constructor() {
     this.userDao = new UserDao();
@@ -36,17 +40,7 @@ export default class ModuleController {
     this.fileService = new FileService();
     this.moduleService = new ModuleService();
     this.fileDao = new FileDao();
-  }
-
-  @Get('/test')
-  async test(@Request() request) {
-    const domainName = getRealDomain(request)
-    console.log('----')
-    console.log(request.headers)
-    console.log(domainName)
-    return {
-      code: 1
-    }
+    this.uploadService = new UploadService()
   }
 
   @Post('/publish')
@@ -282,6 +276,17 @@ export default class ModuleController {
   @Post('/install')
   async installModule(@Body() body, @Request() request) {
     const { id, projectId, userId } = body;
+
+    const installedModules = await this.moduleService.getProjectModuleInfo(projectId)
+    
+    if(installedModules.length === 0) {
+      // 第一次安装模块，推送自带运行时代码
+      await this.uploadService.saveFile({
+        str: fs.readFileSync(path.join(__dirname, './SYS_AUTH.template.ts'), "utf-8"),
+        filename: 'SYS_AUTH.js',
+        folderPath: `/project/${projectId}`,
+      })
+    }
 
     if (!id || !projectId) {
       return { code: 0, message: '参数 id、projectId 不能为空' };
