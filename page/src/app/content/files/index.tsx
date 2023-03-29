@@ -614,25 +614,30 @@ function MoveFileModal({app, onOk, onCancel}) {
     })
 
     next({
-      active: {},
+      active: null,
       dataSource: []
     })
   })
   const [btnLoading, setBtnLoading] = useState(false)
   const ok = useCallback(() => {
-    setBtnLoading(true)
-    onOk(ctx.active, app).then((msg) => {
-      message.success(msg)
-      cancel()
-    }).catch((e) => {
-      setBtnLoading(false)
-      message.warn(e)
-    })
+    if (!ctx.active) {
+      message.info('请选择需要移动到的协作组或文件夹')
+    } else {
+      setBtnLoading(true)
+      onOk(ctx.active, app).then((msg) => {
+        message.success(msg)
+        cancel()
+      }).catch((e) => {
+        setBtnLoading(false)
+        message.warn(e)
+      })
+    }
   }, [app])
 
   const cancel = useCallback(() => {
     onCancel()
     setBtnLoading(false)
+    ctx.active = null
     ctx.dataSource = ctx.dataSource.map((item) => {
       Reflect.deleteProperty(item, 'dataSource')
       return {
@@ -647,7 +652,6 @@ function MoveFileModal({app, onOk, onCancel}) {
       open={!!app}
       title={`将“${app?.name}”移动到`}
       okText={btnLoading ? '校验中...' : '确认'}
-      destroyOnClose={true}
       cancelText={'取消'}
       centered={true}
       onOk={ok}
