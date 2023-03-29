@@ -68,10 +68,10 @@ export default function TitleBar(): JSX.Element {
         })}
       </Breadcrumb>
 
-      <div className={css.btns}>
+      {ctx.roleDescription && ctx.roleDescription < 3 && <div className={css.btns}>
         <button onClick={evt(ctx.showCreatePanel).stop}><span>+</span>新建</button>
         <Create/>
-      </div>
+      </div>}
     </div>
   )
 }
