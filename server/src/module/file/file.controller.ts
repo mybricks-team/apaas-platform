@@ -10,10 +10,11 @@ import ModulePubDao from '../../dao/ModulePubDao'
 import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
 import { isNumber } from '../../utils'
 import ModuleDao from "../../dao/ModuleDao";
+import FileService from "./file.service";
 const path = require('path');
 
 @Controller("/paas/api/file")
-export default class FileService {
+export default class FileController {
   fileDao: FileDao;
   fileContentDao: FileContentDao;
   filePubDao: FilePubDao;
@@ -24,6 +25,8 @@ export default class FileService {
   servicePubDao: ServicePubDao;
   moduleDao: ModuleDao;
   modulePubDao: ModulePubDao
+
+  fileService: FileService
 
   constructor() {
     this.fileDao = new FileDao();
@@ -36,6 +39,7 @@ export default class FileService {
     this.servicePubDao = new ServicePubDao()
     this.moduleDao = new ModuleDao()
     this.modulePubDao = new ModulePubDao()
+    this.fileService = new FileService()
   }
 
   @Get("/get")
