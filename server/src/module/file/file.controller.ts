@@ -698,6 +698,23 @@ export default class FileService {
     }
   }
 
+  @Post('/moveFile')
+  async moveFile(
+    @Body('fileId') fileId: number,
+    @Body('toGroupId') toGroupId: string,
+    @Body('toFileId') toFileId: number,
+  ) {
+    const res = await this.fileService.moveFile({
+      fileId,
+      toFileId,
+      toGroupId,
+    });
+    return {
+      code: 1,
+      ...res,
+    };
+  }
+
   // TODO:写死查询的应用
   async getFolderProjectAppsByParentId({ id, extNames }, files = []) {
     const items = await this.fileDao.getFilesByParentId({ id, extNames })

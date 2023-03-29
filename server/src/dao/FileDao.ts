@@ -417,18 +417,44 @@ export default class FileDao extends DOBase {
   }
 
   public async moveFile(query: {
-    fileId: number
-    groupId: number
-    parentId: any
+    fileId: number;
+    groupId: number;
+    parentId: any;
+    extName?: string;
   }): Promise<{ id: number | null }> {
-    query = Object.assign(query, {update_time: new Date().getTime()})
+    const { fileId, groupId, parentId, extName } = query;
+    const updateTime = new Date().getTime();
+    let updateFiles = [
+      {
+        id: fileId,
+        groupId,
+        parentId,
+        updateTime,
+      },
+    ];
     if (!query.parentId) {
-      query.parentId = null
+      query.parentId = null;
     }
-    const result = await this.exe<any>("apaas_file:moveFile", query)
+    if (query.extName === 'folder') {
+      const files = await this.getFilesByParentId([query.fileId], []);
+      updateFiles = updateFiles.concat(
+        files.map((file) => {
+          return {
+            id: file.id,
+            groupId,
+            parentId: file.parentId,
+            updateTime,
+          };
+        }),
+      );
+    }
+
+    const result = await this.exe<any>('apaas_file:moveFile', {
+      items: updateFiles,
+    });
 
     return {
-      id: !!result ? query.fileId : null
+      id: !!result ? query.fileId : null,
     };
   }
 
