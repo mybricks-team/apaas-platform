@@ -14,7 +14,12 @@ import {
   useObservable
 } from '@mybricks/rxui'
 import {Form, message, Modal, Input} from 'antd'
-import {EditOutlined, ExclamationCircleFilled, ShareAltOutlined} from '@ant-design/icons'
+import {
+  EditOutlined,
+  SelectOutlined,
+  ShareAltOutlined,
+  ExclamationCircleFilled
+} from '@ant-design/icons'
 
 import Info from './info'
 import TitleBar from './title'
@@ -24,6 +29,8 @@ import {Divider, Dropdown} from '../../components'
 import Ctx, {folderExtnames} from './Ctx'
 import {getApiUrl, getUrlQuery} from '../../../utils'
 import {Icon, Trash, More, SharerdIcon} from '../../components'
+import FolderList from './temp/FolderList'
+
 
 import css from './index.less'
 
@@ -129,6 +136,7 @@ function Projects() {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const ctx = observe(Ctx, {from: "parents"})
   const [createApp, setCreateApp] = useState(null)
+  const [moveApp, setMoveApp] = useState(null)
 
   /** 各种操作 */
   const operate = useCallback((type, item) => {
@@ -206,6 +214,10 @@ function Projects() {
         })
         break
       }
+      case 'move': {
+        setMoveApp(item)
+        break;
+      }
       default:
         break;
     }
@@ -252,11 +264,20 @@ function Projects() {
               )
             },
             {
-              key: '3',
+              key: '2',
               label: (
                 <div className={css.operateItem} onClick={() => operate('rename', project)}>
                   <EditOutlined width={16} height={16}/>
                   <div className={css.label}>重命名</div>
+                </div>
+              )
+            },
+            {
+              key: '3',
+              label: (
+                <div className={css.operateItem} onClick={() => operate('move', project)}>
+                  <SelectOutlined width={16} height={16}/>
+                  <div className={css.label}>移动到</div>
                 </div>
               )
             },
@@ -336,6 +357,66 @@ function Projects() {
     );
   });
 
+  const moveModalOk = useCallback((values, app) => {
+    return new Promise(async (resolve, reject) => {
+      if (!values) {
+        reject('请选择要移入的协作组或文件夹')
+        return
+      }
+
+      const { id, groupId } = values
+
+      if (app.id === id) {
+        reject(`目标文件夹${app.name}已被选中，无法移动`)
+        return
+      }
+
+      const isGroup = typeof groupId === 'undefined'
+
+      const data: any = {
+        fileId: app.id,
+      }
+
+      if (isGroup) {
+        data.toGroupId = id
+      } else {
+        data.toFileId = id
+      }
+
+      axios({
+        method: 'post',
+        url: getApiUrl('/api/file/moveFile'),
+        data
+      }).then(async ({data: {data}}) => {
+        if (typeof data === 'string') {
+          reject(data)
+        } else {
+
+          // let moveTo
+
+          // if (isGroup) {
+          //   // moveTo = homePageCtx.iJoinedCtx.dataSource.find(data => data.id === id)
+          // } else {
+          //   // moveTo = getFoldersParent(homePageCtx.iJoinedCtx.dataSource, id)
+          // }
+
+          // if (moveTo?.open) {
+          //   // homePageCtx.iJoinedCtx.fetch({linkageWithHome: false, item: moveTo})
+          // }
+
+          ctx.getAll(getUrlQuery());
+          await appCtx.refreshSidebar();
+
+          resolve('移动成功')
+        }
+      })
+    })
+  }, [])
+
+  const moveModalCancel = useCallback(() => {
+    setMoveApp(null)
+  }, [])
+
   const modalOk = useCallback((values, app) => {
     return new Promise(async (resolve, reject) => {
       const { name } = values
@@ -409,10 +490,21 @@ function Projects() {
     )
   }, [createApp])
 
+  const RenderMoveFileModal = useMemo(() => {
+    return (
+      <MoveFileModal
+        app={moveApp}
+        onOk={moveModalOk}
+        onCancel={moveModalCancel}
+      />
+    )
+  }, [moveApp])
+
   return (
     <>
       {Render}
       {RenderRenameFileModal}
+      {RenderMoveFileModal}
     </>
   );
 }
@@ -495,6 +587,139 @@ function RenameFileModal({app, onOk, onCancel}) {
           <Input ref={ref} placeholder='请输入新的名称' autoFocus onPressEnter={ok}/>
         </Form.Item>
       </Form>
+    </Modal>
+  )
+}
+
+class Ctx2 {
+  active: any
+  dataSource: any[]
+}
+
+function MoveFileModal({app, onOk, onCancel}) {
+  const appCtx = observe(AppCtx, {from: 'parents'})
+  const ctx = useObservable(Ctx2, next => {
+    axios({
+      method: 'get',
+      url: getApiUrl('/paas/api/userGroup/getVisibleGroups'),
+      params: {
+        userId: appCtx.user.email
+      }
+    }).then(({ data: { data } }) => {
+      // modalCtx.bodyLoading = false
+
+      next({
+        dataSource: data.filter((item) => item.roleDescription && item.roleDescription < 3)
+      })
+    })
+
+    next({
+      active: {},
+      dataSource: []
+    })
+  })
+  const [btnLoading, setBtnLoading] = useState(false)
+  const ok = useCallback(() => {
+    setBtnLoading(true)
+    onOk(ctx.active, app).then((msg) => {
+      message.success(msg)
+      cancel()
+    }).catch((e) => {
+      setBtnLoading(false)
+      message.warn(e)
+    })
+  }, [app])
+
+  const cancel = useCallback(() => {
+    onCancel()
+    setBtnLoading(false)
+    ctx.dataSource = ctx.dataSource.map((item) => {
+      Reflect.deleteProperty(item, 'dataSource')
+      return {
+        ...item,
+        open: false
+      }
+    })
+  }, [])
+
+  return (
+    <Modal
+      open={!!app}
+      title={`将“${app?.name}”移动到`}
+      okText={btnLoading ? '校验中...' : '确认'}
+      destroyOnClose={true}
+      cancelText={'取消'}
+      centered={true}
+      onOk={ok}
+      onCancel={cancel}
+      confirmLoading={btnLoading}
+      bodyStyle={{height: 500, overflow: 'auto'}}
+    >
+      <FolderList
+        active={ctx.active}
+        bodyStyle={{marginLeft: 0}}
+        dataSource={ctx.dataSource}
+        clickWrapper={async (item) => {
+          ctx.active = item
+
+          if (!item.open) {
+            item.loading = true
+
+            const params: any = {
+              userId: appCtx.user.email,
+              extNames: 'folder,folder-project,folder-module',
+            }
+
+            if (!item.groupId) {
+              // 协作组
+              params.groupId = item.id
+            } else {
+              params.groupId = item.groupId
+              params.parentId = item.id
+            }
+
+            axios({
+              method: 'get',
+              url: getApiUrl('/api/file/getGroupFiles'),
+              params
+            }).then(({ data: { data } }) => {
+              item.dataSource = data.filter((item) => item.id !== app.id)
+              item.open = true
+              item.loading = false
+            })
+          }
+        }}
+        clickSwitcher={async (item) => {
+          if (item.open) {
+            item.open = false
+          } else {
+            item.loading = true
+
+            const params: any = {
+              userId: appCtx.user.email,
+              extNames: 'folder,folder-project,folder-module',
+            }
+
+            if (!item.groupId) {
+              // 协作组
+              params.groupId = item.id
+            } else {
+              params.groupId = item.groupId
+              params.parentId = item.id
+            }
+
+            axios({
+              method: 'get',
+              url: getApiUrl('/api/file/getGroupFiles'),
+              params
+            }).then(({ data: { data } }) => {
+              item.dataSource = data
+              item.open = true
+              item.loading = false
+            })
+          }
+        }}
+      />
     </Modal>
   )
 }

@@ -119,6 +119,15 @@ export default class UserGroupService {
       data = await this.userGroupDao.queryByIds({ids: userGroupRelations.map((item) => item.userGroupId)})
     }
 
+    const map = new Map(userGroupRelations.map((item) => [item.userGroupId, item]))
+
+    data = data.map((item) => {
+      return {
+        ...item,
+        roleDescription: map.get(item.id).roleDescription
+      }
+    })
+
     return {
       code: 1,
       data
