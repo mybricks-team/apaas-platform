@@ -314,7 +314,7 @@
     </select>
 
     <update id="moveFile">
-        update file
+        update apaas_file
         <trim prefix="set" suffixOverrides=",">
             parent_id = 
             <foreach collection="items" item="item" open="case " close=" end," index="index">
