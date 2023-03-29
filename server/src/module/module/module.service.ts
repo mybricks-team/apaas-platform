@@ -58,6 +58,10 @@ export default class ModuleService {
   async getModuleList() {
     return await this.moduleDao.getModules();
   }
+
+	async getProjectModuleInfo(projectId: number) {
+		return await this.moduleDao.getProjectModuleInfo(projectId);
+	}
 	
   async installModule(params: { id: number; projectId: number; userId: string }, request: Request) {
 		const { id, projectId, userId } = params;
