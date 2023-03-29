@@ -387,25 +387,42 @@ function Projects() {
         method: 'post',
         url: getApiUrl('/api/file/moveFile'),
         data
-      }).then(async ({data: {data}}) => {
-        if (typeof data === 'string') {
-          reject(data)
+      }).then(async ({data: {data: message}}) => {
+        if (typeof message === 'string') {
+          reject(message)
         } else {
+          const refreshSiderAry = []
+          if (folderExtnames.includes(app.extName)) {
+            // 如果是文件夹
+            // 移动位置
+            if (data.toGroupId) {
+              const sideMenu = appCtx.sidebarInfo[`?appId=files&groupId=${id}`]
+              if (sideMenu?.open) {
+                refreshSiderAry.push(sideMenu)
+              }
+            } else {
+              const sideMenu = appCtx.sidebarInfo[`?appId=files&groupId=${groupId}&parentId=${id}`]
+              if (sideMenu?.open) {
+                refreshSiderAry.push(sideMenu)
+              }
+            }
+            // 移出位置
+            const sideMenu = appCtx.sidebarInfo[`?appId=files${app.groupId ? `&groupId=${app.groupId}` : ''}${app.parentId ? `&parentId=${app.parentId}` : ''}`]
+            if (sideMenu?.open) {
+              refreshSiderAry.push(sideMenu)
+            }
+          }
 
-          // let moveTo
-
-          // if (isGroup) {
-          //   // moveTo = homePageCtx.iJoinedCtx.dataSource.find(data => data.id === id)
-          // } else {
-          //   // moveTo = getFoldersParent(homePageCtx.iJoinedCtx.dataSource, id)
-          // }
-
-          // if (moveTo?.open) {
-          //   // homePageCtx.iJoinedCtx.fetch({linkageWithHome: false, item: moveTo})
-          // }
-
-          ctx.getAll(getUrlQuery());
-          await appCtx.refreshSidebar();
+          await Promise.all([
+            await ctx.getAll(getUrlQuery()),
+            ...refreshSiderAry.map((sideMenu) => {
+              return new Promise(async (resolve) => {
+                const items = await sideMenu.getFiles(sideMenu.id)
+                sideMenu.items = items
+                resolve(true)
+              })
+            })
+          ])
 
           resolve('移动成功')
         }
