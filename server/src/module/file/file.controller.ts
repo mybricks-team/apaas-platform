@@ -916,6 +916,46 @@ export default class FileService {
     }
   }
 
+  @Get('/file/getModuleHtmlByProjectId')
+  async getModulesByProjectId(@Query('id') id: number) {
+    let modules = []
+
+    if (id) {
+      const [projectInfo] = await this.moduleDao.getProjectModuleInfo(id)
+
+      if (!projectInfo) return
+
+      const { moduleList } = JSON.parse(projectInfo.module_info)
+
+      await Promise.all(moduleList.map((module, index) => {
+        return new Promise(async (resolve) => {
+          const { id, version } = module
+          const htmls: any = await this.modulePubDao.queryPubInfo({
+            moduleId: id,
+            extNameList: ['html'],
+            version: version
+          })
+
+          moduleList[index].htmls = htmls.map((html) => {
+            return {
+              name: html.file_name,
+              id: html.file_id
+            }
+          })
+
+          resolve(true)
+        })
+      }))
+
+      modules = moduleList
+    }
+
+    return {
+      code: 1,
+      data: modules
+    }
+  }
+
   @Post('/share/mark')
   async shareMark(@Body('id') id: number, @Body('userId') userId: string) {
     if(!id || !userId) {

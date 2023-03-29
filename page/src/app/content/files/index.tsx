@@ -231,8 +231,26 @@ function Projects() {
           const bigIcon = folderExtnames.includes(extName) || project.icon
           /** 创建人和拥有管理、编辑权限的用户可见操作按钮 */
           const showOperate = (project.creatorId === userId) || [1, 2].includes(roleDescription)
-          
+          /** 非文件夹，可分享 */
+          const isFolder = folderExtnames.includes(extName)
+          const alreadyShared = project.shareType === 1
+
           let dropdownMenus = [
+            isFolder ? undefined : {
+              key: '1',
+              label: (
+                <div className={css.operateItem} onClick={() => {
+                  if(alreadyShared) {
+                    operate('unshare', project)
+                  } else {
+                    operate('share', project)
+                  }
+                }}>
+                  <ShareAltOutlined width={16} height={16}/>
+                  <div className={css.label}>{ alreadyShared ? '取消分享' : '分享'}</div>
+                </div>
+              )
+            },
             {
               key: '3',
               label: (
@@ -257,35 +275,8 @@ function Projects() {
                 </div>
               )
             }
-          ]
-          // 文件夹外，增加分享
-          const alreadyShared = project.shareType === 1;
-          if(project.extName !== 'folder' && project.extName !== 'folder-module' && project.extName !== 'folder-project') {
-            console.log('11', project)
-            dropdownMenus = [
-              {
-                key: '1',
-                label: (
-                  <div className={css.operateItem} onClick={() => {
-                    if(alreadyShared) {
-                      operate('unshare', project)
-                    } else {
-                      operate('share', project)
-                    }
-                  }}>
-                    <ShareAltOutlined width={16} height={16}/>
-                    <div className={css.label}>{ alreadyShared ? '取消分享' : '分享'}</div>
-                  </div>
-                )
-              },
-              {
-                key: '2',
-                label: (
-                  <Divider />
-                )
-              },
-            ].concat(dropdownMenus);
-          }
+          ].filter(item => item)
+
           return (
             <div key={project.id} className={css.file} onClick={() => operate('open', {...project, homepage})}>
               {
@@ -310,7 +301,6 @@ function Projects() {
                     {project.creatorName}
                   </div>
                 </div>
-                {/* TODO: 如果文件在底部，操作项被遮挡 */}
                 {showOperate && <div className={css.btns} onClick={evt(() => {}).stop}>
                   <Dropdown
                     menus={dropdownMenus}
