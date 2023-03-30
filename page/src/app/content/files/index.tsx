@@ -623,8 +623,6 @@ function MoveFileModal({app, onOk, onCancel}) {
         userId: appCtx.user.email
       }
     }).then(({ data: { data } }) => {
-      // modalCtx.bodyLoading = false
-
       next({
         dataSource: data.filter((item) => item.roleDescription && item.roleDescription < 3)
       })
