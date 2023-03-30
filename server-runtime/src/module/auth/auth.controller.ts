@@ -22,10 +22,16 @@ export default class AuthController {
   // 领域建模运行时(运行时)
   @Post('/getUserAuth')
   async getUserAuth(
-    @Body('params') params: any,
+    @Body('userId') userId: number,
     @Body('projectId') projectId: number
   ) {
     let readyExePath;
+    if(!userId || !projectId) {
+      return {
+        code: -1,
+        msg: 'userId 或 projectId 为空'
+      }
+    }
     try {
       const serviceId = `SYS_AUTH`;
       const readyExeTemplateFolderPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`);
@@ -39,7 +45,10 @@ export default class AuthController {
         }
       }
       const { startExe } = require(readyExePath)
-      let res = await startExe(params || {}, {
+      let res = await startExe({
+        userId,
+        projectId
+      }, {
         dbConnection: await getConnection()
       })
       return {

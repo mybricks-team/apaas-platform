@@ -52,10 +52,11 @@ function startExe(obj, { dbConnection }) {
       });
     });
   };
-
+  // userId为主键
+  const { projectId, userId } = obj
   return new Promise((resolve, reject) => {
     try {
-      const sql = ``;
+      const sql = `SELECT * FROM D_${projectId}_系统权限关系_VIEW WHERE 系统用户 = ${userId} ORDER BY id DESC LIMIT 1;`;
       _execSQL(sql, { args: obj }).then(res => {
         resolve(res)
       })
