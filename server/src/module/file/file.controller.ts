@@ -937,7 +937,7 @@ export default class FileController {
     }
   }
 
-  @Get('/file/getModuleHtmlByProjectId')
+  @Get('/getModuleHtmlByProjectId')
   async getModulesByProjectId(@Query('id') id: number) {
     let modules = []
 
