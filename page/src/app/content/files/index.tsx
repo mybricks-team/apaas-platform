@@ -249,7 +249,7 @@ function Projects() {
 
           let dropdownMenus = [
             isFolder ? undefined : {
-              key: '1',
+              key: 'share',
               label: (
                 <div className={css.operateItem} onClick={() => {
                   if(alreadyShared) {
@@ -264,7 +264,7 @@ function Projects() {
               )
             },
             {
-              key: '2',
+              key: 'rename',
               label: (
                 <div className={css.operateItem} onClick={() => operate('rename', project)}>
                   <EditOutlined width={16} height={16}/>
@@ -273,7 +273,7 @@ function Projects() {
               )
             },
             {
-              key: '3',
+              key: 'move',
               label: (
                 <div className={css.operateItem} onClick={() => operate('move', project)}>
                   <SelectOutlined width={16} height={16}/>
@@ -282,13 +282,13 @@ function Projects() {
               )
             },
             {
-              key: '4',
+              key: 'divider1',
               label: (
                 <Divider />
               )
             },
             {
-              key: '5',
+              key: 'delete',
               label: (
                 <div className={css.operateItem} onClick={() => operate('delete', project)}>
                   <Trash width={16} height={16}/>
