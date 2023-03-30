@@ -3,8 +3,6 @@ import React, {useMemo, useState} from 'react'
 import axios from 'axios'
 import {message} from 'antd'
 import {useObservable} from '@mybricks/rxui'
-// import API from '/Users/andyzou/Work/registry/mybricks-team/sdk-for-app/src/api'
-// import API from '@mybricks/sdk-for-app/src/api'
 
 import AppCtx from './AppCtx'
 import Sideber from './sidebar'
