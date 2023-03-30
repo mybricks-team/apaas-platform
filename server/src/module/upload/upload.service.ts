@@ -44,13 +44,18 @@ export default class UploadService {
 
   async getFiles({subPath}: {subPath: string}) {
     let wholePath = path.join(this.fileLocalFolder, subPath)
-    const fileNames = fs.readdirSync( wholePath)
     let fileMap = {}
-    fileNames?.forEach(fileName => {
-      let [fileId, ext] = fileName?.split('.')
-      fileMap[fileId] = path.join(wholePath, fileName)
-    }) || []
-    return fileMap
+    if(fs.existsSync(wholePath)) {
+      const fileNames = fs.readdirSync(wholePath)
+      fileNames?.forEach(fileName => {
+        let [fileId, ext] = fileName?.split('.')
+        fileMap[fileId] = path.join(wholePath, fileName)
+      }) || []
+      return fileMap
+    } else {
+      return fileMap
+    }
+    
   }
 
   async deleteFile({subPath, fullPath}: {subPath?: string, fullPath?: string}) {
