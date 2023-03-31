@@ -56,7 +56,7 @@ function startExe(obj, { dbConnection }) {
   const { projectId, userId } = obj
   return new Promise((resolve, reject) => {
     try {
-      const sql = `SELECT * FROM D_${projectId}_系统权限关系_VIEW WHERE 系统用户 = ${userId} ORDER BY id DESC LIMIT 1;`;
+      const sql = `SELECT D_${projectId}_系统权限关系_VIEW.*, D_${projectId}_系统权限_VIEW.id AS '系统权限_id', 角色名, 角色描述, 角色权限 FROM D_${projectId}_系统权限关系_VIEW LEFT JOIN D_${projectId}_系统权限_VIEW ON D_${projectId}_系统权限关系_VIEW.系统权限 = D_${projectId}_系统权限_VIEW.id WHERE 系统用户 = ${userId} ORDER BY id DESC LIMIT 1;`;
       _execSQL(sql, { args: obj }).then(res => {
         resolve(res)
       })
