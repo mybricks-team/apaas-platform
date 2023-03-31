@@ -739,7 +739,10 @@ export default class FileController {
       const [pubInfo] = await this.filePubDao.getLatestPubByFileId(file.id)
       file.pubInfo = pubInfo
       if(showAdminInfo) {
-        file.adminInfo = getAdminInfoByProjectId(id)
+        file.adminInfo = {
+          ...getAdminInfoByProjectId(id), 
+          loginBasePath: `/runtime/mfs/project/${id}/admin_login.html?projectId=${id}&fileId=${file.id}`
+        }
       }
     }))
 

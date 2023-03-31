@@ -149,7 +149,6 @@ export { isNumber } from './type'
 export function getAdminInfoByProjectId(projectId) {
   return {
     userName: crypto.createHash('md5').update(`${projectId}:userName`).digest('hex'),
-    password: crypto.createHash('md5').update(`${projectId}:password`).digest('hex'),
-    loginBasePath: `/runtime/mfs/project/${projectId}/admin_login.html?projectId=${projectId}`,
+    password: crypto.createHash('md5').update(`${projectId}:password`).digest('hex')
   }
 } 
