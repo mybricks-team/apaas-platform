@@ -66,6 +66,7 @@ export default function FolderProject(props) {
 			<FolderProjectList info={ctx.info} />
       <div>
         <ModuleArea ctx={ctx} />
+        <SuperAdminInfoArea ctx={ctx} />
         <ContainerArea />
       </div>
 		</div>
@@ -215,4 +216,33 @@ function ModuleArea({ ctx }) {
 			<ModuleCenterModal installedModuleList={ctx.moduleList || []} onFinish={ctx.getInfo} projectId={ctx.id} visible={showModal} onClose={onClose} />
 		</>
 	);
+}
+
+function SuperAdminInfoArea({ ctx }) {
+  console.log(ctx.info)
+  const showAdminArea = ctx.info?.adminInfo ? true : false
+  if(!showAdminArea) {
+    return null
+  } 
+  return (
+    <div className={css.adminInfoArea}>
+        <Card>
+          <div className={css.title}>
+            <span className={css.titleIcon}>
+              <span style={{marginLeft: 4}}>站点超级管理员信息</span>
+            </span>
+          </div>
+          <div style={{cursor: 'text', userSelect: 'text'}}>
+            <p className={css.statusContent}>账号：{ctx?.info?.adminInfo?.userName}</p>
+            <p className={css.statusContent}>密码：{ctx?.info?.adminInfo?.password}</p>
+            <p>超管登陆地址：</p>
+            {
+              ctx.info?.apps?.map(app => {
+                return <p>{app.name}: {`${location.origin}${app.adminLoginBasePath}`}</p>
+              })
+            }
+          </div>
+        </Card>
+    </div>
+  )
 }
