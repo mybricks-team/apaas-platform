@@ -17,11 +17,10 @@ import FileDao from './../../dao/FileDao';
 import FileContentDao from './../../dao/FileContentDao';
 import FilePubDao from './../../dao/filePub.dao';
 const env = require('../../../env.js')
-import { getRealDomain, getNextVersion } from '../../utils/index'
+import { getRealDomain, getNextVersion, getAdminInfoByProjectId } from '../../utils/index'
 import UploadService from '../upload/upload.service';
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 
 @Controller('/paas/api/module')
 export default class ModuleController {
@@ -289,10 +288,7 @@ export default class ModuleController {
       })
       // 初始化系统超级管理员
       await this.uploadService.saveFile({
-        str: JSON.stringify({
-          userName: crypto.createHash('md5').update(`${projectId}:userName`).digest('hex'),
-          password: crypto.createHash('md5').update(`${projectId}:password`).digest('hex')
-        }),
+        str: JSON.stringify(getAdminInfoByProjectId(projectId)),
         filename: 'SYS_ADMIN_CONFIG.json',
         folderPath: `/project/${projectId}`,
       })

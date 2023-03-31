@@ -1,4 +1,5 @@
 import * as moment from "dayjs";
+const crypto = require('crypto');
 
 export function uuid(length = 32): string {
   let text = "";
@@ -143,3 +144,12 @@ export function getRealDomain(request) {
 }
 
 export { isNumber } from './type'
+
+
+export function getAdminInfoByProjectId(projectId) {
+  return {
+    userName: crypto.createHash('md5').update(`${projectId}:userName`).digest('hex'),
+    password: crypto.createHash('md5').update(`${projectId}:password`).digest('hex'),
+    loginBasePath: `/runtime/mfs/project/${projectId}/admin_login.html?projectId=${projectId}`,
+  }
+} 

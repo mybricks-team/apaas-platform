@@ -8,7 +8,7 @@ import UserGroupRelationDao from '../../dao/UserGroupRelationDao'
 import ServicePubDao from '../../dao/ServicePubDao'
 import ModulePubDao from '../../dao/ModulePubDao'
 import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
-import { isNumber } from '../../utils'
+import { isNumber, getAdminInfoByProjectId } from '../../utils'
 import ModuleDao from "../../dao/ModuleDao";
 import FileService from "./file.service";
 const path = require('path');
@@ -720,7 +720,7 @@ export default class FileController {
   }
 
   // TODO:写死查询的应用
-  async getFolderProjectAppsByParentId({ id, extNames }, files = []) {
+  async getFolderProjectAppsByParentId({ id, showAdminInfo,  extNames }, files = []) {
     const items = await this.fileDao.getFilesByParentId({ id, extNames })
     const promiseAry = []
 
@@ -732,24 +732,27 @@ export default class FileController {
       }
     })
     await Promise.all(promiseAry.map(async (item) => {
-      await this.getFolderProjectAppsByParentId({ id: item.id, extNames }, files)
+      await this.getFolderProjectAppsByParentId({ id: item.id, showAdminInfo, extNames }, files)
     }))
 
     await Promise.all(files.map(async (file) => {
       const [pubInfo] = await this.filePubDao.getLatestPubByFileId(file.id)
       file.pubInfo = pubInfo
+      if(showAdminInfo) {
+        file.adminInfo = getAdminInfoByProjectId(id)
+      }
     }))
 
     return files
   }
 
-  @Get('/getFolderProjectInfoByProjectId')
-  async getFolderProjectInfoByProjectId(@Query() query) {
-    const { id } = query
-    const [folder, [projectModuleInfo], files] = await Promise.all([
-      await this.fileDao.queryById(id),
+  @Post('/getFolderProjectInfoByProjectId')
+  async getFolderProjectInfoByProjectId(@Body() body) {
+    const { id, userName } = body
+    const folder = await this.fileDao.queryById(id); 
+    const [[projectModuleInfo], files] = await Promise.all([
       await this.moduleDao.getProjectModuleInfo(id),
-      await this.getFolderProjectAppsByParentId({ id, extNames: ['pc-website', 'folder', 'folder-project', 'folder-module'] })
+      await this.getFolderProjectAppsByParentId({ id, showAdminInfo: folder.creatorName === userName, extNames: ['pc-website', 'folder', 'folder-project', 'folder-module'] })
     ])
 
     return {
