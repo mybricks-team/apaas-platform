@@ -720,7 +720,7 @@ export default class FileController {
   }
 
   // TODO:写死查询的应用
-  async getFolderProjectAppsByParentId({ id, showAdminInfo,  extNames }, files = []) {
+  async getFolderProjectAppsByParentId({ id,  extNames }, files = []) {
     const items = await this.fileDao.getFilesByParentId({ id, extNames })
     const promiseAry = []
 
@@ -732,18 +732,13 @@ export default class FileController {
       }
     })
     await Promise.all(promiseAry.map(async (item) => {
-      await this.getFolderProjectAppsByParentId({ id: item.id, showAdminInfo, extNames }, files)
+      await this.getFolderProjectAppsByParentId({ id: item.id, extNames }, files)
     }))
 
     await Promise.all(files.map(async (file) => {
       const [pubInfo] = await this.filePubDao.getLatestPubByFileId(file.id)
       file.pubInfo = pubInfo
-      if(showAdminInfo) {
-        file.adminInfo = {
-          ...getAdminInfoByProjectId(id), 
-          loginBasePath: `/runtime/mfs/project/${id}/admin_login.html?projectId=${id}&fileId=${file.id}`
-        }
-      }
+      file.adminLoginBasePath = `/runtime/mfs/project/${id}/admin_login.html?projectId=${id}&fileId=${file.id}`
     }))
 
     return files
@@ -755,16 +750,22 @@ export default class FileController {
     const folder = await this.fileDao.queryById(id); 
     const [[projectModuleInfo], files] = await Promise.all([
       await this.moduleDao.getProjectModuleInfo(id),
-      await this.getFolderProjectAppsByParentId({ id, showAdminInfo: folder.creatorName === userName, extNames: ['pc-website', 'folder', 'folder-project', 'folder-module'] })
+      await this.getFolderProjectAppsByParentId({ id, extNames: ['pc-website', 'folder', 'folder-project', 'folder-module'] })
     ])
 
+    let data: any = {
+      ...folder,
+      apps: files,
+      moduleList: JSON.parse(projectModuleInfo?.module_info || '{}')?.moduleList || []
+    };
+    if(folder.creatorName === userName) {
+      data.adminInfo = {
+        ...getAdminInfoByProjectId(id)
+      }
+    }
     return {
       code: 1,
-      data: {
-        ...folder,
-        apps: files,
-        moduleList: JSON.parse(projectModuleInfo?.module_info || '{}')?.moduleList || []
-      }
+      data: data
     }
   }
 
