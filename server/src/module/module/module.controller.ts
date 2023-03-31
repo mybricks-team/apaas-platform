@@ -292,7 +292,7 @@ export default class ModuleController {
         filename: 'SYS_ADMIN_CONFIG.json',
         folderPath: `/project/${projectId}`,
       })
-      // 发送登陆模块
+      // 发送超管登录页面
       await this.uploadService.saveFile({
         str: fs.readFileSync(path.join(__dirname, './SYS_ADMIN_LOGIN.html'), "utf-8"),
         filename: 'admin_login.html',

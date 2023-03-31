@@ -55,7 +55,17 @@ export default class UploadService {
     } else {
       return fileMap
     }
-    
+  }
+
+  async getFileContent(filePath) {
+    let wholePath = path.join(this.fileLocalFolder, filePath)
+    let fileInfo = null
+    if(fs.existsSync(wholePath)) {
+      const fileInfo = fs.readFileSync(wholePath)
+      return fileInfo
+    } else {
+      return fileInfo
+    }
   }
 
   async deleteFile({subPath, fullPath}: {subPath?: string, fullPath?: string}) {

@@ -55,8 +55,13 @@ const ModuleCenterModal: FC<ModuleCenterModal> = props => {
 					message.error('安装失败');
 				}
 			})
-			.catch(() => message.error('安装失败'))
-			.finally(() => setModuleId(-1));
+			.catch((e) => {
+				console.log(e)
+				message.error('安装失败')
+			})
+			.finally(() => {
+				setModuleId(-1)
+			});
 	}, [onClose, onFinish, projectId]);
 	
   return (

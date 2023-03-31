@@ -69,7 +69,28 @@ export default class FlowService {
     return true;
   }
 
+  async updateProjectModuleBasicInfo({ obj, filename, folderPath }) {
+    try {
+      const oldStr = await this.uploadService.getFileContent(`${folderPath}/${filename}`);
+      if(oldStr) {
+        const oldObj = JSON.parse(oldStr)
+        let newObj = Object.assign({}, oldObj, obj)
+        await this.uploadService.saveFile({
+          str: JSON.stringify(newObj),
+          filename,
+          folderPath
+        })
+      } else {
+        await this.uploadService.saveFile({
+          str: JSON.stringify(obj),
+          filename,
+          folderPath
+        })
+      }
+    } catch(e) {
 
+    }
+  }
 
   async getOnlineServiceOfProjectAndFile({ projectId, domainFileId }: { projectId: number, domainFileId: number }) {
     let folderPath = `/project`;

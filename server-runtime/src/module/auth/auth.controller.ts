@@ -19,6 +19,39 @@ export default class AuthController {
   @Inject()
   authService: AuthService;
 
+
+  _getSysAuthInfo(projectId: number) {
+    let data: any = {
+      result: false,
+      pcPageIdList: []
+    }
+    try {
+      const projectInfo = require(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/PROJECT_INFO.json`));
+      let fileIdMap = {}
+      for(let key in projectInfo) {
+        const item = projectInfo[key]
+        if(item['isModule']) {
+          for(let key2 in item) {
+            const fileInfo = item[key2];
+            if(fileInfo.implementSysAuth) {
+              data.result = true
+            }
+            // 实现了系统表
+            if(data?.result && fileInfo.extName === 'html') {
+              data.pcPageIdList.push(key2)
+            }
+          }
+          
+        } else {
+          fileIdMap[key] = item
+        }
+      }
+    } catch(e) {
+      console.log(e)
+    }
+    return data
+  }
+
   // 领域建模运行时(运行时)
   @Post('/getUserAuth')
   async getUserAuth(
@@ -33,6 +66,30 @@ export default class AuthController {
       }
     }
     try {
+      const sysAdminConfig = await this._getSysAdminConfig(projectId);
+      if(sysAdminConfig) {
+        // 判断是不是超管登陆
+        if(sysAdminConfig.userName === userId) {
+          // 只返回权限模块
+          const res = this._getSysAuthInfo(projectId)
+          if(res?.result) {
+            return {
+              code: 1,
+              data: {
+                角色权限: res.pcPageIdList.join(',')
+              }
+            }
+          } else {
+            return {
+              code: 1,
+              data: {
+                角色权限: ''
+              }
+            }
+          }
+        }
+      }
+
       const serviceId = `SYS_AUTH`;
       const readyExeTemplateFolderPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
@@ -66,6 +123,17 @@ export default class AuthController {
     }
   }
 
+  async _getSysAdminConfig(projectId) {
+    const serviceId = `SYS_ADMIN_CONFIG`;
+    const readyExeTemplateFolderPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`);
+    const readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.json`);
+    if (!fs.existsSync(readyExePath)) {
+      return null
+    }
+    const json = require(readyExePath)
+    return json
+  }
+
   @Post('/admin/login')
   async adminLogin(
     @Body('userName') userName: number,
@@ -80,16 +148,13 @@ export default class AuthController {
       }
     }
     try {
-      const serviceId = `SYS_ADMIN_CONFIG`;
-      const readyExeTemplateFolderPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`);
-      readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.json`);
-      if (!fs.existsSync(readyExePath)) {
+      const json = await this._getSysAdminConfig(projectId);
+      if (!json) {
         return {
           code: -1,
           msg: '当前项目下不存在超级管理员账号'
         }
       }
-      const json = require(readyExePath)
       if(json.userName === userName && json.password === password) {
         return {
           code: 1,

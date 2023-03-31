@@ -64,8 +64,8 @@ export default class ModuleService {
 	}
 	
   async installModule(params: { id: number; projectId: number; userId: string }, request: Request) {
-		const { id, projectId, userId } = params;
-	  const [module] = await this.moduleDao.getModules({ id: id });
+		const { id: moduleId, projectId, userId } = params;
+	  const [module] = await this.moduleDao.getModules({ id: moduleId });
 	  const [projectModule] = await this.moduleDao.getProjectModuleInfo(projectId);
 	
 	  if (!module) {
@@ -74,11 +74,13 @@ export default class ModuleService {
 		
 	  const domainName = getRealDomain(request);
 		
-		const pubInfo = await this.modulePubDao.getModulePubContent({ id: id });
+		const pubInfo = await this.modulePubDao.getModulePubContent({ id: moduleId });
 		const htmlStaticFile = [];
 		let htmlStaticFileRes = [];
+		let fileInfoJSON = {}
 		for (let l=pubInfo.length, i = 0; i < l; i++) {
 			const pub = pubInfo[i];
+			fileInfoJSON[pub.file_id] = {}
 			switch (pub.ext_name) {
 				case 'domain': {
 					const info = JSON.parse(pub.content);
@@ -91,6 +93,16 @@ export default class ModuleService {
 					});
 					
 					htmlStaticFile.push({ fileName: `DOMAIN_META_${pub.file_id}.json`, content: JSON.stringify({ entityAry: info.entityAry }) });
+
+					// 是否实现了权限模块
+					let entityIdMap = {}
+					info?.entityAry?.forEach(entity => {
+						entityIdMap[entity.id] = entity
+					})
+					if(entityIdMap['SYS_ROLE_RELATION'] && entityIdMap[entityIdMap['SYS_ROLE_RELATION'].implementEntityId]) {
+						fileInfoJSON[pub.file_id].implementSysAuth = true
+					}
+					fileInfoJSON[pub.file_id].extName = 'domain'
 					
 					const latestServiceIdMap = {}
 					info.serviceAry.forEach(service => {
@@ -119,6 +131,7 @@ export default class ModuleService {
 				case 'html': {
 					let newContent = pub.content.replace(/--slot-project-id--/, projectId);
 					htmlStaticFile.push({ fileId: pub.file_id, fileName: `${pub.file_id}.html`, content: newContent });
+					fileInfoJSON[pub.file_id].extName = 'html'
 					break;
 				}
 				case 'mp': { break; }
@@ -129,6 +142,15 @@ export default class ModuleService {
 		if(htmlStaticFile.length) {
 			htmlStaticFileRes = await this.flowService.batchCreateProjectFile({ codeStrList: htmlStaticFile, projectId }, { domainName });
 		}
+		// 讲搭建的文件等信息发布到运行容器中
+		await this.flowService.updateProjectModuleBasicInfo({
+			obj: {
+				[module.originFileId]: {isModule: true, ...fileInfoJSON} 
+			},
+			filename: 'PROJECT_INFO.json',
+			folderPath: `/project/${projectId}`,
+		})
+
 	
 		if (projectModule) {
 			// 二次安装

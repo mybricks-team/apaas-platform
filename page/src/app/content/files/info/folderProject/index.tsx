@@ -26,14 +26,14 @@ export default function FolderProject(props) {
   const appCtx = observe(AppCtx, {from: 'parents'})
 	const ctx = useObservable(Ctx, next => next({
 		id: props.id,
-		getInfo({ userName }) {
+		getInfo() {
 			return new Promise((resolve) => {
 				axios({
 					method: "post",
 					url: getApiUrl(`/paas/api/file/getFolderProjectInfoByProjectId`),
           data: {
             id: props.id,
-            userName: userName
+            userName: appCtx?.user?.email
           }
 				}).then(({data: {data}}) => {
 					ctx.info = {
@@ -58,7 +58,7 @@ export default function FolderProject(props) {
 	}), {to: 'children'});
 	
 	useEffect(() => {
-		ctx.getInfo({ userName: appCtx.user.email })
+		ctx.getInfo()
 	}, []);
 	
 	return (
