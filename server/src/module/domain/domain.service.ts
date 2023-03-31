@@ -17,7 +17,11 @@ export default class DomainService {
   async batchCreateService({ fileId, serviceContentList, projectId }, { domainName }) {
     let folderPath = `/project/${fileId}`;
     if(projectId) {
-      folderPath = `/project/${projectId}/${fileId}`;
+      if(fileId) {
+        folderPath = `/project/${projectId}/${fileId}`;
+      } else {
+        folderPath = `/project/${projectId}`;
+      }
     }
     const cdnList = await Promise.all(
       serviceContentList.map((serviceContent) => {
