@@ -90,6 +90,8 @@ export default class ModuleService {
 						projectId
 					});
 					
+					htmlStaticFile.push({ fileName: `DOMAIN_META_${pub.file_id}.json`, content: JSON.stringify({ entityAry: info.entityAry }) });
+					
 					const latestServiceIdMap = {}
 					info.serviceAry.forEach(service => {
 						service.code = service.code.replace(/--slot-project-id--/g, projectId);
