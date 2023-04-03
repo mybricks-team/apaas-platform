@@ -76,14 +76,24 @@ export default class AuthController {
             return {
               code: 1,
               data: {
-                角色权限: res.pcPageIdList.join(',')
+                openAuth: true,
+                data: [
+                  {
+                    角色权限: res.pcPageIdList.join(',')
+                  }
+                ]
               }
             }
           } else {
             return {
               code: 1,
               data: {
-                角色权限: ''
+                openAuth: true,
+                data: [
+                  {
+                    角色权限: ''
+                  }
+                ]
               }
             }
           }
