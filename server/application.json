@@ -18,7 +18,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-domain@0.1.28"
+      "path": "mybricks-domain@0.1.30"
     },
     {
       "type": "npm",
@@ -26,7 +26,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-app-website@0.0.80"
+      "path": "mybricks-app-website@0.0.82"
     },
     {
       "type": "npm",
