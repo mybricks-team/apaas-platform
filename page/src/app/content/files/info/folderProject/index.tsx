@@ -233,9 +233,11 @@ function SuperAdminInfoArea({ ctx }) {
             </span>
           </div>
           <div style={{cursor: 'text', userSelect: 'text'}}>
-            <p className={css.statusContent}>账号：{ctx?.info?.adminInfo?.userName}</p>
-            <p className={css.statusContent}>密码：{ctx?.info?.adminInfo?.password}</p>
-            <p>超管登陆地址：</p>
+            <p className={css.statusContent}>账号</p>
+            <p className={css.statusContent}>{ctx?.info?.adminInfo?.userName}</p>
+            <p className={css.statusContent}>密码</p>
+            <p className={css.statusContent}>{ctx?.info?.adminInfo?.password}</p>
+            <p>超管登陆地址</p>
             {
               ctx.info?.apps?.map(app => {
                 return <p>{app.name}: {`${location.origin}${app.adminLoginBasePath}`}</p>
