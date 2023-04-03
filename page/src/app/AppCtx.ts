@@ -83,6 +83,11 @@ export default class AppCtx {
   setUser(user: User | any) {
     this.user = user;
   }
+  /** 系统配置 */
+  systemConfig: any = null;
+  setSystemConfig(config: any) {
+    this.systemConfig = config;
+  }
 
   /** 是否平台超级管理员 */
   isAdministrator: boolean = false
@@ -178,14 +183,10 @@ export default class AppCtx {
     const MYBRICKS_TEAM_USER_EMAILS = MYBRICKS_TEAM_USERS
     const IS_MYBRICKS_TEAM_USER = MYBRICKS_TEAM_USER_EMAILS.includes(this.user.email)
     if (!IS_MYBRICKS_TEAM_USER) {
-      const SHOW_APPS_MAP = {
-        'pc-cgn': true,
-        'pc-page': true,
-        'pc-page-bugu': true,
-        'domain': true,
-        'cloud-com': true,
-        'cloud-com-bugu': true,
-      }
+      const SHOW_APPS_MAP  = {};
+      this.systemConfig?.appWhiteList?.split(',')?.forEach(extName => {
+        SHOW_APPS_MAP[extName] = true
+      })
       const SHOW_FOLDERS_MAP = {
         'folder': true
       }

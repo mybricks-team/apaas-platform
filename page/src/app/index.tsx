@@ -51,6 +51,7 @@ export default function App() {
         } else {
           setAccess(true)
         }
+        appCtx.setSystemConfig(systemConfig?.data?.system?.config)
         // /** 设置用户信息 */
         appCtx.setUser(user)
         appCtx.setIsAdministrator(!!user?.isAdmin)

@@ -151,4 +151,4 @@ export function getAdminInfoByProjectId(projectId) {
     userName: crypto.createHash('md5').update(`${projectId}:userName`).digest('hex'),
     password: crypto.createHash('md5').update(`${projectId}:password`).digest('hex')
   }
-} 
+}
