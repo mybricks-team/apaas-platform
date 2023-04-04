@@ -22,7 +22,7 @@
         )
         <foreach collection="pubContentList" item="pubContent" open="values " separator="," close="" index="index">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-                #{id},
+                #{pubContent.id},
                 #{moduleId},
                 #{pubContent.content},
                 #{pubContent.extName},

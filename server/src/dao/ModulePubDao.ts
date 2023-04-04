@@ -50,9 +50,12 @@ export default class ModulePubDao extends DOBase {
     creatorId: string,
     creatorName: string
   }) {
+    let newParams = {...params};
+    newParams?.pubContentList?.forEach(i => {
+      i.id = genMainIndexOfDB();
+    })
     const result = await this.exe<{ id }>('apaas_module_pub_info:batchCreate', {
-      ...params,
-      id: genMainIndexOfDB(),
+      ...newParams,
       createTime: new Date().getTime()
     })
     return {

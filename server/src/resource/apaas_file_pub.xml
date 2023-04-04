@@ -35,38 +35,6 @@
         </trim>
     </insert>
 
-    <insert id="batchCreate">
-        insert into apaas_file_pub
-        (
-        id,
-        file_id,
-        commit_info,
-        version,
-        creator_id,
-        creator_name,
-        status,
-        create_time,
-        update_time,
-        content,
-        file_content_id
-        )
-        <foreach collection="filePubs" item="item" open="values " separator="," close="" index="index">
-            <trim prefix="(" suffix=")" suffixOverrides=",">
-                #{id},
-                #{fileId},
-                #{commitInfo},
-                #{version},
-                #{creatorId},
-                #{creatorName},
-                #{status},
-                #{createTime},
-                #{createTime},
-                #{content},
-                #{fileContentId}
-            </trim>
-        </foreach>
-    </insert>
-
     <update id="update">
         update apaas_file_pub
         set
