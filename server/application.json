@@ -34,15 +34,15 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-app-mpcloudcom-test@0.0.4"
+      "path": "mybricks-app-mpcloudcom@0.0.7"
     },
     {
       "type": "npm",
-      "path": "mybricks-app-mppage@0.0.7"
+      "path": "mybricks-app-mppage@0.0.10"
     },
     {
       "type":"npm",
-      "path":"mybricks-app-mpsite-test@0.0.2"
+      "path":"mybricks-app-mpsite@0.0.11"
     },
     {
       "type": "npm",
