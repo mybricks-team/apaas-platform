@@ -1,6 +1,7 @@
 import { Column, DOBase, Mapping } from "@mybricks/rocker-dao";
 import { EffectStatus } from "../constants";
 import * as moment from "dayjs";
+import { genMainIndexOfDB } from "../utils";
 
 export class FilePublishDO {
   @Column
@@ -59,6 +60,7 @@ export default class FilePubDao extends DOBase {
 
     const result = await this.exe<any>("apaas_file_pub:create", {
       ...query,
+      id: genMainIndexOfDB(),
       status: query.status ?? EffectStatus.EFFECT,
       createTime: Date.now(),
       commitInfo: query.commitInfo ?? "",

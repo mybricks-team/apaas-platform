@@ -1,5 +1,7 @@
 import * as moment from "dayjs";
 const crypto = require('crypto');
+const { SnowFlake } = require('gen-uniqueid');
+const SNOW_FLAKE = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
 
 export function uuid(length = 32): string {
   let text = "";
@@ -151,4 +153,8 @@ export function getAdminInfoByProjectId(projectId) {
     userName: crypto.createHash('md5').update(`${projectId}:userName`).digest('hex'),
     password: crypto.createHash('md5').update(`${projectId}:password`).digest('hex')
   }
+}
+
+export function genMainIndexOfDB() {
+  return SNOW_FLAKE.NextId();
 }

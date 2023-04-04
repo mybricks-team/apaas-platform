@@ -1,3 +1,4 @@
+import { genMainIndexOfDB } from '../utils';
 import * as moment from 'dayjs'
 import {Column, DOBase, Mapping} from '@mybricks/rocker-dao'
 
@@ -68,6 +69,7 @@ export default class UserGroupRelationDao extends DOBase {
       'apaas_user_group_relation:insert',
       {
         ...params,
+        id: genMainIndexOfDB(),
         status: 1,
         createTime: time,
         updateTime: time,

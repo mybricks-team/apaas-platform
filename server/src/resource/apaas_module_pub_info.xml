@@ -6,6 +6,7 @@
     <insert id="batchCreate">
         insert into apaas_module_pub_info
         (
+        id,
         module_id,
         content,
         ext_name,
@@ -21,6 +22,7 @@
         )
         <foreach collection="pubContentList" item="pubContent" open="values " separator="," close="" index="index">
             <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{id},
                 #{moduleId},
                 #{pubContent.content},
                 #{pubContent.extName},

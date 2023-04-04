@@ -1,6 +1,7 @@
 import * as moment from "dayjs";
 import {Column, DOBase, Mapping} from "@mybricks/rocker-dao";
 import {EffectStatus} from "../constants";
+import { genMainIndexOfDB } from '../utils/index'
 
 export const FileTypeEnum = {
   SYSTEM: 'system',
@@ -104,7 +105,6 @@ export class FileDO {
 }
 
 export default class FileDao extends DOBase {
-
   @Mapping(FileDO)
   public async pureQuery(query?: {
     id?: number
@@ -314,6 +314,7 @@ export default class FileDao extends DOBase {
 
     const result = await this.exe<any>('apaas_file:create', {
       ...query,
+      id: genMainIndexOfDB(),
       namespace: query.namespace || '_self',
       type: query.type || FileTypeEnum.USER,
       groupId: query.groupId ?? null,
@@ -345,6 +346,7 @@ export default class FileDao extends DOBase {
       files: files.map(file => {
         return {
           ...file,
+          id: genMainIndexOfDB(),
           version: file.version || '1.0.0',
           parentId: file.parentId || null,
           groupId: file.groupId ?? null,

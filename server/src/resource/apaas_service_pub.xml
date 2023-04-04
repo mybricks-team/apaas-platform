@@ -7,6 +7,7 @@
     <insert id="batchCreate">
         insert into apaas_service_pub
         (
+        id,
         file_id,
         service_id,
         content,
@@ -21,6 +22,7 @@
         )
         <foreach collection="serviceContentList" item="serviceContent" open="values " separator="," close="" index="index">
             <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{id},
                 #{fileId},
                 #{serviceContent.id},
                 #{serviceContent.code},

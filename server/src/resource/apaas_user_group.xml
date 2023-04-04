@@ -7,6 +7,7 @@
     <insert id="insert">
         insert into apaas_user_group 
         (
+            id,
             name,
             <if test="icon">
                 icon,
@@ -20,6 +21,7 @@
             updator_id
         )
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
             #{name},
             <if test="icon">
                 #{icon},

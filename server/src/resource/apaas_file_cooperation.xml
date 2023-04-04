@@ -22,6 +22,7 @@
     <insert id="create">
         insert into apaas_file_cooperation 
         (
+            id,
             file_id,
             user_id,
             update_time,
@@ -29,6 +30,7 @@
         )
         values 
         (
+            #{id},
             #{fileId},
             #{userId},
             #{updateTime},

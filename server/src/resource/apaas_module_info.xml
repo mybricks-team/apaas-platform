@@ -6,6 +6,7 @@
     <insert id="create">
       insert into apaas_module_info
       (
+      id,
       name,
       description,
       origin_file_id,
@@ -17,6 +18,7 @@
       )
       values
       (
+      #{id},
       #{name},
       #{description},
       #{originFileId},
@@ -68,6 +70,7 @@
     <insert id="createProjectModuleInfo">
         insert into apaas_project_info
         (
+        id,
         file_id,
         version,
         module_info,
@@ -77,6 +80,7 @@
         )
         values
         (
+        #{id},
         #{file_id},
         #{version},
         #{module_info},

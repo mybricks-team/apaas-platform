@@ -1,5 +1,6 @@
 import * as moment from 'dayjs';
 import {Column, DOBase, Mapping} from '@mybricks/rocker-dao';
+import { genMainIndexOfDB } from '../utils';
 
 export class FileContentDO {
   @Column
@@ -104,6 +105,7 @@ export default class FileContentDao extends DOBase {
       Object.assign(
         params,
         {
+          id: genMainIndexOfDB(),
           createTime: new Date().getTime(),
           updateTime: new Date().getTime(),
         }

@@ -61,6 +61,7 @@
   <insert id="create">
     insert into ws_file_task
     (
+    id,
     file_id,
     name,
     type,
@@ -74,6 +75,7 @@
     )
     values
     (
+    #{id},
     #{fileId},
     #{name},
     #{type},

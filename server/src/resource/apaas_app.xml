@@ -42,6 +42,7 @@
     <insert id="insert">
         insert into apaas_app
         (
+        id,
         name,
         namespace,
         icon,
@@ -56,6 +57,7 @@
         )
         values
         (
+        #{id},
         #{name},
         #{namespace},
         #{icon},

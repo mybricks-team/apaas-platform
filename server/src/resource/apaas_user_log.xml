@@ -12,6 +12,7 @@
     <insert id="insert">
         insert into apaas_user_log
         (
+        id,
         type,
         user_id,
         user_email,
@@ -19,6 +20,7 @@
         create_time
         )
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
             #{type},
             #{userId},
             #{userEmail},

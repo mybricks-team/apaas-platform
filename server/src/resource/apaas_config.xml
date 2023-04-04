@@ -16,6 +16,7 @@
     <insert id="insert">
         insert into apaas_config
         (
+        id,
         config,
         creator_id,
         creator_name,
@@ -26,6 +27,7 @@
         app_namespace
         )
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
             #{config},
             #{creatorId},
             #{creatorName},

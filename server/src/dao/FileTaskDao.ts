@@ -1,5 +1,6 @@
 import * as moment from "dayjs";
 import { Column, DOBase, Mapping } from "@mybricks/rocker-dao";
+import { genMainIndexOfDB } from "../utils";
 
 export class FileTaskDO {
   @Column
@@ -156,6 +157,7 @@ export default class FileTaskDao extends DOBase {
   }): Promise<{ id: number | null }> {
     const result = await this.exe<any>("fileTask:create", {
       ...query,
+      id: genMainIndexOfDB(),
       runningStatus: query?.runningStatus || -1,
       status: 1,
       createTime: new Date().getTime(),

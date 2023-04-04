@@ -6,6 +6,7 @@
     <insert id="create">
         insert into apaas_file_pub
         (
+        id,
         file_id,
         commit_info,
         version,
@@ -19,6 +20,7 @@
         type
         )
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
             #{fileId},
             #{commitInfo},
             #{version},
@@ -36,6 +38,7 @@
     <insert id="batchCreate">
         insert into apaas_file_pub
         (
+        id,
         file_id,
         commit_info,
         version,
@@ -49,6 +52,7 @@
         )
         <foreach collection="filePubs" item="item" open="values " separator="," close="" index="index">
             <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{id},
                 #{fileId},
                 #{commitInfo},
                 #{version},

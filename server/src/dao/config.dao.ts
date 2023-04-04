@@ -1,6 +1,6 @@
 import { Column, DOBase, Mapping } from "@mybricks/rocker-dao";
 import * as moment from "dayjs";
-import { safeParse } from "../utils";
+import { genMainIndexOfDB, safeParse } from "../utils";
 
 export class ConfigDO {
   @Column
@@ -56,6 +56,7 @@ export default class ConfigDao extends DOBase {
   }) {
     const result = await this.exe<{ insertId: number }>("apaas_config:insert", {
       ...params,
+      id: genMainIndexOfDB(),
       admin: params.creatorId,
       updatorId: params.creatorId,
       updatorName: params.creatorName,

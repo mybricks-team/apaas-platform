@@ -1,3 +1,4 @@
+import { genMainIndexOfDB } from '../utils';
 import * as moment from 'dayjs'
 import {Column, DOBase, Mapping} from '@mybricks/rocker-dao'
 
@@ -45,6 +46,7 @@ export default class UserLogDao extends DOBase {
       Object.assign(
         params,
         {
+          id: genMainIndexOfDB(),
           type: 1,
           createTime: new Date().getTime()
         }
@@ -66,6 +68,7 @@ export default class UserLogDao extends DOBase {
       Object.assign(
         params,
         {
+          id: genMainIndexOfDB(),
           type: 2,
           createTime: new Date().getTime()
         }

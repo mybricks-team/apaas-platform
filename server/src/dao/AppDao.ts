@@ -1,5 +1,6 @@
 import * as moment from "dayjs";
 import { Column, DOBase, Mapping } from "@mybricks/rocker-dao";
+import { genMainIndexOfDB } from "../utils";
 
 export class AppDO {
   @Column
@@ -67,6 +68,10 @@ export default class AppDao extends DOBase {
 		creator_name: string;
 		create_time: number;
 	}) {
-		return await this.exe('apaas_app:insert', params)
+
+		return await this.exe('apaas_app:insert', {
+      ...params,
+      id: genMainIndexOfDB()
+    })
 	}
 }

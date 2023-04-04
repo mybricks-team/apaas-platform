@@ -1,5 +1,6 @@
 import { Column, DOBase, Mapping } from "@mybricks/rocker-dao";
 import * as moment from "dayjs";
+import { genMainIndexOfDB } from '../utils';
 
 export class ModuleDO {
   @Column
@@ -87,6 +88,7 @@ export default class ModuleDao extends DOBase {
   }) {
     const result = await this.exe<{ insertId: number }>("apaas_module_info:create", {
       ...params,
+      id: genMainIndexOfDB(),
       createTime: Date.now(),
     });
     return { id: result.insertId };
@@ -97,7 +99,10 @@ export default class ModuleDao extends DOBase {
 	}
 	
 	async createProjectModuleInfo(params: { file_id: number; version: string; module_info: string; creator_name: string; create_time: number }) {
-		return await this.exe('apaas_module_info:createProjectModuleInfo', params);
+		return await this.exe('apaas_module_info:createProjectModuleInfo', {
+      ...params,
+      id: genMainIndexOfDB(),
+    });
 	}
 
   // async update(params: {

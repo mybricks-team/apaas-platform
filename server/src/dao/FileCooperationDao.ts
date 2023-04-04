@@ -1,6 +1,6 @@
 import * as moment from 'dayjs'
 import { Column, DOBase, Mapping } from '@mybricks/rocker-dao'
-import { isNumber } from '../utils'
+import { genMainIndexOfDB, isNumber } from '../utils'
 
 type Status = -1 | 0 | 1
 
@@ -75,7 +75,10 @@ export default class FileCooperationDao extends DOBase {
     })
 
     const result = await this.exe<any>(
-      'apaas_file_cooperation:create', params
+      'apaas_file_cooperation:create', {
+        ...params,
+        id: genMainIndexOfDB()
+      }
     )
 
     return {

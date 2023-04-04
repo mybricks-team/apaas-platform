@@ -62,6 +62,7 @@
   <insert id="insert">
     insert into apaas_file_content
     (
+    id,
     file_id,
     version,
     creator_id,
@@ -70,6 +71,7 @@
     content
     )
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      #{id},
       #{fileId},
       #{version},
       #{creatorId},

@@ -1,3 +1,4 @@
+import { genMainIndexOfDB } from '../utils';
 import { Column, DOBase, Mapping } from '@mybricks/rocker-dao'
 import * as moment from 'dayjs'
 
@@ -70,6 +71,7 @@ export default class ServicePubDao extends DOBase {
 
     const result = await this.exe<any>('apaas_service_pub:batchCreate', {
       ...params,
+      id: genMainIndexOfDB(),
       createTime: new Date().getTime()
     })
 

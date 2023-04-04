@@ -6,12 +6,14 @@
   <insert id="create">
     insert into ws_file_task_log
     (
+    id,
     file_taskid,
     content,
     create_time
     )
     values
     (
+    #{id},
     #{fileTaskId},
     #{content},
     #{createTime}

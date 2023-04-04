@@ -1,5 +1,6 @@
 import * as moment from "dayjs";
 import { Column, DOBase, Mapping } from "@mybricks/rocker-dao";
+import { genMainIndexOfDB } from '../utils';
 
 export class FileTaskLogDO {
   @Column
@@ -48,6 +49,7 @@ export default class FileTaskDao extends DOBase {
     console.log("!!", query);
     const result = await this.exe<any>("fileTaskLog:create", {
       ...query,
+      id: genMainIndexOfDB(),
       createTime: new Date().getTime(),
     });
 
