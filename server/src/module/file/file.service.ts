@@ -126,4 +126,9 @@ export default class FileService {
     find(item, flattenTree);
     return parentArr;
   }
+
+  async getCountOfUserAndExt(param: { userId: string, extName: string }): Promise<any> {
+    return this.fileDao.getCountOfUserAndExt(param)
+  }
+
 }

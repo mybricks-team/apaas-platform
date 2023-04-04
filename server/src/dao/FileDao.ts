@@ -278,6 +278,16 @@ export default class FileDao extends DOBase {
     return files && files.length > 0 ? files[0] : void 0
   }
 
+  public async getCountOfUserAndExt(query: {
+    userId: string,
+    extName: string
+  }) {
+    const rtn = await this.exe<any>("apaas_file:getCountOfUserAndExt", {
+      ...query
+    })
+    return rtn && rtn.length > 0 ? rtn?.[0]?.total : 0
+  }
+
 
   public async createFile(query: {
     name: string,

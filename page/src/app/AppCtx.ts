@@ -89,6 +89,21 @@ export default class AppCtx {
     this.systemConfig = config;
   }
 
+  getCurrentUserSystemConfig() {
+    let config = {}
+    try {
+      let sysConfigObj = JSON.parse(this.systemConfig?.authConfig)
+      // @ts-ignore
+      const roleConfig = sysConfigObj[this.user?.role];
+      if (roleConfig) {
+        config = roleConfig
+      }
+    } catch(e) {
+      console.log(e)
+    }
+    return config
+  }
+
   /** 是否平台超级管理员 */
   isAdministrator: boolean = false
   /** 设置是否平台超级管理员 */

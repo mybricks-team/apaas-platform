@@ -313,6 +313,15 @@
         order by update_time desc
     </select>
 
+    <select id="getCountOfUserAndExt">
+        select count(*)  as total
+        from apaas_file
+        where
+        status = 1
+        and ext_name = #{extName}
+        and creator_name = #{userId}
+    </select>
+
     <update id="moveFile">
         update apaas_file
         <trim prefix="set" suffixOverrides=",">

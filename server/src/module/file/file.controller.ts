@@ -1024,4 +1024,23 @@ export default class FileController {
       msg: rtn.affectedRows <= 0 ? '取消分享失败' : ''
     }
   }
+
+  @Post('/getCountOfUserAndExt')
+  async getCountOfUserAndExt(@Body('userId') userId: string, @Body('extName') extName: string) {
+    if(!userId || !extName) {
+      return {
+        code: -1,
+        msg: '缺少必要参数'
+      }
+    }
+    const rtn = await this.fileService.getCountOfUserAndExt({
+      userId: userId,
+      extName: extName
+    })
+    console.log(111111, rtn)
+    return {
+      code: 1,
+      data: rtn
+    }
+  }
 }

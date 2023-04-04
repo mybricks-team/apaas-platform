@@ -131,13 +131,13 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         >
           <Input.TextArea rows={2} placeholder='默认开放应用白名单' />
         </Form.Item>
-        {/* <Form.Item
+        <Form.Item
           initialValue=""
-          label="应用新建权限"
-          name="auth"
+          label="权限配置"
+          name="authConfig"
         >
-          <Input.TextArea rows={4} placeholder='不同类型用户对应的每个应用权限' />
-        </Form.Item> */}
+          <Input.TextArea rows={4} placeholder='不同角色新建文件数量' />
+        </Form.Item>
       </Form>
       <div className={styles.btnGroups}>
         <Button

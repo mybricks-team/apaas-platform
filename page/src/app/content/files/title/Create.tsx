@@ -24,8 +24,27 @@ export function Create(): JSX.Element {
   const [createApp, setCreateApp] = useState(null)
 
   /** 点击新建 */
-  const newProject: (app: any) => void = useCallback((app: T_App) => {
+  const newProject: (app: any) => void = useCallback(async (app: T_App) => {
     console.log(`创建app:`, app)
+    const currentUserSystemConfig = appCtx.getCurrentUserSystemConfig();
+    // @ts-ignore
+    if(currentUserSystemConfig?.createFileCount) {
+      // @ts-ignore
+      const appMaxCreateFleCount = currentUserSystemConfig?.createFileCount?.[app.extName];
+      if(appMaxCreateFleCount) {
+        const rtn = (await axios({
+          method: 'post',
+          url: getApiUrl('/paas/api/file/getCountOfUserAndExt'),
+          data: { userId: appCtx.user.email, extName: app.extName }
+        })).data;
+        if(rtn.code === 1) {
+          if(appMaxCreateFleCount <= rtn.data) {
+            message.error('当前账号此类型文件数量已达上限，禁止新建')
+            return
+          }
+        }
+      }
+    }
     setCreateApp(app)
   }, []);
 
