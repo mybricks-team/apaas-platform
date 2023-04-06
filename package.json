@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "build": "cd page && npm install && npm run build",
-    "zip": "npm run build && node ./server/zip.js"
+    "zip": "npm run build && node ./server/zip.js",
+    "deploy:fangzhou": "sh deploy_fangzhou.sh"
   },
   "repository": {
     "type": "git",
