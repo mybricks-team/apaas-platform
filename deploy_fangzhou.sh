@@ -1,11 +1,12 @@
+pwd
 targetBase="../fangzhou-apaas-platform"
 
 echo "开始编译前端资源"
 cd page
 npm install
 npm run build
+cd ../
 echo "前端资源编译完毕"
-
 
 echo "开始传输"
 # transfer server
@@ -42,8 +43,7 @@ fi
 echo "传输完毕"
 
 echo "开始上传"
-cd ..
-cd fangzhou-apaas-platform
+cd $targetBase
 git add .
 git commit -m "update"
 git push
