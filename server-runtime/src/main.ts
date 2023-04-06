@@ -35,10 +35,7 @@ async function bootstrap() {
   app.use(cookieParser());
 	app.use(xmlparser());
 
-  const port = +process.env.port ||
-  +process.env.AUTO_PORT0 ||
-  +process.env.AUTO_PORT1 ||
-  3101
+  const port = 3101;
   await app.listen(port);
   console.log('service started at: http://localhost:' + port)
 }

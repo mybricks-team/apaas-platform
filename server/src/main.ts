@@ -55,12 +55,7 @@ async function bootstrap() {
   app.use(cookieParser());
 	app.use(xmlparser());
 
-  await app.listen(
-    +process.env.port ||
-      +process.env.AUTO_PORT0 ||
-      +process.env.AUTO_PORT1 ||
-      3100,
-  );
+  await app.listen(3100);
 }
 
 bootstrap();
