@@ -1,10 +1,10 @@
 targetBase="../fangzhou-apaas-platform"
 
-# echo "start compile frontend"
-# cd page
-# npm install
-# npm run build
-# echo "compile frontend success"
+echo "start compile frontend"
+cd page
+npm install
+npm run build
+echo "compile frontend success"
 
 
 echo "transfer doing"
@@ -12,7 +12,7 @@ echo "transfer doing"
 if [ -d "$targetBase/server" ]
 then
   cp -r ./server/_assets $targetBase/server/
-  cp -r ./server/src $targetBase/server/src
+  cp -r ./server/src $targetBase/server
   cp  ./server/application_fangzhou.json $targetBase/server/application.json
   cp  ./server/ecosystem.config.js $targetBase/server/ecosystem.config.js
   cp  ./server/env.js $targetBase/server/env.js
@@ -28,7 +28,7 @@ fi
 # transfer server-runtime
 if [ -d "$targetBase/server-runtime" ]
 then
-  cp -r ./server-runtime/src $targetBase/server-runtime/src
+  cp -r ./server-runtime/src $targetBase/server-runtime
   cp  ./server-runtime/ecosystem.config.js $targetBase/server-runtime/ecosystem.config.js
   cp  ./server-runtime/env.js $targetBase/server-runtime/env.js
   cp  ./server-runtime/index_flow.js $targetBase/server-runtime/index_flow.js
@@ -42,7 +42,8 @@ fi
 echo "transfer done"
 
 echo "upload start"
-cd $targetBase
+cd ..
+cd fangzhou-apaas-platform
 git add .
 git commit -m "update"
 git push
