@@ -1,13 +1,13 @@
 targetBase="../fangzhou-apaas-platform"
 
-echo "start compile frontend"
+echo "开始编译前端资源"
 cd page
 npm install
 npm run build
-echo "compile frontend success"
+echo "前端资源编译完毕"
 
 
-echo "transfer doing"
+echo "开始传输"
 # transfer server
 if [ -d "$targetBase/server" ]
 then
@@ -22,7 +22,7 @@ then
   cp  ./server/package.json $targetBase/server/package.json
   cp  ./server/tsconfig.json $targetBase/server/tsconfig.json
 else
-  echo "folder not exist：$targetBase/server"
+  echo "文件夹不存在：$targetBase/server"
 fi
 
 # transfer server-runtime
@@ -36,15 +36,15 @@ then
   cp  ./server-runtime/package.json $targetBase/server-runtime/package.json
   cp  ./server-runtime/tsconfig.json $targetBase/server-runtime/tsconfig.json
 else
-  echo "folder not exist：$targetBase/server-runtime"
+  echo "文件夹不存在：$targetBase/server-runtime"
 fi
 
-echo "transfer done"
+echo "传输完毕"
 
-echo "upload start"
+echo "开始上传"
 cd ..
 cd fangzhou-apaas-platform
 git add .
 git commit -m "update"
 git push
-echo "upload done"
+echo "上传完毕"
