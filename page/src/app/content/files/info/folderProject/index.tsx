@@ -240,7 +240,7 @@ function SuperAdminInfoArea({ ctx }) {
             <p>超管登陆地址</p>
             {
               ctx.info?.apps?.map(app => {
-                return <p>{app.name}: {`${location.origin}${app.adminLoginBasePath}`}</p>
+                return <a href={`${location.origin}${app.adminLoginBasePath}`}>{app.name}</a>
               })
             }
           </div>
