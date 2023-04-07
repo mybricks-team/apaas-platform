@@ -22,7 +22,7 @@
         )
         <foreach collection="serviceContentList" item="serviceContent" open="values " separator="," close="" index="index">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-                #{serviceContent.id},
+                #{serviceContent.mainKey},
                 #{fileId},
                 #{serviceContent.id},
                 #{serviceContent.code},

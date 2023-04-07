@@ -71,7 +71,7 @@ export default class ServicePubDao extends DOBase {
 
     let newParams = {...params};
     newParams?.serviceContentList?.forEach(i => {
-      i.id = genMainIndexOfDB();
+      i.mainKey = genMainIndexOfDB();
     })
 
     const result = await this.exe<any>('apaas_service_pub:batchCreate', {

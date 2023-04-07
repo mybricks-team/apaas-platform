@@ -15,7 +15,6 @@ then
   cp -r ./server/_assets $targetBase/server/
   cp -r ./server/src $targetBase/server
   cp  ./server/application_fangzhou.json $targetBase/server/application.json
-  cp  ./server/ecosystem.config.js $targetBase/server/ecosystem.config.js
   cp  ./server/env.js $targetBase/server/env.js
   cp  ./server/index.js $targetBase/server/index.js
   cp  ./server/installApplication.js $targetBase/server/installApplication.js
@@ -30,7 +29,6 @@ fi
 if [ -d "$targetBase/server-runtime" ]
 then
   cp -r ./server-runtime/src $targetBase/server-runtime
-  cp  ./server-runtime/ecosystem.config.js $targetBase/server-runtime/ecosystem.config.js
   cp  ./server-runtime/env.js $targetBase/server-runtime/env.js
   cp  ./server-runtime/index_flow.js $targetBase/server-runtime/index_flow.js
   cp  ./server-runtime/nest-cli.json $targetBase/server-runtime/nest-cli.json
