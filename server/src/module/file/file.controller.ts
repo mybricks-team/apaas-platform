@@ -406,13 +406,13 @@ export default class FileController {
 	
 	@Get('/getFileList')
 	async getFileList(@Query() query) {
-		const { parentId, creatorId, fileId } = query;
+		const { parentId, creatorId, fileId, checkModule } = query;
 		
 		if (!parentId) {
 			const file = await this.fileDao.queryById(fileId);
 			
 			let current = file ? JSON.parse(JSON.stringify(file)) : null;
-			while (current && current.extName !== 'folder-project') {
+			while (current && current.extName !== 'folder-project' && (checkModule ? current.extName !== 'folder-module' : true)) {
 				if (current.parentId) {
 					current = await this.fileDao.queryById(current.parentId);
 				} else if (!current.groupId) {
@@ -429,10 +429,11 @@ export default class FileController {
 					code: 1,
 					data: (await this.fileDao.getMyFiles({ userId: creatorId })).map(item => {
 						delete item.icon;
+						item.isMyFile = true;
 						return item;
 					})
 				};
-			} else if (current.extName === 'folder-project') {
+			} else if (current.extName === 'folder-project' || (checkModule ? current.extName === 'folder-module' : false)) {
 				return {
 					code: 1,
 					data: (await this.fileDao.getFilesByParentId({ id: current.id })).map(item => {
