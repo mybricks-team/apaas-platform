@@ -51,16 +51,22 @@ export default class FlowController {
     try {
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
+      console.log('运行容器：readyExePath', readyExePath)
       const { startExe } = require(readyExePath)
+      console.log('运行容器：获取可执行方法成功')
+      const con = await getConnection();
+      console.log('运行容器：获取连接成功')
       let res = await startExe(params || {}, {
-        dbConnection: await getConnection(),
+        dbConnection: con,
         snowFlake: this.snowFlake
       })
+      console.log('运行容器：运行完毕')
       return {
         code: 1,
         data: res
       }
     } catch (e) {
+      console.log('运行容器：运行出错了', e.message)
       return {
         code: -1,
         msg: `${typeof e === 'string' ? e : e.message}`
