@@ -12,7 +12,7 @@ import AuthService from './auth.service';
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
-const { getConnection } = require("@mybricks/rocker-dao");
+const { getConnection, DOBase } = require("@mybricks/rocker-dao");
 
 @Controller('/runtime/api/auth')
 export default class AuthController {
@@ -112,11 +112,12 @@ export default class AuthController {
         }
       }
       const { startExe } = require(readyExePath)
+      const con = new DOBase();
       let res = await startExe({
         userId,
         projectId
       }, {
-        dbConnection: await getConnection()
+        dbConnection: con
       })
       return {
         code: 1,
