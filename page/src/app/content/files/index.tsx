@@ -142,14 +142,11 @@ function Projects() {
   const operate = useCallback((type, item) => {
     const {id, name, extName, parentId, groupId, homepage} = item;
     switch (type) {
-      case 'openFile':
+      case 'open':
         if (!folderExtnames.includes(extName)) {
           window.location.href = `${homepage}?id=${id}`;
-        }
-        break;
-      case 'open':
-        if (folderExtnames.includes(extName)) {
-	        history.pushState(null, '', `?appId=files${groupId ? `&groupId=${groupId}` : ''}${id ? `&parentId=${id}` : ''}`);
+        } else {
+          history.pushState(null, '', `?appId=files${groupId ? `&groupId=${groupId}` : ''}${id ? `&parentId=${id}` : ''}`)
         }
         break;
       case 'delete':
@@ -302,12 +299,7 @@ function Projects() {
           ].filter(item => item)
 
           return (
-            <div
-	            key={project.id}
-	            className={css.file}
-	            onClick={() => operate('openFile', {...project, homepage})}
-	            onDoubleClick={() => operate('open', {...project, homepage})}
-            >
+            <div key={project.id} className={css.file} onClick={() => operate('open', {...project, homepage})}>
               {
                 alreadyShared ? (
                   <div style={{position: "absolute", right: 0, zIndex: 10}}>
