@@ -26,6 +26,7 @@
     "axios": "1.1.3",
     "cookie-parser": "^1.4.6",
     "dayjs": "^1.11.5",
+    "express-request-hook": "0.0.1",
     "express-xml-bodyparser": "^0.3.0",
     "form-data": "^4.0.0",
     "fs-extra": "^10.1.0",

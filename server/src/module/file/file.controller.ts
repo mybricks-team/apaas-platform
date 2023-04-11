@@ -404,15 +404,15 @@ export default class FileController {
     }
   }
 	
-	@Get('/getFileList')
+	@Get('/getFileRoot')
 	async getFileList(@Query() query) {
-		const { parentId, creatorId, fileId } = query;
+		const { parentId, creatorId, fileId, checkModule } = query;
 		
 		if (!parentId) {
 			const file = await this.fileDao.queryById(fileId);
 			
 			let current = file ? JSON.parse(JSON.stringify(file)) : null;
-			while (current && current.extName !== 'folder-project') {
+			while (current && current.extName !== 'folder-project' && (checkModule ? current.extName !== 'folder-module' : true)) {
 				if (current.parentId) {
 					current = await this.fileDao.queryById(current.parentId);
 				} else if (!current.groupId) {
@@ -427,39 +427,37 @@ export default class FileController {
 			if (!current) {
 				return {
 					code: 1,
-					data: (await this.fileDao.getMyFiles({ userId: creatorId })).map(item => {
-						delete item.icon;
-						return item;
-					})
+					data: {
+						id: 0,
+						name: "我的",
+						extName: "my-file",
+						isMyFile: true,
+						dataSource: (await this.fileDao.getMyFiles({ userId: creatorId })).map(item => {
+							delete item.icon;
+							item.isMyFile = true;
+							item.parentIdPath = '0';
+							return { ...item, isMyFile: true };
+						}),
+					},
 				};
-			} else if (current.extName === 'folder-project') {
+			} else if (current.extName === 'folder-project' || (checkModule ? current.extName === 'folder-module' : false)) {
+				delete current.icon;
 				return {
 					code: 1,
-					data: (await this.fileDao.getFilesByParentId({ id: current.id })).map(item => {
-						delete item.icon;
-						return item;
-					})
+					data: current
 				};
 			} else if (current.groupId) {
-				return {
-					code: 1,
-					data: (await this.fileDao.getGroupFiles({ groupId: current.groupId })).map(item => {
-						delete item.icon;
-						
-						return item;
-					})
-				};
+				const [group] = await this.userGroupDao.queryByIds({ ids: [current.groupId] });
+				
+				return { code: 1, data: { ...group, extName: 'group' } };
 			} else {
-				return { code: 1, data: [] };
+				return { code: 1, data: null };
 			}
 		} else {
-			return {
-				code: 1,
-				data: (await this.fileDao.getFilesByParentId({ id: parentId })).map(item => {
-					delete item.icon;
-					return item;
-				}),
-			};
+			const file = await this.fileDao.queryById(parentId);
+			file && delete file.icon;
+			
+			return { code: 1, data: file };
 		}
 	}
 

@@ -5,52 +5,7 @@ function startExe(obj, { dbConnection }) {
     const handledSql = sql?.replace(new RegExp('(?:\n|\t|\r)', 'ig'), ($0, $1) => {
       return ' ';
     });
-    let param = {
-      sql: handledSql,
-      timeout: 10 * 1000,
-    };
-    if(args) {
-      param["values"] = args;
-    }
-    return new Promise((resolve, reject) => {
-      let tdId = conn.threadId;
-      conn.beginTransaction(function (_e) {
-        if(_e) {
-          console.log('【执行SQL】：【' + tdId + '】: Transaction failed：' + _e?.message);
-          reject(_e);
-        }
-        console.log('【执行SQL】：【' + tdId + '】:  Transaction start');
-        try {
-          conn.query(param, args, function (error, results) {
-            if(error) {
-              console.log('【执行SQL】：【' + tdId + '】：执行业务SQL失败：' + _e?.message);
-              conn.rollback(function () {
-                console.log('【执行SQL】：【' + tdId + '】:  Transaction rollback');
-              });
-              reject(error);
-            }
-            conn.commit(function (err) {
-              if(err) {
-                conn.rollback(function () {
-                  console.log('【执行SQL】：【' + tdId + '】:  Transaction rollback');
-                });
-                reject(err);
-              }
-            });
-            resolve(results);
-          }).once('end', () => {
-            conn.release();
-          });
-        }
-        catch(e) {
-          conn.rollback(function () {
-            console.log('【执行SQL】：【' + tdId + '】：Transaction Query Failed: Connection Released');
-          });
-          conn.release();
-          reject(e);
-        }
-      });
-    });
+    return conn.exe(handledSql, args);
   };
   // userId为主键
   const { projectId, userId } = obj

@@ -12,7 +12,7 @@ import AuthService from './auth.service';
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
-const { getConnection } = require("@mybricks/rocker-dao");
+const { getConnection, DOBase } = require("@mybricks/rocker-dao");
 
 @Controller('/runtime/api/auth')
 export default class AuthController {
@@ -103,6 +103,7 @@ export default class AuthController {
       const serviceId = `SYS_AUTH`;
       const readyExeTemplateFolderPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
+      console.log('运行容器：readyExePath', readyExePath)
       if (!fs.existsSync(readyExePath)) {
         return {
           code: 1,
@@ -112,12 +113,16 @@ export default class AuthController {
         }
       }
       const { startExe } = require(readyExePath)
+      console.log('运行容器：获取可执行方法成功')
+      const con = new DOBase();
+      console.log('运行容器：获取连接成功')
       let res = await startExe({
         userId,
         projectId
       }, {
-        dbConnection: await getConnection()
+        dbConnection: con
       })
+      console.log('运行容器：运行完毕')
       return {
         code: 1,
         data: {
@@ -126,6 +131,7 @@ export default class AuthController {
         }
       }
     } catch (e) {
+      console.log('运行容器：运行出错了', e.message)
       return {
         code: -1,
         msg: `${typeof e === 'string' ? e : e.message}`

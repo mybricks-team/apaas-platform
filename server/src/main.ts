@@ -1,15 +1,19 @@
 import { NestFactory } from "@nestjs/core";
 import AppManage from "./AppManage.module";
 import { NestExpressApplication } from "@nestjs/platform-express";
+
 import * as path from "path";
 import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
+import * as xmlparser from 'express-xml-bodyparser';
+
 import { proxyMiddleWare } from "./middleware/proxy.middleware";
+import { timeout } from "./middleware/requestTimeout.middleware";
+import { checkHealthMiddleware } from './middleware/checkHealth.middleware';
+
 import { loadModule } from "./module-loader";
 import { enhanceApp } from "./enhance";
-import { checkHealthMiddleware } from './middleware/checkHealth.middleware';
 import init from "./init";
-import * as xmlparser from 'express-xml-bodyparser';
 
 const env = require('../env.js')
 const fs = require('fs-extra')
@@ -54,6 +58,7 @@ async function bootstrap() {
   app.use(bodyParser.json({ limit: "100mb" }));
   app.use(cookieParser());
 	app.use(xmlparser());
+  app.use(timeout(10 * 1000))
 
   await app.listen(3100);
 }

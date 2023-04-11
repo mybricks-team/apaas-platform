@@ -15,7 +15,7 @@ import UploadService from '../upload/upload.service';
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
-const { getConnection } = require("@mybricks/rocker-dao");
+const { getConnection, DOBase } = require("@mybricks/rocker-dao");
 const { SnowFlake } = require('gen-uniqueid');
 
 @Controller('/runtime/api/domain')
@@ -32,6 +32,35 @@ export default class FlowController {
   constructor() {
     this.snowFlake = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
   }
+
+    // // 领域建模运行时(运行时)
+    // @Post('/service/test')
+    // async test() {
+    //   let readyExePath;
+    //   try {
+    //     readyExePath = '/Users/andyzou/Work/registry/mybricks-team/apaas-platform/_localstorage/new.js';
+    //     console.log('运行容器：readyExePath', readyExePath)
+    //     const { startExe } = require(readyExePath)
+    //     console.log('运行容器：获取可执行方法成功')
+    //     const con = new DOBase();
+    //     console.log('运行容器：获取连接成功')
+    //     let res = await startExe({}, {
+    //       dbConnection: con,
+    //       snowFlake: this.snowFlake
+    //     })
+    //     console.log('运行容器：运行完毕')
+    //     return {
+    //       code: 1,
+    //       data: res
+    //     }
+    //   } catch (e) {
+    //     console.log('运行容器：运行出错了', e.message)
+    //     return {
+    //       code: -1,
+    //       msg: `${typeof e === 'string' ? e : e.message}`
+    //     }
+    //   }
+    // }
 
   // 领域建模运行时(运行时)
   @Post('/service/run')
@@ -54,7 +83,7 @@ export default class FlowController {
       console.log('运行容器：readyExePath', readyExePath)
       const { startExe } = require(readyExePath)
       console.log('运行容器：获取可执行方法成功')
-      const con = await getConnection();
+      const con = new DOBase();
       console.log('运行容器：获取连接成功')
       let res = await startExe(params || {}, {
         dbConnection: con,

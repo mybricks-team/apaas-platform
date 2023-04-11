@@ -49,4 +49,18 @@ export default class FlowController {
     }
   }
 
+  // @Post('/test')
+  // async test() {
+  //   console.log('请求收到了')
+  //   await new Promise((resolve, reject) => {
+  //     setTimeout(() => {
+  //       console.log('定时器到了')
+  //       resolve(true)
+  //     }, 10000);
+  //   })
+  //   return {
+  //     code: 1,
+  //     msg: 'success'
+  //   }
+  // }
 }
