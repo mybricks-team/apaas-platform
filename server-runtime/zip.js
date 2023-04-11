@@ -4,7 +4,7 @@ const JSZip = require('jszip');
 
 const zip = new JSZip();
 /** 根目录 */
-const rootDir = zip.folder('mybricks-platform');
+const rootDir = zip.folder('mybricks-runtime');
 
 /** 遍历文件 */
 function read (zip, files, dirPath) {
@@ -34,8 +34,6 @@ const filterFileName = [
   'package-lock.json', 
   'nest-cli.json',
   'tsconfig.json',
-  'application_bugu.json',
-  'application_fangzhou.json',
   'zip.js'
 ];
 const files = fs.readdirSync(zipDirPath).filter(filename => {
@@ -51,5 +49,5 @@ zip.generateAsync({
     level: 9
   }
 }).then((content) => {
-  fs.writeFileSync(path.join(__dirname, '../mybricks-platform.zip'), content, 'utf-8');
+  fs.writeFileSync(path.join(__dirname, '../mybricks-runtime.zip'), content, 'utf-8');
 });

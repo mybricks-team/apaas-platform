@@ -7,7 +7,8 @@ assets
 _apps
 _localstorage/*
 dist
-mybricks.zip
+*.zip
+_temp_
 .idea/
 server/_assets/js
 server/_assets/workspace.html
