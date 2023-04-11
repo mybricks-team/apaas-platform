@@ -404,7 +404,7 @@ export default class FileController {
     }
   }
 	
-	@Get('/getFileRoot')
+	@Get('/getFileList')
 	async getFileList(@Query() query) {
 		const { parentId, creatorId, fileId, checkModule } = query;
 		
@@ -427,37 +427,40 @@ export default class FileController {
 			if (!current) {
 				return {
 					code: 1,
-					data: {
-						id: 0,
-						name: "我的",
-						extName: "my-file",
-						isMyFile: true,
-						dataSource: (await this.fileDao.getMyFiles({ userId: creatorId })).map(item => {
-							delete item.icon;
-							item.isMyFile = true;
-							item.parentIdPath = '0';
-							return { ...item, isMyFile: true };
-						}),
-					},
+					data: (await this.fileDao.getMyFiles({ userId: creatorId })).map(item => {
+						delete item.icon;
+						item.isMyFile = true;
+						return item;
+					})
 				};
 			} else if (current.extName === 'folder-project' || (checkModule ? current.extName === 'folder-module' : false)) {
-				delete current.icon;
 				return {
 					code: 1,
-					data: current
+					data: (await this.fileDao.getFilesByParentId({ id: current.id })).map(item => {
+						delete item.icon;
+						return item;
+					})
 				};
 			} else if (current.groupId) {
-				const [group] = await this.userGroupDao.queryByIds({ ids: [current.groupId] });
-				
-				return { code: 1, data: { ...group, extName: 'group' } };
+				return {
+					code: 1,
+					data: (await this.fileDao.getGroupFiles({ groupId: current.groupId })).map(item => {
+						delete item.icon;
+						
+						return item;
+					})
+				};
 			} else {
-				return { code: 1, data: null };
+				return { code: 1, data: [] };
 			}
 		} else {
-			const file = await this.fileDao.queryById(parentId);
-			file && delete file.icon;
-			
-			return { code: 1, data: file };
+			return {
+				code: 1,
+				data: (await this.fileDao.getFilesByParentId({ id: parentId })).map(item => {
+					delete item.icon;
+					return item;
+				}),
+			};
 		}
 	}
 
