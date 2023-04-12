@@ -12,7 +12,7 @@ import AuthService from './auth.service';
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
-const { getConnection, DOBase } = require("@mybricks/rocker-dao");
+const { getConnection, DOBase, getPool } = require("@mybricks/rocker-dao");
 
 @Controller('/runtime/api/auth')
 export default class AuthController {
@@ -116,6 +116,8 @@ export default class AuthController {
       console.log('运行容器：获取可执行方法成功')
       const con = new DOBase();
       console.log('运行容器：获取连接成功')
+      const pool = getPool()
+      console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`)
       let res = await startExe({
         userId,
         projectId
