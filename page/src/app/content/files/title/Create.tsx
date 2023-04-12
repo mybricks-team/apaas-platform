@@ -12,6 +12,7 @@ import {message, Modal, Form, Input, Radio} from 'antd'
 
 import {Icon} from '../../../components'
 import Ctx, {folderExtnames} from '../Ctx'
+import {useDebounceFn} from '../../../hooks'
 import AppCtx, {T_App} from '../../../AppCtx'
 import {getApiUrl, getUrlQuery} from '../../../../utils'
 
@@ -210,7 +211,7 @@ function CreateFileModal({app, onOk, onCancel}) {
   const [btnLoading, setBtnLoading] = useState(false)
   const ref = useRef()
 
-  const ok = useCallback(() => {
+  const { run: ok } = useDebounceFn(() => {
     form.validateFields().then((values) => {
       setBtnLoading(true)
       onOk(values, app).then((msg) => {
@@ -221,7 +222,7 @@ function CreateFileModal({app, onOk, onCancel}) {
         message.warn(e)
       })
     })
-  }, [app])
+  }, {wait: 200});
 
   const cancel = useCallback(() => {
     onCancel()
