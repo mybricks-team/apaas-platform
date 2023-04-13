@@ -20,6 +20,8 @@ import {getApiUrl} from '../../../utils'
 import AppCtx, { T_App } from '../../AppCtx'
 import SchemaSetting, {SettingItem} from './schemaSetting'
 
+const pkg = require('../../../../../package.json');
+
 interface MenuItem extends T_App {
   icon: any
   setting?: SettingItem[] | string
@@ -158,8 +160,21 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
 }
 
 const AboutForm = () => {
+  console.log('111', pkg)
   return (
-    <div>asds</div>
+    <div>
+      <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks APaaS OS</p>
+      <p style={{textAlign: 'center'}}>Version {pkg.version}</p>
+      <div>
+        <Button
+          onClick={() => {
+            console.log('点击检查更新')
+          }}
+        >
+            检查更新
+          </Button>
+      </div>
+    </div>
   )
 }
 
