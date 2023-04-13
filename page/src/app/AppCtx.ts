@@ -69,7 +69,8 @@ const MYBRICKS_TEAM_USERS = [
   'zhupengqiang@kuaishou.com',
   'zouyongsheng@kuaishou.com',
   'cocolbell@163.com',
-  'stuzhaoxing@gmail.com'
+  'stuzhaoxing@gmail.com',
+  'admin@alialumni.com'
 ]
 
 export default class AppCtx {
