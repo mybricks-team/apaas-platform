@@ -142,6 +142,16 @@
         </if>
     </select>
 
+    <select id="getUserTable">
+        select
+            *
+        from
+            domain_table_meta
+        where
+            status = 1
+            and creator_id = #{creatorId}
+    </select>
+
     <insert id="createActionLog">
         insert into domain_table_action
         (
