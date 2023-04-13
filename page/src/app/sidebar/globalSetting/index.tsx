@@ -14,7 +14,7 @@ import {
 } from 'antd'
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
-import {SettingOutlined, LeftOutlined} from '@ant-design/icons'
+import {SettingOutlined, LeftOutlined, InfoCircleOutlined} from '@ant-design/icons'
 
 import {getApiUrl} from '../../../utils'
 import AppCtx, { T_App } from '../../AppCtx'
@@ -157,6 +157,12 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   )
 }
 
+const AboutForm = () => {
+  return (
+    <div>asds</div>
+  )
+}
+
 export default () => {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const user = appCtx.user
@@ -166,7 +172,10 @@ export default () => {
   const [isConfigMount, setIsConfigMount] = useState(false)
 
   const menuItems = useMemo((): MenuItem[] => {
-    let defaultItems = [{ title: '全局设置', namespace: 'system', icon: <SettingOutlined /> }]
+    let defaultItems = [
+      { title: '全局设置', namespace: 'system', icon: <SettingOutlined /> },
+      { title: '关于', namespace: 'about', icon: <InfoCircleOutlined /> }
+    ]
     if (!Array.isArray(appCtx.InstalledAPPS)) {
       return defaultItems
     } else {
@@ -249,6 +258,11 @@ export default () => {
               submitConfig(activeKey, values)
             }}
           />
+        )
+      }
+      case activeKey === 'about': {
+        return (
+          <AboutForm />
         )
       }
       /** 其他APP导入的设置 */
