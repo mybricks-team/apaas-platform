@@ -1,0 +1,36 @@
+{
+  "installApps": [
+    {
+      "type": "npm",
+      "path": "mybricks-pc-page@0.2.3"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-cloud-com@0.0.84"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-domain@0.1.42"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-app-website@0.0.82"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-app-login@0.0.4"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-app-mpcloudcom@0.0.7"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-app-mppage@0.0.10"
+    },
+    {
+      "type":"npm",
+      "path":"mybricks-app-mpsite@0.0.11"
+    }
+  ]
+}
