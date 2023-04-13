@@ -7,6 +7,7 @@ import { getConnection } from '@mybricks/rocker-dao';
 // @ts-ignore
 import { createVM } from 'vm-node';
 import FileService from '../file/file.controller'
+const childProcess = require('child_process');
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -510,5 +511,23 @@ export default class SystemService {
     //   code: 1,
     //   data: str
     // }
+  }
+
+  @Post('/system/checkUpdate')
+  async checkUpdate() {
+    const version = await childProcess.execSync('npm view mybricks-apaas-platform version').toString().replace('\n', '')
+    if(version) {
+      return {
+        code: 1,
+        data: {
+          version
+        },
+      };
+    } else {
+      return {
+        code: -1,
+        msg: '获取最新版本失败'
+      }
+    }
   }
 }

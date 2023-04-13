@@ -16,6 +16,7 @@ import axios from 'axios'
 import {observe} from '@mybricks/rxui'
 import {SettingOutlined, LeftOutlined, InfoCircleOutlined} from '@ant-design/icons'
 
+import compareVersion from 'compare-version'
 import {getApiUrl} from '../../../utils'
 import AppCtx, { T_App } from '../../AppCtx'
 import SchemaSetting, {SettingItem} from './schemaSetting'
@@ -168,7 +169,28 @@ const AboutForm = () => {
       <div>
         <Button
           onClick={() => {
-            console.log('点击检查更新')
+            // console.log('点击检查更新')
+            axios.post(getApiUrl('/paas/api/system/checkUpdate')).then((res) => {
+              console.log('最新版本', res.data)
+              if(res.data.code === 1) {
+                const temp = compareVersion(res.data.data.version, pkg.version)
+                console.log(temp, typeof temp)
+                switch(temp) {
+                  case -1: {
+                    message.info('远程系统版本异常，请联系管理员')
+                    break;
+                  }
+                  case 0: {
+                    message.info('当前版本已是最新版本')
+                    break;
+                  }
+                  case 1: {
+                    message.info('存在最新版本，是否更新？')
+                    break
+                  }
+                }
+              }
+            })
           }}
         >
             检查更新
