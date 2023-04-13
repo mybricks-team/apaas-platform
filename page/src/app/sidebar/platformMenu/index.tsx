@@ -18,6 +18,7 @@ import {evt, observe} from '@mybricks/rxui'
 import {Item} from '..'
 import AppCtx from '../../AppCtx'
 import NavMenu from './menu/navMenu'
+import {useDebounceFn} from '../../hooks'
 import {UserGroup, Add} from '../../components'
 import {storage, isObject, getApiUrl} from '../../../utils'
 import {MYBRICKS_WORKSPACE_DEFAULT_NAV_MY_EXPAND, MYBRICKS_WORKSPACE_DEFAULT_NAV_GROUP_EXPAND} from '../../../const'
@@ -206,11 +207,14 @@ function Group() {
 }
 
 function CreateGroupModal({open, onOk, onCancel}) {
+  const [context] = useState({
+    submittable: true
+  })
   const [form] = Form.useForm()
   const [btnLoading, setBtnLoading] = useState(false)
   const ref = useRef()
 
-  const ok = useCallback(() => {
+  const { run: ok } = useDebounceFn(() => {
     form.validateFields().then((values) => {
       setBtnLoading(true)
       onOk(values).then((msg) => {
@@ -221,7 +225,7 @@ function CreateGroupModal({open, onOk, onCancel}) {
         message.warn(e)
       })
     }).catch(() => {})
-  }, [])
+  }, {wait: 200});
 
   const cancel = useCallback(() => {
     onCancel()
@@ -269,7 +273,18 @@ function CreateGroupModal({open, onOk, onCancel}) {
             })
           }}]}
         >
-          <Input ref={ref} placeholder={`请输入协作组名称`} autoFocus onPressEnter={ok}/>
+          <Input
+            onCompositionStart={() => {
+              context.submittable = false
+            }}
+            onCompositionEnd={() => {
+              context.submittable = true
+            }}
+            ref={ref}
+            placeholder={`请输入协作组名称`}
+            autoFocus
+            onPressEnter={() => context.submittable && ok()}
+          />
         </Form.Item>
       </Form>
     </Modal>

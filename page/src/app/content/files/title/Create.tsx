@@ -207,6 +207,9 @@ export function Create(): JSX.Element {
 }
 
 function CreateFileModal({app, onOk, onCancel}) {
+  const [context] = useState({
+    submittable: true
+  })
   const [form] = Form.useForm()
   const [btnLoading, setBtnLoading] = useState(false)
   const ref = useRef()
@@ -270,7 +273,18 @@ function CreateFileModal({app, onOk, onCancel}) {
             })
           }}]}
         >
-          <Input ref={ref} placeholder={`请输入${app?.title}名称`} autoFocus onPressEnter={ok}/>
+          <Input
+            onCompositionStart={() => {
+              context.submittable = false
+            }}
+            onCompositionEnd={() => {
+              context.submittable = true
+            }}
+            ref={ref}
+            placeholder={`请输入${app?.title}名称`}
+            autoFocus
+            onPressEnter={() => context.submittable && ok()}
+          />
         </Form.Item>
 	      {['cloud-com', 'mp-cloudcom'].includes(app?.extName) ? (
 		      <Form.Item label='类型' name="type" initialValue="other">

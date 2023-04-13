@@ -27,6 +27,7 @@ import {Title, ClickableIcon} from '..'
 import AppCtx from '../../../../AppCtx'
 import {Divider} from '../../../../components'
 import {getApiUrl} from '../../../../../utils'
+import {useDebounceFn} from '../../../../hooks'
 
 const {TextArea} = Input
 
@@ -189,6 +190,9 @@ function DeleteGroupModal({open, onOk, onCancel, groupName}) {
     onCancel,
     title: '确定要删除当前协作组吗？',
     Form: ({form, editRef, ok}) => {
+      const [context] = useState({
+        submittable: true
+      })
       return (
         <AntdForm
           labelCol={{ span: 0 }}
@@ -207,7 +211,18 @@ function DeleteGroupModal({open, onOk, onCancel, groupName}) {
               })
             }}]}
           >
-            <Input ref={editRef} placeholder={`请输入当前协作组名称以确认删除`} autoFocus onPressEnter={ok}/>
+            <Input
+              onCompositionStart={() => {
+                context.submittable = false
+              }}
+              onCompositionEnd={() => {
+                context.submittable = true
+              }}
+              ref={editRef}
+              placeholder={`请输入当前协作组名称以确认删除`}
+              autoFocus
+              onPressEnter={() => context.submittable && ok()}
+            />
           </AntdForm.Item>
         </AntdForm>
       )
@@ -288,6 +303,9 @@ function GroupTitleModal ({open, onOk, onCancel, defaultValues}) {
       title='更改协作组名称'
       defaultValues={defaultValues}
       Form={({form, editRef, ok}) => {
+        const [context] = useState({
+          submittable: true
+        })
         return (
           <AntdForm
             labelCol={{ span: 3 }}
@@ -307,7 +325,18 @@ function GroupTitleModal ({open, onOk, onCancel, defaultValues}) {
                 })
               }}]}
             >
-              <Input ref={editRef} placeholder={`请输入协作组名称`} autoFocus onPressEnter={ok}/>
+              <Input
+                onCompositionStart={() => {
+                  context.submittable = false
+                }}
+                onCompositionEnd={() => {
+                  context.submittable = true
+                }}
+                ref={editRef}
+                placeholder={`请输入协作组名称`}
+                autoFocus
+                onPressEnter={() => context.submittable && ok()}
+              />
             </AntdForm.Item>
           </AntdForm>
         )
@@ -425,43 +454,6 @@ function DefaultAvatar({avatar = '', content}) {
   )
 }
 
-function UserConfigModal({open, onOk, onCancel}) {
-  return ConfigFormModal({
-    open,
-    onOk,
-    onCancel,
-    title: '添加协作用户',
-    bodyStyle: {
-      minHeight: 126
-    },
-    Form: ({form, editRef, ok}) => {
-      return (
-        <AntdForm
-          labelCol={{ span: 4 }}
-          wrapperCol={{ span: 20 }}
-          form={form}
-        >
-          <AntdForm.Item
-            label='用户邮箱'
-            name="userIds"
-            rules={[{ required: true, message: '协作用户邮箱不允许为空！', validator(rule, value) {
-              return new Promise((resolve, reject) => {
-                if (!value.trim()) {
-                  reject(rule.message)
-                } else [
-                  resolve(true)
-                ]
-              })
-            }}]}
-          >
-            <TextArea ref={editRef} placeholder={`请正确填写协作用户邮箱，以英文逗号隔开（xxx@163.com,www@163.com）`} onPressEnter={ok}/>
-          </AntdForm.Item>
-        </AntdForm>
-      )
-    }
-  })
-}
-
 function ConfigFormModal({
   open,
   onOk,
@@ -479,7 +471,7 @@ function ConfigFormModal({
   const [btnLoading, setBtnLoading] = useState(false)
   const ref = useRef()
 
-  const ok = useCallback(() => {
+  const { run: ok } = useDebounceFn(() => {
     form.validateFields().then((values) => {
       setBtnLoading(true)
       onOk(values).then((msg) => {
@@ -490,7 +482,7 @@ function ConfigFormModal({
         message.warn(e)
       })
     }).catch(() => {})
-  }, [])
+  }, {wait: 200});
 
   const cancel = useCallback(() => {
     onCancel()
@@ -742,6 +734,9 @@ function NewUserConfigModal({open, onCancel}) {
 }
 
 function AddUserForm({open, onOk, onCancel}) {
+  const [context] = useState({
+    submittable: true
+  })
   const [form] = AntdForm.useForm()
   const [btnLoading, setBtnLoading] = useState(false)
   const ref = useRef(null)
@@ -760,7 +755,7 @@ function AddUserForm({open, onOk, onCancel}) {
     }
   }, [open])
 
-  const ok = useCallback(() => {
+  const { run: ok } = useDebounceFn(() => {
     form.validateFields().then((values) => {
       setBtnLoading(true)
       onOk(values).then((msg) => {
@@ -771,7 +766,7 @@ function AddUserForm({open, onOk, onCancel}) {
         message.warn(e)
       })
     }).catch(() => {})
-  }, [])
+  }, {wait: 200});
 
   const cancel = useCallback(() => {
     onCancel()
@@ -818,10 +813,16 @@ function AddUserForm({open, onOk, onCancel}) {
           }}]}
         >
           <TextArea
+            onCompositionStart={() => {
+              context.submittable = false
+            }}
+            onCompositionEnd={() => {
+              context.submittable = true
+            }}
             ref={ref}
             autoFocus
             placeholder={`请正确填写协作用户邮箱，以英文逗号隔开（xxx@163.com,www@163.com）`}
-            onPressEnter={ok}
+            onPressEnter={() => context.submittable && ok()}
           />
         </AntdForm.Item>
         <AntdForm.Item wrapperCol={{offset: 4, span: 20}} style={{marginBottom: 0}}>

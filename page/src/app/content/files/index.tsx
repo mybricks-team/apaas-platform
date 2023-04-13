@@ -25,12 +25,12 @@ import Info from './info'
 import TitleBar from './title'
 import AppCtx from '../../AppCtx'
 import {Content, Block} from '..'
-import {Divider, Dropdown} from '../../components'
+import {useDebounceFn} from '../../hooks'
 import Ctx, {folderExtnames} from './Ctx'
+import FolderList from './temp/FolderList'
+import {Divider, Dropdown} from '../../components'
 import {getApiUrl, getUrlQuery} from '../../../utils'
 import {Icon, Trash, More, SharerdIcon} from '../../components'
-import FolderList from './temp/FolderList'
-
 
 import css from './index.less'
 
@@ -535,11 +535,14 @@ function ClickableIconContainer({className = '', size = 28, children}) {
 }
 
 function RenameFileModal({app, onOk, onCancel}) {
+  const [context] = useState({
+    submittable: true
+  })
   const [form] = Form.useForm()
   const [btnLoading, setBtnLoading] = useState(false)
   const ref = useRef()
 
-  const ok = useCallback(() => {
+  const { run: ok } = useDebounceFn(() => {
     form.validateFields().then((values) => {
       setBtnLoading(true)
       onOk(values, app).then((msg) => {
@@ -550,7 +553,7 @@ function RenameFileModal({app, onOk, onCancel}) {
         message.warn(e)
       })
     })
-  }, [app])
+  }, {wait: 200});
 
   const cancel = useCallback(() => {
     onCancel()
@@ -601,7 +604,18 @@ function RenameFileModal({app, onOk, onCancel}) {
             })
           }}]}
         >
-          <Input ref={ref} placeholder='请输入新的名称' autoFocus onPressEnter={ok}/>
+          <Input
+            onCompositionStart={() => {
+              context.submittable = false
+            }}
+            onCompositionEnd={() => {
+              context.submittable = true
+            }}
+            ref={ref}
+            placeholder='请输入新的名称'
+            autoFocus
+            onPressEnter={() => context.submittable && ok()}
+          />
         </Form.Item>
       </Form>
     </Modal>
