@@ -544,7 +544,7 @@ export default class SystemService {
     console.log(shellPath)
     childProcess.spawn(`sh ${shellPath} ${version}`, {}, {
       cwd: path.join(process.cwd(), '../'),
-      stdio: ['inherit', 'pipe', 'pipe']
+      stdio: ['inherit', 'inherit', 'inherit']
     })
     return {
       code: 1
