@@ -11,9 +11,10 @@ import { ExclamationCircleFilled } from '@ant-design/icons'
 
 import AppCtx from '../AppCtx'
 import AppStore from './appStore'
-import {Icon} from '../components'
+import {Icon, PlatformUserManage} from '../components'
 import PlatformMenu from './platformMenu'
 import MessageModal from './MessageModal'
+import UserManageModal from './userManageModal'
 import GlobalSetting from './globalSetting'
 import {getApiUrl, removeCookie} from '../../utils'
 import {PlatformSetting, PlatformMessage} from '../components'
@@ -147,6 +148,15 @@ function SystemMenus() {
               title: '消息通知',
               // @ts-ignore
               content: <MessageModal messages={messages}/>
+            }}
+          />
+          <Item
+            icon={<PlatformUserManage width={20} height={20}/>}
+            title={'用户管理'}
+            modal={{
+              title: '用户管理',
+              // @ts-ignore
+              content: <UserManageModal />
             }}
           />
           <Item

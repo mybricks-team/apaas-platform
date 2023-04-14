@@ -8,18 +8,21 @@ import {
   Query,
   Request,
 } from '@nestjs/common';
-import UserDao from '../dao/UserDao';
-import { Logs } from '../utils';
+import UserDao from '../../dao/UserDao';
+import { Logs } from '../../utils';
+import UserService from './user.service';
 
-@Controller('/paas/api')
-export class UserServices {
+@Controller('/paas/api/user')
+export default class UserController {
   userDao: UserDao;
+  userService: UserService;
 
   constructor() {
     this.userDao = new UserDao();
+    this.userService = new UserService();
   }
 
-  @Get('/user/getAll')
+  @Get('/getAll')
   async getAll() {
     const userAry = await this.userDao.queryAll();
     if (userAry) {
@@ -42,7 +45,7 @@ export class UserServices {
     }
   }
 
-  @Post('/user/grant')
+  @Post('/grant')
   async grantLisence(@Body() body) {
     const { email } = body;
     if (email) {
@@ -65,7 +68,7 @@ export class UserServices {
     }
   }
 
-  @Get('/user/queryBy')
+  @Get('/queryBy')
   async queryBy(@Query() query) {
     if (query.email) {
       const user = await this.userDao.queryByEmail({ email: query.email });
@@ -96,7 +99,7 @@ export class UserServices {
     }
   }
 
-  @Post('/user/register')
+  @Post('/register')
   async register(@Body() body) {
     const { email, psd } = body;
 
@@ -138,7 +141,7 @@ export class UserServices {
     }
   }
 
-  @Post('/user/login')
+  @Post('/login')
   async login(@Body() body) {
     const { email, psd } = body;
 
@@ -174,7 +177,7 @@ export class UserServices {
   /**
    * 已登录用户
    */
-  @Post('/user/signed')
+  @Post('/signed')
   async signed(@Headers('username') us: string, @Request() request) {
     let userEmail;
     if(us) {
@@ -190,18 +193,6 @@ export class UserServices {
         code: -1,
         msg: '未登录',
       };
-      // 本地环境
-      // if (
-      //   process.env.NODE_ENV !== 'staging' &&
-      //   process.env.NODE_ENV !== 'production'
-      // ) {
-      //   userEmail = 'admin@admin.com';
-      // } else {
-      //   return {
-      //     code: -1,
-      //     msg: 'sso 缺少username',
-      //   };
-      // }
     }
     const userInfo = await this.userDao.queryByEmail({
       email: userEmail,
@@ -219,6 +210,26 @@ export class UserServices {
         code: -1,
         msg: '未登录',
       };
+    }
+  }
+
+  @Post('/queryByRoleAndName')
+  async queryByRoleAndName(
+    @Body('role') role: number, 
+    @Body('email') email: string, 
+    @Body('page') page: number, 
+    @Body('pageSize') pageSize: number
+  ) {
+    const param = {
+      role,
+      email,
+      page,
+      pageSize
+    }
+    const res = await this.userService.queryByRoleAndName(param)
+    return {
+      code: 1,
+      data: res
     }
   }
 }

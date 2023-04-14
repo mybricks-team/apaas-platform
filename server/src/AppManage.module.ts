@@ -1,6 +1,5 @@
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { Module } from "@nestjs/common";
-import { UserServices } from "./services/user";
 import ProductServices from "./services/product";
 
 import WorkspaceService from "./services/workspace";
@@ -24,6 +23,7 @@ import SystemModule from './module/system/system.module'
 import FileModule from './module/file/file.module'
 import DomainModule from "./module/domain/domain.module";
 import ShareModule from "./module/share/share.module";
+import UserModule from "./module/user/user.module";
 
 @Module({
   imports: [
@@ -33,11 +33,11 @@ import ShareModule from "./module/share/share.module";
     FileModule,
     DomainModule,
     ShareModule,
+    UserModule,
     ...loadModule().modules,
   ],
   controllers: [
     AppsService,
-    UserServices,
     ProductServices,
     WorkspaceService,
     UserGroupService,

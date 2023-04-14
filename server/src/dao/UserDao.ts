@@ -73,6 +73,26 @@ export default class UserDao extends DOBase {
   }
 
   @Mapping(UserDO)
+  public async queryByRoleAndName(param): Promise<UserDO[]> {
+    let newParam: any = {
+      limit: param.pageSize || 10,
+      offset: ((param.page || 1) - 1) * (param.pageSize || 10)
+    }
+    if(param.role) {
+      newParam.role = param.role
+    }
+    if(param.email) {
+      newParam.email = param.email
+    }
+    const result = await this.exe<any>(
+      'apaas_user:queryByRoleAndName'
+    )
+
+    return result
+  }
+  
+
+  @Mapping(UserDO)
   public async queryByEmail(params: {
     email: string
   }): Promise<UserDO> {

@@ -197,7 +197,7 @@ const AboutForm = () => {
   }
   return (
     <div>
-      <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks APaaS OS</p>
+      <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks aPaaS OS</p>
       <p style={{textAlign: 'center'}}>Version {pkg.version}</p>
       <div style={{display: 'flex', justifyContent: 'center'}}>
         <Button
