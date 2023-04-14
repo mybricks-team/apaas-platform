@@ -9,6 +9,7 @@ import { createVM } from 'vm-node';
 import FileService from '../file/file.controller'
 const childProcess = require('child_process');
 const path = require('path')
+const fs = require('fs')
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -497,21 +498,6 @@ export default class SystemService {
       code: success ? 1 : -1,
       data: data,
     };
-    // const str = `
-    //     const Hooks = (taskId) => {
-    //       return {
-    //         onFinished: (data) => {
-    //           console.log('沙箱结果', data)
-    //         }
-    //       }
-    //     };
-    //     ;const _EXEC_ID_ = 1111;
-    //     ;const hooks = Hooks(_EXEC_ID_);
-    //     ;const PARAMS = ` + JSON.stringify(params || {}) + ';' + code
-    // return {
-    //   code: 1,
-    //   data: str
-    // }
   }
 
   @Post('/system/checkUpdate')
@@ -542,12 +528,12 @@ export default class SystemService {
     }
     const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
     console.log(shellPath)
-    childProcess.spawn(`sh ${shellPath} ${version}`, {}, {
+    const res = await childProcess.execSync(`sh ${shellPath} ${version}`, {
       cwd: path.join(process.cwd(), '../'),
-      stdio: ['inherit', 'inherit', 'inherit']
     })
     return {
-      code: 1
+      code: 1,
+      msg: res.toString(),
     };
   }
 
