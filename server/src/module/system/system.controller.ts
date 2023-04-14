@@ -537,4 +537,12 @@ export default class SystemService {
     };
   }
 
+
+  @Post('/system/reloadAll')
+  async reloadAll() {
+    childProcess.exec(`npx pm2 reload all`)
+    return {
+      code: 1,
+    };
+  }
 }

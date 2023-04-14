@@ -161,7 +161,6 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
 }
 
 const AboutForm = () => {
-  console.log('111', pkg)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [upgradeInfo, setUpgradeInfo] = useState(null)
   const [checkLoading, setCheckLoading] = useState(false)
@@ -176,7 +175,18 @@ const AboutForm = () => {
             axios.post(getApiUrl('/paas/api/system/doUpdate'), {
               version: upgradeInfo.version
             }).then((res) => {
-              console.log('升级结果是')
+              if(res?.data?.code === 1) {
+                message.info('安装包下载完毕，即将执行升级操作，请稍后', 3)
+                axios.post(getApiUrl('/paas/api/system/reloadAll')).then((res) => {
+                  setTimeout(() => {
+                    message.info('升级中，请稍后，此过程大约15s', 15, () => {
+                      message.success('升级成功, 请刷新页面', 3, () => {
+                        location.reload()
+                      })
+                    })
+                  }, 3000)
+                })
+              }
             })
           }}
         >
