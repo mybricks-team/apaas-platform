@@ -7,6 +7,9 @@ import { getConnection } from '@mybricks/rocker-dao';
 // @ts-ignore
 import { createVM } from 'vm-node';
 import FileService from '../file/file.controller'
+const childProcess = require('child_process');
+const path = require('path')
+const fs = require('fs')
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -495,20 +498,51 @@ export default class SystemService {
       code: success ? 1 : -1,
       data: data,
     };
-    // const str = `
-    //     const Hooks = (taskId) => {
-    //       return {
-    //         onFinished: (data) => {
-    //           console.log('沙箱结果', data)
-    //         }
-    //       }
-    //     };
-    //     ;const _EXEC_ID_ = 1111;
-    //     ;const hooks = Hooks(_EXEC_ID_);
-    //     ;const PARAMS = ` + JSON.stringify(params || {}) + ';' + code
-    // return {
-    //   code: 1,
-    //   data: str
-    // }
+  }
+
+  @Post('/system/checkUpdate')
+  async checkUpdate() {
+    const version = await childProcess.execSync('npm view mybricks-apaas-platform version').toString().replace('\n', '')
+    if(version) {
+      return {
+        code: 1,
+        data: {
+          version
+        },
+      };
+    } else {
+      return {
+        code: -1,
+        msg: '获取最新版本失败'
+      }
+    }
+  }
+
+  @Post('/system/doUpdate')
+  async doUpdate(@Body('version') version) {
+    if(!version) {
+      return {
+        code: -1,
+        msg: '缺少必要参数'
+      }
+    }
+    const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
+    console.log(shellPath)
+    const res = await childProcess.execSync(`sh ${shellPath} ${version}`, {
+      cwd: path.join(process.cwd(), '../'),
+    })
+    return {
+      code: 1,
+      msg: res.toString(),
+    };
+  }
+
+
+  @Post('/system/reloadAll')
+  async reloadAll() {
+    childProcess.exec(`npx pm2 reload all`)
+    return {
+      code: 1,
+    };
   }
 }

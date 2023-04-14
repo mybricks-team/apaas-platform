@@ -47,9 +47,9 @@ then
 fi
 echo "覆盖完毕"
 
-echo "开始重启服务"
-npx pm2 reload index
-npx pm2 reload index_flow
-echo "服务重启成功"
+# echo "开始重启服务"
+# npx pm2 reload index
+# npx pm2 reload index_flow
+# echo "服务重启成功"
 
 

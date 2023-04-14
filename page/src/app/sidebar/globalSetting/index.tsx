@@ -14,11 +14,14 @@ import {
 } from 'antd'
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
-import {SettingOutlined, LeftOutlined} from '@ant-design/icons'
+import {SettingOutlined, LeftOutlined, InfoCircleOutlined} from '@ant-design/icons'
 
+import compareVersion from 'compare-version'
 import {getApiUrl} from '../../../utils'
 import AppCtx, { T_App } from '../../AppCtx'
 import SchemaSetting, {SettingItem} from './schemaSetting'
+
+const pkg = require('../../../../../package.json');
 
 interface MenuItem extends T_App {
   icon: any
@@ -157,6 +160,85 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   )
 }
 
+const AboutForm = () => {
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  const [upgradeInfo, setUpgradeInfo] = useState(null)
+  const [checkLoading, setCheckLoading] = useState(false)
+  let upgradeContainer = null;
+  if(showUpgrade) {
+    upgradeContainer = (
+      <div style={{display: 'flex', justifyContent: 'space-around', alignItems:'center', marginTop: 8}}>
+        <span>最新版本是: {upgradeInfo.version}</span>
+        <Button 
+          type="primary" 
+          onClick={() => {
+            axios.post(getApiUrl('/paas/api/system/doUpdate'), {
+              version: upgradeInfo.version
+            }).then((res) => {
+              if(res?.data?.code === 1) {
+                message.info('安装包下载完毕，即将执行升级操作，请稍后', 3)
+                axios.post(getApiUrl('/paas/api/system/reloadAll')).then((res) => {
+                  setTimeout(() => {
+                    message.info('升级中，请稍后，此过程大约15s', 15, () => {
+                      message.success('升级成功, 3秒后将自动刷新页面', 3, () => {
+                        location.reload()
+                      })
+                    })
+                  }, 3000)
+                })
+              }
+            })
+          }}
+        >
+          立即升级?
+        </Button>
+      </div>
+    )
+  }
+  return (
+    <div>
+      <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks APaaS OS</p>
+      <p style={{textAlign: 'center'}}>Version {pkg.version}</p>
+      <div style={{display: 'flex', justifyContent: 'center'}}>
+        <Button
+          loading={checkLoading}
+          onClick={() => {
+            // console.log('点击检查更新')
+            setCheckLoading(true)
+            axios.post(getApiUrl('/paas/api/system/checkUpdate')).then((res) => {
+              console.log('最新版本', res.data)
+              if(res.data.code === 1) {
+                const temp = compareVersion(res.data.data.version, pkg.version)
+                switch(temp) {
+                  case -1: {
+                    message.info('远程系统版本异常，请联系管理员')
+                    break;
+                  }
+                  case 0: {
+                    message.info('当前版本已是最新版本')
+                    break;
+                  }
+                  case 1: {
+                    setUpgradeInfo(res.data.data)
+                    setShowUpgrade(true)
+                    break
+                  }
+                }
+              } else {
+                message.info(res.data.msg)
+              }
+              setCheckLoading(false)
+            })
+          }}
+        >
+            检查更新
+          </Button>
+      </div>
+      {upgradeContainer}
+    </div>
+  )
+}
+
 export default () => {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const user = appCtx.user
@@ -166,7 +248,10 @@ export default () => {
   const [isConfigMount, setIsConfigMount] = useState(false)
 
   const menuItems = useMemo((): MenuItem[] => {
-    let defaultItems = [{ title: '全局设置', namespace: 'system', icon: <SettingOutlined /> }]
+    let defaultItems = [
+      { title: '全局设置', namespace: 'system', icon: <SettingOutlined /> },
+      { title: '关于', namespace: 'about', icon: <InfoCircleOutlined /> }
+    ]
     if (!Array.isArray(appCtx.InstalledAPPS)) {
       return defaultItems
     } else {
@@ -249,6 +334,11 @@ export default () => {
               submitConfig(activeKey, values)
             }}
           />
+        )
+      }
+      case activeKey === 'about': {
+        return (
+          <AboutForm />
         )
       }
       /** 其他APP导入的设置 */
