@@ -542,18 +542,13 @@ export default class SystemService {
     }
     const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
     console.log(shellPath)
-    const res = await childProcess.execSync(`sh ${shellPath} ${version}`).toString()
-    console.log(1111, res)
-    if(res) {
-      return {
-        code: 1
-      };
-    } else {
-      return {
-        code: -1,
-        msg: '获取最新版本失败'
-      }
-    }
+    childProcess.spawn(`sh ${shellPath} ${version}`, {}, {
+      cwd: path.join(process.cwd(), '../'),
+      stdio: ['inherit', 'pipe', 'pipe']
+    })
+    return {
+      code: 1
+    };
   }
 
 }
