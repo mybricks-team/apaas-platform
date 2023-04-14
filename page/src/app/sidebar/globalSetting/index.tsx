@@ -180,7 +180,7 @@ const AboutForm = () => {
                 axios.post(getApiUrl('/paas/api/system/reloadAll')).then((res) => {
                   setTimeout(() => {
                     message.info('升级中，请稍后，此过程大约15s', 15, () => {
-                      message.success('升级成功, 请刷新页面', 3, () => {
+                      message.success('升级成功, 3秒后将自动刷新页面', 3, () => {
                         location.reload()
                       })
                     })
