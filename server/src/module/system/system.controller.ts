@@ -8,6 +8,7 @@ import { getConnection } from '@mybricks/rocker-dao';
 import { createVM } from 'vm-node';
 import FileService from '../file/file.controller'
 const childProcess = require('child_process');
+const path = require('path')
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -530,4 +531,29 @@ export default class SystemService {
       }
     }
   }
+
+  @Post('/system/doUpdate')
+  async doUpdate(@Body('version') version) {
+    if(!version) {
+      return {
+        code: -1,
+        msg: '缺少必要参数'
+      }
+    }
+    const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
+    console.log(shellPath)
+    const res = await childProcess.execSync(`sh ${shellPath} ${version}`).toString()
+    console.log(1111, res)
+    if(res) {
+      return {
+        code: 1
+      };
+    } else {
+      return {
+        code: -1,
+        msg: '获取最新版本失败'
+      }
+    }
+  }
+
 }

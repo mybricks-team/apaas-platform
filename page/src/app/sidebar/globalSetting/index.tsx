@@ -162,19 +162,43 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
 
 const AboutForm = () => {
   console.log('111', pkg)
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  const [upgradeInfo, setUpgradeInfo] = useState(null)
+  const [checkLoading, setCheckLoading] = useState(false)
+  let upgradeContainer = null;
+  if(showUpgrade) {
+    upgradeContainer = (
+      <div style={{display: 'flex', justifyContent: 'space-around', alignItems:'center', marginTop: 8}}>
+        <span>最新版本是: {upgradeInfo.version}</span>
+        <Button 
+          type="primary" 
+          onClick={() => {
+            axios.post(getApiUrl('/paas/api/system/doUpdate'), {
+              version: upgradeInfo.version
+            }).then((res) => {
+              console.log('升级结果是')
+            })
+          }}
+        >
+          立即升级?
+        </Button>
+      </div>
+    )
+  }
   return (
     <div>
       <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks APaaS OS</p>
       <p style={{textAlign: 'center'}}>Version {pkg.version}</p>
-      <div>
+      <div style={{display: 'flex', justifyContent: 'center'}}>
         <Button
+          loading={checkLoading}
           onClick={() => {
             // console.log('点击检查更新')
+            setCheckLoading(true)
             axios.post(getApiUrl('/paas/api/system/checkUpdate')).then((res) => {
               console.log('最新版本', res.data)
               if(res.data.code === 1) {
                 const temp = compareVersion(res.data.data.version, pkg.version)
-                console.log(temp, typeof temp)
                 switch(temp) {
                   case -1: {
                     message.info('远程系统版本异常，请联系管理员')
@@ -185,17 +209,22 @@ const AboutForm = () => {
                     break;
                   }
                   case 1: {
-                    message.info('存在最新版本，是否更新？')
+                    setUpgradeInfo(res.data.data)
+                    setShowUpgrade(true)
                     break
                   }
                 }
+              } else {
+                message.info(res.data.msg)
               }
+              setCheckLoading(false)
             })
           }}
         >
             检查更新
           </Button>
       </div>
+      {upgradeContainer}
     </div>
   )
 }
