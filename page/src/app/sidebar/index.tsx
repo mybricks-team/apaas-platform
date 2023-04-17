@@ -156,7 +156,7 @@ function SystemMenus() {
             modal={{
               title: '用户管理',
               // @ts-ignore
-              content: <UserManageModal />
+              content: <UserManageModal user={appCtx.user} />
             }}
           />
           <Item

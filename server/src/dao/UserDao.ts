@@ -85,12 +85,31 @@ export default class UserDao extends DOBase {
       newParam.email = param.email
     }
     const result = await this.exe<any>(
-      'apaas_user:queryByRoleAndName'
+      'apaas_user:queryByRoleAndName',
+      newParam
     )
-
     return result
   }
-  
+
+  public async getTotalCountByParam({ role, email }): Promise<any> {
+    const result = await this.exe<any>(
+      'apaas_user:totalCountByParam',
+      { role, email }
+    )
+    return result?.[0] ? result?.[0]?.total : null
+  }
+
+  public async setUserRole(param: { role, email }): Promise<any> {
+    let newParam = {
+      ...param,
+      updateTime: Date.now()
+    }
+    const result = await this.exe<any>(
+      'apaas_user:setUserRole',
+      newParam
+    )
+    return result?.[0] ? result?.[0]?.total : null
+  }
 
   @Mapping(UserDO)
   public async queryByEmail(params: {

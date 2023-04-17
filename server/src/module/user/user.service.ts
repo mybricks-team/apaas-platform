@@ -14,4 +14,20 @@ export default class UserService {
   async queryByRoleAndName(param) {
     return await this.userDao.queryByRoleAndName(param);
   }
+
+  async getTotalCountByParam({ role, email }) {
+    return await this.userDao.getTotalCountByParam({ role, email });
+  }
+
+  async setUserRole({ role, email }) {
+    return await this.userDao.setUserRole({email,role});
+  }
+
+  async queryByEmail({ email }) {
+    return await this.userDao.queryByEmail({email});
+  }
+
+  
+  
+  
 }

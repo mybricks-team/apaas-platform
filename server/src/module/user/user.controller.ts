@@ -226,10 +226,47 @@ export default class UserController {
       page,
       pageSize
     }
-    const res = await this.userService.queryByRoleAndName(param)
+    const [list, total] = await Promise.all([
+      this.userService.queryByRoleAndName(param),
+      this.userService.getTotalCountByParam({ role, email })
+    ])
     return {
       code: 1,
-      data: res
+      data: {
+        list, 
+        pagination: {
+          page,
+          pageSize,
+        },
+        total
+      }
+    }
+  }
+
+  @Post('/setUserRole')
+  async setUserRole(
+    @Body('email') email: string,
+    @Body('role') role: number,
+    @Body('updator') updator: string
+  ) {
+    if(!email || !role || !updator) {
+      return {
+        code: -1,
+        msg: '参数缺失'
+      }
+    }
+    const user = await this.userService.queryByEmail({ email: updator })
+    if(user.role === 10) {
+      await this.userService.setUserRole({email,role})
+      return {
+        code: 1,
+        msg: '设置成功'
+      }
+    } else {
+      return {
+        code: -1,
+        msg: '暂无权限操作'
+      }
     }
   }
 }

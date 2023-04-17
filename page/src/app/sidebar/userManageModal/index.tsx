@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Select, Form, Input, Button, Table, Col, Row } from 'antd';
+import { Select, Form, Input, Button, Table, Col, Row, Pagination, Modal, message } from 'antd';
 import axios from 'axios';
 import {getApiUrl} from '../../../utils'
 const Option = Select.Option;
@@ -10,44 +10,104 @@ const ROLE_MAP = {
   '普通用户': 2,
   '超管': 10
 }
+const ROLE_CODE_HANS_MAP = {
+  1: '游客',
+  2: '普通用户',
+  10: '超管'
+}
 
-export default function UserManageModal() {
+export default function UserManageModal({ user }) {
   const [formValues, setFormValue] = useState({})
   const [pagination, setPagination] = useState({ page: 1, pageSize: 10 })
+  const [total, setTotal] = useState(0)
+  const [tableData, setTableData] = useState([])
   const columns = [
     {
-      title: 'Name',
+      title: '名称',
       dataIndex: 'name',
       key: 'name',
-      render: (text) => <a>{text}</a>,
+      render: (text) => <span>{text || '-'}</span>,
     },
     {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
+      title: 'email',
+      dataIndex: 'email',
+      key: 'email',
     },
     {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
+      title: '角色',
+      dataIndex: 'role',
+      key: 'role',
+      render: (_, record) => {
+        return <span>{ROLE_CODE_HANS_MAP[record.role]}</span>
+      }
     },
     {
-      title: 'Action',
+      title: '操作',
       key: 'action',
-      render: (_, record) => (
-        <div>ds</div>
-      ),
+      width: 150,
+      align: 'center',
+      render: (_, record) => {
+        return (
+          <div
+            style={{display: 'flex', justifyContent: 'space-around'}}
+            onClick={(e) => {
+              // @ts-ignore
+              let role = e.target?.parentElement?.dataset?.role
+              axios.post(getApiUrl('/paas/api/user/setUserRole'), {
+                role,
+                email: record.email,
+                updator: user.email
+              }).then(({data}) => {
+                if(data.code === 1) {
+                  message.success('设置成功')
+                  _getData({
+                    ...formValues,
+                    ...pagination,
+                  })
+                } else {
+                  message.info(data.msg)
+                }
+              }).catch((e) => {
+                console.log(e)
+              })
+            }}
+          >
+            {Object.keys(ROLE_MAP)?.map((key) => {
+              if(key !== '全部') {
+                return (
+                  <Button
+                    type="link"
+                    disabled={record.role === ROLE_MAP[key]}
+                    data-role={ROLE_MAP[key]}
+                  >{key}</Button>
+                )
+              }
+            })}
+          </div>
+        )
+      },
     },
   ];
 
-  const data = []
+  const _getData = async (param = {}) => {
+    return new Promise((resolve, reject) => {
+      axios.post(getApiUrl('/paas/api/user/queryByRoleAndName'), param).then(({data}) => {
+        if(data.code === 1) {
+          setTableData(data.data.list || [])
+          setPagination(data.data.pagination)
+          setTotal(data.data.total)
+          resolve(true)
+        }
+      }).catch((e) => {
+        reject(e.message)
+      })
+    })
+  }
 
   useEffect(() => {
-    axios.post(getApiUrl('/paas/api/user/queryByRoleAndName'), {
+    _getData({
       ...formValues,
-      ...pagination
-    }).then((res) => {
-      console.log('响应是', res)
+      ...pagination,
     })
   }, [])
 
@@ -56,8 +116,35 @@ export default function UserManageModal() {
       <Form
         style={{  }}
         initialValues={formValues}
+        onFieldsChange={(_) => {
+          let item = _?.[0];
+          switch(item?.name?.[0]) {
+            case 'email': {
+              setFormValue({...formValues, email: item.value})
+              break
+            }
+            case 'role': {
+              setFormValue({...formValues, role: item.value})
+              break
+            }
+          }
+        }}
         onFinish={(values) => {
-          console.log('查询条件是', values)
+          let newParam: any = {
+            page: 1,
+            pageSize: 10
+          }
+          if(values?.email) {
+            newParam.email = values.email
+          }
+          if(values?.role) {
+            if(values?.role !== ROLE_MAP.全部) {
+              newParam.role = values.role
+            }
+          }
+          setPagination({ page: 1, pageSize: 10 })
+          setFormValue(newParam)
+          _getData(newParam)
         }}
         autoComplete="off"
       >
@@ -67,7 +154,7 @@ export default function UserManageModal() {
               label="邮箱"
               name="email"
             >
-              <Input />
+              <Input allowClear={true}  />
             </Form.Item>
           </Col>
           <Col span={7} offset={1} key={2}>
@@ -95,7 +182,17 @@ export default function UserManageModal() {
           </Col>
         </Row>
       </Form>
-      <Table columns={columns} dataSource={data} pagination={{ position: ['bottomRight'] }} />;
+      <Table
+        columns={columns}
+        dataSource={tableData}
+        onChange={(_pagination) => {
+          setPagination({...pagination, page: _pagination.current})
+          _getData({
+            page: _pagination.current
+          })
+        }}
+        pagination={{ position: ['bottomRight'], total: total, current: pagination.page, pageSize: pagination.pageSize }}
+      />
     </div>
   )
 }

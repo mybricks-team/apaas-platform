@@ -3,13 +3,15 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="apaas_user">
-    <select id="countByName" resultType="number">
-        select count(*) from apaas_user
-        <where>
-            <if test="name != null">
-                and name like #{name}
-            </if>
-        </where>
+    <select id="totalCountByParam" >
+        select count(*) as total from apaas_user
+        where status = 1
+        <if test="role">
+            and role = #{role}
+        </if>
+        <if test="email">
+            and email like '%${email}%'
+        </if>
     </select>
 
     <select id="queryByEmail">
@@ -17,6 +19,18 @@
         from apaas_user
         where email = #{email}
         and status = #{status}
+    </select>
+
+    <select id="queryByRoleAndName">
+        select * from apaas_user where status = 1
+        <if test="role">
+            and role = #{role}
+        </if>
+        <if test="email">
+            and email like '%${email}%'
+        </if>
+        limit #{limit}
+        offset #{offset}
     </select>
 
     <select id="queryByEmails">
@@ -106,5 +120,15 @@
         </if>
         update_time = #{update_time}
         where email = #{email}
+    </update>
+
+    <update id="setUserRole">
+        update apaas_user
+        set
+            role = #{role},
+            update_time = #{updateTime}
+        where
+            email = #{email} and
+            status = 1
     </update>
 </mapper>
