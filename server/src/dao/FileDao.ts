@@ -773,5 +773,21 @@ export default class FileDao extends DOBase {
       }
 		)
   }
+
+  @Mapping(FileDO)
+  public async globalSearch(params: {
+    name: string,
+    userId: string,
+    limit?: number,
+    offset?: number
+  }) {
+    params.name = `%${params.name}%`
+    const result = await this.exe(
+      'apaas_file:globalSearch',
+      params
+    )
+
+    return result
+  }
 }
 

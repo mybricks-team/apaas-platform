@@ -11,6 +11,7 @@ import * as axios from "axios";
 import FileService from '../module/file/file.controller'
 import ConfigService from './config'
 import { getRealDomain } from "../utils";
+import UserGroupDao from "../dao/UserGroupDao"
 
 const folderExtnames = ['folder', 'folder-project', 'folder-module']
 
@@ -23,6 +24,7 @@ export default class WorkspaceService {
   fileService: FileService;
   configService: ConfigService;
   userDao: UserDao;
+  userGroupDao: UserGroupDao;
 
   constructor() {
     this.fileDao = new FileDao();
@@ -32,6 +34,7 @@ export default class WorkspaceService {
     this.fileService = new FileService();
     this.configService = new ConfigService()
     this.userDao = new UserDao();
+    this.userGroupDao = new UserGroupDao();
   }
 
   @Get("/workspace/getAll")
@@ -735,5 +738,67 @@ export default class WorkspaceService {
       code: 1,
       data: path,
     };
+  }
+
+  @Get("/workspace/globalSearch")
+  async globalSearch(@Query() query) {
+    const {
+      name,
+      userId,
+      limit,
+      offset
+    } = query;
+    const list = await this.fileDao.globalSearch({
+      name,
+      userId,
+      limit: Number(limit),
+      offset: Number(offset)
+    });
+
+    const path = await Promise.all(
+      list.map((item) => {
+        return new Promise((resolve) => {
+          this.getPath(item).then((path) => {
+            resolve(path);
+          });
+        });
+      })
+    );
+
+    return {
+      code: 1,
+      data: {
+        list,
+        path
+      }
+    }
+  }
+
+  async getPath(file) {
+    return new Promise(async (resolve) => {
+      const path = [];
+      let { parentId, extName, groupId } = file;
+      if (extName === "group") {
+        path.push(file);
+      } else {
+        while (parentId) {
+          const parent = await this.fileDao.queryById(parentId);
+          if (parent) {
+            path.unshift(parent);
+            parentId = parent.parentId;
+          } else {
+            parentId = null;
+          }
+        }
+        if (groupId) {
+          const group = await this.userGroupDao.queryById({id: groupId});
+          path.unshift(group);
+        } else {
+          path.unshift(null);
+        }
+      }
+
+      resolve(path);
+    });
   }
 }

@@ -641,5 +641,21 @@
             </foreach>
         </if>
     </select>
+
+    <select id="globalSearch">
+        SELECT * FROM (
+        SELECT id, name, creator_id, creator_name, create_time, update_time, ext_name, group_id, parent_id FROM apaas_file 
+        where status = 1 and IF(group_id is null, creator_id = #{userId}, id) 
+        UNION
+        SELECT id, name, creator_id, creator_name, create_time, update_time, 'group', null, null FROM apaas_user_group 
+        where status = 1 
+        ) A WHERE name like #{name} order by update_time desc 
+        <if test="limit">
+            limit #{limit} 
+        </if>
+        <if test="offset">
+            offset #{offset}
+        </if>
+    </select>
     
 </mapper>
