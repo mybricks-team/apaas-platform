@@ -16,11 +16,16 @@ import axios from 'axios'
 import {evt, observe} from '@mybricks/rxui'
 
 import {Item} from '..'
+import {
+  storage,
+  fileSort,
+  isObject,
+  getApiUrl
+} from '../../../utils'
 import AppCtx from '../../AppCtx'
 import NavMenu from './menu/navMenu'
 import {useDebounceFn} from '../../hooks'
 import {UserGroup, Add} from '../../components'
-import {storage, isObject, getApiUrl} from '../../../utils'
 import {MYBRICKS_WORKSPACE_DEFAULT_NAV_MY_EXPAND, MYBRICKS_WORKSPACE_DEFAULT_NAV_GROUP_EXPAND} from '../../../const'
 
 import css from './index.less'
@@ -75,7 +80,7 @@ function My() {
               parentId
             }
           }).then(({data}) => {
-            resolve(data.data)
+            resolve(fileSort(data.data))
           })
         })
       }}
@@ -137,7 +142,7 @@ function Group() {
                   groupId
                 }
               }).then(({ data }) => {
-                resolve(data.data)
+                resolve(fileSort(data.data))
               })
             } else {
               // 查协作组

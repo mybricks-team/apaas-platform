@@ -29,8 +29,8 @@ import {useDebounceFn} from '../../hooks'
 import Ctx, {folderExtnames} from './Ctx'
 import FolderList from './temp/FolderList'
 import {Divider, Dropdown} from '../../components'
-import {getApiUrl, getUrlQuery} from '../../../utils'
 import {Icon, Trash, More, SharerdIcon} from '../../components'
+import {getApiUrl, getUrlQuery, fileSort} from '../../../utils'
 
 import css from './index.less'
 
@@ -86,7 +86,7 @@ export default function Files() {
               parentId
             }
           }).then(({data}) => {
-            ctx.projectList = data.data
+            ctx.projectList = fileSort(data.data)
           })
         } else {
           axios({
@@ -98,7 +98,7 @@ export default function Files() {
               groupId
             }
           }).then(({data}) => {
-            ctx.projectList = data.data
+            ctx.projectList = fileSort(data.data)
           })
         }
       }
@@ -716,7 +716,7 @@ function MoveFileModal({app, onOk, onCancel}) {
               url: getApiUrl('/api/file/getGroupFiles'),
               params
             }).then(({ data: { data } }) => {
-              item.dataSource = data.filter((item) => item.id !== app.id)
+              item.dataSource = fileSort(data.filter((item) => item.id !== app.id))
               item.open = true
               item.loading = false
             })
@@ -746,7 +746,7 @@ function MoveFileModal({app, onOk, onCancel}) {
               url: getApiUrl('/api/file/getGroupFiles'),
               params
             }).then(({ data: { data } }) => {
-              item.dataSource = data
+              item.dataSource = fileSort(data.filter((item) => item.id !== app.id))
               item.open = true
               item.loading = false
             })
