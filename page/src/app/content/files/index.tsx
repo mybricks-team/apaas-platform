@@ -376,6 +376,9 @@ function Projects() {
           columns={columns()}
           dataSource={ctx.projectList}
           pagination={false}
+          locale={{
+            emptyText: '暂无内容，请添加...'
+          }}
         />
       </div>
     )
