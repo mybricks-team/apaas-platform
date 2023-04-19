@@ -9,41 +9,34 @@ import {
   List,
   Input,
   Modal,
+  Tooltip,
   Divider,
   Breadcrumb
 } from 'antd'
+import {
+  evt,
+  observe,
+  useComputed,
+  useObservable
+} from '@mybricks/rxui'
 import axios from 'axios'
 import {SearchOutlined} from '@ant-design/icons'
-import {evt, observe, useComputed, useObservable} from '@mybricks/rxui'
 
-import Ctx, {folderExtnames} from '../Ctx'
 import {Create} from './Create'
 import AppCtx from '../../../AppCtx'
+import Ctx, {folderExtnames} from '../Ctx'
 import {getApiUrl} from '../../../../utils'
 import {useDebounceFn} from '../../../hooks'
 import {Icon, UserGroup} from '../../../components'
 import {FolderModule, FolderProject} from '../../../../app/components'
 
-import css from './index.less';
+import css from './index.less'
+
+let ctx
 
 export default function TitleBar(): JSX.Element {
-  const ctx = observe(Ctx, {from: "parents"})
+  ctx = observe(Ctx, {from: "parents"})
   const [open, setOpen] = useState<number | boolean>(0)
-
-  const titleClick = useCallback((item) => {
-    const {groupId, id, extName} = item
-    const isGroup = !!!extName && !!id
-
-    let url = '?appId=files'
-
-    if (isGroup) {
-      url = url + `&groupId=${id}`
-    } else {
-      url = url + `${groupId ? `&groupId=${groupId}` : ''}${id ? `&parentId=${id}` : ''}`
-    }
-
-    history.pushState(null, '', url)
-  }, []);
 
   useEffect(() => {
     function click() {
@@ -64,6 +57,94 @@ export default function TitleBar(): JSX.Element {
     setOpen(false)
   }, [])
 
+  const titleClick = useCallback((item) => {
+    const {groupId, id, extName} = item
+    const isGroup = !!!extName && !!id
+
+    let url = '?appId=files'
+
+    if (isGroup) {
+      url = url + `&groupId=${id}`
+    } else {
+      url = url + `${groupId ? `&groupId=${groupId}` : ''}${id ? `&parentId=${id}` : ''}`
+    }
+
+    history.pushState(null, '', url)
+  }, [])
+
+  const path = useComputed(() => {
+    const pathLastIndex = ctx.path.length - 1
+    return (
+      <Breadcrumb separator='>' className={css.breadcrumb}>
+        {ctx.path.map((item, idx) => {
+          const {id, name} = item;
+          let icon = null;
+          if (item.extName === 'folder-project') {
+            icon = <FolderProject width={20} height={20} />;
+          } else if (item.extName === 'folder-module') {
+            icon = <FolderModule width={20} height={20} />;
+          }
+          return (
+            <Breadcrumb.Item
+              key={id}
+              // @ts-ignore
+              style={{cursor: pathLastIndex !== idx ? 'pointer' : 'default'}}
+              onClick={() => {
+                if (pathLastIndex !== idx) {
+                  titleClick(item);
+                }
+              }}
+            >
+              <div className={css.breadcrumbContent}>
+                {icon}
+                <span>{name}</span>
+              </div>
+            </Breadcrumb.Item>
+          );
+        })}
+      </Breadcrumb>
+    )
+  })
+
+  const searchButton = useMemo(() => {
+    return (
+      <div
+        className={css.search}
+        onClick={searchInputClick}
+      >
+        <div className={css.searchInput}>
+          <SearchOutlined className={css.icon}/>
+          <div className={css.placeholder}>搜索</div>
+        </div>
+      </div>
+    )
+  }, [])
+
+  const viewToggleButton = useComputed(() => {
+    const isCardView = ctx.viewType === 'card'
+
+    return (
+      <Tooltip placement='bottom' title={`切换为${isCardView ? '列表' : '卡片'}视图`}>
+        <div style={{display: 'flex', alignItems: 'center', marginRight: 8}} onClick={ctx.setViewType}>
+          {isCardView ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" className={css.toggleIcon}><rect x="5" y="5" width="6.116" height="6.116" rx="1" fill="currentColor"></rect><rect x="12.668" y="5" width="6.116" height="6.116" rx="1" fill="currentColor"></rect><rect x="5" y="12.639" width="6.116" height="6.116" rx="1" fill="currentColor"></rect><rect x="12.668" y="12.639" width="6.116" height="6.116" rx="1" fill="currentColor"></rect></svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" className={css.toggleIcon}><path d="M8 7a1 1 0 0 0-1-1H6a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1ZM18 7a1 1 0 0 0-1-1h-6a1 1 0 1 0 0 2h6a1 1 0 0 0 1-1ZM10 12a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1ZM8 12a1 1 0 0 0-1-1H6a1 1 0 1 0 0 2h1a1 1 0 0 0 1-1ZM10 17a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2h-6a1 1 0 0 1-1-1ZM8 17a1 1 0 0 0-1-1H6a1 1 0 1 0 0 2h1a1 1 0 0 0 1-1Z" fill="currentColor"></path></svg>
+          )}
+        </div>  
+      </Tooltip>
+    )
+  })
+
+  const createButton = useComputed(() => {
+    return ctx.roleDescription && ctx.roleDescription < 3 && (
+      <div>
+        <button onClick={evt(ctx.showCreatePanel).stop}><span>+</span>新建</button>
+        <Create/>
+      </div>
+    )
+  })
+
   const RenderSearchModal = useMemo(() => {
     if (typeof open === 'number') {
       return null
@@ -76,67 +157,16 @@ export default function TitleBar(): JSX.Element {
     )
   }, [open])
 
-  const TitleTop = useMemo(() => {
-    return (
-      <div className={css.titleTop}>
-        <div
-          className={css.search}
-          onClick={searchInputClick}
-        >
-          <div className={css.searchInput}>
-            <SearchOutlined className={css.icon}/>
-            <div className={css.placeholder}>搜索</div>
-          </div>
-        </div>
-      </div>
-    )
-  }, [])
-
-  const TitleMiddle = useComputed(() => {
-    const pathLastIndex = ctx.path.length - 1;
-    return (
-      <div className={css.titleMiddle}>
-        <Breadcrumb separator='>' className={css.breadcrumb}>
-          {ctx.path.map((item, idx) => {
-            const {id, name} = item;
-            let icon = null;
-            if (item.extName === 'folder-project') {
-              icon = <FolderProject width={20} height={20} />;
-            } else if (item.extName === 'folder-module') {
-              icon = <FolderModule width={20} height={20} />;
-            }
-            return (
-              <Breadcrumb.Item
-                key={id}
-                // @ts-ignore
-                style={{cursor: pathLastIndex !== idx ? 'pointer' : 'default'}}
-                onClick={() => {
-                  if (pathLastIndex !== idx) {
-                    titleClick(item);
-                  }
-                }}
-              >
-                <div className={css.breadcrumbContent}>
-                  {icon}
-                  <span>{name}</span>
-                </div>
-              </Breadcrumb.Item>
-            );
-          })}
-        </Breadcrumb>
-
-        {ctx.roleDescription && ctx.roleDescription < 3 && <div className={css.btns}>
-          <button onClick={evt(ctx.showCreatePanel).stop}><span>+</span>新建</button>
-          <Create/>
-        </div>}
-      </div>
-    )
-  })
-
   return (
     <div className={css.title}>
-      {TitleTop}
-      {TitleMiddle}
+      <div className={css.titleMiddle}>
+        {path}
+        <div className={css.btns}>
+          {searchButton}
+          {viewToggleButton}
+          {createButton}
+        </div>
+      </div>
       {RenderSearchModal}
     </div>
   )
@@ -200,7 +230,6 @@ function SearchModal({open, onCancel}) {
         <Input
           className={css.modalTitleInput}
           autoFocus
-          // allowClear
           placeholder='请输入关键词'
           prefix={<SearchOutlined />}
           onChange={run}
@@ -308,7 +337,6 @@ function Path({path, onClick, APPSMap}) {
   return path.map((item, idx) => {
     const { name, extName } = item || {}
     const isMy = !item
-
     const appReg = APPSMap[extName]
     const isGroup = !extName || extName === 'group'
 

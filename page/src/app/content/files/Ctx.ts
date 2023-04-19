@@ -1,3 +1,6 @@
+import {storage} from '../../../utils'
+import {MYBRICKS_WORKSPACE_DEFAULT_FILES_VIEW_TYPE} from '../../../const'
+
 export const folderExtnames = ['folder', 'folder-project', 'folder-module']
 
 export default class Ctx {
@@ -34,5 +37,11 @@ export default class Ctx {
 
   hideCreatePanel() {
     this.popCreate = false
+  }
+
+  viewType = storage.get(MYBRICKS_WORKSPACE_DEFAULT_FILES_VIEW_TYPE) || 'card'
+
+  setViewType() {
+    storage.set(MYBRICKS_WORKSPACE_DEFAULT_FILES_VIEW_TYPE, this.viewType = (this.viewType === 'card' ? 'list' : 'card'))
   }
 }

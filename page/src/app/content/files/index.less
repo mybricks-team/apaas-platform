@@ -130,79 +130,7 @@
           }
         }
   
-        .btns {
-
-          // visibility: hidden;
-          width: 30px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
-  
-          svg {
-            max-width: 18px;
-  
-            path {
-              fill: #777;
-            }
-          }
-
-          .operateContainer {
-            display: none;
-            position: absolute;
-            z-index: 1000;
-            background: #FFF;
-            right: 0px;
-            top: 100%;
-            // width: 600px;
-            border-radius: 5px;
-            padding: 5px;
-            box-shadow: 0px 3px 7px 1px #ddd;
-          }
-
-          // .operateItem {
-          //   display: flex;
-          //   align-items: center;
-          //   margin: 2px;
-          //   padding: 4px 8px;
-          //   cursor: pointer;
-          //   border-radius: 5px;
-
-          //   &:hover {
-          //     background-color: #3d5c801f;
-          //   }
-
-          //   .label {
-          //     font-size: 14px;
-          //     font-weight: 400;
-          //     line-height: 22px;
-          //     padding: 0 8px;
-          //   }
-          // }
-
-          .divider {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            color: rgba(0, 0, 0, 0.85);
-            font-size: 14px;
-            font-variant: tabular-nums;
-            line-height: 1.5715;
-            list-style: none;
-            font-feature-settings: "tnum";
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
-            display: flex;
-            clear: both;
-            width: 100%;
-            min-width: 100%;
-          }
-
-          &:hover {
-            .operateContainer {
-              display: block;
-            }
-          }
-        }
+       
   
         .menu {
           position: relative;
@@ -220,6 +148,17 @@
     }
   }
 // }
+
+.tableName {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  .tableNameIcon {
+    display: flex;
+    margin-right: 4px;
+  }
+}
 
 .clickableIconContainer {
   height: 100%;
@@ -253,6 +192,79 @@
       font-weight: 400;
       line-height: 22px;
       padding: 0 8px;
+    }
+  }
+}
+
+.btns {
+  // visibility: hidden;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  svg {
+    max-width: 18px;
+
+    path {
+      fill: #777;
+    }
+  }
+
+  .operateContainer {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    background: #FFF;
+    right: 0px;
+    top: 100%;
+    // width: 600px;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0px 3px 7px 1px #ddd;
+  }
+
+  // .operateItem {
+  //   display: flex;
+  //   align-items: center;
+  //   margin: 2px;
+  //   padding: 4px 8px;
+  //   cursor: pointer;
+  //   border-radius: 5px;
+
+  //   &:hover {
+  //     background-color: #3d5c801f;
+  //   }
+
+  //   .label {
+  //     font-size: 14px;
+  //     font-weight: 400;
+  //     line-height: 22px;
+  //     padding: 0 8px;
+  //   }
+  // }
+
+  .divider {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: rgba(0, 0, 0, 0.85);
+    font-size: 14px;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    list-style: none;
+    font-feature-settings: "tnum";
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    clear: both;
+    width: 100%;
+    min-width: 100%;
+  }
+
+  &:hover {
+    .operateContainer {
+      display: block;
     }
   }
 }

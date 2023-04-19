@@ -6,6 +6,13 @@ import React, {
   useCallback
 } from 'react'
 
+import {
+  Form,
+  Modal,
+  Input,
+  Table,
+  message
+} from 'antd'
 import axios from 'axios'
 import {
   evt,
@@ -13,7 +20,6 @@ import {
   useComputed,
   useObservable
 } from '@mybricks/rxui'
-import {Form, message, Modal, Input} from 'antd'
 import {
   EditOutlined,
   SelectOutlined,
@@ -21,6 +27,12 @@ import {
   ExclamationCircleFilled
 } from '@ant-design/icons'
 
+import {
+  fileSort,
+  getApiUrl,
+  getUrlQuery,
+  unifiedTime
+} from '../../../utils'
 import Info from './info'
 import TitleBar from './title'
 import AppCtx from '../../AppCtx'
@@ -30,7 +42,6 @@ import Ctx, {folderExtnames} from './Ctx'
 import FolderList from './temp/FolderList'
 import {Divider, Dropdown} from '../../components'
 import {Icon, Trash, More, SharerdIcon} from '../../components'
-import {getApiUrl, getUrlQuery, fileSort} from '../../../utils'
 
 import css from './index.less'
 
@@ -39,6 +50,7 @@ const {confirm} = Modal
 export default function Files() {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const ctx = useObservable(Ctx, next => {
+    const {APPSMap} = appCtx
     next({
       user: appCtx.user,
       setPath({parentId, groupId}) {
@@ -87,6 +99,11 @@ export default function Files() {
             }
           }).then(({data}) => {
             ctx.projectList = fileSort(data.data)
+              .filter(item => APPSMap[item.extName])
+              .map(item => ({
+                ...item,
+                homepage: APPSMap[item.extName].homepage
+              }))
           })
         } else {
           axios({
@@ -99,6 +116,11 @@ export default function Files() {
             }
           }).then(({data}) => {
             ctx.projectList = fileSort(data.data)
+              .filter(item => APPSMap[item.extName])
+              .map(item => ({
+                ...item,
+                homepage: APPSMap[item.extName].homepage
+              }))
           })
         }
       }
@@ -234,72 +256,14 @@ function Projects() {
         JSX = ctx.projectList.map((project) => {
           const {extName} = project
           const appReg = APPSMap[extName];
-
-          if (!appReg) {
-            return <></>;
-          }
-
-          const {icon, homepage} = appReg;
+          const {icon} = appReg;
           const bigIcon = folderExtnames.includes(extName) || project.icon
           /** 创建人和拥有管理、编辑权限的用户可见操作按钮 */
           const showOperate = (project.creatorId === userId) || [1, 2].includes(roleDescription)
-          /** 非文件夹，可分享 */
-          const isFolder = folderExtnames.includes(extName)
           const alreadyShared = project.shareType === 1
 
-          let dropdownMenus = [
-            isFolder ? undefined : {
-              key: 'share',
-              label: (
-                <div className={css.operateItem} onClick={() => {
-                  if(alreadyShared) {
-                    operate('unshare', project)
-                  } else {
-                    operate('share', project)
-                  }
-                }}>
-                  <ShareAltOutlined width={16} height={16}/>
-                  <div className={css.label}>{ alreadyShared ? '取消分享' : '分享'}</div>
-                </div>
-              )
-            },
-            {
-              key: 'rename',
-              label: (
-                <div className={css.operateItem} onClick={() => operate('rename', project)}>
-                  <EditOutlined width={16} height={16}/>
-                  <div className={css.label}>重命名</div>
-                </div>
-              )
-            },
-            {
-              key: 'move',
-              label: (
-                <div className={css.operateItem} onClick={() => operate('move', project)}>
-                  <SelectOutlined width={16} height={16}/>
-                  <div className={css.label}>移动到</div>
-                </div>
-              )
-            },
-            {
-              key: 'divider1',
-              label: (
-                <Divider />
-              )
-            },
-            {
-              key: 'delete',
-              label: (
-                <div className={css.operateItem} onClick={() => operate('delete', project)}>
-                  <Trash width={16} height={16}/>
-                  <div className={css.label}>删除</div>
-                </div>
-              )
-            }
-          ].filter(item => item)
-
           return (
-            <div key={project.id} className={css.file} onClick={() => operate('open', {...project, homepage})}>
+            <div key={project.id} className={css.file} onClick={() => operate('open', project)}>
               {
                 alreadyShared ? (
                   <div style={{position: "absolute", right: 0, zIndex: 10}}>
@@ -322,16 +286,7 @@ function Projects() {
                     {project.creatorName}
                   </div>
                 </div>
-                {showOperate && <div className={css.btns} onClick={evt(() => {}).stop}>
-                  <Dropdown
-                    menus={dropdownMenus}
-                    overlayClassName={css.overlayClassName}
-                  >
-                    <ClickableIconContainer size={28}>
-                      <More />
-                    </ClickableIconContainer>
-                  </Dropdown>
-                </div>}
+                {showOperate && <RenderOperate project={project} operate={operate}/>}
               </div>
             </div>
           );
@@ -356,6 +311,75 @@ function Projects() {
       </div>
     );
   });
+
+  const columns = useCallback(() => {
+    const {APPSMap} = appCtx
+    const {roleDescription} = ctx
+    const userId = appCtx.user.email
+    return [
+      {
+        title: '名称',
+        dataIndex: 'name',
+        key: 'name',
+        ellipsis: {
+          showTitle: false,
+        },
+        render: (name, record) => {
+          return (
+            <div className={css.tableName} onClick={() => operate('open', record)}>
+              <div className={css.tableNameIcon}>
+                <Icon
+                  icon={APPSMap[record.extName].icon}
+                  width={16}
+                  height={16}
+                />
+              </div>
+              {name}
+            </div>
+          )
+        }
+      },
+      {
+        title: '创建人',
+        dataIndex: 'creatorName',
+        key: 'creatorName',
+        ellipsis: {
+          showTitle: false,
+        },
+      },
+      {
+        title: '更新时间',
+        dataIndex: '_updateTime',
+        key: '_updateTime',
+        width: 140,
+        render: (time) => {
+          return unifiedTime(time)
+        }
+      },
+      {
+        dataIndex: 'action',
+        key: 'action',
+        width: 60,
+        render: (_, record) => {
+          const showOperate = (record.creatorId === userId) || [1, 2].includes(roleDescription)
+          return showOperate && <RenderOperate project={record} operate={operate}/>
+        }
+      }
+    ]
+  }, [])
+
+  const RenderList: JSX.Element = useComputed(() => {
+    return (
+      <div>
+        <Table
+          loading={ctx.projectList === null}
+          columns={columns()}
+          dataSource={ctx.projectList}
+          pagination={false}
+        />
+      </div>
+    )
+  })
 
   const moveModalOk = useCallback((values, app) => {
     return new Promise(async (resolve, reject) => {
@@ -519,11 +543,83 @@ function Projects() {
 
   return (
     <>
-      {Render}
+      {ctx.viewType === 'card' ? Render : RenderList}
       {RenderRenameFileModal}
       {RenderMoveFileModal}
     </>
   );
+}
+
+function RenderOperate({project, operate}) {
+  const {extName} = project
+  /** 非文件夹，可分享 */
+  const isFolder = folderExtnames.includes(extName)
+  /** 是否已分享 */
+  const alreadyShared = project.shareType === 1
+
+  let dropdownMenus = [
+    isFolder ? undefined : {
+      key: 'share',
+      label: (
+        <div className={css.operateItem} onClick={() => {
+          if(alreadyShared) {
+            operate('unshare', project)
+          } else {
+            operate('share', project)
+          }
+        }}>
+          <ShareAltOutlined width={16} height={16}/>
+          <div className={css.label}>{ alreadyShared ? '取消分享' : '分享'}</div>
+        </div>
+      )
+    },
+    {
+      key: 'rename',
+      label: (
+        <div className={css.operateItem} onClick={() => operate('rename', project)}>
+          <EditOutlined width={16} height={16}/>
+          <div className={css.label}>重命名</div>
+        </div>
+      )
+    },
+    {
+      key: 'move',
+      label: (
+        <div className={css.operateItem} onClick={() => operate('move', project)}>
+          <SelectOutlined width={16} height={16}/>
+          <div className={css.label}>移动到</div>
+        </div>
+      )
+    },
+    {
+      key: 'divider1',
+      label: (
+        <Divider />
+      )
+    },
+    {
+      key: 'delete',
+      label: (
+        <div className={css.operateItem} onClick={() => operate('delete', project)}>
+          <Trash width={16} height={16}/>
+          <div className={css.label}>删除</div>
+        </div>
+      )
+    }
+  ].filter(item => item)
+
+  return (
+    <div className={css.btns} onClick={evt(() => {}).stop}>
+      <Dropdown
+        menus={dropdownMenus}
+        overlayClassName={css.overlayClassName}
+      >
+        <ClickableIconContainer size={28}>
+          <More />
+        </ClickableIconContainer>
+      </Dropdown>
+    </div>
+  )
 }
 
 function ClickableIconContainer({className = '', size = 28, children}) {
