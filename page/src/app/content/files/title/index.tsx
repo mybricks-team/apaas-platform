@@ -125,7 +125,7 @@ export default function TitleBar(): JSX.Element {
 
     return (
       <Tooltip placement='bottom' title={`切换为${isCardView ? '列表' : '卡片'}视图`}>
-        <div style={{display: 'flex', alignItems: 'center', marginRight: 8}} onClick={ctx.setViewType}>
+        <div style={{display: 'flex', alignItems: 'center', marginLeft: 8}} onClick={ctx.setViewType}>
           {isCardView ? (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" className={css.toggleIcon}><rect x="5" y="5" width="6.116" height="6.116" rx="1" fill="currentColor"></rect><rect x="12.668" y="5" width="6.116" height="6.116" rx="1" fill="currentColor"></rect><rect x="5" y="12.639" width="6.116" height="6.116" rx="1" fill="currentColor"></rect><rect x="12.668" y="12.639" width="6.116" height="6.116" rx="1" fill="currentColor"></rect></svg>
           ) : (

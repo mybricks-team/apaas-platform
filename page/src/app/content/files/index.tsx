@@ -60,7 +60,7 @@ export default function Files() {
               method: 'get',
               url: getApiUrl(`/paas/api/userGroup/getUserGroupRelation?id=${groupId}&userId=${appCtx.user.email}`)
             }).then(({data: {data}}) => {
-              ctx.roleDescription = data.roleDescription
+              ctx.roleDescription = data?.roleDescription || 3
             })
           }
         } else {
