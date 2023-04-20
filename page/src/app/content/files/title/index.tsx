@@ -1,4 +1,5 @@
 import React, {
+  useRef,
   useMemo,
   useState,
   useEffect,
@@ -181,12 +182,19 @@ function SearchModal({open, onCancel}) {
     dataSource: []
   })
 
+  const inputRef = useRef(null);
+
   useEffect(() => {
     if (open && typeof ctx.inputValue === 'boolean') {
       ctx.loading = true
       setTimeout(() => {
         getList('')
       }, 500)
+    }
+    if (open && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current.focus()
+      }, 100)
     }
   }, [open])
 
@@ -228,8 +236,8 @@ function SearchModal({open, onCancel}) {
         </div>
         <Divider type='vertical'/>
         <Input
+          ref={inputRef}
           className={css.modalTitleInput}
-          autoFocus
           placeholder='请输入关键词'
           prefix={<SearchOutlined />}
           onChange={run}
