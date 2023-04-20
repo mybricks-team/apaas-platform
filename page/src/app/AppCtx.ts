@@ -189,7 +189,12 @@ export default class AppCtx {
       }
     });
     // 侧边栏应用
-    this.DockerAPPS = DockerAPPS.filter(app => this.isAdministrator ? true : !adminNameSpaces.includes(app.namespace));
+    this.DockerAPPS = DockerAPPS.filter(app => {
+      const {extName, namespace} = app;
+      APPSMap[app.namespace] = app;
+      APPSMap[extName] = app;
+      return this.isAdministrator ? true : !adminNameSpaces.includes(namespace)
+    });
     // 原始安装应用列表
     this.InstalledAPPS = apps;
     this.APPSMap = APPSMap;

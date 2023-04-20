@@ -130,7 +130,7 @@ export function Add({width, height}) {
 }
 
 /** 更多（操作省略） */
-export function More({width = '100%', height = '100%'}) {
+export function More({width, height}) {
   return (
     <svg width={width} height={height} viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2825"><path d="M512 512m-96.7 0a96.7 96.7 0 1 0 193.4 0 96.7 96.7 0 1 0-193.4 0Z" fill="#5A5A68" p-id="2826"></path><path d="M863 512m-96.7 0a96.7 96.7 0 1 0 193.4 0 96.7 96.7 0 1 0-193.4 0Z" fill="#5A5A68" p-id="2827"></path><path d="M161 512m-96.7 0a96.7 96.7 0 1 0 193.4 0 96.7 96.7 0 1 0-193.4 0Z" fill="#5A5A68" p-id="2828"></path></svg>
   )

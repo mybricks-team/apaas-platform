@@ -748,7 +748,7 @@ export default class WorkspaceService {
       limit,
       offset
     } = query;
-    const list = await this.fileDao.globalSearch({
+    const list: any = await this.fileDao.globalSearch({
       name,
       userId,
       limit: Number(limit),
@@ -757,10 +757,15 @@ export default class WorkspaceService {
 
     const path = await Promise.all(
       list.map((item) => {
+        const { shareType, groupId, creatorId } = item;
         return new Promise((resolve) => {
-          this.getPath(item).then((path) => {
-            resolve(path);
-          });
+          if (shareType === 1 && !groupId && creatorId !== userId) {
+            resolve([{id: 0, name: '大家的分享', extName: 'share'}]);
+          } else {
+            this.getPath(item).then((path) => {
+              resolve(path);
+            });
+          }
         });
       })
     );

@@ -362,7 +362,7 @@ function Projects() {
         width: 60,
         render: (_, record) => {
           const showOperate = (record.creatorId === userId) || [1, 2].includes(roleDescription)
-          return showOperate && <RenderOperate project={record} operate={operate}/>
+          return showOperate && <RenderOperate project={record} operate={operate} size={24} iconSize={14}/>
         }
       }
     ]
@@ -375,6 +375,7 @@ function Projects() {
           loading={ctx.projectList === null}
           columns={columns()}
           dataSource={ctx.projectList}
+          size='small'
           pagination={false}
           locale={{
             emptyText: '暂无内容，请添加...'
@@ -553,7 +554,7 @@ function Projects() {
   );
 }
 
-function RenderOperate({project, operate}) {
+function RenderOperate({project, operate, size = 28, iconSize = 18}) {
   const {extName} = project
   /** 非文件夹，可分享 */
   const isFolder = folderExtnames.includes(extName)
@@ -617,8 +618,8 @@ function RenderOperate({project, operate}) {
         menus={dropdownMenus}
         overlayClassName={css.overlayClassName}
       >
-        <ClickableIconContainer size={28}>
-          <More />
+        <ClickableIconContainer size={size}>
+          <More width={iconSize} height={iconSize}/>
         </ClickableIconContainer>
       </Dropdown>
     </div>

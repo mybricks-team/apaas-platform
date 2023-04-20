@@ -27,7 +27,7 @@ function Render(): JSX.Element {
 
   let JSX: JSX.Element | null = null
 
-  if (app) {
+  if (app?.homepage || app?.Element) {
     /** 安装的应用 */
     JSX = (
       <InlineApp app={app}/>
