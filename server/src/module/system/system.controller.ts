@@ -1,5 +1,5 @@
 import ServicePubDao from './../../dao/ServicePubDao';
-import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req } from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
 import { uuid } from '../../utils/index';
@@ -357,7 +357,8 @@ export default class SystemService {
   async _execServicePub(pubInfo, {
     params,
     serviceId,
-    fileId
+    fileId,
+    headers
   }) {
     try {
       if(!pubInfo) {
@@ -374,7 +375,7 @@ export default class SystemService {
       };
       try {
         const { success, data, msg } = await this.nodeVMIns.run(codeStr, {
-          injectParam: params
+          injectParam: { ...params, headers }
         });
         res = {
           code: success ? 1 : -1,
@@ -398,7 +399,8 @@ export default class SystemService {
     // 通用参数
     @Body('serviceId') serviceId: string,
     @Body('params') params: any,
-    @Body('fileId') fileId: number
+    @Body('fileId') fileId: number,
+    @Req() req: any
   ) {
     if (!serviceId || !fileId) {
       return {
@@ -410,12 +412,13 @@ export default class SystemService {
     const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
       fileId,
       env: 'prod',
-      serviceId
+      serviceId,
     })
     const res = await this._execServicePub(pubInfo, {
       fileId,
       serviceId,
       params,
+      headers: req.headers
     })
     return res
   }

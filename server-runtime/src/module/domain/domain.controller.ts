@@ -7,7 +7,7 @@ import {
   Query,
   Param,
   Request,
-  UseInterceptors,
+  Req,
   UploadedFile,
 } from '@nestjs/common';
 import DomainService from './domain.service';
@@ -68,7 +68,8 @@ export default class FlowController {
     @Body('serviceId') serviceId: string,
     @Body('params') params: any,
     @Body('fileId') fileId: number,
-    @Body('projectId') projectId: number
+    @Body('projectId') projectId: number,
+    @Req() req: any
   ) {
     if (!serviceId) {
       return {
@@ -87,7 +88,10 @@ export default class FlowController {
       const pool = getPool()
       console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`)
       console.log('运行容器：获取连接成功')
-      let res = await startExe(params || {}, {
+      let res = await startExe({
+        ...(params || {}),
+        headers: req.headers
+      }, {
         dbConnection: con,
         snowFlake: this.snowFlake
       })
