@@ -35,7 +35,7 @@
     
     <select id="queryAll">
         select
-        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case when icon= '' then '0' else '1' end as has_icon 
+        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon 
         from apaas_file
         where 
         <if test="folderId != null">
@@ -98,7 +98,7 @@
 
     <select id="queryAllShareFiles">
         select
-        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case when icon= '' then '0' else '1' end as has_icon
+        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon
         from apaas_file
         where
         share_type = #{shareType} and
@@ -118,7 +118,7 @@
 
     <select id="queryAllFilesByParentId">
         select
-        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case when icon= '' then '0' else '1' end as has_icon 
+        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon 
         from apaas_file
         where 
         <if test="parentId">
@@ -509,7 +509,7 @@
     </update>
 
     <select id="getRecycleBinFiles">
-        select *, case when icon= '' then '0' else '1' end as has_icon from apaas_file
+        select *, case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon from apaas_file
         where (updator_id = #{userId} or creator_id = #{userId}) 
         and status = -1 
         order by update_time desc
@@ -560,7 +560,7 @@
     </select>
 
     <select id="getMyFiles">
-        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case when icon= '' then '0' else '1' end as has_icon, share_type  from apaas_file 
+        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon, share_type  from apaas_file 
         where creator_id = #{userId}
         and status = #{status} 
         and group_id is null 
@@ -582,7 +582,7 @@
     </select>
 
     <select id="getGroupFiles">
-        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case when icon= '' then '0' else '1' end as has_icon, share_type  from apaas_file 
+        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon, share_type  from apaas_file 
         where status = #{status} 
         and group_id = #{groupId}
          <choose>
@@ -632,7 +632,7 @@
     </select>
 
     <select id="getFilesByParentId">
-        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case when icon= '' then '0' else '1' end as has_icon from apaas_file
+        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon from apaas_file
         where parent_id = #{id} and status = 1
         <if test="extNames">
             and ext_name in

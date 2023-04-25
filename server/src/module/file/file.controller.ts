@@ -566,8 +566,11 @@ export default class FileController {
     return {
       code: 1,
       data: files.filter((item) => {
-        if (item.hasIcon === "1") {
+        const { hasIcon } = item
+        if (hasIcon === "1") {
           item.icon = `/api/workspace/getFileIcon?fileId=${item.id}`;
+        } else if (hasIcon.startsWith('http')) {
+          item.icon = hasIcon
         }
 
         return item.extName !== "component";
@@ -593,8 +596,11 @@ export default class FileController {
     return {
       code: 1,
       data: files.filter((item) => {
-        if (item.hasIcon === "1") {
+        const { hasIcon } = item
+        if (hasIcon === "1") {
           item.icon = `/api/workspace/getFileIcon?fileId=${item.id}`;
+        } else if (hasIcon.startsWith('http')) {
+          item.icon = hasIcon
         }
 
         return item.extName !== "component";

@@ -22,8 +22,11 @@ export default class GroundService {
         code: 1,
         data: {
           list: rtn?.filter ? rtn.filter((item) => {
-            if (item.hasIcon === "1") {
+            const { hasIcon } = item
+            if (hasIcon === "1") {
               item.icon = `/paas/api/workspace/getFileIcon?fileId=${item.id}`;
+            } else if (hasIcon.startsWith('http')) {
+              item.icon = hasIcon
             }
             return item.extName !== "component";
           }) : [],

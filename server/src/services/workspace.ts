@@ -61,8 +61,11 @@ export default class WorkspaceService {
         code: 1,
         // TODO
         data: rtn.filter((item) => {
-          if (item.hasIcon === "1") {
+          const { hasIcon } = item
+          if (hasIcon === "1") {
             item.icon = `/paas/api/workspace/getFileIcon?fileId=${item.id}`;
+          } else if (hasIcon.startsWith('http')) {
+            item.icon = hasIcon
           }
 
           return item.extName !== "component";
@@ -93,8 +96,11 @@ export default class WorkspaceService {
       return {
         code: 1,
         data: rtn.filter((item) => {
-          if (item.hasIcon === "1") {
+          const { hasIcon } = item
+          if (hasIcon === "1") {
             item.icon = `/paas/api/workspace/getFileIcon?fileId=${item.id}`;
+          } else if (hasIcon.startsWith('http')) {
+            item.icon = hasIcon
           }
 
           return item.extName !== "component";
