@@ -31,7 +31,9 @@ export default function App() {
           url: '/paas/api/user/signed'
         }))?.data?.data
         if (!user) {
-          location.href = `/?redirectUrl=${encodeURIComponent(location.href)}`
+          if(location.href.indexOf('jumped') === -1) {
+            location.href = `/?jumped=true&redirectUrl=${encodeURIComponent(location.href)}`
+          }
           return
         }
         // 平台配置
