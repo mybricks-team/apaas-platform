@@ -2,7 +2,7 @@
   "installApps": [
     {
       "type": "npm",
-      "path": "mybricks-material@0.0.66"
+      "path": "mybricks-material@0.0.71"
     },
     {
       "type": "npm",
@@ -22,7 +22,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-app-pcspa-for-bugu@1.0.6"
+      "path": "mybricks-app-pcspa-for-bugu@1.0.24"
     },
     {
       "type": "npm",
