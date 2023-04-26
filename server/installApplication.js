@@ -175,21 +175,28 @@ async function installApplication() {
               }
               if(fs.existsSync(fePath)) { // 存在前端
                 if(pkg?.mybricks?.type !== 'system') { // 非系统任务
-                  const srcHomePage = path.join(fePath, './index.html') // 约定
-                  const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
-                  let handledHomePageDom = parse5.parse(rawHomePageStr);
-                  travelDom(handledHomePageDom, {
-                    ajaxScriptStr: injectAjaxScript({
-                      namespace: pkg.name ? pkg.name : ''
-                    }),
-                    appConfigScriptStr: injectAppConfigScript({
-                      namespace: pkg.name ? pkg.name : '',
-                      version: pkg?.version,
-                      ...(pkg?.mybricks || {})
-                    })
+                  const feDirs = fs.readdirSync(fePath)
+                  feDirs?.forEach(name => {
+                    if(name.indexOf('.html') !== -1) {
+                      // 默认注入所有的资源
+                      const srcHomePage = path.join(fePath, name)
+                      const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
+                      let handledHomePageDom = parse5.parse(rawHomePageStr);
+                      travelDom(handledHomePageDom, {
+                        ajaxScriptStr: injectAjaxScript({
+                          namespace: pkg.name ? pkg.name : ''
+                        }),
+                        appConfigScriptStr: injectAppConfigScript({
+                          namespace: pkg.name ? pkg.name : '',
+                          version: pkg?.version,
+                          ...(pkg?.mybricks || {})
+                        })
+                      })
+                      let handledHomePageStr = parse5.serialize(handledHomePageDom)
+                      fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')  
+                    }
                   })
-                  let handledHomePageStr = parse5.serialize(handledHomePageDom)
-                  fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')  
+                  
                 }
                 console.log(`【install】: 资源准备完毕 ${npmPkg}`)
               }
