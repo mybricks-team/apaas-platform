@@ -16,6 +16,7 @@ import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
 import PublicService from "./services/public";
 import UserGroupService from "./services/group";
+import proxy from './services/proxy'
 
 import FlowModule from './module/flow/flow.module'
 import ModuleModule from './module/module/module.module'
@@ -38,6 +39,7 @@ import UserModule from "./module/user/user.module";
   ],
   controllers: [
     AppsService,
+    proxy,
     ProductServices,
     WorkspaceService,
     UserGroupService,
