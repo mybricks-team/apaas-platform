@@ -150,7 +150,7 @@ export default class FileController {
       await this.fileCooperationDao.query({ userId, fileId }),
       await this.fileCooperationDao.numberOfOnlineUsers({ fileId }),
       new Promise(async (resolve) => {
-        const { groupId } = file
+        const { groupId } = file || {}
         if (!groupId) {
           resolve((file.creatorId === userId) ? 1 : 3)
         } else {
