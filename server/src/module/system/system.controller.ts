@@ -375,7 +375,7 @@ export default class SystemService {
       };
       try {
         const { success, data, msg } = await this.nodeVMIns.run(codeStr, {
-          injectParam: { ...params, headers }
+          injectParam: { ...params, _headers: headers }
         });
         res = {
           code: success ? 1 : -1,

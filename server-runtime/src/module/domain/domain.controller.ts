@@ -90,7 +90,7 @@ export default class FlowController {
       console.log('运行容器：获取连接成功')
       let res = await startExe({
         ...(params || {}),
-        headers: req.headers
+        _headers: req.headers
       }, {
         dbConnection: con,
         snowFlake: this.snowFlake
