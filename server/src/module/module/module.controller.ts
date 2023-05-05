@@ -56,7 +56,35 @@ export default class ModuleController {
 
       const domainName = getRealDomain(request)
 
-      const flattenFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: fileId })
+      const flattenFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: fileId });
+			const domainFileContentMap = {};
+	    for (let i = 0; i < flattenFiles.length; i++) {
+		    let file = flattenFiles[i];
+		    const { extName, id, name } = file;
+				
+				if (extName === 'domain') {
+					const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id });
+					domainFileContentMap[id] = latestSave;
+					
+					const json = JSON.parse(latestSave?.content ?? '{}').toJSON;
+					
+					if (!json) {
+						continue;
+					}
+					if (json.hasError) {
+						return { code: -1, msg: `领域模型【${name}】中服务面板中存在错误，请确认后重新发布` };
+					}
+					for (let i = 0; i < json.service.length; i++) {
+						const service = json.service[i];
+						
+						const returnCon = service.diagrams?.[0].conAry.find(item => item.to.parent.type === 'frame' && item.to.id === 'response');
+						
+						if (!returnCon) {
+							return { code: -1, msg: `领域模型【${name}】中的服务面板中【${service.title}】未连接到返回节点，请确认后重新发布` };
+						}
+					}
+				}
+	    }
 
       let publishTask = []
       /** 存储fileId和publishTask的索引关系 */
@@ -67,7 +95,7 @@ export default class ModuleController {
         const { extName } = file;
         switch (extName) {
           case 'domain': {
-            const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id });
+            const latestSave = domainFileContentMap[file.id];
             publishTask.push(
               (axios as any).post(
                 `${domainName}/api/domain/generateServiceCode`,
