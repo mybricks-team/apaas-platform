@@ -77,7 +77,12 @@ export default class FlowController {
 		}
 		
 		const toJSON = JSON.parse((file as any).content).toJSON;
-		toJSON.service = toJSON.service.map(service => ({ id: service.id, title: service.title }));
+		toJSON.service = toJSON.service.map(service => {
+			const inputSchema = service.inputs.find(i => i.pinId === 'request')?.schema || { type: 'any' };
+			const outputSchema = service.outputs.find(i => i.id === 'response')?.schema || { type: 'any' };
+			
+			return { id: service.id, title: service.title, inputSchema, outputSchema };
+		});
 		
 		return { code: 1, data: toJSON };
 	}
