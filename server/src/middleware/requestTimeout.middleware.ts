@@ -13,6 +13,7 @@ const timeout = function(time?, options?) {
     const customConfig = timeConfig?.whiteList?.[_parsedUrl?.pathname + ':' + method];
     if(customConfig?.ignore === true) {
       next()
+      return
     } else if(customConfig?.timeout) {
       delay = customConfig?.timeout
     }
