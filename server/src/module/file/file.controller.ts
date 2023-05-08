@@ -608,6 +608,44 @@ export default class FileController {
     }
   }
 
+  @Get("/getFolderProjectRoot")
+  async getFolderProjectRoot(@Query() query) {
+    let { fileId } = query
+    let rootFile
+
+    while(fileId) {
+      rootFile = await this.fileDao.queryById(fileId)
+
+      if (rootFile.extName === 'folder-project') {
+        fileId = null
+      } else {
+        fileId = rootFile.parentId
+      }
+    }
+
+    return {
+      code: 1,
+      data: rootFile
+    }
+  }
+
+  @Get("/getFolderFiles")
+  async getFolderFiles(@Query() query) {
+    const { fileId, extNames } = query
+
+    console.log(extNames, 'extNames')
+
+    const result = await this.fileDao.getFolderFiles({
+      id: fileId,
+      extNames
+    })
+
+    return {
+      code: 1,
+      data: result
+    }
+  }
+
   @Get("/getFilePath")
   async getFilePath(@Query() query) {
     const { fileId, userId, groupId } = query;

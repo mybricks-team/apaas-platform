@@ -789,5 +789,13 @@ export default class FileDao extends DOBase {
 
     return result
   }
+
+  @Mapping(FileDO)
+  public async getFolderFiles(params: {
+    id: number;
+    extNames: string[];
+  }) {
+    return await this.exe('apaas_file:getFolderFiles', params)
+  }
 }
 

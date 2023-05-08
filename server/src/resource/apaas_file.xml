@@ -663,5 +663,18 @@
             OFFSET #{offset}
         </if>
     </select>
+
+    <select id="getFolderFiles">
+         select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon from apaas_file
+         where parent_id = ${id}
+         and status = 1
+        <if test="extNames">
+            and ext_name in
+            <foreach collection="extNames" item="extName" open="(" close=")" separator="," index="index">
+                #{extName}
+            </foreach>
+        </if>
+         order by create_time desc
+    </select>
     
 </mapper>
