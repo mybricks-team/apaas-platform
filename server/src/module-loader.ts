@@ -47,25 +47,30 @@ export function loadModule() {
   let namespace = [];
   let middleware = [];
   const namespaceMap: any = {}
-  const appDir = env.getAppInstallFolder()
-  if (fs.existsSync(appDir)) {
-    const folders = fs.readdirSync(appDir);
-    if (folders) {
-      for(let l=folders.length, i=0; i<l; i++) {
-        const childPath = folders[i]
-        if(childPath === '.DS_Store') {
-          continue;
+  try {
+    const appDir = env.getAppInstallFolder()
+    if (fs.existsSync(appDir)) {
+      const folders = fs.readdirSync(appDir);
+      if (folders) {
+        for(let l=folders.length, i=0; i<l; i++) {
+          const childPath = folders[i]
+          if(childPath === '.DS_Store') {
+            continue;
+          }
+          const appFullPath = path.join(appDir, childPath);
+          const data = scanDir(appFullPath);
+          modules = modules.concat(data.modules);
+          middleware = middleware.concat(data.middleware);
+          namespaceMap[data?.namespace?.[0]] = {
+            hasService: data.modules?.length !== 0
+          }
+          namespace = namespace.concat(data.namespace);
         }
-        const appFullPath = path.join(appDir, childPath);
-        const data = scanDir(appFullPath);
-        modules = modules.concat(data.modules);
-        middleware = middleware.concat(data.middleware);
-        namespaceMap[data?.namespace?.[0]] = {
-          hasService: data.modules?.length !== 0
-        }
-        namespace = namespace.concat(data.namespace);
       }
     }
+  } catch(e) {
+    console.log('模块加载失败：')
+    console.log(e)
   }
   return {
     modules,
