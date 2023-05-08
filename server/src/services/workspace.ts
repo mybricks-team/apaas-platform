@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post, Query, Req, Res } from "@nestjs/common";
-import { Request, Response } from "express";
+import { Body, Controller, Get, Post, Query, Req, Res, Request } from "@nestjs/common";
+import { Request as RequestType, Response } from "express";
 import FileDao from "../dao/FileDao";
 import FileContentDao, { FileContentDO } from "../dao/FileContentDao";
 import { EffectStatus, ExtName } from "../constants";
@@ -314,7 +314,7 @@ export default class WorkspaceService {
   }
 
   @Post("/workspace/publish")
-  async publish(@Body() body, @Req() request: Request) {
+  async publish(@Body() body, @Req() request: RequestType) {
     try {
       let {
         extName,
@@ -611,7 +611,7 @@ export default class WorkspaceService {
   }
 
   @Post("/workspace/deleteFile")
-  async deleteFile(@Body() body) {
+  async deleteFile(@Body() body, @Request() request) {
     const { id, userId } = body;
     if (!id || !userId) {
       return {
@@ -621,11 +621,23 @@ export default class WorkspaceService {
     }
 
     try {
+	    const file = await this.fileDao.queryById(id);
       const rtn = await this.fileDao.deleteFile({
         id,
         updatorId: userId,
         updatorName: userId,
       });
+			
+			try {
+				/** 删除领域模型资源，如实体表、服务接口等 TODO: 项目级别资源删除 */
+				if (file?.extName === 'domain') {
+					const domainName = getRealDomain(request);
+					
+					(axios as any).post(`${domainName}/api/domain/deleteFile`, { fileId: id, userId });
+				}
+			} catch (e) {
+				console.log('删除领域模型资源失败', e);
+			}
 
       return {
         code: 1,
