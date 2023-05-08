@@ -12,6 +12,11 @@ import FileService from '../module/file/file.controller'
 import ConfigService from './config'
 import { getRealDomain } from "../utils";
 import UserGroupDao from "../dao/UserGroupDao"
+import UploadService from '../module/upload/upload.service';
+import { getAdminInfoByProjectId } from '../utils/index'
+
+const fs = require('fs');
+const path = require('path');
 
 const folderExtnames = ['folder', 'folder-project', 'folder-module']
 
@@ -25,6 +30,7 @@ export default class WorkspaceService {
   configService: ConfigService;
   userDao: UserDao;
   userGroupDao: UserGroupDao;
+  uploadService: UploadService;
 
   constructor() {
     this.fileDao = new FileDao();
@@ -35,6 +41,7 @@ export default class WorkspaceService {
     this.configService = new ConfigService()
     this.userDao = new UserDao();
     this.userGroupDao = new UserGroupDao();
+    this.uploadService = new UploadService()
   }
 
   @Get("/workspace/getAll")
@@ -192,15 +199,36 @@ export default class WorkspaceService {
         parentId,
       });
 			
-			if (rtn.id && ['cloud-com', 'mp-cloudcom'].includes(extName)) {
-				await this.fileContentDao.create({
-					fileId: rtn.id,
-					content: JSON.stringify({ fileType: type }),
-					version: '1.0.0',
-					creatorId: userId,
-					creatorName: userId,
-				});
-			}
+			if (rtn.id) {
+        if(['cloud-com', 'mp-cloudcom'].includes(extName)) {
+          await this.fileContentDao.create({
+            fileId: rtn.id,
+            content: JSON.stringify({ fileType: type }),
+            version: '1.0.0',
+            creatorId: userId,
+            creatorName: userId,
+          });
+        } else if(['folder-project'].includes(extName)) {
+          // 第一次安装模块，推送自带运行时代码
+          await this.uploadService.saveFile({
+            str: fs.readFileSync(path.join(__dirname, './SYS_AUTH.template.ts'), "utf-8"),
+            filename: 'SYS_AUTH.js',
+            folderPath: `/project/${rtn.id}`,
+          })
+          // 初始化系统超级管理员
+          await this.uploadService.saveFile({
+            str: JSON.stringify(getAdminInfoByProjectId(rtn.id)),
+            filename: 'SYS_ADMIN_CONFIG.json',
+            folderPath: `/project/${rtn.id}`,
+          })
+          // 发送超管登录页面
+          await this.uploadService.saveFile({
+            str: fs.readFileSync(path.join(__dirname, './SYS_ADMIN_LOGIN.html'), "utf-8"),
+            filename: 'admin_login.html',
+            folderPath: `/project/${rtn.id}`,
+          })
+        }	
+			} 
 
       return {
         code: 1,

@@ -17,10 +17,8 @@ import FileDao from './../../dao/FileDao';
 import FileContentDao from './../../dao/FileContentDao';
 import FilePubDao from './../../dao/filePub.dao';
 const env = require('../../../env.js')
-import { getRealDomain, getNextVersion, getAdminInfoByProjectId } from '../../utils/index'
+import { getRealDomain, getNextVersion } from '../../utils/index'
 import UploadService from '../upload/upload.service';
-const fs = require('fs');
-const path = require('path');
 
 @Controller('/paas/api/module')
 export default class ModuleController {
@@ -306,27 +304,6 @@ export default class ModuleController {
     const { id, projectId, userId } = body;
 
     const installedModules = await this.moduleService.getProjectModuleInfo(projectId)
-    
-    if(installedModules.length === 0) {
-      // 第一次安装模块，推送自带运行时代码
-      await this.uploadService.saveFile({
-        str: fs.readFileSync(path.join(__dirname, './SYS_AUTH.template.ts'), "utf-8"),
-        filename: 'SYS_AUTH.js',
-        folderPath: `/project/${projectId}`,
-      })
-      // 初始化系统超级管理员
-      await this.uploadService.saveFile({
-        str: JSON.stringify(getAdminInfoByProjectId(projectId)),
-        filename: 'SYS_ADMIN_CONFIG.json',
-        folderPath: `/project/${projectId}`,
-      })
-      // 发送超管登录页面
-      await this.uploadService.saveFile({
-        str: fs.readFileSync(path.join(__dirname, './SYS_ADMIN_LOGIN.html'), "utf-8"),
-        filename: 'admin_login.html',
-        folderPath: `/project/${projectId}`,
-      })
-    }
 
     if (!id || !projectId) {
       return { code: 0, message: '参数 id、projectId 不能为空' };
