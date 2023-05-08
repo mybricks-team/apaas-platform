@@ -1,0 +1,10 @@
+{
+  "whiteList": {
+    "/api/mppage/compile:POST": {
+      "ignore": true
+    },
+    "/api/mpcloudcom/compile:POST": {
+      "ignore": true
+    }
+  }
+}

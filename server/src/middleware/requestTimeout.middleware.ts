@@ -1,13 +1,21 @@
 var { onFinished, onHeaders } = require('express-request-hook')
-
+var timeConfig = require('../../timeout.json')
 const timeout = function(time?, options?) {
   var opts = options || {}
 
-  var delay = Number(time || 10 * 1000)
+  var delayConfig = Number(time || 10 * 1000)
 
   var respond = opts.respond === undefined || opts.respond === true
 
   return function (req, res, next) {
+    const { url, _parsedUrl, method } = req;
+    let delay = delayConfig
+    const customConfig = timeConfig?.whiteList?.[_parsedUrl?.pathname + ':' + method];
+    if(customConfig?.ignore === true) {
+      next()
+    } else if(customConfig?.timeout) {
+      delay = customConfig?.timeout
+    }
     let id = setTimeout(function () {
       req.expired = true
       req.emit('timeout', delay)
