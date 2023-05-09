@@ -219,7 +219,6 @@ function ModuleArea({ ctx }) {
 }
 
 function SuperAdminInfoArea({ ctx }) {
-  console.log('SuperAdminInfoArea ctx.info: ', ctx.info)
   const showAdminArea = ctx.info?.adminInfo ? true : false
   if(!showAdminArea) {
     return null

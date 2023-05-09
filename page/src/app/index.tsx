@@ -8,7 +8,8 @@ import AppCtx from './AppCtx'
 import Sideber from './sidebar'
 import Content from './content'
 import Noaccess from './noaccess'
-import {getApiUrl, getUrlQuery} from '../utils'
+import {getApiUrl, getUrlQuery, storage} from '../utils'
+import { MYBRICKS_WORKSPACE_DEFAULT_PATH } from '../const'
 
 import css from './index.less'
 
@@ -76,11 +77,15 @@ export default function App() {
         message.error(err?.message ?? '初始化信息失败');
       })
 
-
-      const urlQuery = getUrlQuery()
+      // 取location.search或上次浏览的地址
+      let locationSearch = location.search || storage.get(MYBRICKS_WORKSPACE_DEFAULT_PATH)
+      if (typeof locationSearch !== 'string') {
+        locationSearch = ''
+      }
+      const urlQuery = getUrlQuery(locationSearch)
 
       appCtx.urlQuery = urlQuery
-      appCtx.locationSearch = location.search
+      appCtx.locationSearch = locationSearch
 
       function historyChange() {
         const hashKey = {}
@@ -100,6 +105,7 @@ export default function App() {
         })
         
         appCtx.locationSearch = location.search
+        storage.set(MYBRICKS_WORKSPACE_DEFAULT_PATH, location.search)
       }
 
       window.addEventListener('popstate', historyChange)
@@ -114,6 +120,9 @@ export default function App() {
           historyChange()
         }
       }
+
+      storage.set(MYBRICKS_WORKSPACE_DEFAULT_PATH, locationSearch)
+      history.replaceState(null, '', locationSearch)
     }, [])
 
     return loading ? (

@@ -40,6 +40,7 @@ export function pushUrlVal(paramName: string, replaceWith?: string, config = {ur
 }
 
 export function getUrlQuery (baseUrl = location.search) {
+  if (!baseUrl) return {}
   const query = baseUrl.slice(1);
   const obj: any = {}
   const arr: any = query.split("&");
