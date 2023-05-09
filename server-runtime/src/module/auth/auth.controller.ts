@@ -7,6 +7,7 @@ import {
   Query,
   Param,
   Request,
+  Req
 } from '@nestjs/common';
 import AuthService from './auth.service';
 const path = require('path');
@@ -93,10 +94,12 @@ export default class AuthController {
   // 领域建模运行时(运行时)
   @Post('/getUserAuth')
   async getUserAuth(
-    @Body('userId') userId: number,
-    @Body('projectId') projectId: number
+    @Body('userId') uid: number,
+    @Body('projectId') projectId: number,
+    @Req() req: any
   ) {
     let readyExePath;
+    const userId = req?.headers?.username || uid;
     if(!userId || !projectId) {
       return {
         code: -1,
