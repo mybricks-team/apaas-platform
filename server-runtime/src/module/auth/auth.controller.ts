@@ -19,15 +19,14 @@ export default class AuthController {
   @Inject()
   authService: AuthService;
 
-
-  _getSysAuthInfo(projectId: number) {
+  // 老代码，逐步废弃，暂时不删
+  _getSysAuthInfo_old(projectId: number) {
     let data: any = {
       result: false,
       pcPageIdList: []
     }
     try {
       const projectInfo = require(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/PROJECT_INFO.json`));
-      let fileIdMap = {}
       for(let key in projectInfo) {
         const item = projectInfo[key]
         if(item['isModule']) {
@@ -40,11 +39,50 @@ export default class AuthController {
             if(data?.result && fileInfo.extName === 'html') {
               data.pcPageIdList.push(key2)
             }
-          }
-          
-        } else {
-          fileIdMap[key] = item
+          } 
         }
+      }
+    } catch(e) {
+      console.log(e)
+    }
+    return data
+  }
+
+  _getSysAuthInfo(projectId: number) {
+    let data: any = {
+      result: false,
+      pcPageIdList: []
+    }
+    try {
+      const files = fs.readdirSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`))
+      // 判断系统表
+      files.forEach(fileName => {
+        if(/DOMAIN_META_/.test(fileName)) {
+          const fileContent = require(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileName}`))
+          fileContent?.entityAry?.forEach(entity => {
+            if(entity.isSystem && entity.implementEntityId) {
+              data.result = true
+            }
+          })
+        }
+      })
+      if(data.result) {
+        // 获取全量页面
+        files.forEach(fileName => {
+          // 非文件，只取文件夹，性能考虑不用方法判断
+          if(
+            fileName.indexOf('.js') === -1 &&
+            fileName.indexOf('.json') === -1 &&
+            fileName.indexOf('.html') === -1
+          ) {
+            const childFiles = fs.readdirSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileName}`))
+            childFiles?.forEach(childFileName => {
+              if(childFileName.indexOf('.html') !== -1) {
+                data.pcPageIdList.push(childFileName?.split('.html')?.[0])
+              }
+            })
+          }
+        })
       }
     } catch(e) {
       console.log(e)
@@ -72,29 +110,11 @@ export default class AuthController {
         if(sysAdminConfig.userName === userId) {
           // 只返回权限模块
           const res = this._getSysAuthInfo(projectId)
-          if(res?.result) {
-            return {
-              code: 1,
-              data: {
-                openAuth: true,
-                data: [
-                  {
-                    角色权限: res.pcPageIdList.join(',')
-                  }
-                ]
-              }
-            }
-          } else {
-            return {
-              code: 1,
-              data: {
-                openAuth: true,
-                data: [
-                  {
-                    角色权限: ''
-                  }
-                ]
-              }
+          return {
+            code: 1,
+            data: {
+              openAuth: res.openAuth,
+              角色权限: res.pcPageIdList.join(',')
             }
           }
         }
