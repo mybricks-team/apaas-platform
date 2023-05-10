@@ -1026,6 +1026,64 @@ export default class FileController {
     }
   }
 
+  /**
+   * @description [TODO]接口目前只有小程序在用，因为别的应用查project下文件的时候不应该只查file_content，查项目下文件目前太乱了，每个应用都有一套自己的逻辑
+   * @param id 
+   * @param extNames 
+   * @returns 
+   */
+  @Get('getProjectFilesByProjectId')
+  async getModuleFilesByProjectId(@Query('id') id: number, @Query('extNames') extNames?: string ) {
+    if (!id || (!!extNames && (!extNames?.split || !Array.isArray(extNames.split(','))))) {
+      return {
+        code: -1,
+        message: '参数不合法'
+      }
+    }
+
+    const extNameList = extNames ? extNames.split(',') : undefined
+    const [projectInfo] = await this.moduleDao.getProjectModuleInfo(id)
+
+    /** 获取模块内的发布文件 */
+    const { moduleList } = JSON.parse(projectInfo.module_info)
+    let moduleFilePubs = await Promise.all(moduleList.map(async (module, index) => {
+      const { id, version } = module
+      const filePubs: any = await this.modulePubDao.queryPubInfo({
+        moduleId: id,
+        extNameList,
+        version: version
+      })
+      return filePubs
+    }))
+    moduleFilePubs = (moduleFilePubs ?? []).flat(1).map(pub => ({ ...pub, module_pub_id: pub.id }))
+
+    /** 获取项目内的文件 */
+    let projectFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: projectInfo.file_id, extNameList })
+    const moduleFileIds = moduleFilePubs.map(pub => pub.file_id)
+    projectFiles = projectFiles.filter(file => !moduleFileIds.includes(file.id))
+    
+    /** 获取项目内发布的最新保存记录 */
+    const projectFilePubs = await this.fileContentDao.queryLatestSaves({ fileIds: projectFiles.map(file => file.id) })
+    const _projectFilePubs = projectFilePubs.map(pub => ({ ...pub, file_content_id: pub.id }))
+
+    /** 数据来自两个不同的表（模块发布表、文件内容表），只取同样意义的字段，不然容易乱 */
+    const results = moduleFilePubs.concat(_projectFilePubs ?? []).map(pub => {
+      return {
+        module_pub_id: pub.module_pub_id,
+        file_content_id: pub.file_content_id,
+        content: pub.content,
+        file_id: pub.file_id,
+        verision: pub.verision,
+        create_time: pub.create_time
+      }
+    })
+
+    return {
+      code: 1,
+      data: results
+    }
+  }
+
   @Post('/share/mark')
   async shareMark(@Body('id') id: number, @Body('userId') userId: string) {
     if(!id || !userId) {

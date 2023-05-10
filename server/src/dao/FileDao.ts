@@ -216,13 +216,15 @@ export default class FileDao extends DOBase {
   @Mapping(FileDO)
   public async queryFlattenFileTreeByParentId(query?: {
     parentId: number
+    extNameList?: string[]
   }): Promise<Array<FileDO>> {
     if(!query?.parentId) {
       return Promise.reject('缺少parentId')
     }
 
     return await this.exe<Array<FileDO>>("apaas_file:getFlattenFileTreeByParentId", {
-      id: query?.parentId
+      id: query?.parentId,
+      extNames: query?.extNameList,
     });
   }
 

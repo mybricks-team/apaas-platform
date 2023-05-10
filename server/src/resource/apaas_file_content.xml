@@ -46,6 +46,26 @@
     ORDER BY id DESC LIMIT 1
   </select>
 
+  <select id="queryLatestSaves">
+    select * from
+    apaas_file_content
+    inner join (
+      select
+        max(id) as id
+      from
+        apaas_file_content
+      where
+      <if test="ids">
+        file_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id" index="i">
+          #{id}
+        </foreach>
+      </if>
+      group by
+        file_id
+    ) file_lastest_content on file_lastest_content.id = apaas_file_content.id
+  </select>
+
   <select id="queryByIds">
     select id, file_id, creator_id, creator_name, create_time, update_time, status, content, content_type
     from apaas_file_content

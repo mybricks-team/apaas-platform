@@ -146,6 +146,12 @@
         WHERE FIND_IN_SET(T3.id, T2._ids)
             AND id != #{id}
             AND status = 1
+            <if test="extNames">
+            AND ext_name in
+                <foreach collection="extNames" item="extName" open="(" close=")" separator="," index="index">
+                    #{extName}
+                </foreach>
+            </if>
         ORDER BY find_level, id
     </select>
 
