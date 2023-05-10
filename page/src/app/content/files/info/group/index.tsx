@@ -26,8 +26,8 @@ import ParentCtx from '../../Ctx'
 import {Title, ClickableIcon} from '..'
 import AppCtx from '../../../../AppCtx'
 import {Divider} from '../../../../components'
-import {getApiUrl} from '../../../../../utils'
 import {useDebounceFn} from '../../../../hooks'
+import {copyText, getApiUrl} from '../../../../../utils'
 
 const {TextArea} = Input
 
@@ -568,6 +568,10 @@ function NewUserConfigModal({open, onCancel}) {
       setTableLoading(false)
     })
   }, [])
+  const copy = useCallback((content) => {
+    copyText(content)
+    message.success('复制成功')
+  }, [])
   const columns = useCallback((tableInfo) => {
     const {creatorId} = ctx.info
     const {email} = appCtx.user
@@ -578,13 +582,17 @@ function NewUserConfigModal({open, onCancel}) {
         key: 'name',
         width: 90,
         render: (name) => {
-          return name || '-'
+          const finalName = name || '-'
+          return <span className={css.copy} onClick={() => copy(finalName)}>{finalName}</span>
         }
       },
       {
         title: 'ID',
         dataIndex: 'email',
         key: 'email',
+        render: (email) => {
+          return <span className={css.copy} onClick={() => copy(email)}>{email}</span>
+        }
       },
       {
         title: '权限',

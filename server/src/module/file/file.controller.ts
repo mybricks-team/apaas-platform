@@ -993,31 +993,31 @@ export default class FileController {
     if (id) {
       const [projectInfo] = await this.moduleDao.getProjectModuleInfo(id)
 
-      if (!projectInfo) return
+      if (projectInfo) {
+        const { moduleList } = JSON.parse(projectInfo.module_info)
 
-      const { moduleList } = JSON.parse(projectInfo.module_info)
-
-      await Promise.all(moduleList.map((module, index) => {
-        return new Promise(async (resolve) => {
-          const { id, version } = module
-          const htmls: any = await this.modulePubDao.queryPubInfo({
-            moduleId: id,
-            extNameList: ['html'],
-            version: version
+        await Promise.all(moduleList.map((module, index) => {
+          return new Promise(async (resolve) => {
+            const { id, version } = module
+            const htmls: any = await this.modulePubDao.queryPubInfo({
+              moduleId: id,
+              extNameList: ['html'],
+              version: version
+            })
+  
+            moduleList[index].htmls = htmls.map((html) => {
+              return {
+                name: html.file_name,
+                id: html.file_id
+              }
+            })
+  
+            resolve(true)
           })
-
-          moduleList[index].htmls = htmls.map((html) => {
-            return {
-              name: html.file_name,
-              id: html.file_id
-            }
-          })
-
-          resolve(true)
-        })
-      }))
-
-      modules = moduleList
+        }))
+  
+        modules = moduleList
+      }
     }
 
     return {
