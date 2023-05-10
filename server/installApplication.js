@@ -76,6 +76,17 @@ function injectAppConfigScript(appConfig) {
   return rawStr
 }
 
+function isYarnExist() {
+  let result;
+  try{
+    cp.execSync('which yarn').toString()
+    result = true
+  } catch(e) {
+    result = false
+  }
+  return result
+}
+
 function travelDom(domAst, { ajaxScriptStr, appConfigScriptStr }) {
   let headTag = domAst.childNodes?.[1]?.childNodes?.[0]
   if(headTag.nodeName === 'head') {
@@ -147,7 +158,11 @@ async function installApplication() {
               fs.mkdirSync(tempFolder)
               fs.writeFileSync(tempFolder + '/package.json', JSON.stringify({}), 'utf-8')
             }
-            cp.execSync(`cd ${tempFolder} && npm i --registry=${NPM_REGISTRY} ${npmPkg} --production`)
+            if(isYarnExist()) {
+              cp.execSync(`cd ${tempFolder} && yarn add --registry=${NPM_REGISTRY} ${npmPkg} --production`)
+            } else {
+              cp.execSync(`cd ${tempFolder} && npm i --registry=${NPM_REGISTRY} ${npmPkg} --production`)
+            }
           } catch(e) {
             console.log(`【install】: 应用 ${npmPkg} 安装失败，跳过...`)
             console.log(`【install】: 错误是: ${e.toString()}`)
