@@ -3,12 +3,9 @@ import DomainService from './domain.service';
 import {getRealDomain} from '../../utils/index'
 // @ts-ignore
 import {createVM} from 'vm-node';
-// const path = require('path');
-// const env = require('../../../env.js')
-// const fs = require('fs');
 import FileDao from '../../dao/FileDao';
 import ServicePubDao from '../../dao/ServicePubDao';
-import FileContentDao from "../../dao/FileContentDao";
+import FilePubDao from "../../dao/filePub.dao";
 
 @Controller('/paas/api/domain')
 export default class FlowController {
@@ -17,14 +14,14 @@ export default class FlowController {
   
   nodeVMIns: any;
   fileDao: FileDao;
-	fileContentDao: FileContentDao;
+	filePubDao: FilePubDao;
   servicePubDao: ServicePubDao
 
   constructor() {
     this.nodeVMIns = createVM({ openLog: true });
     this.fileDao = new FileDao();
-	  this.fileContentDao = new FileContentDao();
     this.servicePubDao = new ServicePubDao();
+    this.filePubDao = new FilePubDao();
   }
 
   
@@ -70,19 +67,21 @@ export default class FlowController {
 			return { code: -1, message: 'fileId 不能为空' };
 		}
 		
-		const file = await this.fileContentDao.queryLatestSave({ fileId });
+		const [file] = await this.filePubDao.getLatestPubByFileId(fileId);
 		
 		if (!file) {
-			return { code: -1, message: '对应领域模型文件不存在' };
+			return { code: -1, message: '对应领域模型文件不存在或模型需要发布' };
 		}
 		
-		const toJSON = JSON.parse((file as any).content).toJSON;
-		toJSON.service = toJSON.service.map(service => {
-			const inputSchema = service.inputs.find(i => i.pinId === 'request')?.schema || { type: 'any' };
-			const outputSchema = service.outputs.find(i => i.id === 'response')?.schema || { type: 'any' };
+		const toJSON = JSON.parse((file as any).content);
+		toJSON.service = toJSON.serviceAry.map(service => {
+			const inputSchema = service.inputSchema || { type: 'any' };
+			const outputSchema = service.outputSchema || { type: 'any' };
 			
 			return { id: service.id, title: service.title, inputSchema, outputSchema };
 		});
+		toJSON.version = file.version;
+		toJSON.serviceAry && (delete toJSON.serviceAry);
 		
 		return { code: 1, data: toJSON };
 	}
