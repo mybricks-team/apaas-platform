@@ -209,7 +209,8 @@ export default class AppCtx {
         SHOW_APPS_MAP[extName] = true
       })
       const SHOW_FOLDERS_MAP = {
-        'folder': true
+        'folder': true,
+        'folder-project': true
       }
       // 搭建应用
       this.DesignAPPS = DesignAPPS.filter(app => {
