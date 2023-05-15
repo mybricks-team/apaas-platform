@@ -15,12 +15,13 @@ async function bootstrap() {
   init();
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  if(fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
-    app.useStaticAssets(env.FILE_LOCAL_STORAGE_FOLDER, {
-      prefix: `/${env.FILE_LOCAL_STORAGE_PREFIX_RUNTIME}`,
-      index: false,
-    });
-  }
+  // if(fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
+  //   app.useStaticAssets(env.FILE_LOCAL_STORAGE_FOLDER, {
+  //     prefix: `/${env.FILE_LOCAL_STORAGE_PREFIX_RUNTIME}`,
+  //     index: false,
+  //     extensions: ['html', 'js']
+  //   });
+  // }
 
   app.use(checkHealthMiddleware);
   app.enableCors({
