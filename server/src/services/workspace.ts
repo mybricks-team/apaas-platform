@@ -200,7 +200,7 @@ export default class WorkspaceService {
       });
 			
 			if (rtn.id) {
-        if(['cloud-com', 'mp-cloudcom'].includes(extName)) {
+        if(['cloud-com', 'mp-cloudcom', 'domain'].includes(extName)) {
           await this.fileContentDao.create({
             fileId: rtn.id,
             content: JSON.stringify({ fileType: type }),
@@ -227,8 +227,8 @@ export default class WorkspaceService {
             filename: 'admin_login.html',
             folderPath: `/project/${rtn.id}`,
           })
-        }	
-			} 
+        }
+			}
 
       return {
         code: 1,
