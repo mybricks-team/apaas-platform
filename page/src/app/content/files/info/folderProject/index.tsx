@@ -111,7 +111,7 @@ function AppList({apps}) {
             let content = app.pubInfo?.[envType]?.content;
             if(content) {
               content = JSON.parse(content)
-              window.open(content.main.url)
+              window.open(content.main.url.replace(/\.html$/, ''))
             }
           }
         } catch(e) {
