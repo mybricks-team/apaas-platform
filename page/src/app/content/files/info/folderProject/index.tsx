@@ -134,7 +134,7 @@ function AppList({apps}) {
     const _getPublishMenuItems = () => {
       const envs: any[] = Object.keys(app.pubInfo)
       const hansMap = {
-        staging: '日常环境',
+        staging: '测试环境',
         prod: '线上环境'
       }
       return envs.map(env => {
