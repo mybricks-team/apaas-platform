@@ -41,7 +41,6 @@ export default function FolderProject(props) {
 						...data,
 						apps: data.apps.map((app) => {
 							const {groupId, parentId, pubInfo} = app
-              console.log('111', pubInfo)
 							return {
 								...app,
                 pubInfo: pubInfo ? {
