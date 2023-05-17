@@ -14,11 +14,22 @@ export default class FlowService {
 
   // 模块安装时，发布到运行容器
   // fileName示例：a.html
-  async batchCreateProjectFile({ codeStrList, projectId }: { codeStrList: {fileId?: number, fileName: string, content: string}[], projectId: number}, { domainName }): Promise<{fileId: number, url: string}[]> {
-    let folderPath = `/project`;
+  async batchCreateProjectFile({ codeStrList, projectId, envType }: { codeStrList: {fileId?: number, fileName: string, content: string}[], projectId: number, envType: 'staging' | 'prod'}, { domainName }): Promise<{fileId: number, url: string}[]> {
+    let folderPath;
     if(projectId) {
-      folderPath = `/project/${projectId}`;
+      if(envType === 'staging') {
+        folderPath = `/staging/project/${projectId}`
+      } else {
+        folderPath = `/project/${projectId}`;
+      }
+    } else {
+      if(envType === 'staging') {
+        folderPath = '/staging/project'
+      } else {
+        folderPath = `/project`;
+      }
     }
+
     const cdnList = await Promise.all(
       codeStrList.map((codeContent) => {
         return this.uploadService.saveFile({

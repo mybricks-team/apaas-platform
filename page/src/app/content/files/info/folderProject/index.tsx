@@ -9,7 +9,8 @@ import ModuleCenterModal from './module-center-modal';
 import { Server } from '../../../../noaccess/Icons';
 
 import css from './index.less';
-import { message } from 'antd';
+import { message, Dropdown, Space } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
 
 class Ctx {
 	id: number;
@@ -40,11 +41,11 @@ export default function FolderProject(props) {
 						...data,
 						apps: data.apps.map((app) => {
 							const {groupId, parentId, pubInfo} = app
+              console.log('111', pubInfo)
 							return {
 								...app,
                 pubInfo: pubInfo ? {
                   ...pubInfo,
-                  content: JSON.parse(pubInfo.content)
                 } : null,
 								positionSearch: `?appId=files${groupId ? `&groupId=${groupId}` : ''}${parentId ? `&parentId=${parentId}` : ''}`
 							}
@@ -97,7 +98,7 @@ function AppList({apps}) {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const {APPSMap, locationSearch} = appCtx
 
-  const btnClick = useCallback((app, appReg, type) => {
+  const btnClick = useCallback((app, appReg, type, envType?: 'staging' | 'prod') => {
     switch (type) {
       case 'edit':
         const {homepage} = appReg
@@ -106,7 +107,14 @@ function AppList({apps}) {
         break
       case 'gotoPublish':
         try {
-          window.open(app.pubInfo.content.main.url)
+          console.log(app.pubInfo)
+          if(envType === 'staging' || envType === 'prod') {
+            let content = app.pubInfo?.[envType]?.content;
+            if(content) {
+              content = JSON.parse(content)
+              window.open(content.main.url)
+            }
+          }
         } catch(e) {
           console.error(e)
         }
@@ -123,6 +131,27 @@ function AppList({apps}) {
   return apps.map((app) => {
     const {extName, pubInfo, positionSearch} = app
     const appReg = APPSMap[extName]
+
+    const _getPublishMenuItems = () => {
+      const envs: any[] = Object.keys(app.pubInfo)
+      const hansMap = {
+        staging: '日常环境',
+        prod: '线上环境'
+      }
+      return envs.map(env => {
+        return {
+          label: (
+            <span onClick={evt(() => btnClick(app, appReg, 'gotoPublish', env)).stop}>
+              {hansMap[env]}
+            </span>
+          ),
+          key: env,
+        }
+      })
+    }
+
+    const items = _getPublishMenuItems()
+    const alreadyPublish = items.length > 0;
     return (
       <Card>
         <div className={css.title}>
@@ -133,13 +162,23 @@ function AppList({apps}) {
         </div>
         <div className={css.flex}>
           <div className={css.statusContent}>
-            <div className={pubInfo ? css.publishStatus : css.noPublishStatus}/>
+            <div className={alreadyPublish ? css.publishStatus : css.noPublishStatus}/>
           </div>
-          <div className={pubInfo ? css.publishContent : css.noPublishContent}>{pubInfo ? '已发布' : '未发布'}</div>
+          <div className={alreadyPublish ? css.publishContent : css.noPublishContent}>{alreadyPublish ? '已发布' : '未发布'}</div>
         </div>
         <div className={css.footBtns}>
           <button onClick={evt(() => btnClick(app, appReg, 'edit')).stop}>编辑</button>
-          <button disabled={!pubInfo} onClick={evt(() => btnClick(app, appReg, 'gotoPublish')).stop}>查看</button>
+          <Dropdown
+            disabled={!alreadyPublish}
+            menu={{ items: items}}
+          >
+            <button>
+              <Space>
+                查看
+                <DownOutlined />
+              </Space>
+            </button>
+          </Dropdown>
           <button disabled={positionSearch === locationSearch} onClick={evt(() => btnClick(app, appReg, 'gotoDir')).stop}>前往目录</button>
         </div>
       </Card>

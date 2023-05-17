@@ -47,6 +47,7 @@ export default class FlowController {
   @Post('/file/batchCreate')
   async batchCreateProjectFile(
     @Body('projectId') projectId: number,
+    @Body('envType') envType: number,
     @Body('codeStrList') codeStrList: {fileId: number, fileName: string, content: string}[],
     @Request() request,
   ) {
@@ -60,6 +61,7 @@ export default class FlowController {
     try {
       const cdnList = await this.flowService.batchCreateProjectFile({
         projectId,
+        envType,
         codeStrList
       }, { domainName })
       
