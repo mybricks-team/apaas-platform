@@ -778,8 +778,12 @@ export default class FileController {
     }))
 
     await Promise.all(files.map(async (file) => {
-      const [pubInfo] = await this.filePubDao.getLatestPubByFileId(file.id)
-      file.pubInfo = pubInfo
+      const [stagingPub] = await this.filePubDao.getLatestPubByFileId(file.id, 'staging')
+      const [prodPubInfo] = await this.filePubDao.getLatestPubByFileId(file.id, 'prod')
+      file.pubInfo = {
+        staging: stagingPub,
+        prod: prodPubInfo
+      }
       file.adminLoginBasePath = `/runtime/mfs/project/${id}/admin_login.html?projectId=${id}&fileId=${file.id}`
     }))
 

@@ -47,19 +47,28 @@ export default class StaticServeController {
         if(fs.existsSync(absoluteFilePath + '.html')) {
           return res.sendFile(absoluteFilePath + '.html')
         }
+        let tryPath;
         if(restPart.startsWith('/project')) {
           // 项目空间下检测：是否为聚合页前端路由
           const parts = restPart.split('/');
-          let tryPath;
           // /开头
           if(parts[0] === '') {
             tryPath = parts.splice(0, 5).join('/') // ['', 'project', '397', '395', '395', 'apps'].splice(0, 5)
           } else {
             tryPath = parts.splice(0, 4).join('/') // ['', 'project', '397', '395', '395', 'apps'].splice(0, 4)
           }
-          if(fs.existsSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, tryPath + '.html'))) {
-            return res.sendFile(path.join(env.FILE_LOCAL_STORAGE_FOLDER, tryPath + '.html'))
+        } else if(restPart.startsWith('/staging/project')) {
+          // 项目空间下检测：是否为聚合页前端路由
+          const parts = restPart.split('/');
+          // /开头
+          if(parts[0] === '') {
+            tryPath = parts.splice(0, 6).join('/') // ['', 'staging','project', '397', '395', '395', 'apps'].splice(0, 5)
+          } else {
+            tryPath = parts.splice(0, 5).join('/') // ['', 'staging', 'project', '397', '395', '395', 'apps'].splice(0, 4)
           }
+        }
+        if(fs.existsSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, tryPath + '.html'))) {
+          return res.sendFile(path.join(env.FILE_LOCAL_STORAGE_FOLDER, tryPath + '.html'))
         }
         return {
           code: -1,

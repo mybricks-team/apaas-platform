@@ -259,6 +259,7 @@ function CreateFileModal({app, onOk, onCancel}) {
         labelCol={{ span: 3 }}
         wrapperCol={{ span: 21 }}
         form={form}
+        className={css.createForm}
       >
         <Form.Item
           label='名称'
@@ -296,6 +297,17 @@ function CreateFileModal({app, onOk, onCancel}) {
                 { label: '其他', value: 'other' }
               ]}
             />
+		      </Form.Item>
+	      ) : null}
+	
+	      {['domain'].includes(app?.extName) ? (
+		      <Form.Item label='类型' name="type" initialValue="normal">
+			      <Radio.Group
+				      options={[
+					      { label: '普通', value: 'normal' },
+					      { label: '协作', value: 'system' }
+				      ]}
+			      />
 		      </Form.Item>
 	      ) : null}
       </Form>

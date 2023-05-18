@@ -103,7 +103,6 @@ export default function App() {
         Object.keys(hashKey).forEach((key) => {
           appCtx.urlQuery[key] = null
         })
-        
         appCtx.locationSearch = location.search
         storage.set(MYBRICKS_WORKSPACE_DEFAULT_PATH, location.search)
       }
