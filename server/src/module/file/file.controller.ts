@@ -1045,7 +1045,7 @@ export default class FileController {
     const [projectInfo] = await this.moduleDao.getProjectModuleInfo(id)
 
     /** 获取模块内的发布文件 */
-    const { moduleList } = JSON.parse(projectInfo.module_info)
+    const { moduleList } = JSON.parse(projectInfo?.module_info ?? JSON.stringify({ moduleList: [] }))
     let moduleFilePubs = await Promise.all(moduleList.map(async (module, index) => {
       const { id, version } = module
       const filePubs: any = await this.modulePubDao.queryPubInfo({
@@ -1058,7 +1058,7 @@ export default class FileController {
     moduleFilePubs = (moduleFilePubs ?? []).flat(1).map(pub => ({ ...pub, module_pub_id: pub.id }))
 
     /** 获取项目内的文件 */
-    let projectFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: projectInfo.file_id, extNameList })
+    let projectFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: projectInfo?.file_id ?? id, extNameList })
     const moduleFileIds = moduleFilePubs.map(pub => pub.file_id)
     projectFiles = projectFiles.filter(file => !moduleFileIds.includes(file.id))
     
