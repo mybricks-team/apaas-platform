@@ -354,7 +354,7 @@ export default () => {
         ) {
           return (
             <iframe
-              src={activeItem?.setting}
+              src={`/${activeItem.namespace}/${activeItem?.setting}`}
               // @ts-ignore
               frameborder="no"
               border="0"
