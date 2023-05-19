@@ -171,6 +171,9 @@ async function installApplication() {
           }
           // copy aplication
           const srcAppDir = path.join(tempFolder, `./node_modules/${pkgName}`)
+          if(fs.existsSync(path.join(destAppDir, './assets'))) {
+            fs.removeSync(path.join(destAppDir, './assets'))
+          }
           fs.copySync(srcAppDir, destAppDir)
           const pkgPath = path.join(destAppDir, './package.json');
           if(fs.existsSync(pkgPath)) {
