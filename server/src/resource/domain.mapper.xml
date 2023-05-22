@@ -183,4 +183,8 @@
             #{createTime}
         )
     </insert>
+
+    <select id="execManageData">
+        ${sql}
+    </select>
 </mapper>
