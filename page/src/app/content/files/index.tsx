@@ -266,7 +266,7 @@ function Projects() {
             <div key={project.id} className={css.file} onClick={() => operate('open', project)}>
               {
                 alreadyShared ? (
-                  <div style={{position: "absolute", right: 0, zIndex: 10}}>
+                  <div className={css.share}>
                     <SharerdIcon width={14} height={14} />
                   </div>
                 ) : null
