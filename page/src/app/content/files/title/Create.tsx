@@ -137,7 +137,8 @@ export function Create(): JSX.Element {
         url: getApiUrl('/paas/api/file/checkFileCanCreate'),
         params: {
           ...params,
-          fileName
+          fileName,
+	        isCreate: true
         }
       })
 
@@ -173,7 +174,7 @@ export function Create(): JSX.Element {
           }
         })
       } else {
-        reject('相同路径下不允许创建同名文件！')
+        reject(check.data?.data?.message || '相同路径下不允许创建同名文件！')
       }
     })
   }, [])
@@ -300,16 +301,16 @@ function CreateFileModal({app, onOk, onCancel}) {
 		      </Form.Item>
 	      ) : null}
 	
-	      {['domain'].includes(app?.extName) ? (
-		      <Form.Item label='类型' name="type" initialValue="normal">
-			      <Radio.Group
-				      options={[
-					      { label: '普通', value: 'normal' },
-					      { label: '协作', value: 'system' }
-				      ]}
-			      />
-		      </Form.Item>
-	      ) : null}
+	      {/*{['domain'].includes(app?.extName) ? (*/}
+		    {/*  <Form.Item label='类型' name="type" initialValue="normal">*/}
+			  {/*    <Radio.Group*/}
+				{/*      options={[*/}
+				{/*	      { label: '普通', value: 'normal' },*/}
+				{/*	      { label: '协作', value: 'system' }*/}
+				{/*      ]}*/}
+			  {/*    />*/}
+		    {/*  </Form.Item>*/}
+	      {/*) : null}*/}
       </Form>
     </Modal>
   )

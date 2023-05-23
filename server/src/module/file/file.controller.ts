@@ -690,7 +690,7 @@ export default class FileController {
 
   @Get("/checkFileCanCreate")
   async checkFileCanCreate(@Query() query) {
-    const { fileName, extName, parentId, groupId, userId } = query
+    const { fileName, extName, parentId, groupId, userId, isCreate } = query
     const params: any = {
       name: fileName,
       extName,
@@ -703,13 +703,33 @@ export default class FileController {
     }
 
     const file = await this.fileDao.exactQuery(params)
+	  let error = !file ? '' : '相同路径下不允许创建同名文件！';
+		
+		/** 领域模型文件，在项目下只允许创建一个模型文件 */
+		if (!error && isCreate && extName === 'domain' && parentId) {
+			const file = await this.fileDao.queryById(parentId);
+			
+			let current = file ? JSON.parse(JSON.stringify(file)) : null;
+			while (current && current.extName !== 'folder-project') {
+				if (current.parentId) {
+					current = await this.fileDao.queryById(current.parentId);
+				} else if (!current.parentId) {
+					current = null;
+					break;
+				}
+			}
+			
+			/** 项目下 */
+			if (current && current.extName === 'folder-project') {
+				const domainFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: current.id, extNameList: ['domain'] });
+				
+				if (domainFiles.length) {
+					error = '项目下不允许创建多个领域模型文件';
+				}
+			}
+		}
 
-    return {
-      code: 1,
-      data: {
-        next: !!!file
-      }
-    }
+    return { code: 1, data: { next: !error, message: error } };
   }
 
   @Post('/getLatestSave')
@@ -793,7 +813,7 @@ export default class FileController {
   @Post('/getFolderProjectInfoByProjectId')
   async getFolderProjectInfoByProjectId(@Body() body) {
     const { id, userName } = body
-    const folder = await this.fileDao.queryById(id); 
+    const folder = await this.fileDao.queryById(id);
     const [[projectModuleInfo], files] = await Promise.all([
       await this.moduleDao.getProjectModuleInfo(id),
       await this.getFolderProjectAppsByParentId({ id, extNames: ['pc-website', 'folder', 'folder-project', 'folder-module'] })
@@ -1032,9 +1052,9 @@ export default class FileController {
 
   /**
    * @description [TODO]接口目前只有小程序在用，因为别的应用查project下文件的时候不应该只查file_content，查项目下文件目前太乱了，每个应用都有一套自己的逻辑
-   * @param id 
-   * @param extNames 
-   * @returns 
+   * @param id
+   * @param extNames
+   * @returns
    */
   @Get('getProjectFilesByProjectId')
   async getModuleFilesByProjectId(@Query('id') id: number, @Query('extNames') extNames?: string ) {
