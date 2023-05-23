@@ -2,7 +2,7 @@
   "installApps": [
     {
       "type": "npm",
-      "path": "mybricks-pc-page@0.2.86"
+      "path": "mybricks-pc-page@0.2.88"
     },
     {
       "type": "npm",
