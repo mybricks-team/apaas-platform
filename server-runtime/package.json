@@ -28,6 +28,7 @@
     "dayjs": "^1.11.5",
     "express-request-hook": "0.0.1",
     "express-xml-bodyparser": "^0.3.0",
+    "gen-uniqueid": "0.0.2",
     "form-data": "^4.0.0",
     "fs-extra": "^10.1.0",
     "mysql2": "^2.3.3",

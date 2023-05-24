@@ -1,4 +1,6 @@
 import * as moment from "dayjs";
+const { SnowFlake } = require('gen-uniqueid');
+const SNOW_FLAKE = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
 
 export function uuid(length = 32): string {
   let text = "";
@@ -143,3 +145,7 @@ export function getRealDomain(request) {
 }
 
 export { isNumber } from './type'
+
+export function genMainIndexOfDB() {
+	return SNOW_FLAKE.NextId();
+}

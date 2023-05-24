@@ -215,6 +215,16 @@ export default class WorkspaceService {
             filename: 'SYS_AUTH.js',
             folderPath: `/project/${rtn.id}`,
           })
+	        await this.uploadService.saveFile({
+		        str: fs.readFileSync(path.join(__dirname, './LOGIN.template.ts'), "utf-8"),
+		        filename: 'LOGIN.js',
+		        folderPath: `/project/${rtn.id}`,
+	        })
+	        await this.uploadService.saveFile({
+		        str: fs.readFileSync(path.join(__dirname, './REGISTER.template.ts'), "utf-8"),
+		        filename: 'REGISTER.js',
+		        folderPath: `/project/${rtn.id}`,
+	        })
           // 初始化系统超级管理员
           await this.uploadService.saveFile({
             str: JSON.stringify(getAdminInfoByProjectId(rtn.id)),

@@ -10,6 +10,7 @@ import {
   Req
 } from '@nestjs/common';
 import AuthService from './auth.service';
+import { genMainIndexOfDB } from "../../utils";
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
@@ -40,7 +41,7 @@ export default class AuthController {
             if(data?.result && fileInfo.extName === 'html') {
               data.pcPageIdList.push(key2)
             }
-          } 
+          }
         }
       }
     } catch(e) {
@@ -61,7 +62,7 @@ export default class AuthController {
         if(/DOMAIN_META_/.test(fileName)) {
           const fileContent = require(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileName}`))
           fileContent?.entityAry?.forEach(entity => {
-            if(entity.isSystem && entity.implementEntityId) {
+            if(entity.isSystem) {
               data.result = true
             }
           })
@@ -161,6 +162,82 @@ export default class AuthController {
         code: -1,
         msg: `${typeof e === 'string' ? e : e.message}`
       }
+    }
+  }
+
+  // 领域建模运行时(运行时)
+  @Post('/login')
+  async login(
+    @Body() body: Record<string, unknown>,
+    @Req() req: any
+  ) {
+    let readyExePath;
+    if(!body.projectId) {
+      return { code: -1, msg: 'projectId 为空' };
+    }
+    try {
+      const serviceId = `LOGIN`;
+      const readyExeTemplateFolderPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${body.projectId}`);
+      readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
+      console.log('运行容器：readyExePath', readyExePath);
+			
+      if (!fs.existsSync(readyExePath)) {
+        return { code: -1, msg: '登陆失败' };
+      }
+			
+      const { startExe } = require(readyExePath);
+      console.log('运行容器：获取可执行方法成功');
+      const con = new DOBase();
+      console.log('运行容器：获取连接成功');
+      const pool = getPool();
+      console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`);
+      let res = await startExe(body, { dbConnection: con });
+      console.log('运行容器：运行完毕');
+			
+      return res ? { code: 1, data: res } : { code: -1, msg: '用户不存在' };
+    } catch (e) {
+      console.log('运行容器：运行出错了', e.message);
+      return { code: -1, msg: `${typeof e === 'string' ? e : e.message}` };
+    }
+  }
+	
+  // 领域建模运行时(运行时)
+  @Post('/register')
+  async register(
+    @Body() body: Record<string, unknown>,
+    @Req() req: any
+  ) {
+    let readyExePath;
+    if(!body.projectId) {
+      return { code: -1, msg: 'projectId 为空' };
+    }
+    if(!body.phone || !body.username || !body.password) {
+      return { code: -1, msg: '电话号码、用户名、密码为空' };
+    }
+		
+    try {
+      const serviceId = `REGISTER`;
+      const readyExeTemplateFolderPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${body.projectId}`);
+      readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
+      console.log('运行容器：readyExePath', readyExePath);
+	    
+      if (!fs.existsSync(readyExePath)) {
+	      return {code: -1, msg: '注册失败'};
+      }
+			
+      const { startExe } = require(readyExePath);
+      console.log('运行容器：获取可执行方法成功');
+      const con = new DOBase();
+      console.log('运行容器：获取连接成功');
+      const pool = getPool();
+      console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`);
+      let res = await startExe(body, { dbConnection: con, genUniqueId: genMainIndexOfDB });
+      console.log('运行容器：运行完毕');
+			
+      return res ? { code: 1, data: res } : { code: -1, msg: '注册失败' };
+    } catch (e) {
+      console.log('运行容器：运行出错了', e.message);
+      return { code: -1, msg: `${typeof e === 'string' ? e : e.message}` };
     }
   }
 
