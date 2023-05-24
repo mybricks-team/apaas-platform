@@ -8,16 +8,19 @@ import {
   Query,
   Request,
 } from '@nestjs/common';
+import FileDao from '../../dao/FileDao';
 import UserDao from '../../dao/UserDao';
 import { Logs } from '../../utils';
 import UserService from './user.service';
 
 @Controller('/paas/api/user')
 export default class UserController {
+  fileDao: FileDao;
   userDao: UserDao;
   userService: UserService;
 
   constructor() {
+    this.fileDao = new FileDao();
     this.userDao = new UserDao();
     this.userService = new UserService();
   }
@@ -178,7 +181,8 @@ export default class UserController {
    * 已登录用户
    */
   @Post('/signed')
-  async signed(@Headers('username') us: string, @Request() request) {
+  async signed(@Headers('username') us: string, @Request() request, @Body() body) {
+    const { fileId } = body
     let userEmail;
     if(us) {
       userEmail = `${us}@kuaishou.com`;
@@ -198,12 +202,19 @@ export default class UserController {
       email: userEmail,
     });
     if (userInfo) {
+      const data: any = {
+        ...userInfo,
+        isAdmin: userInfo.role === 10,
+      }
+      if (fileId) {
+        const roleDescription = await this.fileDao.getRoleDescription({userId: userEmail, fileId})
+        console.log('roleDescription: ', roleDescription, 899)
+        data.roleDescription = roleDescription
+      }
+      
       return {
         code: 1,
-        data: {
-          ...userInfo,
-          isAdmin: userInfo.role === 10,
-        },
+        data,
       };
     } else {
       return {

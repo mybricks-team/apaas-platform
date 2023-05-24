@@ -799,5 +799,14 @@ export default class FileDao extends DOBase {
   }) {
     return await this.exe('apaas_file:getFolderFiles', params)
   }
+
+  public async getRoleDescription(params: {
+    userId: string
+    fileId: number
+  }) {
+    const [{role_description}] = await this.exe<Array<{role_description: number}>>('apaas_file:getRoleDescription', params)
+
+    return role_description
+  }
 }
 

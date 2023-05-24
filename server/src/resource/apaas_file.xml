@@ -683,4 +683,13 @@
          order by create_time desc
     </select>
     
+    <select id="getRoleDescription">
+        SELECT CASE
+        WHEN apaas_file.creator_id = #{userId} THEN 1
+        WHEN apaas_file.group_id IS NOT NULL THEN COALESCE((SELECT role_description FROM apaas_user_group_relation WHERE user_group_id = apaas_file.group_id AND user_id = #{userId} AND status = 1 LIMIT 1), -1)
+        ELSE -1
+        END AS role_description
+        FROM apaas_file
+        WHERE apaas_file.id = #{fileId};
+    </select>
 </mapper>
