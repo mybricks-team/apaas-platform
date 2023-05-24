@@ -48,7 +48,7 @@
 
     <update id="updateTable">
         ALTER TABLE ${table}
-        <foreach collection="columns" item="item" open="" separator="," close="" index="index">
+        <foreach collection="columns" item="item" open="" separator="," close=";" index="index">
             <if test="item.action === 'insert_field'">
                 ADD ${item.name}
                 <if test="item.type === 'varchar'">
@@ -82,7 +82,20 @@
                 DEFAULT NULL COMMENT #{item.desc}
             </if>
             <if test="item.action === 'delete_field'">
-                DROP ${item.name}
+                MODIFY ${item.name}
+                <if test="item.type === 'varchar'">
+                    varchar(256)
+                </if>
+                <if test="item.type === 'bigint'">
+                    bigint
+                </if>
+                <if test="item.type === 'int'">
+                    int
+                </if>
+                <if test="item.type === 'mediumtext'">
+                    mediumtext
+                </if>
+                DEFAULT NULL COMMENT '${item.desc}（已删除）'
             </if>
             <if test="item.action === 'modify_table_comment'">
                 COMMENT #{item.desc}
