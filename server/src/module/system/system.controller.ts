@@ -322,7 +322,7 @@ export default class SystemService {
 			if(fileIds?.length !== 0) {
 				pubContentList =  await this.filePubDao.getLatestPubByIds({
 					ids: fileIds,
-					envType: 'prod',
+					envType: 'test',
 				});
 			}
 			
