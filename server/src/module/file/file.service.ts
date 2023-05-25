@@ -56,6 +56,7 @@ export default class FileService {
         } else {
           const { id } = await this.fileDao.moveFile({
             fileId,
+            extName: file.extName,
             groupId: Number(toGroupId),
             parentId: null,
           });
@@ -68,6 +69,7 @@ export default class FileService {
       } else {
         const { id } = await this.fileDao.moveFile({
           fileId,
+          extName: file.extName,
           groupId: Number(toGroupId),
           parentId: null,
         });
@@ -101,6 +103,7 @@ export default class FileService {
         // 移动
         const { id } = await this.fileDao.moveFile({
           fileId,
+          extName: file.extName,
           groupId: toFile.groupId,
           parentId: toFile.id,
         });

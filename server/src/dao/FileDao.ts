@@ -450,7 +450,7 @@ export default class FileDao extends DOBase {
       query.parentId = null;
     }
     if (query.extName === 'folder') {
-      const files = await this.getFilesByParentId([query.fileId], []);
+      const files = await this.deepGetFilesByParentId([query.fileId], []);
       updateFiles = updateFiles.concat(
         files.map((file) => {
           return {
@@ -760,6 +760,28 @@ export default class FileDao extends DOBase {
 		)
 
     return result && result[0]
+  }
+
+  public async deepGetFilesByParentId(parentIds, files = []) {
+    const that = this
+    if (!Array.isArray(parentIds) || !parentIds.length) {
+      return files
+    }
+    const promiseAll = parentIds.map(async parentId => {
+      return await that.getFilesByParentId({id: parentId})
+    })
+    let childFiles = await Promise.all(promiseAll)
+    childFiles = [].concat(...childFiles)
+
+    const childParentIds = childFiles.filter(childFile => {
+      return ['folder', 'folder-project', 'folder-module'].includes(childFile.extName)
+    }).map(childFile => {
+      return childFile.id
+    })
+
+    files = files.concat(...childFiles)
+
+    return that.deepGetFilesByParentId(childParentIds, files)
   }
 
   @Mapping(FileDO)
