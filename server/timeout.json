@@ -6,10 +6,10 @@
     "/api/mpcloudcom/compile:POST": {
       "ignore": true
     },
-    "/mybricks-app-mppage/mybricks-app-mpsite/api/compile/wx/preview:POST": {
+    "/api/compile/wx/preview:POST": {
       "ignore": true
     },
-    "/mybricks-app-mpsite/api/compile/wx/publish:POST": {
+    "/api/compile/wx/publish:POST": {
       "ignore": true
     }
   }
