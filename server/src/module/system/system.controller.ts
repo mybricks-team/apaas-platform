@@ -368,11 +368,7 @@ export default class SystemService {
         };
       }
       const codeStr = decodeURIComponent(pubInfo?.content);
-      let res = {
-        code: 1,
-        data: null,
-        msg: '',
-      };
+      let res:any = {};
       try {
         const { success, data, msg, logStack } = await this.nodeVMIns.run(codeStr, {
           injectParam: { ...params, _headers: headers, collectLog: params?.showToplLog || false }
@@ -388,8 +384,11 @@ export default class SystemService {
         }
       } catch (e) {
         console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
-        res.code = -1;
-        res.msg = e.data;
+        res = {
+          code: -1,
+          msg: e.data,
+          logStack: e.logStack
+        }
       }
       return res;
     } catch (e) {
