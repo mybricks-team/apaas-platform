@@ -38,7 +38,7 @@
     "pm2": "^5.2.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "vm-node": "0.0.17"
+    "vm-node": "0.0.18"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",

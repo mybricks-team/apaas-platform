@@ -374,14 +374,18 @@ export default class SystemService {
         msg: '',
       };
       try {
-        const { success, data, msg } = await this.nodeVMIns.run(codeStr, {
-          injectParam: { ...params, _headers: headers }
+        const { success, data, msg, logStack } = await this.nodeVMIns.run(codeStr, {
+          injectParam: { ...params, _headers: headers, collectLog: params?.showToplLog || false }
         });
         res = {
           code: success ? 1 : -1,
           data,
           msg,
         };
+        if(params?.showToplLog) {
+          // @ts-ignore
+          res.logStack = logStack
+        }
       } catch (e) {
         console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
         res.code = -1;
