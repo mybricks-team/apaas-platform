@@ -28,6 +28,7 @@ const DOMAIN_EXE_CODE_TEMPLATE = `
           error: (...args) => {
               console.log(...args)
           },
+          trace: (...args) => {},
       };
   };
   const Hooks = (taskId) => {
