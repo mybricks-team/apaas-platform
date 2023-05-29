@@ -389,7 +389,7 @@ export default class SystemService {
       } catch (e) {
         console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
         res.code = -1;
-        res.msg = e.msg;
+        res.msg = e.data;
       }
       return res;
     } catch (e) {
