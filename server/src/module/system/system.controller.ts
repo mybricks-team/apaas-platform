@@ -371,7 +371,9 @@ export default class SystemService {
       let res:any = {};
       try {
         const { success, data, msg, logStack } = await this.nodeVMIns.run(codeStr, {
-          injectParam: { ...params, _headers: headers, collectLog: params?.showToplLog || false }
+          injectParam: { ...params, _options: {
+            _headers: headers,
+          }, collectLog: params?.showToplLog || false }
         });
         res = {
           code: success ? 1 : -1,
