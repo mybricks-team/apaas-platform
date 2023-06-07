@@ -7,10 +7,10 @@ function startExe(obj, { dbConnection }) {
     return conn.exe(handledSql, args);
   };
   // userId为主键
-  const { projectId, phone, password } = obj
+  const { projectId, username, password } = obj
   return new Promise((resolve, reject) => {
     try {
-      const sql = `SELECT id, 用户名, 电话号码, 邮箱 FROM D_${projectId}_系统用户_VIEW WHERE _STATUS_DELETED = 0 AND 电话号码 = '${phone}' AND 密码 = '${password}' ORDER BY id DESC LIMIT 1;`;
+      const sql = `SELECT id, 用户名 FROM D_${projectId}_系统用户_VIEW WHERE _STATUS_DELETED = 0 AND 用户名 = '${username}' AND 密码 = '${password}' ORDER BY id DESC LIMIT 1;`;
       _execSQL(sql, { args: obj }).then(res => {
         resolve(res[0]);
       })

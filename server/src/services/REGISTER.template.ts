@@ -7,22 +7,24 @@ function startExe(obj, { dbConnection, genUniqueId }) {
     return conn.exe(handledSql, args);
   };
   // userId为主键
-  const { projectId, phone, password } = obj
+  const { projectId, username, password } = obj
   return new Promise(async (resolve, reject) => {
     try {
-      const sql = `SELECT id, 用户名, 电话号码, 邮箱 FROM D_${projectId}_系统用户_VIEW WHERE _STATUS_DELETED = 0 AND 电话号码 = '${phone}' ORDER BY id DESC LIMIT 1;`;
+			if (!username || !password) {
+				reject(Error('用户名或密码不能为空'));
+			}
+      const sql = `SELECT id, 用户名 FROM D_${projectId}_系统用户_VIEW WHERE _STATUS_DELETED = 0 AND 用户名 = '${username}' AND 密码 = '${password}' ORDER BY id DESC LIMIT 1;`;
       const res = await _execSQL(sql, { args: obj });
 			if (res[0]) {
-				reject(Error('电话号码已被使用'));
+				reject(Error('用户已存在'));
 			}
-			const getValue = (key) => (obj[key] === undefined || obj[key] === null) ? 'null' : `'${obj[key]}'`;
 			const time = Date.now();
 	    await _execSQL(
-				`INSERT INTO D_${projectId}_系统用户_VIEW (id, _STATUS_DELETED, _CREATE_TIME, _UPDATE_TIME, 注册日期, 用户名, 电话号码, 邮箱, 密码, weixinOpenid, weixinUnionid)
- 							VALUES (${genUniqueId()}, 0, ${time}, ${time}, ${time}, ${getValue('username')}, ${getValue('phone')}, ${getValue('email')}, ${getValue('password')}, ${getValue('weixinOpenid')}, ${getValue('weixinUnionid')});`,
+				`INSERT INTO D_${projectId}_系统用户_VIEW (id, _STATUS_DELETED, _CREATE_TIME, _UPDATE_TIME, 用户名, 密码)
+ 							VALUES (${genUniqueId()}, 0, ${time}, ${time}, '${username}', '${password}');`,
 		    { args: obj }
 	    );
-	    const userRes = await _execSQL(`SELECT id, 用户名, 电话号码, 邮箱 FROM D_${projectId}_系统用户_VIEW WHERE _STATUS_DELETED = 0 AND 电话号码 = '${phone}' AND 密码 = '${password}' ORDER BY id DESC LIMIT 1;`, { args: obj });
+	    const userRes = await _execSQL(`SELECT id, 用户名 FROM D_${projectId}_系统用户_VIEW WHERE _STATUS_DELETED = 0 AND 用户名 = '${username}' AND 密码 = '${password}' ORDER BY id DESC LIMIT 1;`, { args: obj });
 			
 			resolve(userRes[0]);
     }
