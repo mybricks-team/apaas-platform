@@ -211,8 +211,8 @@ export default class AuthController {
     if(!body.projectId) {
       return { code: -1, msg: 'projectId 为空' };
     }
-    if(!body.phone || !body.username || !body.password) {
-      return { code: -1, msg: '电话号码、用户名、密码为空' };
+    if(!body.username || !body.password) {
+      return { code: -1, msg: '用户名、密码为空' };
     }
 		
     try {

@@ -464,19 +464,19 @@ export default class FileController {
   async _getParentModuleAndProjectInfo(id: number) {
     let res = {
       projectId: null, // 只存储最近的projectId，因为project不存在嵌套，只会有一个
-      moduleId: null, // 只存储最近的module，往上遍历会存在多次嵌套
-      // hierarchy: {},
-      // absolutePath: '',
-      // absoluteUUIDPath: ''
+	    moduleId: null, // 只存储最近的module，往上遍历会存在多次嵌套
+      absoluteNamePath: '',
+      absoluteIdPath: ''
     }
-    // let pPointer: any = res.hierarchy;
-    // let qPointer: any = res.hierarchy;
+    const hierarchy = {}
+    let pPointer: any = hierarchy;
+    let qPointer: any = hierarchy;
     try {
       let count = 0;
       let tempItem = await this.fileDao.queryById(id)
-      // res.absolutePath = `/${tempItem.name}.${tempItem.extName}`
       // @ts-ignore
-      // res.absoluteUUIDPath = `/${tempItem.uuid}`
+      res.absoluteIdPath = `/${tempItem.id}`
+      res.absoluteNamePath = `/${tempItem.name}.${tempItem.extName}`
       if (tempItem?.extName === 'folder-module') {
         if (!res.moduleId) {
           res.moduleId = tempItem.id
@@ -487,23 +487,23 @@ export default class FileController {
         count++;
         // 恶心兼容，等待完全删除
         tempItem = await this.fileDao.queryById(tempItem.parentId, [1, -1]);
-        // switch(tempItem.extName) {
-        //   case 'folder-module':
-        //   case 'folder-project':
-        //   case 'folder': {
-        //     qPointer.parent = {
-        //       fileId: tempItem.id,
-        //       isProject: true,
-        //       parent: {}
-        //     }
-        //     pPointer = pPointer.parent;
-        //     qPointer = pPointer;
-        //     res.absolutePath = `/${tempItem.name}${res.absolutePath}`
-        //     // @ts-ignore
-        //     res.absoluteUUIDPath = `/${tempItem.uuid}${res.absoluteUUIDPath}`
-        //     break;
-        //   }
-        // }
+        switch(tempItem.extName) {
+          case 'folder-module':
+          case 'folder-project':
+          case 'folder': {
+            qPointer.parent = {
+              fileId: tempItem.id,
+              isProject: true,
+              parent: {}
+            }
+            pPointer = pPointer.parent;
+            qPointer = pPointer;
+            res.absoluteNamePath = `/${tempItem.name}${res.absoluteNamePath}`
+            // @ts-ignore
+            res.absoluteIdPath = `/${tempItem.id}${res.absoluteIdPath}`
+            break;
+          }
+        }
         // todo: build hierarchy
         if (tempItem.extName === 'folder-module') {
           if (!res.moduleId) {
@@ -514,13 +514,13 @@ export default class FileController {
           // break
         }
       }
-      // if(!tempItem?.parentId && tempItem?.groupId) {
-      //   // 补充协作组信息，作为文件的绝对路径
-      //   const [coopGroupInfo] = await this.userGroupDao.queryByIds({ids: [tempItem?.groupId]})
-      //   res.absolutePath = `/${coopGroupInfo.name}${res.absolutePath}`
-      //   // @ts-ignore
-      //   res.absoluteUUIDPath = `/${coopGroupInfo.name}${res.absoluteUUIDPath}`
-      // }
+      if(!tempItem?.parentId && tempItem?.groupId) {
+        // 补充协作组信息，作为文件的绝对路径
+        const [coopGroupInfo] = await this.userGroupDao.queryByIds({ids: [tempItem?.groupId]})
+        res.absoluteNamePath = `/${coopGroupInfo.name}${res.absoluteNamePath}`
+        // @ts-ignore
+        res.absoluteIdPath = `/${coopGroupInfo.id}${res.absoluteIdPath}`
+      }
       return res
     } catch (e) {
       throw e

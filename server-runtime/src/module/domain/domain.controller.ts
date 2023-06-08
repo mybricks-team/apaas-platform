@@ -34,7 +34,7 @@ export default class FlowController {
   }
 
     // // 领域建模运行时(运行时)
-    // @Post('/service/test')
+    // @Get('/service/test')
     // async test() {
     //   let readyExePath;
     //   try {
@@ -46,7 +46,8 @@ export default class FlowController {
     //     console.log('运行容器：获取连接成功')
     //     let res = await startExe({}, {
     //       dbConnection: con,
-    //       snowFlake: this.snowFlake
+    //       snowFlake: this.snowFlake,
+    //       axios: require('axios')
     //     })
     //     console.log('运行容器：运行完毕')
     //     return {
@@ -90,7 +91,10 @@ export default class FlowController {
       console.log('运行容器：获取连接成功')
       let res = await startExe({
         ...(params || {}),
-        _headers: req.headers
+        _options: {
+          _headers: req.headers,
+          axios: require('axios')
+        }
       }, {
         dbConnection: con,
         snowFlake: this.snowFlake
