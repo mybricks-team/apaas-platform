@@ -589,9 +589,16 @@
 
     <select id="getGroupFiles">
         select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon, share_type  from apaas_file 
-        where status = #{status} 
-        and group_id = #{groupId}
-         <choose>
+        where status = #{status}
+        <choose>
+            <when test="groupId">
+                and group_id = #{groupId}
+            </when>
+            <otherwise>
+                and 1
+            </otherwise>
+        </choose>
+        <choose>
             <when test="parentId">
                 and parent_id = #{parentId}
             </when>

@@ -396,75 +396,75 @@ export default class FileController {
       extNames = extNames.split(',')
     }
 
-    const files = await this.fileDao.query({parentId, extNames, groupId, creatorId})
+    const files = await this.fileDao.query({ parentId, extNames, groupId, creatorId })
 
     return {
       code: 1,
       data: files
     }
   }
-	
+
   @Get('/getFileRoot')
-	async getFileList(@Query() query) {
-		const { parentId, creatorId, fileId, checkModule } = query;
-		
-		if (!parentId) {
-			const file = await this.fileDao.queryById(fileId);
-			
-			let current = file ? JSON.parse(JSON.stringify(file)) : null;
-			while (current && current.extName !== 'folder-project' && (checkModule ? current.extName !== 'folder-module' : true)) {
-				if (current.parentId) {
-					current = await this.fileDao.queryById(current.parentId);
-				} else if (!current.groupId) {
-					current = null;
-					break;
-				} else {
-					break;
-				}
-			}
-			
-			// 我的
-			if (!current) {
-				return {
-					code: 1,
-					data: {
-						id: 0,
-						name: "我的",
-						extName: "my-file",
-						isMyFile: true,
-						dataSource: (await this.fileDao.getMyFiles({ userId: creatorId })).map(item => {
-							delete item.icon;
-							item.isMyFile = true;
-							item.parentIdPath = '0';
-							return { ...item, isMyFile: true };
-						}),
-					},
-				};
-			} else if (current.extName === 'folder-project' || (checkModule ? current.extName === 'folder-module' : false)) {
-				delete current.icon;
-				return {
-					code: 1,
-					data: current
-				};
-			} else if (current.groupId) {
-				const [group] = await this.userGroupDao.queryByIds({ ids: [current.groupId] });
-				
-				return { code: 1, data: { ...group, extName: 'group' } };
-			} else {
-				return { code: 1, data: null };
-			}
-		} else {
-			const file = await this.fileDao.queryById(parentId);
-			file && delete file.icon;
-			
-			return { code: 1, data: file };
-		}
-	}
+  async getFileList(@Query() query) {
+    const { parentId, creatorId, fileId, checkModule } = query;
+
+    if (!parentId) {
+      const file = await this.fileDao.queryById(fileId);
+
+      let current = file ? JSON.parse(JSON.stringify(file)) : null;
+      while (current && current.extName !== 'folder-project' && (checkModule ? current.extName !== 'folder-module' : true)) {
+        if (current.parentId) {
+          current = await this.fileDao.queryById(current.parentId);
+        } else if (!current.groupId) {
+          current = null;
+          break;
+        } else {
+          break;
+        }
+      }
+
+      // 我的
+      if (!current) {
+        return {
+          code: 1,
+          data: {
+            id: 0,
+            name: "我的",
+            extName: "my-file",
+            isMyFile: true,
+            dataSource: (await this.fileDao.getMyFiles({ userId: creatorId })).map(item => {
+              delete item.icon;
+              item.isMyFile = true;
+              item.parentIdPath = '0';
+              return { ...item, isMyFile: true };
+            }),
+          },
+        };
+      } else if (current.extName === 'folder-project' || (checkModule ? current.extName === 'folder-module' : false)) {
+        delete current.icon;
+        return {
+          code: 1,
+          data: current
+        };
+      } else if (current.groupId) {
+        const [group] = await this.userGroupDao.queryByIds({ ids: [current.groupId] });
+
+        return { code: 1, data: { ...group, extName: 'group' } };
+      } else {
+        return { code: 1, data: null };
+      }
+    } else {
+      const file = await this.fileDao.queryById(parentId);
+      file && delete file.icon;
+
+      return { code: 1, data: file };
+    }
+  }
 
   async _getParentModuleAndProjectInfo(id: number) {
     let res = {
       projectId: null, // 只存储最近的projectId，因为project不存在嵌套，只会有一个
-	    moduleId: null, // 只存储最近的module，往上遍历会存在多次嵌套
+      moduleId: null, // 只存储最近的module，往上遍历会存在多次嵌套
       // hierarchy: {},
       // absolutePath: '',
       // absoluteUUIDPath: ''
@@ -613,7 +613,7 @@ export default class FileController {
     let { fileId } = query
     let rootFile
 
-    while(fileId) {
+    while (fileId) {
       rootFile = await this.fileDao.queryById(fileId)
 
       if (rootFile.extName === 'folder-project') {
@@ -703,31 +703,31 @@ export default class FileController {
     }
 
     const file = await this.fileDao.exactQuery(params)
-	  let error = !file ? '' : '相同路径下不允许创建同名文件！';
-		
-		/** 领域模型文件，在项目下只允许创建一个模型文件 */
-		if (!error && isCreate && extName === 'domain' && parentId) {
-			const file = await this.fileDao.queryById(parentId);
-			
-			let current = file ? JSON.parse(JSON.stringify(file)) : null;
-			while (current && current.extName !== 'folder-project') {
-				if (current.parentId) {
-					current = await this.fileDao.queryById(current.parentId);
-				} else if (!current.parentId) {
-					current = null;
-					break;
-				}
-			}
-			
-			/** 项目下 */
-			if (current && current.extName === 'folder-project') {
-				const domainFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: current.id, extNameList: ['domain'] });
-				
-				if (domainFiles.length) {
-					error = '项目下不允许创建多个领域模型文件';
-				}
-			}
-		}
+    let error = !file ? '' : '相同路径下不允许创建同名文件！';
+
+    /** 领域模型文件，在项目下只允许创建一个模型文件 */
+    if (!error && isCreate && extName === 'domain' && parentId) {
+      const file = await this.fileDao.queryById(parentId);
+
+      let current = file ? JSON.parse(JSON.stringify(file)) : null;
+      while (current && current.extName !== 'folder-project') {
+        if (current.parentId) {
+          current = await this.fileDao.queryById(current.parentId);
+        } else if (!current.parentId) {
+          current = null;
+          break;
+        }
+      }
+
+      /** 项目下 */
+      if (current && current.extName === 'folder-project') {
+        const domainFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: current.id, extNameList: ['domain'] });
+
+        if (domainFiles.length) {
+          error = '项目下不允许创建多个领域模型文件';
+        }
+      }
+    }
 
     return { code: 1, data: { next: !error, message: error } };
   }
@@ -782,7 +782,7 @@ export default class FileController {
   }
 
   // TODO:写死查询的应用
-  async getFolderProjectAppsByParentId({ id,  extNames }, files = []) {
+  async getFolderProjectAppsByParentId({ id, extNames }, files = []) {
     const items = await this.fileDao.getFilesByParentId({ id, extNames })
     const promiseAry = []
 
@@ -824,7 +824,7 @@ export default class FileController {
       apps: files,
       moduleList: JSON.parse(projectModuleInfo?.module_info || '{}')?.moduleList || []
     };
-    if(folder.creatorName === userName) {
+    if (folder.creatorName === userName) {
       data.adminInfo = {
         ...getAdminInfoByProjectId(id)
       }
@@ -889,33 +889,43 @@ export default class FileController {
     @Query('extName') extName: string,
     @Res() res: Response
   ) {
+
+    // 非项目环境下，返回空
     if (!id) {
+      let editJS = `
+        let comlibList = window['__comlibs_edit_'];
+        if(!comlibList){
+          comlibList = window['__comlibs_edit_'] = [];
+        }
+      `
       res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
-      res.status(200).send('').end();
-    } else {
-      const projectInfoAry = await this.moduleDao.getProjectModuleInfo(id)
-      let componentsStr = ''
-      await Promise.all(projectInfoAry.map(async (projectInfo) => {
-        const { module_info } = projectInfo
-        const { moduleList } = JSON.parse(module_info)
+      res.status(200).send(editJS).end();
+      return;
+    }
 
-        await Promise.all(moduleList.map(async (module) => {
-          const { id, name, version } = module
+    const projectInfoAry = await this.moduleDao.getProjectModuleInfo(id)
+    let componentsStr = ''
+    await Promise.all(projectInfoAry.map(async (projectInfo) => {
+      const { module_info } = projectInfo
+      const { moduleList } = JSON.parse(module_info)
 
-          console.log("extName", extName);
+      await Promise.all(moduleList.map(async (module) => {
+        const { id, name, version } = module
 
-          const cdms = await this.modulePubDao.queryPubInfo({
-            moduleId: id,
-            extNameList: [extName || 'cdm'],
-            version: version
-          })
+        console.log("extName", extName);
 
-          if (cdms?.length) {
-            let comsStr = ''
-            cdms.forEach((cdm) => {
-              const content = JSON.parse(cdm.content)
+        const cdms = await this.modulePubDao.queryPubInfo({
+          moduleId: id,
+          extNameList: [extName || 'cdm'],
+          version: version
+        })
 
-              comsStr = comsStr + `
+        if (cdms?.length) {
+          let comsStr = ''
+          cdms.forEach((cdm) => {
+            const content = JSON.parse(cdm.content)
+
+            comsStr = comsStr + `
                 {
                   data: ${JSON.stringify(content.data)},
                   icon: '${content.icon}',
@@ -929,10 +939,10 @@ export default class FileController {
                   upgrade: ${decodeURIComponent(content.upgrade)}
                 },
               `
-            })
+          })
 
-            if (comsStr) {
-              componentsStr = componentsStr + `
+          if (comsStr) {
+            componentsStr = componentsStr + `
               comAray.push({
                 id: '${id}',
                 title: '${name}',
@@ -941,14 +951,14 @@ export default class FileController {
                 ]
               })
               `
-            }
           }
+        }
 
-          Promise.resolve()
-        }))
+        Promise.resolve()
       }))
+    }))
 
-      let editJS = `
+    let editJS = `
         let comlibList = window['__comlibs_edit_'];
         if(!comlibList){
           comlibList = window['__comlibs_edit_'] = [];
@@ -964,9 +974,8 @@ export default class FileController {
         comlibList.push(newComlib);
       `
 
-      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
-      res.status(200).send(editJS).end();
-    }
+    res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+    res.status(200).send(editJS).end();
   }
 
   @Get('/getModuleComponentsByProjectId')
@@ -1028,18 +1037,18 @@ export default class FileController {
               extNameList: ['html'],
               version: version
             })
-  
+
             moduleList[index].htmls = htmls.map((html) => {
               return {
                 name: html.file_name,
                 id: html.file_id
               }
             })
-  
+
             resolve(true)
           })
         }))
-  
+
         modules = moduleList
       }
     }
@@ -1057,7 +1066,7 @@ export default class FileController {
    * @returns
    */
   @Get('getProjectFilesByProjectId')
-  async getModuleFilesByProjectId(@Query('id') id: number, @Query('extNames') extNames?: string ) {
+  async getModuleFilesByProjectId(@Query('id') id: number, @Query('extNames') extNames?: string) {
     if (!id || (!!extNames && (!extNames?.split || !Array.isArray(extNames.split(','))))) {
       return {
         code: -1,
@@ -1085,7 +1094,7 @@ export default class FileController {
     let projectFiles = await this.fileDao.queryFlattenFileTreeByParentId({ parentId: projectInfo?.file_id ?? id, extNameList })
     const moduleFileIds = moduleFilePubs.map(pub => pub.file_id)
     projectFiles = projectFiles.filter(file => !moduleFileIds.includes(file.id))
-    
+
     /** 获取项目内发布的最新保存记录 */
     const projectFilePubs = await this.fileContentDao.queryLatestSaves({ fileIds: projectFiles.map(file => file.id) })
     const _projectFilePubs = projectFilePubs.map(pub => ({ ...pub, file_content_id: pub.id }))
@@ -1110,7 +1119,7 @@ export default class FileController {
 
   @Post('/share/mark')
   async shareMark(@Body('id') id: number, @Body('userId') userId: string) {
-    if(!id || !userId) {
+    if (!id || !userId) {
       return {
         code: -1,
         msg: '缺少必要参数 id 或 userId'
@@ -1131,7 +1140,7 @@ export default class FileController {
 
   @Post('/share/unmark')
   async shareUnmark(@Body('id') id: number, @Body('userId') userId: string) {
-    if(!id || !userId) {
+    if (!id || !userId) {
       return {
         code: -1,
         msg: '缺少必要参数 id 或 userId'
@@ -1151,7 +1160,7 @@ export default class FileController {
 
   @Post('/getCountOfUserAndExt')
   async getCountOfUserAndExt(@Body('userId') userId: string, @Body('extName') extName: string) {
-    if(!userId || !extName) {
+    if (!userId || !extName) {
       return {
         code: -1,
         msg: '缺少必要参数'
