@@ -5,6 +5,10 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
   config?.appNamespaceList?.forEach(ns => {
     const baseFolder = env.getAppInstallFolder()
     // ns切割
+    app.useStaticAssets(path.join(baseFolder, `/${encodeURIComponent(ns)}/assets/`), {
+      prefix: `/${ns}`,
+      index: false
+    });
     app.useStaticAssets(path.join(baseFolder, `/${ns}/assets/`), {
       prefix: `/${ns}`,
       index: false
