@@ -127,10 +127,24 @@ async function installApplication() {
       const installApps = applicationLoadConfig?.installApps
       for(let l = installApps.length, i = 0; i < l; i++) {
         const appConfig = installApps[i];
+        let isScopePkg = false;
         if(appConfig.type === 'npm') {
           const npmPkg = appConfig.path;
-          const pkgName = npmPkg.split('@')[0]
-          const pkgVersion = npmPkg.split('@')[1]
+          let pkgName;
+          let rawPkgName;
+          let pkgVersion;
+          // scope package
+          if(npmPkg[0] === '@') {
+            const temPos = npmPkg.lastIndexOf('@');
+            rawPkgName = npmPkg.substr(0, temPos)
+            pkgName = encodeURIComponent(rawPkgName)
+            pkgVersion = npmPkg.substr(temPos + 1)
+            isScopePkg = true
+          } else {
+            pkgName = npmPkg.split('@')[0]
+            rawPkgName = pkgName
+            pkgVersion = npmPkg.split('@')[1]
+          }
           if(!fs.existsSync(APPS_BASE_FOLDER)) {
             fs.mkdirSync(APPS_BASE_FOLDER)
           }
@@ -138,6 +152,7 @@ async function installApplication() {
           if(!fs.existsSync(APPS_BASE_FOLDER)) {
             fs.mkdirSync(APPS_BASE_FOLDER)
           }
+          
           // judge jump
           const existedAppPkgPath = path.join(destAppDir, './package.json')
           if(fs.existsSync(existedAppPkgPath)) {
@@ -170,8 +185,14 @@ async function installApplication() {
             continue;
           }
           // copy aplication
-          const srcAppDir = path.join(tempFolder, `./node_modules/${pkgName}`)
+          let srcAppDir;
+          if(isScopePkg) { // scope package
+            srcAppDir = path.join(tempFolder, `./node_modules/${rawPkgName}`)
+          } else {
+            srcAppDir = path.join(tempFolder, `./node_modules/${pkgName}`)
+          }
           if(fs.existsSync(path.join(destAppDir, './assets'))) {
+            // 删除历史版本
             fs.removeSync(path.join(destAppDir, './assets'))
           }
           fs.copySync(srcAppDir, destAppDir)
