@@ -17,3 +17,4 @@ server/_assets/workspace.html
 package-lock.json
 page/package-lock.json
 server/package-lock.json
+logs
