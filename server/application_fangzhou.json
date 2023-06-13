@@ -18,7 +18,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-domain@0.2.7"
+      "path": "mybricks-domain@0.2.3"
     },
     {
       "type": "npm",
@@ -39,6 +39,14 @@
     {
       "type": "npm",
       "path": "mybricks-app-codegen@1.0.21"
+    },
+    {
+      "type": "npm",
+      "path": "@fangzhou/app-h5@0.0.2"
+    },
+    {
+      "type": "npm",
+      "path": "@fangzhou/apaas-server-extend@0.0.1"
     }
   ]
 }
