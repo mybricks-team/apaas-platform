@@ -160,7 +160,7 @@ export function Create(): JSX.Element {
 
             if (typeof homepage === 'string') {
               setTimeout(() => {
-                window.location.href = `${homepage}?id=${data.data.id}`;
+                window.open(`${homepage}?id=${data.data.id}`);
               }, 0);
             }
 

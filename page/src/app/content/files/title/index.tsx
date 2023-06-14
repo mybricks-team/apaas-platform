@@ -270,7 +270,7 @@ function SearchModal({open, onCancel}) {
       default:
         const appReg = APPSMap[extName]
         const {homepage} = appReg
-        window.location.href = `${homepage}?id=${id}`
+        window.open(`${homepage}?id=${id}`)
         break
     }
   }, [])
