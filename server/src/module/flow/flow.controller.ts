@@ -14,6 +14,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 const env = require('../../../env.js')
 import { getRealDomain } from '../../utils/index'
 import FlowService from './flow.service';
+import { uuid } from '../../utils/index';
+import path from 'path';
+
 
 @Controller('/paas/api/flow')
 export default class FlowController {
@@ -146,7 +149,8 @@ export default class FlowController {
     try {
       const subPath = await this.flowService.saveFile({
         str: file.buffer,
-        filename: file.originalname,
+        // filename: file.originalname,
+        filename: `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
         folderPath: body.folderPath
       });
       return {
@@ -177,7 +181,8 @@ export default class FlowController {
         files.map((file) => {
           return this.flowService.saveFile({
             str: file.buffer,
-            filename: file.originalname,
+            // filename: file.originalname,
+            filename: `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
             folderPath: body.folderPath
           });
         }),
