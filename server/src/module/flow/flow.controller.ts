@@ -15,7 +15,7 @@ const env = require('../../../env.js')
 import { getRealDomain } from '../../utils/index'
 import FlowService from './flow.service';
 import { uuid } from '../../utils/index';
-import path from 'path';
+import * as path from 'path';
 
 
 @Controller('/paas/api/flow')
