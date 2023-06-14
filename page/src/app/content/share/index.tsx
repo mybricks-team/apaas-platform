@@ -51,7 +51,7 @@ export default function Share() {
 	}, [pageIndex])
 
 	const onClick = useCallback(({id, homepage}) => {
-		window.location.href = `${homepage}?id=${id}`
+		window.open(`${homepage}?id=${id}`)
 	}, [])
 
 	const onScroll = useCallback(() => {

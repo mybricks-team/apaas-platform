@@ -102,7 +102,7 @@ function AppList({apps}) {
       case 'edit':
         const {homepage} = appReg
         const {id} = app
-        window.location.href = `${homepage}?id=${id}`
+        window.open(`${homepage}?id=${id}`)
         break
       case 'gotoPublish':
         try {

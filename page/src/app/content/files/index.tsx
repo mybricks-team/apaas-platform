@@ -166,7 +166,7 @@ function Projects() {
     switch (type) {
       case 'open':
         if (!folderExtnames.includes(extName)) {
-          window.location.href = `${homepage}?id=${id}`;
+          window.open(`${homepage}?id=${id}`);
         } else {
           history.pushState(null, '', `?appId=files${groupId ? `&groupId=${groupId}` : ''}${id ? `&parentId=${id}` : ''}`)
         }
