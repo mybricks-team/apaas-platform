@@ -6,7 +6,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-material@0.0.71"
+      "path": "mybricks-material@0.0.73"
     },
     {
       "type": "npm",
@@ -39,14 +39,6 @@
     {
       "type": "npm",
       "path": "mybricks-app-mppage@0.0.33"
-    },
-    {
-      "type":"npm",
-      "path":"mybricks-app-mpsite@0.0.34"
-    },
-    {
-      "type": "npm",
-      "path": "mybricks-app-codegen@1.0.21"
     }
   ]
 }

@@ -535,12 +535,12 @@ export default class FileController {
         msg: '缺少ID'
       }
     }
-    if(id == 0) {
-      // sdk兜底fileId，直接返回接口
-      return {
-        code: 1
-      }
-    }
+    // if(id == 0) {
+    //   // sdk兜底fileId，直接返回接口
+    //   return {
+    //     code: 1
+    //   }
+    // }
     try {
       let res = await this._getParentModuleAndProjectInfo(id)
       return {
