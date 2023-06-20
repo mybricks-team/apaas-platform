@@ -1,6 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import AppManage from "./AppManage.module";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { ValidationPipe } from '@nestjs/common';
 
 import * as path from "path";
 import * as cookieParser from "cookie-parser";
@@ -37,6 +38,7 @@ async function bootstrap() {
   enhanceApp(app, {
     appNamespaceList: loadedModule.namespace,
   });
+  app.useGlobalPipes(new ValidationPipe());
   app.use(checkHealthMiddleware);
   app.enableCors({
     origin: function (origin, callback) {
