@@ -86,6 +86,9 @@ export class FileDO {
   @Column("share_type")
   shareType;
 
+  @Column("delivery_channel")
+  deliveryChannel;
+
   toJSON() {
     const json = {}
     Object.getOwnPropertyNames(this).forEach(nm => {

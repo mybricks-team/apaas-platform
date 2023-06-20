@@ -7,7 +7,7 @@ import UserGroupDao from "../../dao/UserGroupDao";
 import UserGroupRelationDao from '../../dao/UserGroupRelationDao'
 import ServicePubDao from '../../dao/ServicePubDao'
 import ModulePubDao from '../../dao/ModulePubDao'
-import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
+import { Body, Controller, Get, Logger, Post, Query, Res } from "@nestjs/common";
 import { isNumber, getAdminInfoByProjectId } from '../../utils'
 import ModuleDao from "../../dao/ModuleDao";
 import FileService from "./file.service";
@@ -64,6 +64,30 @@ export default class FileController {
       code: 1,
       data: files,
     };
+  }
+
+  @Get("/getDeliveryChannel")
+  async getDeliveryChannel(@Query() query) {
+    const {
+      id
+    } = query ?? {};
+    try {
+      const file = await this.fileDao.queryById(
+        id
+      );
+      const delivery = JSON.parse(file?.deliveryChannel || '[]') || [];
+      return {
+        code: 1,
+        data: delivery,
+      };
+
+    } catch(e) {
+      console.info(e)
+      return {
+        code: -1,
+        msg: e.message || '出错了'
+      }
+    }
   }
 
   @Post('/delete')

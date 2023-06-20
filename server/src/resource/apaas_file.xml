@@ -156,7 +156,7 @@
     </select>
 
     <select id="queryById">
-        select id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
+        select *
         from apaas_file where
         id = #{id}
         and status in
