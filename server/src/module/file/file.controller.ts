@@ -66,6 +66,81 @@ export default class FileController {
     };
   }
 
+  @Post('/delete')
+  async deleteFile(
+    @Body("fileId") fileId: number,
+    @Body("updatorId") updatorId: string,
+  ) {
+    if(!fileId || !updatorId) {
+      return {
+        code: -1,
+        msg: '参数不合法'
+      }
+    }
+  
+    try {
+      const file = await this.fileDao.queryById(fileId)
+      if(!file || file.creatorId !== updatorId) {
+        return {
+          code: -1,
+          msg: '删除失败，您没有此文件权限'
+        }
+      }
+      const res = await this.fileDao.deleteFile({ id: fileId, updatorId: updatorId, updatorName: updatorId })
+      return {
+        code: 1,
+        data: res
+      }
+    } catch(e) {
+      return {
+        code: -1,
+        msg: e.message || '创建出错'
+      }
+    }
+  }
+
+  @Post("/create")
+  async create(
+    @Body("name") name: string,
+    @Body("creatorId") creatorId: string,
+    @Body("creatorName") creatorName: string,
+    @Body("extName") extName: string,
+    @Body("groupId") groupId: number,
+    @Body("description") description: string,
+    @Body("parentId") parentId: number,
+    @Body("icon") icon: string,
+  ) {
+    if(!name || !creatorId || !extName) {
+      return {
+        code: -1,
+        msg: '参数不合法'
+      }
+    }
+    const param = {
+      parentId,
+      groupId,
+      name,
+      extName,
+      icon,
+      creatorId,
+      creatorName,
+      description
+    }
+    try {
+      const result = await this.fileDao.createFile(param)
+      return {
+        code: 1,
+        data: result
+      }
+    } catch(e) {
+      return {
+        code: -1,
+        msg: e.message || '创建出错'
+      }
+    }
+
+  }
+
   @Post("/rename")
   async rename(
     @Body("id") id: number,
