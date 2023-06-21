@@ -6,7 +6,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-material@0.0.71"
+      "path": "mybricks-material@0.0.85"
     },
     {
       "type": "npm",
@@ -42,7 +42,7 @@
     },
     {
       "type": "npm",
-      "path": "@fangzhou/app-h5@0.0.2"
+      "path": "@fangzhou/app-h5@0.0.24"
     },
     {
       "type": "npm",
