@@ -141,6 +141,13 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         >
           <Input.TextArea rows={4} placeholder='不同角色新建文件数量' />
         </Form.Item>
+        <Form.Item
+          initialValue=""
+          label="基于模板新建"
+          name="createBasedOnTemplate"
+        >
+          <Input.TextArea rows={2} placeholder='开启的应用白名单' />
+        </Form.Item>
       </Form>
       <div className={styles.btnGroups}>
         <Button

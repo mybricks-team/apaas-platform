@@ -41,8 +41,8 @@ fi
 echo "传输完毕"
 
 echo "开始上传"
-cd $targetBase
-git add .
-git commit -m "update"
-git push
+# cd $targetBase
+# git add .
+# git commit -m "update"
+# git push
 echo "上传完毕"

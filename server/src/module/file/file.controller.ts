@@ -162,7 +162,56 @@ export default class FileController {
         msg: e.message || '创建出错'
       }
     }
+  }
 
+  @Post("/createFileBaseTemplate")
+  async createFile(@Body() body) {
+    const { userId, name, extName, namespace, type, parentId, groupId, templateId } = body;
+    if (!userId) {
+      return {
+        code: -1,
+        message: "error",
+      };
+    }
+
+    try {
+      const rtn = await this.fileDao.createFile({
+        type,
+        name,
+        namespace,
+        creatorId: userId,
+        creatorName: userId,
+        extName: extName,
+        groupId,
+        parentId,
+      });
+			
+			if (rtn.id) {
+        const latestSave = await this.fileContentDao.queryLatestSave({ fileId: templateId})
+        await this.fileContentDao.create({
+          fileId: rtn.id,
+          content: latestSave?.content,
+          version: '1.0.0',
+          creatorId: userId,
+          creatorName: userId,
+        });
+			} else {
+        return {
+          code: -1,
+          msg: '新建失败，请重试'
+        }
+      }
+
+      return {
+        code: 1,
+        data: { id: rtn.id },
+      };
+    } catch (ex) {
+      return {
+        code: -1,
+        message: ex.message,
+      };
+    }
   }
 
   @Post("/rename")

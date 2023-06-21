@@ -62,7 +62,7 @@ export default function App() {
         /** 平台安装的应用 */
         const appRes = await axios({
           method: "get",
-          url: getApiUrl('/api/apps/getInstalledList')
+          url: getApiUrl('/paas/api/apps/getInstalledList')
         })
         const {code, data} = appRes.data
         if (code === 1) {

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="material_scene">
+    <select id="getTags">
+        select * from material_tag where status = #{status}
+        <if test="sceneId">
+            and scene_id = #{sceneId}
+        </if>
+        <if test="checkCategory">
+            <choose>
+                <when test="isCategory">
+                    and parent_id is null
+                </when>
+                <otherwise>
+                    and parent_id is not null
+                </otherwise>
+            </choose>
+        </if>
+        <if test="tagIds">
+            and id in
+            <foreach collection="tagIds" item="item" open="( " separator="," close=" )" index="index">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getTagRelationsByMaterialId">
+        select
+            material_tag_relation.*
+        <if test="needTitle">
+            ,material_tag.title
+        </if>
+        from
+            material_tag_relation
+            ,material_tag
+        where
+            material_id in
+        <foreach collection="materialIds" item="item" open="( " separator="," close=" )" index="index">
+            #{item}
+        </foreach>
+        and material_tag_relation.tag_id = material_tag.id
+        and material_tag.parent_id is not null
+        <if test="needOnline">
+            and material_tag.status = 1
+        </if>
+    </select>
+
+    <select id="getTemplateByExtName">
+        select
+            apaas_file.id as file_id,
+            material_info.*
+        from
+            material_info,
+            apaas_file,
+            (select SUBSTRING_INDEX(namespace, '__', -1) as file_id, id  from material_info where material_info.type = 'template') as temp
+        where
+            material_info.id = temp.id
+            and apaas_file.id = temp.file_id
+            and (
+                (apaas_file.ext_name in
+                    <foreach collection="extNames" item="item" open="( " separator="," close=" )" index="index">
+                        #{item}
+                    </foreach>
+                )
+                <if test="templateGuideTypes">
+                    or (
+                        apaas_file.ext_name = 'tplg' and apaas_file.type in
+                        <foreach collection="templateGuideTypes" item="item" open="( " separator="," close=" )" index="index">
+                            #{item}
+                        </foreach>
+                    )
+                </if>
+            )
+
+    </select>
+</mapper>

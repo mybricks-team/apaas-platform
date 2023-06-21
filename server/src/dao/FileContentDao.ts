@@ -75,7 +75,7 @@ export default class FileContentDao extends DOBase {
   @Mapping(FileContentDO)
   public async queryLatestSave(params: {
     fileId: number
-  }): Promise<FileContentDO[]> {
+  }): Promise<FileContentDO> {
     const fileContents = await this.exe<FileContentDO[]>(
       'apaas_file_content:queryLatestSave',
       params

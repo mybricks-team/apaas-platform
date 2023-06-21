@@ -90,6 +90,9 @@ export default class AppCtx {
     this.systemConfig = config;
   }
 
+  // 已经安装了物料中心
+  hasInstalledMaterialCenter: boolean = false
+
   getCurrentUserSystemConfig() {
     let config = {}
     try {
@@ -178,6 +181,7 @@ export default class AppCtx {
       /** 根据某个字段去做判断 */
       if (app.namespace === 'mybricks-material') {
         DockerAPPS.push(app);
+        this.hasInstalledMaterialCenter = true
       } else {
         DesignAPPS.push(app);
       }
