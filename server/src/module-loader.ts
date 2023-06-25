@@ -7,7 +7,8 @@ const userDao = new UserDao();
 const scanDir = (dirFullPath: string) => {
   const modules = [];
   const namespace = [];
-  const middleware = []
+  const middleware = [];
+  const interceptor = [];
   if (fs.existsSync(dirFullPath)) {
     const folders = fs.readdirSync(dirFullPath);
     if (folders) {
@@ -19,6 +20,7 @@ const scanDir = (dirFullPath: string) => {
             // 约定的根模块地址
             const rootModulePath = path.join(dirFullPath, './nodejs/index.module.ts')
             const middlewarePath = path.join(dirFullPath, './nodejs/middleware/index.middleware.ts')
+            const interceptorPath = path.join(dirFullPath, './nodejs/interceptor/index.interceptor.ts')
             if(fs.existsSync(rootModulePath)) {
               modules.push(
                 require(rootModulePath).default
@@ -29,6 +31,10 @@ const scanDir = (dirFullPath: string) => {
               const wrapperFn = fn({ userDao })
               middleware.push(wrapperFn)
             }
+            if(fs.existsSync(interceptorPath)) {
+              const fn = require(interceptorPath).default
+              interceptor.push(fn)
+            }
             namespace.push(`${pkg.name}`);
           }
         }
@@ -38,7 +44,8 @@ const scanDir = (dirFullPath: string) => {
   return {
     modules,
     namespace,
-    middleware
+    middleware,
+    interceptor
   };
 };
 
@@ -46,6 +53,7 @@ export function loadModule() {
   let modules = [];
   let namespace = [];
   let middleware = [];
+  let interceptor = [];
   const namespaceMap: any = {}
   try {
     const appDir = env.getAppInstallFolder()
@@ -61,6 +69,7 @@ export function loadModule() {
           const data = scanDir(appFullPath);
           modules = modules.concat(data.modules);
           middleware = middleware.concat(data.middleware);
+          interceptor = interceptor.concat(data.interceptor);
           namespaceMap[data?.namespace?.[0]] = {
             hasService: data.modules?.length !== 0
           }
@@ -76,6 +85,7 @@ export function loadModule() {
     modules,
     namespace,
     middleware,
+    interceptor,
     namespaceMap
   };
 }

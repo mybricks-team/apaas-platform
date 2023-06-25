@@ -57,6 +57,11 @@ async function bootstrap() {
   loadedModule?.middleware?.forEach(m => {
     app.use(m);
   })
+  loadedModule?.interceptor?.forEach(i => {
+    app.useGlobalInterceptors(
+      new i(),
+    );
+  })
   app.use(bodyParser.json({ limit: "100mb" }));
   app.use(cookieParser());
 	app.use(xmlparser());
