@@ -170,10 +170,9 @@ export default class FileController {
     if (!userId) {
       return {
         code: -1,
-        message: "error",
+        msg: "缺少userId参数",
       };
     }
-
     try {
       const rtn = await this.fileDao.createFile({
         type,
@@ -209,7 +208,7 @@ export default class FileController {
     } catch (ex) {
       return {
         code: -1,
-        message: ex.message,
+        msg: ex.message,
       };
     }
   }
