@@ -1342,13 +1342,20 @@ export default class FileController {
         code: -1
       };
     }
-    const res = await this.fileService.modifyFileDeliveryChannel({
-      id,
-      deliveryChannel
-    });
-    return {
-      code :1,
-      data: res,
-    };
+    try {
+      const res = await this.fileService.modifyFileDeliveryChannel({
+        id,
+        deliveryChannel
+      });
+      return {
+        code :1,
+        data: res,
+      };
+    } catch(e) {
+      return {
+        code: -1,
+        msg: e.message || '更新渠道失败'
+      }
+    }
   }
 }
