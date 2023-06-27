@@ -1329,4 +1329,33 @@ export default class FileController {
       data: rtn
     }
   }
+
+  @Post('/updateDeliveryChannel')
+  async updateFile(
+    @Body('id') id: number,
+    @Body('deliveryChannel') deliveryChannel: string
+  ) {
+    if (!id) {
+      console.info(`[updateDeliveryChannel]: 缺少参数`);
+      return {
+        msg: '缺少参数',
+        code: -1
+      };
+    }
+    try {
+      const res = await this.fileService.modifyFileDeliveryChannel({
+        id,
+        deliveryChannel
+      });
+      return {
+        code :1,
+        data: res,
+      };
+    } catch(e) {
+      return {
+        code: -1,
+        msg: e.message || '更新渠道失败'
+      }
+    }
+  }
 }

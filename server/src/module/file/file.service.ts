@@ -134,4 +134,12 @@ export default class FileService {
     return this.fileDao.getCountOfUserAndExt(param)
   }
 
+  async modifyFileDeliveryChannel(query: {
+    id: number, deliveryChannel: string
+  }) {
+    const res = await this.fileDao.modifyFileDeliveryChannel(query.id, query.deliveryChannel);
+    return res;
+  }
+
+  
 }

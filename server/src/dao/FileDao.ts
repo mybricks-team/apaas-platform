@@ -486,6 +486,7 @@ export default class FileDao extends DOBase {
     id: number
     updatorId: string
     updatorName: string
+
     name?: string
     namespace?: string
     type?: string
@@ -493,6 +494,7 @@ export default class FileDao extends DOBase {
     version?: string
     description?: string
     icon?: string
+    deliveryChannel?: string
   }) {
     query = Object.assign(query, {
       updateTime: new Date().getTime()

@@ -46,7 +46,7 @@
     },
     {
       "type": "npm",
-      "path": "@fangzhou/apaas-server-extend@0.0.1"
+      "path": "@fangzhou/apaas-server-extend@0.0.3"
     }
   ]
 }
