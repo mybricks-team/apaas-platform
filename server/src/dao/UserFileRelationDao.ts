@@ -11,7 +11,7 @@ import {Column, DOBase, Mapping} from '@mybricks/rocker-dao'
  * @param create_time 创建时间
  * @param updator_id  更新人id
  * @param update_time 更新时间
- * @param role_desc   用户权限
+ * @param role_description   用户权限
  * @param status      状态
  */
 export class UserFileRelationDO {
@@ -30,8 +30,8 @@ export class UserFileRelationDO {
   @Column('updator_id')
   updatorId: string;
 
-  @Column('role_desc')
-  roleDesc: string;
+  @Column('role_description')
+  roleDescription: string;
 
   @Column
   status: number;
@@ -72,19 +72,19 @@ export default class UserFileRelationDao extends DOBase {
    * @param userId    用户id
    * @param fileId    文件id
    * @param creatorId 文件创建人id
-   * @param roleDesc  权限
+   * @param roleDescription  权限
    */
   public async create(params: {
     userId: string;
     fileId: number;
     creatorId: string;
-    roleDesc?: string;
+    roleDescription?: string;
   }) {
     params = Object.assign({}, params);
 
     // 目前默认只有编辑权限 '2'
-    if (!params.roleDesc) {
-      params.roleDesc = '2';
+    if (!params.roleDescription) {
+      params.roleDescription = '2';
     };
 
     const relations = await this.exe<any>(

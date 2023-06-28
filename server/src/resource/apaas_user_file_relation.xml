@@ -13,7 +13,7 @@
         update apaas_user_file_relation 
         set 
         updator_id = #{updatorId},
-        role_desc = #{roleDesc},
+        role_description = #{roleDescription},
         update_time = #{updateTime}
         where file_id = #{fileId} and user_id = #{userId}
     </update>
@@ -27,7 +27,7 @@
             create_time,
             updator_id,
             update_time,
-            role_desc,
+            role_description,
             status
         )
         values
@@ -38,7 +38,7 @@
             #{createTime},
             #{creatorId},
             #{updateTime},
-            #{roleDesc},
+            #{roleDescription},
             1
         )
     </insert>
