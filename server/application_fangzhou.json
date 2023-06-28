@@ -6,7 +6,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-material@0.0.85"
+      "path": "mybricks-material@0.0.94"
     },
     {
       "type": "npm",
@@ -47,6 +47,10 @@
     {
       "type": "npm",
       "path": "@fangzhou/apaas-server-extend@0.0.3"
+    },
+    {
+      "type": "npm",
+      "path": "@ks-lfe/locallife-eevee-page@0.0.1-alpha.8"
     }
   ]
 }
