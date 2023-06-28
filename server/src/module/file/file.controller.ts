@@ -301,8 +301,12 @@ export default class FileController {
         if (!groupId) {
           resolve((file.creatorId === userId) ? 1 : 3)
         } else {
-          const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({ userId, userGroupId: groupId, status: 1 })
-          resolve(userGroupRelation?.roleDescription || 3)
+          if (file.creatorId === userId) {
+            resolve(1)
+          } else {
+            const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({ userId, userGroupId: groupId, status: 1 })
+            resolve(userGroupRelation?.roleDescription || 3)
+          }
         }
       })
     ])
