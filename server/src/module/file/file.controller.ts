@@ -329,7 +329,7 @@ export default class FileController {
     let finalStatus: -1 | 0 | 1 = 0
 
     /** 没有用户在线，并且有编辑权限，自动上锁, 设置status为1 */
-    if (!hasUser && [1, 2].includes(roleDescription as number)) {
+    if (!hasUser && [1, 2, '1', '2'].includes(roleDescription as number)) {
       finalStatus = 1
     }
 
@@ -490,7 +490,7 @@ export default class FileController {
         roleDescription = fileDescription || groupDescription || 3
       }
 
-      if ([1, 2].includes(roleDescription)) {
+      if ([1, 2, '1', '2'].includes(roleDescription)) {
         await this.fileCooperationDao.update({ fileId, userId, status: 1 })
         return {
           code: 1,
