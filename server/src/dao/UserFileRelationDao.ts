@@ -1,4 +1,4 @@
-import moment from 'dayjs'
+import * as moment from 'dayjs'
 import {Column, DOBase, Mapping} from '@mybricks/rocker-dao'
 
 
