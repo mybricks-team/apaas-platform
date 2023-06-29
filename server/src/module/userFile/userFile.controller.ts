@@ -24,4 +24,15 @@ export default class UserFileController {
       msg: 'success'
     }
   }
+
+  @Get('/getUser')
+  async getUser(@Query() query) {
+    const { email, id } = query
+    const data = await this.userFileService.getFileUserInfoByFileIdAndUserId({ fileId: id, userId: email })
+    
+    return {
+      code: 1,
+      data
+    }
+  }
 }

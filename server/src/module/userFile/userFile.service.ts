@@ -16,4 +16,8 @@ export default class UserFileService {
   }) {
     return await this.userFileRelationDao.query(query);
   }
+
+  async create(query) {
+    return await this.userFileRelationDao.create(query);
+  }
 }

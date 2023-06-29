@@ -11,6 +11,7 @@ import { Body, Controller, Get, Logger, Post, Query, Res } from "@nestjs/common"
 import { isNumber, getAdminInfoByProjectId } from '../../utils'
 import ModuleDao from "../../dao/ModuleDao";
 import FileService from "./file.service";
+import UserFileRelationDao from "../../dao/UserFileRelationDao";
 const path = require('path');
 
 @Controller("/paas/api/file")
@@ -27,6 +28,7 @@ export default class FileController {
   modulePubDao: ModulePubDao
 
   fileService: FileService
+  userFileRelationDao: UserFileRelationDao
 
   constructor() {
     this.fileDao = new FileDao();
@@ -40,6 +42,7 @@ export default class FileController {
     this.moduleDao = new ModuleDao()
     this.modulePubDao = new ModulePubDao()
     this.fileService = new FileService()
+    this.userFileRelationDao = new UserFileRelationDao()
   }
 
   @Get("/get")
@@ -297,16 +300,28 @@ export default class FileController {
       await this.fileCooperationDao.query({ userId, fileId }),
       await this.fileCooperationDao.numberOfOnlineUsers({ fileId }),
       new Promise(async (resolve) => {
-        const { groupId } = file || {}
-        if (!groupId) {
-          resolve((file.creatorId === userId) ? 1 : 3)
+        const { creatorId, groupId } = file
+
+        // 创建人、最高权限
+        if (creatorId === userId) {
+          resolve(1)
         } else {
-          if (file.creatorId === userId) {
-            resolve(1)
-          } else {
-            const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({ userId, userGroupId: groupId, status: 1 })
-            resolve(userGroupRelation?.roleDescription || 3)
-          }
+          const [fileDescription, groupDescription] = await Promise.all([
+            new Promise(async (resolve) => {
+              const userFileFelation = await this.userFileRelationDao.query({userId, fileId})
+              resolve(userFileFelation?.roleDescription)
+            }),
+            new Promise(async (resolve) => {
+              if (!groupId) {
+                resolve(undefined)
+              } else {
+                const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({ userId, userGroupId: groupId, status: 1 })
+                resolve(userGroupRelation?.roleDescription)
+              }
+            })
+          ])
+
+          resolve(fileDescription || groupDescription || 3)
         }
       })
     ])
@@ -360,6 +375,69 @@ export default class FileController {
     }
   }
 
+  @Get("/getAuthorizedUsers")
+  async getAuthorizedUsers(@Query() query){
+    const { fileId, groupId } = query
+    const [groupAdminUsers, fileCreator, groupOwner]: any = await Promise.all([
+      new Promise(async (resolve) => {
+        if (groupId) {
+          const groupAdminUsers = await this.userGroupRelationDao.queryUsersByGroupId({
+            userGroupId: groupId,
+            roleDescription: "1",
+          });
+          resolve(groupAdminUsers);
+        } else {
+          resolve([]);
+        }
+      }),
+      new Promise(async (resolve) => {
+        if (fileId) {
+          const file = await this.fileDao.queryById(fileId);
+          if (file) {
+            const user = await this.userDao.queryByEmail({
+              email: file.creatorId,
+            });
+            resolve({name: user.name, email: user.email, avatar: user.avatar});
+          }
+        } else {
+          resolve(null);
+        }
+      }),
+      new Promise(async (resolve) => {
+        if (groupId) {
+          const groupOwner = await this.userDao.getGroupOwnerInfo({ groupId });
+          resolve(groupOwner);
+        } else {
+          resolve(null);
+        }
+      }),
+    ]);
+
+    if (
+      fileCreator &&
+      !groupAdminUsers.find((user) => user.email === fileCreator?.email)
+    ) {
+      groupAdminUsers.push(fileCreator);
+    }
+
+    if (groupOwner) {
+      const index = groupAdminUsers.findIndex(
+        (user) => user.email === groupOwner.email
+      );
+
+      if (index !== -1) {
+        const owner = groupAdminUsers[index];
+        groupAdminUsers[index] = groupAdminUsers[0];
+        groupAdminUsers[0] = owner;
+      }
+    }
+
+    return {
+      code: 1,
+      data: groupAdminUsers
+    }
+  }
+
   @Post("/toggleFileCooperationStatus")
   async toggleFileCooperationStatus(@Body() body) {
     const { userId, status } = body
@@ -392,11 +470,24 @@ export default class FileController {
 
       const { groupId, creatorId } = file
 
-      if (!groupId) {
-        roleDescription = (creatorId === userId) ? 1 : 3
+      if (creatorId === userId) {
+        roleDescription = 1
       } else {
-        const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({ userId, userGroupId: groupId, status: 1 })
-        roleDescription = userGroupRelation?.roleDescription || 3
+        const [fileDescription, groupDescription] = await Promise.all([
+          new Promise(async (resolve) => {
+            const userFileFelation = await this.userFileRelationDao.query({userId, fileId})
+            resolve(userFileFelation?.roleDescription)
+          }),
+          new Promise(async (resolve) => {
+            if (!groupId) {
+              resolve(undefined)
+            } else {
+              const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({ userId, userGroupId: groupId, status: 1 })
+              resolve(userGroupRelation?.roleDescription)
+            }
+          })
+        ])
+        roleDescription = fileDescription || groupDescription || 3
       }
 
       if ([1, 2].includes(roleDescription)) {
@@ -424,6 +515,74 @@ export default class FileController {
 
 
   }
+
+  @Post("/createCooperationUser")
+  async createCooperationUser(@Body() body) {
+    const { email, creatorId, groupId, fileId, roleDescription } = body
+    const user = await this.userDao.queryByEmail({email: creatorId})
+
+    if (groupId) {
+      const data = await this.userGroupRelationDao.create({
+        creatorId,
+        creatorName: user.name,
+        roleDescription,
+        userGroupId: groupId,
+        userId: email
+      })
+
+      return {
+        code: 1,
+        data
+      }
+    } else {
+      const data = await this.userFileRelationDao.create({
+        userId: email,
+        fileId,
+        creatorId,
+        roleDescription
+      })
+
+      return {
+        code: 1,
+        data
+      }
+    }
+  }
+
+  @Post("/updateCooperationUser")
+  async updateCooperationUser(@Body() body) {
+    const { email, updatorId, groupId, fileId, roleDescription, status } = body
+    const user = await this.userDao.queryByEmail({email: updatorId})
+
+    if (groupId) {
+      const data = this.userGroupRelationDao.update({
+        updatorId,
+        updatorName: user.name,
+        roleDescription: roleDescription,
+        userGroupId: groupId,
+        userId: email,
+        status
+      })
+
+      return {
+        code: 1,
+        data
+      }
+    } else {
+      const data = await this.userFileRelationDao.create({
+        userId: email,
+        fileId,
+        creatorId: updatorId,
+        roleDescription
+      })
+
+      return {
+        code: 1,
+        data
+      }
+    }
+  }
+
 
   @Get("/checkInFolderProject")
   async checkInFolderProject(@Query() query) {
@@ -552,6 +711,18 @@ export default class FileController {
     return {
       code: 1,
       data: files
+    }
+  }
+
+  @Get("getFile")
+  async getFile(@Query() query) {
+    const { id } = query
+
+    const file = await this.fileDao.queryById(id)
+
+    return {
+      code: 1,
+      data: file
     }
   }
 

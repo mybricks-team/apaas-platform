@@ -191,4 +191,16 @@ export default class UserDao extends DOBase {
 
     return {id: result.insertId}
   }
+
+  @Mapping(UserDO)
+  public async getGroupOwnerInfo(query: {
+    groupId: number
+  }): Promise<any> {
+    const result = await this.exe<any>(
+      'apaas_user:getGroupOwnerInfo',
+      query
+    )
+
+    return result && result[0]
+  }
 }
