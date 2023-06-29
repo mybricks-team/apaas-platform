@@ -149,8 +149,7 @@ export default class FlowController {
     try {
       const subPath = await this.flowService.saveFile({
         str: file.buffer,
-        // filename: file.originalname,
-        filename: `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
+        filename: body.noHash ? file.originalname : `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
         folderPath: body.folderPath
       });
       return {
