@@ -155,4 +155,28 @@ export default class UserGroupRelationDao extends DOBase {
     )
     return result && result[0]
   }
+
+  /**
+   * 根据用户组id查询成员
+   * @async
+   * @function
+   * @typedef  {object} params
+   * @returns  {Promise<any>}
+   */
+  @Mapping(UserGroupRelationDO)
+  public async queryUsersByGroupId(params: {
+    status?: number
+    userGroupId: number
+    limit?: number
+    offset?: number
+    roleDescription?: string
+  }): Promise<any[]> {
+    params = Object.assign({}, params)
+    if (typeof params.status !== 'number') {
+      params.status = 1
+    }
+    const result = await this.exe<any>('apaas_user_group_relation:queryUsersByGroupId', params)
+
+    return result
+  }
 }
