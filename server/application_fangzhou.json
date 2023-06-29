@@ -2,6 +2,10 @@
   "installApps": [
     {
       "type": "npm",
+      "path": "@fangzhou/apaas-server-extend@0.0.5-beta14"
+    },
+    {
+      "type": "npm",
       "path": "mybricks-pc-page@0.2.96"
     },
     {
@@ -42,11 +46,7 @@
     },
     {
       "type": "npm",
-      "path": "@fangzhou/app-h5@0.0.29"
-    },
-    {
-      "type": "npm",
-      "path": "@fangzhou/apaas-server-extend@0.0.4"
+      "path": "@fangzhou/app-h5@0.0.30-beta0"
     },
     {
       "type": "npm",
