@@ -163,7 +163,7 @@ export default class UserGroupRelationDao extends DOBase {
    * @typedef  {object} params
    * @returns  {Promise<any>}
    */
-  @Mapping(UserGroupRelationDO)
+  // @Mapping(UserGroupRelationDO)
   public async queryUsersByGroupId(params: {
     status?: number
     userGroupId: number

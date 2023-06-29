@@ -385,7 +385,18 @@ export default class FileController {
             userGroupId: groupId,
             roleDescription: "1",
           });
-          resolve(groupAdminUsers);
+          resolve(groupAdminUsers.map((user) =>{
+            return {
+              ...user,
+              userGroupId: user.user_group_id,
+              userId: user.user_id,
+              creatorId: user.creator_id,
+              creatorName: user.creator_name,
+              createTime: user.create_time,
+              updateTime: user.update_time,
+              roleDescription: user.role_description
+            }
+          }));
         } else {
           resolve([]);
         }
