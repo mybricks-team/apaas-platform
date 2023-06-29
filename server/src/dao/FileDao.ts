@@ -22,7 +22,7 @@ export class FileDO {
   hasIcon;
   
   @Column
-  path;
+  uri;
 
   @Column
   name;
@@ -495,6 +495,7 @@ export default class FileDao extends DOBase {
     description?: string
     icon?: string
     deliveryChannel?: string
+    uri?: string
   }) {
     query = Object.assign(query, {
       updateTime: new Date().getTime()

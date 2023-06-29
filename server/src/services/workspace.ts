@@ -361,6 +361,7 @@ export default class WorkspaceService {
         content,
         commitInfo,
         type,
+        uri,
         fileContentId,
         projectId
       } = body;
@@ -375,6 +376,15 @@ export default class WorkspaceService {
         })) as any;
 
         fileContentId = fileContent?.id || null;
+      }
+
+      if(uri) {
+        await this.fileDao.update({
+          id: fileId,
+          uri: uri,
+          updatorId: userId,
+          updatorName: userId,
+        })
       }
 
       let data: Record<string, unknown> = {};

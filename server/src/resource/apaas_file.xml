@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="apaas_file">
     <select id="query">
-        select id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status from apaas_file where
+        select id,parent_id,group_id,name,namespace,version,ext_name,uri,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status from apaas_file where
         status = 1
         <if test="folderId">
             and parent_id = #{folderId} 
@@ -35,7 +35,7 @@
     
     <select id="queryAll">
         select
-        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon 
+        id,parent_id,group_id,name,namespace,version,ext_name,uri,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon 
         from apaas_file
         where 
         <if test="folderId != null">
@@ -98,7 +98,7 @@
 
     <select id="queryAllShareFiles">
         select
-        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon
+        id,parent_id,group_id,name,namespace,version,ext_name,uri,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon
         from apaas_file
         where
         share_type = #{shareType} and
@@ -118,7 +118,7 @@
 
     <select id="queryAllFilesByParentId">
         select
-        id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon 
+        id,parent_id,group_id,name,namespace,version,ext_name,uri,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon 
         from apaas_file
         where 
         <if test="parentId">
@@ -131,7 +131,7 @@
     <select id="getFlattenFileTreeByParentId">
         SELECT 
             T2.find_level, 
-            T3.id,T3.parent_id,T3.group_id,T3.name,T3.namespace,T3.version,T3.ext_name,T3.path,T3.creator_id,T3.creator_name,T3.create_time,T3.update_time,T3.updator_id,T3.updator_name,T3.description,T3.type,T3.share_type,T3.status
+            T3.id,T3.parent_id,T3.group_id,T3.name,T3.namespace,T3.version,T3.ext_name,T3.uri,T3.creator_id,T3.creator_name,T3.create_time,T3.update_time,T3.updator_id,T3.updator_name,T3.description,T3.type,T3.share_type,T3.status
         FROM (
             SELECT @ids AS _ids
                 , (
@@ -176,14 +176,14 @@
     </select>
 
     <select id="queryByRef">
-        select id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
+        select id,parent_id,group_id,name,namespace,version,ext_name,uri,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
         from apaas_file where
         ref = #{ref} and
         status = 1
     </select>
 
     <select id="queryByNamespace">
-        select id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
+        select id,parent_id,group_id,name,namespace,version,ext_name,uri,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
         from apaas_file where
         namespace = #{namespace} and
         status = 1
@@ -316,7 +316,7 @@
     </update>
 
     <select id="getAllFiles">
-        select id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
+        select id,parent_id,group_id,name,namespace,version,ext_name,uri,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status
         from apaas_file
         where
         status = 1
@@ -360,6 +360,9 @@
         <if test="name">
             name = #{name},
         </if>
+        <if test="uri">
+            uri = #{uri},
+        </if>
         <if test="shareType != null">
             share_type = #{shareType},
         </if>
@@ -395,7 +398,7 @@
     </update>
 
     <select id="getFiles">
-        select id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status from apaas_file
+        select id,parent_id,group_id,name,namespace,version,ext_name,uri,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status from apaas_file
         where id 
         <if test="id">
             and id = #{id}
@@ -533,7 +536,7 @@
     </update>
 
     <select id="getFileListByExtName">
-        select id,parent_id,group_id,name,namespace,version,ext_name,path,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status from apaas_file
+        select id,parent_id,group_id,name,namespace,version,ext_name,uri,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status from apaas_file
         where DATE_FORMAT(FROM_UNIXTIME(file.create_time / 1000), "%Y-%m-%d") >= #{startTime}
         and DATE_FORMAT(FROM_UNIXTIME(file.create_time / 1000), "%Y-%m-%d") <= #{endTime}
         and ext_name != 'folder'
