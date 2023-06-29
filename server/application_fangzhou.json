@@ -42,11 +42,11 @@
     },
     {
       "type": "npm",
-      "path": "@fangzhou/app-h5@0.0.24"
+      "path": "@fangzhou/app-h5@0.0.29"
     },
     {
       "type": "npm",
-      "path": "@fangzhou/apaas-server-extend@0.0.3"
+      "path": "@fangzhou/apaas-server-extend@0.0.4"
     },
     {
       "type": "npm",
