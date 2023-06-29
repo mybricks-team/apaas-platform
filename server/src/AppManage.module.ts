@@ -25,6 +25,8 @@ import FileModule from './module/file/file.module'
 import DomainModule from "./module/domain/domain.module";
 import ShareModule from "./module/share/share.module";
 import UserModule from "./module/user/user.module";
+import UserFileModule from "./module/userFile/userFile.module";
+import UserGroupModule from "./module/userGroup/userGroup.module";
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import UserModule from "./module/user/user.module";
     DomainModule,
     ShareModule,
     UserModule,
+    UserFileModule,
+    UserGroupModule,
     ...loadModule().modules,
   ],
   controllers: [

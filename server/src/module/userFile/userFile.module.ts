@@ -12,4 +12,4 @@ import UserFileService from './userFile.service';
   controllers: [UserFileController],
   providers: [UserFileService],
 })
-export class UserFileModule {}
+export default class UserFileModule {}
