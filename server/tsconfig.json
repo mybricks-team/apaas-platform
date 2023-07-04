@@ -18,6 +18,9 @@
       "common/*": ["./src/common/*"],
     }
   },
+  "ts-node": {
+    "swc": true,
+  },
   "exclude": ["node_modules", "page"],
   "include": ["./src"],
 }
