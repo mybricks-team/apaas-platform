@@ -84,7 +84,7 @@
             material_info,
             (select SUBSTRING_INDEX(namespace, '__', -1) as file_id, id  from material_info where material_info.type = 'template') as temp
         where
-            scene_id = #{sceneId} and status = 1 and type = 'template'
+            scene_id = #{sceneId} and status = 1 and type = 'template' and temp.id = material_info.id
     </select>
 
     <insert id="bulkInsertTag">
