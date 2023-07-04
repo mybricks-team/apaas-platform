@@ -46,11 +46,11 @@
     },
     {
       "type": "npm",
-      "path": "@fangzhou/app-h5@0.0.30-beta0"
+      "path": "@fangzhou/app-h5@0.0.30"
     },
     {
       "type": "npm",
-      "path": "@ks-lfe/locallife-eevee-page@0.0.1-alpha.15"
+      "path": "@ks-lfe/locallife-eevee-page@0.0.1-alpha.20"
     }
   ]
 }
