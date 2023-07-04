@@ -242,7 +242,7 @@ export default class AppsService {
       });
     } else {
       // 升级版本
-      installPkgName = installedApp.substr(0, installedApp.lastIndexOf('@'))
+      installPkgName = installedApp.path.substr(0, installedApp.path.lastIndexOf('@'))
       installedApp.path = `${installPkgName}@${version}`;
       applications.installApps.splice(installedIndex, 1, installedApp);
     }
