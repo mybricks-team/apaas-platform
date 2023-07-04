@@ -61,7 +61,7 @@ const AppCard: FC<AppCardProps> = props => {
 				method: 'get',
 				url: '/api/apps/update/status',
 				params: otherInfo,
-				timeout: 3000,
+				// timeout: 3000,
 			}).then(res => {
 				if (res.data.code === 1) {
 					setTimeout(() => location.reload(), 5000)
@@ -123,6 +123,10 @@ const AppCard: FC<AppCardProps> = props => {
 		}).catch(error => {
 			console.log(error)
 			reset()
+			if(error?.code === "ERR_BAD_RESPONSE") {
+				checkUpgradeStatus(false)
+				return
+			}
 			
 			message.open({
 				type: 'error',

@@ -37,7 +37,7 @@ const UpgradeButton:FC<{ app: Record<string, unknown>; setCurrentUpgrade(namespa
 				method: 'get',
 				url: getApiUrl('/api/apps/update/status'),
 				params: otherInfo,
-				timeout: 3000,
+				// timeout: 3000,
 			}).then(res => {
 				if (res.data.code === 1) {
 					message.open({
@@ -98,14 +98,19 @@ const UpgradeButton:FC<{ app: Record<string, unknown>; setCurrentUpgrade(namespa
 				})
 			}
 		}).catch(error => {
+			console.log(error)
+			setLoading(false)
+			setCurrentUpgrade('')
+			if(error?.code === "ERR_BAD_RESPONSE") {
+				checkUpgradeStatus(false)
+				return
+			}
 			message.open({
 				type: 'error',
 				content: error.message || '应用升级失败',
 				key: LOADING_KEY,
 				duration: 3,
 			})
-			setLoading(false)
-			setCurrentUpgrade('')
 		})
 	}, [app, setCurrentUpgrade])
 	
