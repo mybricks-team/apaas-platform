@@ -116,9 +116,14 @@ export default class AppsService {
   async getLatestAllFromSource() {
     if(env.isStaging() || env.isProd()) {
       try {
-        const buf = require('child_process').execSync('curl -x 10.28.121.13:11080 https://mybricks.world/api/apps/getLatestAll')
-        const data = JSON.parse(buf)
-        return data
+        // const buf = require('child_process').execSync('curl -x 10.28.121.13:11080 https://mybricks.world/api/apps/getLatestAll')
+        // const data = JSON.parse(buf)
+        // return data
+        const data = await this.appDao.queryLatestApp();
+        return {
+          code: 1,
+          data
+        }
       } catch (e) {
         return {
           code: -1,
