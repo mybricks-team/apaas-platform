@@ -87,7 +87,7 @@ const AppCard: FC<AppCardProps> = props => {
 			}).catch(() => {
 				checkUpgradeStatus()
 			});
-		}, immediate ? 0 : 2000)
+		}, immediate ? 0 : 5000)
 	}, [app, setCurrentUpgrade])
 	
 	const upgrade = useCallback(() => {
@@ -109,7 +109,7 @@ const AppCard: FC<AppCardProps> = props => {
 			// timeout: 30000,
 		}).then(res => {
 			if (res.data.code === 1) {
-				checkUpgradeStatus(true)
+				checkUpgradeStatus(false)
 			} else {
 				reset()
 				

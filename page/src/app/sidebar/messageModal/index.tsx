@@ -65,7 +65,7 @@ const UpgradeButton:FC<{ app: Record<string, unknown>; setCurrentUpgrade(namespa
 			}).catch(() => {
 				checkUpgradeStatus()
 			})
-		}, immediate ? 0 : 2000)
+		}, immediate ? 0 : 5000)
 	}, [app, setCurrentUpgrade])
 	
 	const upgrade = useCallback((app) => {
@@ -86,7 +86,7 @@ const UpgradeButton:FC<{ app: Record<string, unknown>; setCurrentUpgrade(namespa
 			// timeout: 30000,
 		}).then(res => {
 			if (res.data.code === 1) {
-				checkUpgradeStatus(true)
+				checkUpgradeStatus(false)
 			} else {
 				setLoading(false)
 				setCurrentUpgrade('')

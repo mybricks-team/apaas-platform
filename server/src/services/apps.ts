@@ -149,10 +149,14 @@ export default class AppsService {
   
       let remoteApps = [];
       try {
-        const appRes = await (axios as any).get(
-          "https://mybricks.world/api/apps/getLatestAll"
-        );
-        remoteApps = appRes.data.data || [];
+        if(env.isStaging() || env.isProd()) {
+          remoteApps = await this.appDao.queryLatestApp();
+        } else {
+          const appRes = await (axios as any).get(
+            "https://mybricks.world/api/apps/getLatestAll"
+          );
+          remoteApps = appRes.data.data || [];
+        }
       } catch (e) {
         console.log("获取远程应用版本失败", e);
       }
