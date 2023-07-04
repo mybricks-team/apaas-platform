@@ -321,7 +321,10 @@ export default class AppsService {
         fs.readFileSync(path.join(process.cwd(), "./application.json"), "utf-8")
       );
       const app = appPkg?.installApps?.find((a) => {
-        const [pkgName, pkgVersion] = a.path.split("@");
+        const index = a.path.lastIndexOf("@");
+        const pkgName = a.path.substr(0, index);
+        const pkgVersion = a.path.substr(index + 1);
+        // const [pkgName, pkgVersion] = a.path.split("@");
         return pkgName === namespace && version === pkgVersion;
       });
       if (app) {
