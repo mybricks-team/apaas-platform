@@ -235,14 +235,14 @@ export default class AppsService {
 
     if (!installedApp) {
       /** 新加应用 */
-      installPkgName = safeParse(remoteApp.installInfo).pkgName;
+      installPkgName = remoteApp.namespace;
       applications.installApps.push({
         type: "npm",
         path: `${installPkgName}@${version}`,
       });
     } else {
       // 升级版本
-      installPkgName = installedApp.path.split("@")[0];
+      installPkgName = installedApp.substr(0, installedApp.lastIndexOf('@'))
       installedApp.path = `${installPkgName}@${version}`;
       applications.installApps.splice(installedIndex, 1, installedApp);
     }

@@ -107,6 +107,7 @@ const App = () => {
         icon: stepOneInfo?.icon,
         description: stepOneInfo?.description,
         install_info: JSON.stringify({
+          pkgName: allValues.appPackageName,
           changeLog: allValues.appChangelog,
         }),
         version: allValues.appVersion,
@@ -120,6 +121,7 @@ const App = () => {
         icon: stepOneInfo?.appIcon,
         description: stepOneInfo?.appDescription,
         install_info: JSON.stringify({
+          pkgName: allValues.appPackageName,
           changeLog: allValues.appChangelog,
         }),
         version: allValues.appVersion,
