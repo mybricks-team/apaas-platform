@@ -16,7 +16,7 @@ const AppStore = () => {
 	useEffect(() => {
 		setLoading(true);
 		
-		axios('/api/apps/getLatestAllFromSource').then((res) => {
+		axios('/paas/api/apps/getLatestAllFromSource').then((res) => {
 			if (res.data.code === 1) {
 				setAllApps(res.data.data);
 			} else {

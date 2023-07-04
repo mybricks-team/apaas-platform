@@ -5,13 +5,10 @@ const webpack = require('webpack')
 
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const ignoreWarningPlugin = require('./ignoreWarningPlugin')
-// const myBricksAlias = require('../../nocode-engine/for-spa/scripts/mybricks-designer-alias')
 
 const WebpackBar = require('webpackbar');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const ENVType = process.env._ENV_
-const NODE_ENV = process.env.NODE_ENV;
 
 const outputPath = path.resolve(__dirname, `../_nodejs/_assets`)
 
@@ -19,6 +16,7 @@ module.exports = {
   mode: 'development',//设置mode
   entry: {
     workspace: path.resolve(__dirname, `../src/index.tsx`),
+    registerApp: path.resolve(__dirname, `../src/registerApp/index.tsx`),
   },
   output: {
     path: outputPath,
@@ -57,11 +55,6 @@ module.exports = {
     moment: 'moment',
   }],
   devtool: 'cheap-source-map',//devtool: 'cheap-source-map',
-  // resolve: {
-  //     alias: {
-  //         '@es/spa-designer': require('path').resolve(__dirname, '../'),
-  //     }
-  // },
   devServer: {
     static: {
       directory: outputPath,
@@ -224,8 +217,12 @@ module.exports = {
       chunks: ['workspace'],
       hot: true,
     }),
-    //new VueLoaderPlugin(),
-    //new BundleAnalyzerPlugin()
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, `../templates/registerApp.html`),
+      filename: "registerApp.html",
+      chunks: ['registerApp'],
+      hot: true,
+    }),
     // new FriendlyErrorsWebpackPlugin({
     //   compilationSuccessInfo: {
     //     messages: [`Stark is running,open : http://${getIPAdress()}:${globalConfg.port}`]
