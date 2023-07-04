@@ -7,7 +7,7 @@ import AppDao from "../dao/AppDao";
 import * as axios from "axios";
 import env from '../utils/env'
 
-@Controller("/paas/api")
+@Controller("/paas/api/apps")
 export default class AppsService {
   appDao: AppDao;
   // 控制是否重启
@@ -94,7 +94,7 @@ export default class AppsService {
     return apps
   }
 
-  @Get("/apps/getInstalledList")
+  @Get("/getInstalledList")
   async getInstalledList() {
     const apps = await this.getAllInstalledList({ filterSystemApp: true })
     return {
@@ -103,7 +103,7 @@ export default class AppsService {
     };
   }
 
-  @Get("/apps/getLatestAll")
+  @Get("/getLatestAll")
   async getLatestAll() {
     const allApps = await this.appDao.queryLatestApp();
     return {
@@ -112,7 +112,7 @@ export default class AppsService {
     };
   }
 
-  @Get("/apps/getLatestAllFromSource")
+  @Get("/getLatestAllFromSource")
   async getLatestAllFromSource() {
     if(env.isStaging() || env.isProd()) {
       try {
@@ -134,7 +134,7 @@ export default class AppsService {
     }
   }
 
-  @Get("/apps/update/check")
+  @Get("/update/check")
   async checkAppUpdate() {
     try {
       const applications = require(path.join(
@@ -183,7 +183,7 @@ export default class AppsService {
     }  
   }
 
-  @Post("/apps/update")
+  @Post("/update")
   async appUpdate(@Body() body, @Req() req) {
     const { namespace, version } = body;
 
@@ -296,7 +296,7 @@ export default class AppsService {
     return { code: 1, data: null, message: "安装成功" };
   }
 
-  @Get("/apps/update/status")
+  @Get("/update/status")
   async checkAppUpdateStatus(
     @Query("namespace") namespace: string,
     @Query("version") version: string
@@ -324,27 +324,24 @@ export default class AppsService {
     return { code: -1, data: null, message: "安装应用失败" };
   }
 
-  @Post("/apps/register")
+  @Post("/register")
   async createApp(@Body() body) {
     const {
       name,
       namespace,
       icon,
       description,
-      install_type,
-      type,
       install_info,
       version,
       creator_name,
     } = body;
-
+    const install_type = body.install_type || "npm";
+    const type = body.install_type || "user";
     if (
       !name ||
       !namespace ||
       !icon ||
       !description ||
-      !install_type ||
-      !type ||
       !install_info ||
       !version ||
       !creator_name
@@ -362,14 +359,14 @@ export default class AppsService {
     );
 
     if (app) {
-      return { code: 0, message: "应用对应版本已存在" };
+      return { code: 0, msg: "应用对应版本已存在" };
     }
 
-    await this.appDao.insertApp({ ...body, create_time: Date.now() });
+    await this.appDao.insertApp({ ...body, install_type, type, create_time: Date.now() });
 
     return {
       code: 1,
-      message: "创建成功",
+      msg: "发布成功",
     };
   }
 }
