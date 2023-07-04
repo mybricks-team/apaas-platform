@@ -20,7 +20,8 @@ module.exports = {
   // mode: "development", //设置mode
   mode: "production", //设置mode
   entry: {
-    workspace: path.resolve(__dirname, `../src/index.tsx`)
+    workspace: path.resolve(__dirname, `../src/index.tsx`),
+    registerApp: path.resolve(__dirname, `../src/registerApp/index.tsx`),
   },
   output: {
     path: outputPath,
@@ -188,8 +189,12 @@ module.exports = {
       filename: "workspace.html",
       chunks: ['workspace'],
     }),
-    //new VueLoaderPlugin(),
-    //new BundleAnalyzerPlugin()
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, `../templates/registerApp.html`),
+      filename: "registerApp.html",
+      chunks: ['registerApp'],
+      hot: true,
+    }),
     // new FriendlyErrorsWebpackPlugin({
     //   compilationSuccessInfo: {
     //     messages: [`Stark is running,open : http://${getIPAdress()}:${globalConfg.port}`]
