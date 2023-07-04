@@ -121,6 +121,7 @@ const AppCard: FC<AppCardProps> = props => {
 				})
 			}
 		}).catch(error => {
+			console.log(error)
 			reset()
 			
 			message.open({

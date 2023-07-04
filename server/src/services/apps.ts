@@ -265,6 +265,7 @@ export default class AppsService {
       const logStr = childProcess.execSync("node installApplication.js", {
         cwd: path.join(process.cwd()),
       });
+      console.log('安装应用日志是: ', logStr)
       if (logStr.indexOf("npm ERR") !== -1) {
         fs.writeFileSync(
           path.join(process.cwd(), "./application.json"),

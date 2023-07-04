@@ -10,7 +10,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-material@0.0.94"
+      "path": "mybricks-material@0.0.95"
     },
     {
       "type": "npm",
@@ -50,7 +50,7 @@
     },
     {
       "type": "npm",
-      "path": "@ks-lfe/locallife-eevee-page@0.0.1-alpha.21"
+      "path": "@ks-lfe/locallife-eevee-page@0.0.1-alpha.22"
     }
   ]
 }
