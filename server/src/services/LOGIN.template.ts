@@ -17,7 +17,7 @@ function startExe(obj, { dbConnection }) {
       if (!user) {
         resolve(undefined);
       } else {
-        const authRes = await _execSQL(`SELECT 角色名 FROM D_${projectId}_系统权限关系_VIEW LEFT JOIN D_${projectId}_系统权限_VIEW ON D_${projectId}_系统权限关系_VIEW.系统权限 = D_${projectId}_系统权限_VIEW.id WHERE 系统用户 = ${user.id} ORDER BY id DESC LIMIT 1;`, { args: obj });
+        const authRes = await _execSQL(`SELECT 角色名 FROM D_${projectId}_系统权限关系_VIEW LEFT JOIN D_${projectId}_系统权限_VIEW ON D_${projectId}_系统权限关系_VIEW.系统权限 = D_${projectId}_系统权限_VIEW.id WHERE 系统用户 = ${user.id} ORDER BY D_${projectId}_系统权限关系_VIEW.id DESC LIMIT 1;`, { args: obj });
 
         user.角色权限 = authRes[0];
         resolve(user);
