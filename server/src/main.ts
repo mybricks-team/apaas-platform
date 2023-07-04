@@ -82,20 +82,6 @@ async function bootstrap() {
   app.use(timeout(10 * 1000))
 
   await app.listen(3100);
-  setTimeout(() => {
-    console.log('发送ready信号', Date.now())
-    process.send('ready');
-  }, 3000)
-
-  process.on('SIGINT', () => {
-    console.info('SIGINT signal received.收到停止信号了', Date.now())
-    process.exit(0)
-  })
 }
 
 bootstrap();
-
-
-// 1685955886068
-
-// 1685956223572
