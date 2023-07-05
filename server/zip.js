@@ -36,6 +36,7 @@ const filterFileName = [
   'tsconfig.json',
   'application_bugu.json',
   'application_fangzhou.json',
+  'application_qingchenghui',
   'zip.js'
 ];
 const files = fs.readdirSync(zipDirPath).filter(filename => {
