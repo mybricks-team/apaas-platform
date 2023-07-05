@@ -33,7 +33,6 @@ const filterFileName = [
   '.prettierrc', 
   'package-lock.json', 
   'nest-cli.json',
-  'tsconfig.json',
   'application_bugu.json',
   'application_fangzhou.json',
   'application_qingchenghui',

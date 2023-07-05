@@ -92,7 +92,6 @@ function exit() {
 }
 
 function persistenceToConfig() {
-  const target = path.join(__dirname, '../config/default.json')
   const folder = path.join(__dirname, '../config')
   if(!fs.existsSync(folder)) {
     fs.mkdirSync(folder)
@@ -108,7 +107,8 @@ function persistenceToConfig() {
       "sqlPath": "."
     }
   }
-  fs.writeFileSync(target, JSON.stringify(data), 'utf-8')
+  fs.writeFileSync(path.join(__dirname, '../config/default.json'), JSON.stringify(data), 'utf-8')
+  fs.writeFileSync(path.join(__dirname, '../config/development.json'), JSON.stringify(data), 'utf-8')
   console.log(`【install】: 配置持久化成功`)
 }
 

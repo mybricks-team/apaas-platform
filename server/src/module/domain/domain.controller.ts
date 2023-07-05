@@ -8,8 +8,7 @@ import ServicePubDao from '../../dao/ServicePubDao';
 import FilePubDao from "../../dao/filePub.dao";
 
 @Controller('/paas/api/domain')
-export default class FlowController {
-  @Inject()
+export default class DomainController {
   domainService: DomainService;
   
   nodeVMIns: any;
@@ -22,6 +21,7 @@ export default class FlowController {
     this.fileDao = new FileDao();
     this.servicePubDao = new ServicePubDao();
     this.filePubDao = new FilePubDao();
+    this.domainService = new DomainService();
   }
 
   

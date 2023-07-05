@@ -21,8 +21,11 @@ import * as path from 'path';
 
 @Controller('/paas/api/flow')
 export default class FlowController {
-  @Inject()
   flowService: FlowService;
+
+  constructor() {
+    this.flowService = new FlowService();
+  }
 
   // 模块安装时，发布到运行容器
   @Post('/file/batchCreate')
