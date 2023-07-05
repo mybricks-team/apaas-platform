@@ -11,6 +11,7 @@ let UserInputConfig = {};
 
 const _execSqlSync = (sql) => {
   return new Promise((resolve, reject) => {
+    console.log('执行的sql是', sql)
     MYSQL_CONNECTION.query(
       sql,
       function (err, results, fields) {
@@ -28,13 +29,17 @@ const _execSqlSync = (sql) => {
 
 async function _initDatabaseTables() {
   let dirs = fs.readdirSync(path.join(__dirname, './sql'))
+  console.log('1111', dirs)
   for(let l = dirs?.length, i = 0; i < l; i++) {
-    const tableName = dirs?.[i]?.split('.')[0];
-    const fullPath = path.join(__dirname, './sql', dirs[i]);
-    const sqlStr = fs.readFileSync(fullPath, 'utf-8').toString();
-    const temp = sqlStr.replace(/\n/g, '')
-    await _execSqlSync(`DROP TABLE IF EXISTS \`${tableName}\`;`)
-    await _execSqlSync(temp)
+    if(dirs[i] !== '.DS_Store') {
+      const tableName = dirs?.[i]?.split('.')[0];
+      const fullPath = path.join(__dirname, './sql', dirs[i]);
+      console.log('2222', tableName)
+      const sqlStr = fs.readFileSync(fullPath, 'utf-8').toString();
+      const temp = sqlStr.replace(/\n/g, '')
+      // await _execSqlSync(`DROP TABLE IF EXISTS \`${tableName}\`;`)
+      await _execSqlSync(temp)
+    }
   }
   console.log(`【install】: 数据表初始化成功`)
 }
@@ -64,12 +69,12 @@ function connectDB() {
   } catch(e) {
     console.log(e)
   }
-  console.log(`【install】: 数据库连接成功`)
+  console.log(`【install】: 数据库连接成功：${JSON.stringify(UserInputConfig)}`)
 }
 
 function startService() {
   childProcess.execSync(`
-    npm run start
+    npx pm2 start ecosystem.config.js
   `, {
     cwd: path.join(__dirname, '../')
   })
@@ -116,7 +121,17 @@ function installApplication() {
   console.log(`【install】: 应用安装成功`)
 }
 
+function injectPLatformConfig() {
+  const config = require(path.join(__dirname, '../ecosystem.config.js'))
+  if(UserInputConfig.platformDomain) {
+    config.apps[0].env.MYBRICKS_PLATFORM_ADDRESS = UserInputConfig.platformDomain
+    fs.writeFileSync(path.join(__dirname, '../ecosystem.config.js'), `module.exports = ${JSON.stringify(config)}`, 'utf-8')
+  }
+  console.log(`【install】: 初始化平台域名成功`)
+}
+
 async function startInstall() {
+  injectPLatformConfig()
   connectDB()
   await _initDatabase()
   await _initDatabaseTables()
