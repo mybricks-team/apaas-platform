@@ -39,6 +39,8 @@
     "parse5": "^7.1.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "@rockerjs/midlog": "^1.0.1",
+    "@mybricks/rocker-commons": "0.0.2",
     "vm-node": "0.0.19"
   },
   "devDependencies": {

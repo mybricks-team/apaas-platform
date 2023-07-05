@@ -184,10 +184,6 @@ export default class ModuleController {
                   bundle: res?.data?.data?.bundle,
                 }
               } else {
-                console.log("=============");
-                console.log(res.data.message);
-                console.log("=============");
-
                 throw new Error(`编译${file.name}(${file.id}).${extName}失败，${res?.data?.message ?? '服务异常'}`)
               }
             }));

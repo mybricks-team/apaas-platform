@@ -208,7 +208,6 @@ export default class UserController {
       }
       if (fileId) {
         const roleDescription = await this.fileDao.getRoleDescription({userId: userEmail, fileId})
-        console.log('roleDescription: ', roleDescription, 899)
         data.roleDescription = roleDescription
       }
       

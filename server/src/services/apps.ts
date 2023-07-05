@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as childProcess from "child_process";
 import { safeParse, versionGreaterThan } from "../utils";
+import { Logger } from '@mybricks/rocker-commons'
 import AppDao from "../dao/AppDao";
 import * as axios from "axios";
 import env from '../utils/env'
@@ -94,6 +95,12 @@ export default class AppsService {
     return apps
   }
 
+  @Get('/test')
+  async test() {
+    Logger.info('123132313')
+  return '123'
+  }
+
   @Get("/getInstalledList")
   async getInstalledList() {
     const apps = await this.getAllInstalledList({ filterSystemApp: true })
@@ -158,7 +165,7 @@ export default class AppsService {
           remoteApps = appRes.data.data || [];
         }
       } catch (e) {
-        console.log("获取远程应用版本失败", e);
+        Logger.info(`获取远程应用版本失败: ${e}`);
       }
   
       if (!remoteApps.length) {
@@ -187,7 +194,7 @@ export default class AppsService {
         data: res,
       };
     } catch (e) {
-      console.log(e.message);
+      Logger.info(e.message); 
       return { code: -1, msg: e.message };
     }  
   }
@@ -212,7 +219,7 @@ export default class AppsService {
         remoteApps = appRes.data.data || [];
       }
     } catch (e) {
-      console.log("获取远程应用版本失败", e);
+      Logger.info(`获取远程应用版本失败: ${e}`);
     }
 
     if (!remoteApps.length) {
@@ -259,13 +266,13 @@ export default class AppsService {
       JSON.stringify(applications, undefined, 2)
     );
 
-    console.log("准备应用成功");
+    Logger.info("准备应用成功, 开始安装应用");
 
     try {
       const logStr = childProcess.execSync("node installApplication.js", {
         cwd: path.join(process.cwd()),
       });
-      console.log('安装应用日志是: ', logStr)
+      Logger.info(`安装应用日志是: ${logStr}`)
       if (logStr.indexOf("npm ERR") !== -1) {
         fs.writeFileSync(
           path.join(process.cwd(), "./application.json"),
@@ -278,7 +285,7 @@ export default class AppsService {
         return { code: -1, message: logStr.toString() };
       }
     } catch (e) {
-      console.log(e.toString());
+      Logger.info(e.message);
     }
     try {
       const serverModulePath = path.join(
@@ -286,7 +293,7 @@ export default class AppsService {
         `./${installPkgName}/nodejs/index.module.ts`
       );
       if (fs.existsSync(serverModulePath)) {
-        console.log("有service，即将重启服务");
+        Logger.info("有service，即将重启服务");
         childProcess.exec(
           "npx pm2 reload index",
           {
@@ -294,18 +301,18 @@ export default class AppsService {
           },
           (error, stdout, stderr) => {
             if (error) {
-              console.error(`exec error: ${error}`);
+              Logger.info(`exec error: ${error}`);
               return;
             }
-            console.log(`stdout: ${stdout}`);
-            console.log(`stderr: ${stderr}`);
+            Logger.info(`stdout: ${stdout}`);
+            Logger.info(`stderr: ${stderr}`);
           }
         );
       } else {
-        console.log("无service，无需重启");
+        Logger.info("无service，无需重启");
       }
     } catch (e) {
-      console.log(e);
+      Logger.info(e);
     }
     return { code: 1, data: null, message: "安装成功" };
   }
@@ -334,9 +341,8 @@ export default class AppsService {
         };
       }
     } catch (e) {
-      console.log("服务重启失败");
-      console.log("安装应用失败");
-      console.log(e);
+      Logger.info("安装应用失败");
+      Logger.info(e);
     }
     return { code: -1, data: null, message: "安装应用失败" };
   }

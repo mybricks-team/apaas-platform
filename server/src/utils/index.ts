@@ -2,6 +2,7 @@ import * as moment from "dayjs";
 const crypto = require('crypto');
 const { SnowFlake } = require('gen-uniqueid');
 const SNOW_FLAKE = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
+import { Logger } from '@mybricks/rocker-commons'
 
 export function uuid(length = 32): string {
   let text = "";
@@ -22,7 +23,7 @@ export function uuid(length = 32): string {
 
 export const Logs = {
   info(content: string) {
-    console.log(
+    Logger.info(
       `[Mybricks] - ${moment(new Date()).format(
         "YYYY-MM-DD HH:mm:ss"
       )} ${content}`

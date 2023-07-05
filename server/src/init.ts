@@ -1,10 +1,14 @@
 import env from "./utils/env";
 import { start as startDB } from "@mybricks/rocker-dao";
+import { initLogger } from './utils/logger';
+import { Logger } from '@mybricks/rocker-commons'
+
 
 export default function init() {
+  initLogger()
   process.on("unhandledRejection", (e) => {
-    console.info(`[global error]: \n`);
-    console.log(e);
+    Logger.info(`[global error][unhandledRejection]: \n`);
+    Logger.info(e)
   });
 
   let dbConfig = null;

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { Cron, SchedulerRegistry } from "@nestjs/schedule";
 import FileTaskLogDao from "../dao/FileTaskLogDao";
 import FileTaskDao from "../dao/FileTaskDao";
@@ -6,9 +6,9 @@ import { CronJob } from "cron";
 import { NodeVM } from "vm2";
 import * as path from "path";
 import { RunningStatusMap } from "../constants";
+import { Logger } from '@mybricks/rocker-commons'
 @Injectable()
 export default class TaskService {
-  private readonly logger = new Logger(TaskService.name);
 
   private readonly fileTaskLogDao = new FileTaskLogDao();
 
@@ -23,14 +23,14 @@ export default class TaskService {
         Logger: (taskId) => {
           return {
             log: async (...args) => {
-              console.log(...args);
+              Logger.info(`[沙箱执行日志]: ${args}`);
               await this.fileTaskLogDao.createFileTask({
                 content: JSON.stringify(args),
                 fileTaskId: +taskId,
               });
             },
             error: async (...args) => {
-              console.log(...args);
+              Logger.info(`[沙箱执行日志]: ${args}`);
               await this.fileTaskLogDao.createFileTask({
                 content: JSON.stringify(args),
                 fileTaskId: +taskId,
@@ -56,7 +56,7 @@ export default class TaskService {
       this.sandbox.run(codeContent, path.join(process.cwd(), "node_modules"));
       return true;
     } catch (e) {
-      console.log(e);
+      Logger.info(`[沙箱执行出错]: ${e.message}`);
       return false;
     }
   }
@@ -66,7 +66,7 @@ export default class TaskService {
     try {
       job = this.schedulerRegistry.getCronJob(jobName);
     } catch (e) {
-      console.log(e);
+      Logger.info(`[检查任务是否存在]: ${e.message}`);
     }
     return job;
   }
@@ -79,16 +79,14 @@ export default class TaskService {
           this.exec(query.execContent);
         });
         this.schedulerRegistry.addCronJob(query.cronName, job);
-        this.logger.warn(
-          `定时任务添加成功: 新建任务名: ${query.cronName}, 表达式：${query.cronExp}`
-        );
+        Logger.info(`定时任务添加成功: 新建任务名: ${query.cronName}, 表达式：${query.cronExp}`);
       } else {
-        this.logger.warn(
+        Logger.info(
           `定时任务添加成功: 存在历史任务: ${query.cronName}, 本次创建忽略`
         );
       }
     } catch (error) {
-      console.log(error);
+      Logger.info(error);
     }
   }
 
@@ -96,16 +94,15 @@ export default class TaskService {
     let job;
     try {
       job = this.schedulerRegistry.getCronJob(name);
-      console.log("@@@@", job);
     } catch (e) {
-      console.log(e);
+      Logger.info(e);
     }
     if (!job) {
-      this.logger.warn(`job ${name} not exist!`);
+      Logger.info(`job ${name} not exist!`);
       return false;
     }
     job.start();
-    this.logger.warn(`job ${name} is running!`);
+    Logger.info(`job ${name} is running!`);
     return true;
   }
 
@@ -113,29 +110,28 @@ export default class TaskService {
     let job;
     try {
       job = this.schedulerRegistry.getCronJob(name);
-      this.logger.warn(`获取到了任务!`);
+      Logger.info(`获取到了任务!`);
     } catch (e) {
-      console.log(e);
+      Logger.info(e);
     }
     if (!job) {
-      this.logger.warn(`job ${name} not exist!`);
+      Logger.info(`job ${name} not exist!`);
       return false;
     }
     job.stop();
-    this.logger.warn(`job ${name} is stop!`);
+    Logger.info(`job ${name} is stop!`);
     return true;
   }
 
   deleteJob(name: string) {
     this.schedulerRegistry.deleteCronJob(name);
-    this.logger.warn(`job ${name} deleted!`);
+    Logger.info(`job ${name} deleted!`);
   }
 
   // 查询
   getAllJobs() {
     const jobs = this.schedulerRegistry.getCronJobs();
     jobs.forEach((value, key, map) => {
-      console.log("!!", value, key);
     });
   }
 

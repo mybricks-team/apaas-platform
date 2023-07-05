@@ -4,6 +4,7 @@ import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
 import { uuid } from '../../utils/index';
 import { getConnection } from '@mybricks/rocker-dao';
+import { Logger } from '@mybricks/rocker-commons';
 // @ts-ignore
 import { createVM } from 'vm-node';
 import FileService from '../file/file.controller'
@@ -68,40 +69,40 @@ export default class SystemService {
       let tdId = conn.threadId;
       conn.beginTransaction(function (_e) {
         if (_e) {
-          console.log(`[${tdId}]: Transaction failed`);
+          Logger.info(`[${tdId}]: Transaction failed`);
           reject(_e);
         }
-        console.log(`[${tdId}]: Transaction start`);
+        Logger.info(`[${tdId}]: Transaction start`);
         try {
           conn
             .query(param, args, function (error, results, fields) {
               if (error) {
-                console.log('执行业务SQL失败：', error);
+                Logger.info('执行业务SQL失败：', error);
                 conn.rollback(function () {
-                  console.log(`[${tdId}]: Transaction rollback`);
+                  Logger.info(`[${tdId}]: Transaction rollback`);
                 });
                 reject(error);
               }
               conn.commit(function (err) {
                 if (err) {
-                  console.log(err);
+                  Logger.info(err);
                   conn.rollback(function () {
-                    console.log(`[${tdId}]: Transaction rollback`);
+                    Logger.info(`[${tdId}]: Transaction rollback`);
                   });
                   reject(err);
                 }
               });
-              console.log(`[${tdId}]: Transaction succeed`);
+              Logger.info(`[${tdId}]: Transaction succeed`);
               resolve(results);
             })
             .once('end', () => {
-              console.log(
+              Logger.info(
                 `[${tdId}]: Transaction Query End: Connection Released`,
               );
               conn.release();
             });
         } catch (e) {
-          console.log(
+          Logger.info(
             `[${tdId}]: Transaction Query Failed: Connection Released`,
           );
           conn.release();
@@ -144,7 +145,7 @@ export default class SystemService {
         msg,
       };
     } catch (e) {
-      console.log(`[/system/task/run]: 出错 ${JSON.stringify(e)}`);
+      Logger.info(`[/system/task/run]: 出错 ${JSON.stringify(e)}`);
       res.code = -1;
       res.msg = JSON.stringify(e.msg);
     }
@@ -194,7 +195,7 @@ export default class SystemService {
         msg,
       };
     } catch (e) {
-      console.log(`[/system/workflow/run]: 出错 ${JSON.stringify(e)}`);
+      Logger.info(`[/system/workflow/run]: 出错 ${JSON.stringify(e)}`);
       res.code = -1;
       res.msg = JSON.stringify(e.msg);
     }
@@ -271,9 +272,7 @@ export default class SystemService {
         data: totalList,
       };
     } catch (e) {
-      console.log("~~~~~~~~~~~~~~~~~~~~~~")
-      console.log(e);
-      console.log("~~~~~~~~~~~~~~~~~~~~~~")
+      Logger.info(e);
       return {
         code: -1,
         data: [],
@@ -385,7 +384,7 @@ export default class SystemService {
           res.logStack = logStack
         }
       } catch (e) {
-        console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
+        Logger.info(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
         res = {
           code: -1,
           msg: e.data,
@@ -449,7 +448,7 @@ export default class SystemService {
         msg: '',
       };
     } catch (e) {
-      console.log(`[/system/domain/execSql]: 出错 ${JSON.stringify(e)}`);
+      Logger.info(`[/system/domain/execSql]: 出错 ${JSON.stringify(e)}`);
       return {
         code: -1,
         msg: JSON.stringify(e),
@@ -488,7 +487,7 @@ export default class SystemService {
         msg,
       };
     } catch (e) {
-      console.log(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
+      Logger.info(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
       res = {
         code: -1,
         msg: JSON.stringify(e),
@@ -535,7 +534,7 @@ export default class SystemService {
       }
     }
     const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
-    console.log(shellPath)
+    Logger.info(shellPath)
     const res = await childProcess.execSync(`sh ${shellPath} ${version}`, {
       cwd: path.join(process.cwd(), '../'),
     })

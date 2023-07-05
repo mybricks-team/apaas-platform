@@ -19,14 +19,12 @@ export default class HomeService {
   async getInstalledList(@Req() req, @Res() res) {
     const config = await this.configService.getAll(['system']);
     const apps: any = await this.appsService.getAllInstalledList({ filterSystemApp: false })
-    // console.log('所有的应用是', apps)
     let filePath =  path.join(process.cwd(), `./_assets/${config?.data?.system?.config?.platformHome || 'workspace.html'}`);
     apps?.forEach(app => {
       if(app.namespace === 'mybricks-app-login') {
         filePath = path.join(env.APPS_BASE_FOLDER, `./${app.namespace}/assets/login.html`);
       }
     });
-    // console.log('!!!', filePath, fs.existsSync(filePath))
     if (fs.existsSync(filePath)) {
       res.sendFile(filePath);
     } else {

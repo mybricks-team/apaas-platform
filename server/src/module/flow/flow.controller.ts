@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
+import { Logger } from '@mybricks/rocker-commons';
 import { FileInterceptor } from '@nestjs/platform-express';
 const env = require('../../../env.js')
 import { getRealDomain } from '../../utils/index'
@@ -22,29 +23,6 @@ import * as path from 'path';
 export default class FlowController {
   @Inject()
   flowService: FlowService;
-
-  @Get('/test')
-  async test(@Request() request) {
-    const domainName = getRealDomain(request)
-    console.log('----')
-    console.log(request.headers)
-    console.log(domainName)
-    return {
-      code: 1
-    }
-  }
-
-  @Post('/test2')
-  @UseInterceptors(FileInterceptor('file'))
-  async test2(@Request() request, @Body() body, @UploadedFile() file) {
-    const domainName = getRealDomain(request)
-    console.log('----')
-    console.log(request.headers)
-    console.log(domainName)
-    return {
-      code: 1
-    }
-  }
 
   // 模块安装时，发布到运行容器
   @Post('/file/batchCreate')
@@ -145,7 +123,7 @@ export default class FlowController {
   @UseInterceptors(FileInterceptor('file'))
   async saveFile(@Request() request, @Body() body, @UploadedFile() file) {
     const domainName = getRealDomain(request)
-    console.log('saveFile请求头是', `${domainName}`,)
+    Logger.info(`[API][/paas/api/flow/saveFile]saveFile请求头是: ${domainName}`)
     try {
       const subPath = await this.flowService.saveFile({
         str: file.buffer,
@@ -171,7 +149,7 @@ export default class FlowController {
   async saveFiles(@Request() request, @Body() body, @UploadedFile() file) {
     try {
       const domainName = getRealDomain(request)
-      console.log('saveFile请求头是', `${domainName}`,)
+      Logger.info(`[API][/paas/api/flow/saveFiles]: saveFiles请求头是: ${domainName}`)
       let files = file || [];
       if (!Array.isArray(files)) {
         files = [files];

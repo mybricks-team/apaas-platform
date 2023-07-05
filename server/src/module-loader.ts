@@ -3,6 +3,7 @@ import * as fs from "fs";
 import env from './utils/env'
 import UserDao from './dao/UserDao';
 const userDao = new UserDao();
+import { Logger } from "@mybricks/rocker-commons";
 
 const scanDir = (dirFullPath: string) => {
   const modules = [];
@@ -78,8 +79,7 @@ export function loadModule() {
       }
     }
   } catch(e) {
-    console.log('模块加载失败：')
-    console.log(e)
+    Logger.info(`模块加载失败：${e.message}`)
   }
   return {
     modules,

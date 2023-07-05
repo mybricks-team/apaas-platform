@@ -46,7 +46,6 @@ export default class FileTaskDao extends DOBase {
     content: string;
     fileTaskId: number;
   }): Promise<{ id: number | null }> {
-    console.log("!!", query);
     const result = await this.exe<any>("fileTaskLog:create", {
       ...query,
       id: genMainIndexOfDB(),

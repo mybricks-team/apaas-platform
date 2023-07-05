@@ -14,6 +14,7 @@ import { getRealDomain } from "../utils";
 import UserGroupDao from "../dao/UserGroupDao"
 import UploadService from '../module/upload/upload.service';
 import { getAdminInfoByProjectId } from '../utils/index'
+import { Logger } from '@mybricks/rocker-commons';
 
 const fs = require('fs');
 const path = require('path');
@@ -668,7 +669,7 @@ export default class WorkspaceService {
 					(axios as any).post(`${domainName}/api/domain/deleteFile`, { fileId: id, userId });
 				}
 			} catch (e) {
-				console.log('删除领域模型资源失败', e);
+        Logger.info(`[API][/paas/api/workspace/deleteFile]: 删除领域模型资源失败: ${e.message}`)
 			}
 
       return {

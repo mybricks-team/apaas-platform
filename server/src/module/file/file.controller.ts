@@ -7,12 +7,13 @@ import UserGroupDao from "../../dao/UserGroupDao";
 import UserGroupRelationDao from '../../dao/UserGroupRelationDao'
 import ServicePubDao from '../../dao/ServicePubDao'
 import ModulePubDao from '../../dao/ModulePubDao'
-import { Body, Controller, Get, Logger, Post, Query, Res } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
 import { isNumber, getAdminInfoByProjectId } from '../../utils'
 import ModuleDao from "../../dao/ModuleDao";
 import FileService from "./file.service";
 import UserFileRelationDao from "../../dao/UserFileRelationDao";
 const path = require('path');
+import {Logger} from '@mybricks/rocker-commons'
 
 @Controller("/paas/api/file")
 export default class FileController {
@@ -971,8 +972,7 @@ export default class FileController {
   @Get("/getFolderFiles")
   async getFolderFiles(@Query() query) {
     const { fileId, extNames } = query
-
-    console.log(extNames, 'extNames')
+    Logger.info(`[API][/paas/api/file/getFolderFiles]: extNames: ${extNames}`)
 
     const result = await this.fileDao.getFolderFiles({
       id: fileId,
@@ -1009,7 +1009,7 @@ export default class FileController {
           }
 
           if (groupId) {
-            console.log('查一下协作组')
+            Logger.info(`[API][/paas/api/file/getFilePath]: 查一下协作组: ${groupId}`)
             const group = await this.userGroupDao.queryById({ id: groupId })
 
             path.unshift(group)
@@ -1250,8 +1250,6 @@ export default class FileController {
 
       await Promise.all(moduleList.map(async (module) => {
         const { id, name, version } = module
-
-        console.log("extName", extName);
 
         const cdms = await this.modulePubDao.queryPubInfo({
           moduleId: id,
@@ -1509,7 +1507,6 @@ export default class FileController {
       userId: userId,
       extName: extName
     })
-    console.log(111111, rtn)
     return {
       code: 1,
       data: rtn
