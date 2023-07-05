@@ -44,7 +44,7 @@ CREATE TABLE `apaas_file` (
   `namespace` varchar(256) DEFAULT NULL COMMENT 'namespace',
   `version` varchar(128) DEFAULT NULL COMMENT 'version',
   `ext_name` varchar(128) NOT NULL COMMENT 'ext_name',
-  `path` varchar(256) DEFAULT NULL COMMENT 'path',
+  `uri` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT 'uri',
   `icon` mediumtext COMMENT 'icon',
   `creator_id` varchar(128) NOT NULL COMMENT 'creator_id',
   `creator_name` varchar(128) DEFAULT NULL COMMENT 'creator_name',
@@ -57,6 +57,7 @@ CREATE TABLE `apaas_file` (
   `share_type` int DEFAULT NULL COMMENT 'share_type',
   `status` int DEFAULT NULL COMMENT 'status',
   PRIMARY KEY (`id`)
+  KEY `idx_extname` (`ext_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -170,7 +171,7 @@ CREATE TABLE `apaas_project_info` (
 DROP TABLE IF EXISTS `apaas_service_pub`;
 CREATE TABLE `apaas_service_pub` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `file_id` int DEFAULT NULL COMMENT '文件id',
+  `file_id` bigint DEFAULT NULL COMMENT '文件id',
   `service_id` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '文件内具体服务id',
   `file_pub_id` bigint DEFAULT NULL COMMENT '所属文件发布id',
   `project_id` bigint DEFAULT NULL COMMENT '所属项目ID',
@@ -202,6 +203,23 @@ CREATE TABLE `apaas_user` (
   `role` int NOT NULL DEFAULT '1' COMMENT 'role',
   `avatar` varchar(255) DEFAULT NULL COMMENT '用户头像',
   `password` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for apaas_user_file_relation
+-- ----------------------------
+DROP TABLE IF EXISTS `apaas_user_file_relation`;
+CREATE TABLE `apaas_user_file_relation` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
+  `file_id` bigint unsigned NOT NULL COMMENT '文件id',
+  `user_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '用户id',
+  `creator_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '创建人id',
+  `create_time` bigint NOT NULL COMMENT '创建时间',
+  `updator_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '更新人id',
+  `update_time` bigint NOT NULL COMMENT '更新时间',
+  `role_description` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '3' COMMENT '权限',
+  `status` int NOT NULL COMMENT '状态，-1-删除，1-正常',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
@@ -268,7 +286,7 @@ CREATE TABLE `domain_table_action` (
   `create_time` bigint NOT NULL COMMENT '创建时间',
   `domain_meta_id` bigint NOT NULL COMMENT 'domain_meta表记录ID',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='领域模型操作记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='领域模型操作记录表';
 
 -- ----------------------------
 -- Table structure for domain_table_meta
@@ -285,30 +303,31 @@ CREATE TABLE `domain_table_meta` (
   PRIMARY KEY (`id`),
   KEY `idx_domain_file_id` (`domain_file_id`),
   KEY `idx_table_name` (`table_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='领域模型元信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='领域模型元信息表';
 
 -- ----------------------------
 -- Table structure for material_info
 -- ----------------------------
 DROP TABLE IF EXISTS `material_info`;
 CREATE TABLE `material_info` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `type` varchar(100) NOT NULL DEFAULT '' COMMENT '组件库/组件类型',
-  `scope_status` int DEFAULT '0' COMMENT '物料露出状态，-1-私有，0-workspace公开，1-全局公开',
+  `scope_status` int(11) DEFAULT '0' COMMENT '物料露出状态，-1-私有，0-workspace公开，1-全局公开',
   `namespace` varchar(255) NOT NULL DEFAULT '' COMMENT '组件唯一标识',
   `version` varchar(50) NOT NULL DEFAULT '1.0.0' COMMENT '版本号',
   `creator_id` varchar(50) NOT NULL DEFAULT '' COMMENT '创建人id',
   `creator_name` varchar(50) NOT NULL DEFAULT '' COMMENT '创建人名',
-  `create_time` bigint NOT NULL COMMENT '创建时间',
-  `update_time` bigint NOT NULL COMMENT '更新时间',
+  `create_time` bigint(20) NOT NULL COMMENT '创建时间',
+  `update_time` bigint(20) NOT NULL COMMENT '更新时间',
   `updator_id` varchar(50) NOT NULL DEFAULT '' COMMENT '更新人id',
   `updator_name` varchar(50) NOT NULL DEFAULT '' COMMENT '更新人名称',
   `icon` mediumtext NOT NULL COMMENT '物料图标',
   `preview_img` mediumtext NOT NULL COMMENT '物料预览图',
   `title` varchar(100) NOT NULL DEFAULT '' COMMENT '物料名称',
   `description` varchar(256) DEFAULT '' COMMENT '描述',
-  `status` int DEFAULT '1' COMMENT '状态，-1-删除，0-禁用，1-正常',
+  `status` int(11) DEFAULT '1' COMMENT '状态，-1-删除，0-禁用，1-正常',
   `meta` mediumtext COMMENT '物料额外信息',
+  `scene_id` bigint(20) DEFAULT NULL COMMENT '场景ID',
   PRIMARY KEY (`id`),
   KEY `idx_namespace` (`namespace`),
   KEY `idx_type` (`type`),
@@ -320,21 +339,77 @@ CREATE TABLE `material_info` (
 -- ----------------------------
 DROP TABLE IF EXISTS `material_pub_info`;
 CREATE TABLE `material_pub_info` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `material_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '文件id',
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `material_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '文件id',
   `version` varchar(50) NOT NULL DEFAULT '1.0.0' COMMENT '版本号',
   `content` mediumtext NOT NULL COMMENT '文件内容',
   `creator_id` varchar(50) NOT NULL DEFAULT '' COMMENT '创建者id',
   `creator_name` varchar(50) NOT NULL DEFAULT '' COMMENT '创建者名称',
-  `create_time` bigint NOT NULL COMMENT '创建时间',
+  `create_time` bigint(20) NOT NULL COMMENT '创建时间',
   `commit_info` mediumtext NOT NULL COMMENT '发布日志',
-  `update_time` bigint NOT NULL COMMENT '更新时间',
+  `update_time` bigint(20) NOT NULL COMMENT '更新时间',
   `updator_id` varchar(50) NOT NULL DEFAULT '' COMMENT '更新人id',
   `updator_name` varchar(50) NOT NULL DEFAULT '' COMMENT '更新人名称',
-  `status` int DEFAULT '1' COMMENT '状态，-1-删除，0-禁用，1-正常',
+  `status` int(11) DEFAULT '1' COMMENT '状态，-1-删除，0-禁用，1-正常',
   PRIMARY KEY (`id`),
   KEY `idx_creator_info` (`creator_id`,`creator_name`),
   KEY `idx_material_id` (`material_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='物料发布表';
 
 
+-- ----------------------------
+-- Table structure for material_scene
+-- ----------------------------
+DROP TABLE IF EXISTS `material_scene`;
+CREATE TABLE `material_scene` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '场景主键id',
+  `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '场景名称',
+  `creator_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '创建人id',
+  `order` bigint(20) unsigned DEFAULT '0' COMMENT '标签排序',
+  `create_time` bigint(20) NOT NULL COMMENT '创建时间',
+  `update_time` bigint(20) NOT NULL COMMENT '更新时间',
+  `updator_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '更新人id',
+  `status` int(16) DEFAULT '1' COMMENT '状态，-1-删除，1-正常',
+  `type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '场景类型，用于区分图片素材、模版、组件、组件库等',
+  PRIMARY KEY (`id`),
+  KEY `idx_creator_id` (`creator_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='物料场景表';
+
+-- ----------------------------
+-- Table structure for material_tag
+-- ----------------------------
+DROP TABLE IF EXISTS `material_tag`;
+CREATE TABLE `material_tag` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '标签主键id',
+  `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '标签名称',
+  `scene_id` bigint(20) unsigned DEFAULT '0' COMMENT '场景id',
+  `creator_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '创建人id',
+  `order` bigint(20) unsigned DEFAULT '0' COMMENT '标签排序',
+  `create_time` bigint(20) NOT NULL COMMENT '创建时间',
+  `update_time` bigint(20) NOT NULL COMMENT '创建时间',
+  `updator_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '更新人id',
+  `status` int(16) DEFAULT '1' COMMENT '状态，-1-删除，1-正常',
+  `parent_id` bigint(20) unsigned DEFAULT NULL COMMENT '父级分类',
+  PRIMARY KEY (`id`),
+  KEY `idx_creator_id` (`creator_id`),
+  KEY `idx_scene_id` (`scene_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='标签表';
+
+-- ----------------------------
+-- Table structure for material_tag_relation
+-- ----------------------------
+DROP TABLE IF EXISTS `material_tag_relation`;
+CREATE TABLE `material_tag_relation` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '关系记录id',
+  `material_id` bigint(20) unsigned NOT NULL COMMENT '物料id',
+  `tag_id` bigint(20) unsigned NOT NULL COMMENT '标签id',
+  `creator_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '创建人id',
+  `creator_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '创建人名',
+  `create_time` bigint(20) NOT NULL COMMENT '创建时间',
+  `update_time` bigint(20) NOT NULL COMMENT '更新时间',
+  `updator_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '更新人id',
+  `updator_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '更新人名称',
+  PRIMARY KEY (`id`),
+  KEY `idx_material_id` (`material_id`),
+  KEY `idx_tag_id` (`tag_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='物料标签关系表';
