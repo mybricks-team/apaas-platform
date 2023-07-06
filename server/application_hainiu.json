@@ -1,0 +1,12 @@
+{
+  "installApps": [
+    {
+      "type": "npm",
+      "path": "mybricks-pc-page@0.3.28"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-material@0.0.95"
+    }
+  ]
+}
