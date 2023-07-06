@@ -51,7 +51,7 @@ export function Create(): JSX.Element {
       }
     }
     // 开启了基于模板新建
-    if(appCtx?.systemConfig?.createBasedOnTemplate?.indexOf(app.namespace) !== -1) {
+    if(appCtx?.systemConfig?.createBasedOnTemplate && appCtx?.systemConfig?.createBasedOnTemplate?.indexOf(app.namespace) !== -1) {
       // 基于模板新建
       setChooseTemplateModalVisible(true)
       chooseApp = app

@@ -171,7 +171,10 @@ function SystemMenus() {
       ) : (
         <></>
       )}
-      <div className={css.user} onClick={signOut}>{appCtx.user.email}</div>
+      <div className={css.user} onClick={() => {
+        // TODO: 暂时关闭，后面改成配置
+        // signOut()
+      }}>{appCtx.user.email}</div>
     </>
   )
 }
