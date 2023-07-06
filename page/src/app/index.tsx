@@ -23,6 +23,10 @@ export default function App() {
     const [access, setAccess] = useState(false)
   
     useMemo(() => {
+      if(location.href.indexOf('jumped') !== -1) {
+        console.log('已经重定向过，不再跳转')
+        return
+      }
       /** 初始化(获取应用、配置和角色) */
       (async () => {
         // // todo: 暂时注释，等待前端修复
