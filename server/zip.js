@@ -35,7 +35,7 @@ const filterFileName = [
   'nest-cli.json',
   'application_bugu.json',
   'application_fangzhou.json',
-  'application_qingchenghui',
+  'application_qingchenghui.json',
   'zip.js'
 ];
 const files = fs.readdirSync(zipDirPath).filter(filename => {
