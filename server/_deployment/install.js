@@ -3,7 +3,6 @@ const fs = require('fs-extra');
 const path = require('path');
 const mysql = require('mysql2');
 const childProcess = require('child_process');
-const { clear } = require("console");
 
 let MYSQL_CONNECTION = null
 let INSTALL_SERVER = null
@@ -11,7 +10,6 @@ let UserInputConfig = {};
 
 const _execSqlSync = (sql) => {
   return new Promise((resolve, reject) => {
-    console.log('执行的sql是', sql)
     MYSQL_CONNECTION.query(
       sql,
       function (err, results, fields) {
@@ -29,12 +27,10 @@ const _execSqlSync = (sql) => {
 
 async function _initDatabaseTables() {
   let dirs = fs.readdirSync(path.join(__dirname, './sql'))
-  console.log('1111', dirs)
   for(let l = dirs?.length, i = 0; i < l; i++) {
     if(dirs[i] !== '.DS_Store') {
       const tableName = dirs?.[i]?.split('.')[0];
       const fullPath = path.join(__dirname, './sql', dirs[i]);
-      console.log('2222', tableName)
       const sqlStr = fs.readFileSync(fullPath, 'utf-8').toString();
       const temp = sqlStr.replace(/\n/g, '')
       // await _execSqlSync(`DROP TABLE IF EXISTS \`${tableName}\`;`)
