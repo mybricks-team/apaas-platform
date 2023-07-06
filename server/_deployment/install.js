@@ -186,7 +186,7 @@ function startInstallServer() {
     }
   })
   INSTALL_SERVER.listen(3000, () => {
-    console.log("【install】本地 localhost://3000 服务已开启，请打开浏览器，输入反向代理的地址，进行后续数据库配置");
+    console.log("【install】本地 http://localhost:3000 服务已开启，请打开浏览器，输入反向代理的地址，进行后续数据库配置");
   });
 }
 
