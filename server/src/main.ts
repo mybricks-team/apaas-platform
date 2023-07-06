@@ -34,6 +34,7 @@ async function bootstrap() {
       index: false,
     });
   }
+  app.use(bodyParser.json({ limit: "100mb" }));
 
   enhanceApp(app, {
     appNamespaceList: loadedModule.namespace,
@@ -76,7 +77,6 @@ async function bootstrap() {
       new i(),
     );
   })
-  app.use(bodyParser.json({ limit: "100mb" }));
   app.use(cookieParser());
 	app.use(xmlparser());
   app.use(timeout(10 * 1000))

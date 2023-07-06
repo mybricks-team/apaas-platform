@@ -25,11 +25,12 @@ export default function App() {
     useMemo(() => {
       /** 初始化(获取应用、配置和角色) */
       (async () => {
-        // // todo: 暂时注释，等待前端修复
-        // const user = await API.User.getLoginUser()
         const user = (await axios({
           method: "post",
-          url: '/paas/api/user/signed'
+          url: '/paas/api/user/signed',
+          data: {
+            HAINIU_UserInfo: localStorage.getItem('HAINIU_UserInfo')
+          }
         }))?.data?.data
         if (!user) {
           if(location.href.indexOf('jumped') === -1) {

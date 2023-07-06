@@ -181,7 +181,11 @@ export default class UserController {
    * 已登录用户
    */
   @Post('/signed')
-  async signed(@Headers('username') us: string, @Request() request, @Body() body) {
+  async signed(
+    @Headers('username') us: string, 
+    @Request() request, @Body() body,
+    @Body('HAINIU_UserInfo') HAINIU_UserInfo: string,
+  ) {
     const { fileId } = body
     let userEmail;
     if(us) {
@@ -190,6 +194,14 @@ export default class UserController {
       if(request.cookies?.['mybricks-login-user']) {
         const userCookie = JSON.parse(request.cookies?.['mybricks-login-user'])
         userEmail = userCookie?.email
+      } else if(HAINIU_UserInfo) {
+        const userCookie = JSON.parse(HAINIU_UserInfo)
+        userEmail = userCookie?.email
+        try {
+          userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.userId
+        } catch(e) {
+          console.log(e)
+        }
       }
     }
     if (!userEmail) {

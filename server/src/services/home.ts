@@ -21,7 +21,7 @@ export default class HomeService {
     const apps: any = await this.appsService.getAllInstalledList({ filterSystemApp: false })
     let filePath =  path.join(process.cwd(), `./_assets/${config?.data?.system?.config?.platformHome || 'workspace.html'}`);
     apps?.forEach(app => {
-      if(app.namespace === 'mybricks-app-login') {
+      if(app.namespace === 'mybricks-app-login' || app.namespace === 'mybricks-hainiu-login') {
         filePath = path.join(env.APPS_BASE_FOLDER, `./${app.namespace}/assets/login.html`);
       }
     });
