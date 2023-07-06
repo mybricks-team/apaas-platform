@@ -6,7 +6,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-material@0.0.95"
+      "path": "mybricks-material@0.0.96"
     },
     {
       "type": "npm",
@@ -18,7 +18,7 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-domain@0.2.27"
+      "path": "mybricks-domain@0.2.29"
     },
     {
       "type": "npm",
