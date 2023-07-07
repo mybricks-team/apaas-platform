@@ -6,11 +6,11 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-material@0.0.95"
+      "path": "mybricks-material@0.0.97"
     },
     {
       "type": "npm",
-      "path": "mybricks-hainiu-login@0.0.1"
+      "path": "mybricks-hainiu-login@0.0.2"
     }
   ]
 }
