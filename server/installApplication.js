@@ -30,12 +30,15 @@ function injectAjaxScript({ namespace }) {
                               if (["GET", "POST", 'PUT', 'DELETE', 'OPTIONS'].indexOf(newArgs[0]) !== -1) {
                                   if(newArgs[1].indexOf("http") !== 0) {
                                     const pathname = newArgs[1];
-                                    let needProxy = true;
+                                    let needProxy = false;
                                     ['.js', '.css', '.html'].forEach(function (item) {
                                         if(pathname.indexOf(item) !== -1) {
                                             needProxy = false
                                         }
                                     })
+                                    if(pathname.startsWith && (pathname.startsWith('/paas/api') || pathname.startsWith('/api'))) {
+                                      needProxy = true
+                                    }
                                     if(needProxy) {
                                         newArgs[1] = '${placeholder}' + newArgs[1]
                                     }
