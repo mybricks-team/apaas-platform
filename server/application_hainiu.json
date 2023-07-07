@@ -2,7 +2,7 @@
   "installApps": [
     {
       "type": "npm",
-      "path": "mybricks-pc-page@0.3.28"
+      "path": "mybricks-app-pcspa-for-manatee@1.0.1"
     },
     {
       "type": "npm",
