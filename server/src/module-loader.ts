@@ -66,15 +66,20 @@ export function loadModule() {
           if(childPath === '.DS_Store') {
             continue;
           }
-          const appFullPath = path.join(appDir, childPath);
-          const data = scanDir(appFullPath);
-          modules = modules.concat(data.modules);
-          middleware = middleware.concat(data.middleware);
-          interceptor = interceptor.concat(data.interceptor);
-          namespaceMap[data?.namespace?.[0]] = {
-            hasService: data.modules?.length !== 0
+          try {
+            const appFullPath = path.join(appDir, childPath);
+            const data = scanDir(appFullPath);
+            modules = modules.concat(data.modules);
+            middleware = middleware.concat(data.middleware);
+            interceptor = interceptor.concat(data.interceptor);
+            namespaceMap[data?.namespace?.[0]] = {
+              hasService: data.modules?.length !== 0
+            }
+            namespace = namespace.concat(data.namespace);
+          } catch(e) {
+            Logger.info(`模块加载失败, 准备跳过：${e.message}`)
+            continue;
           }
-          namespace = namespace.concat(data.namespace);
         }
       }
     }
