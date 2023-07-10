@@ -7,7 +7,8 @@ module.exports = {
       exec_mode: "fork",
       watch: false,
       env: {
-        "MYBRICKS_PLATFORM_ADDRESS": ""
+        "MYBRICKS_PLATFORM_ADDRESS": "",
+        "MYBRICKS_PRIVATE_APP_STORE": true
       }
     }
   ]
