@@ -36,7 +36,7 @@ function injectAjaxScript({ namespace }) {
                                             needProxy = false
                                         }
                                     })
-                                    if(pathname.startsWith && (pathname.startsWith('/paas/api') || pathname.startsWith('/api'))) {
+                                    if(pathname.startsWith('/paas/api') || pathname.startsWith('/api')) {
                                       needProxy = true
                                     }
                                     if(needProxy) {
