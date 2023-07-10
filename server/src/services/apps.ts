@@ -121,7 +121,7 @@ export default class AppsService {
 
   @Get("/getLatestAllFromSource")
   async getLatestAllFromSource() {
-    if(env.isStaging() || env.isProd()) {
+    if(env.isStaging() || env.isProd() || env.isPrivateAppStore()) {
       try {
         // const buf = require('child_process').execSync('curl -x 10.28.121.13:11080 https://mybricks.world/api/apps/getLatestAll')
         // const data = JSON.parse(buf)
@@ -156,7 +156,7 @@ export default class AppsService {
   
       let remoteApps = [];
       try {
-        if(env.isStaging() || env.isProd()) {
+        if(env.isStaging() || env.isProd() || env.isPrivateAppStore()) {
           remoteApps = await this.appDao.queryLatestApp();
         } else {
           const appRes = await (axios as any).get(
@@ -210,7 +210,7 @@ export default class AppsService {
 
     let remoteApps = [];
     try {
-      if(env.isStaging() || env.isProd()) {
+      if(env.isStaging() || env.isProd() || env.isPrivateAppStore()) {
         remoteApps = await this.appDao.queryLatestApp();
       } else {
         const appRes = await (axios as any).get(
