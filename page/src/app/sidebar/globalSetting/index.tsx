@@ -106,10 +106,24 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         </Form.Item> */}
         <Form.Item
           initialValue=""
-          label="自定义 Logo"
+          label="站点Logo"
           name="logo"
         >
           <Input placeholder='请填写自定义 logo 的 url 地址（高度36px，宽度自适应）' />
+        </Form.Item>
+        <Form.Item
+          initialValue=""
+          label="页面标题"
+          name="title"
+        >
+          <Input placeholder='页面html的title' />
+        </Form.Item>
+        <Form.Item
+          initialValue=""
+          label="页面ICON"
+          name="favicon"
+        >
+          <Input placeholder='页面html的favicon' />
         </Form.Item>
         <Form.Item
           initialValue=""

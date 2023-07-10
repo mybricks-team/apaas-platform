@@ -47,8 +47,12 @@ export default function App() {
           }
         })).data;
         if (systemConfig?.code === 1) {
-          setLogo(systemConfig?.data?.system?.config?.logo)
+          if(systemConfig?.data?.system?.config?.logo) {
+            setLogo(systemConfig?.data?.system?.config?.logo)
+          }
         }
+        document.title = systemConfig?.data?.system?.config?.title || 'Mybricks-通用无代码开发平台'
+        document.querySelector('#favicon').setAttribute('href', systemConfig?.data?.system?.config?.favicon || '/favicon.ico')
 
         if(systemConfig?.data?.system?.config?.openSystemWhiteList) {
           setAccess(user.role > 1)
