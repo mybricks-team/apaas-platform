@@ -1,3 +1,13 @@
+@import url('../../../theme.less');
+
+.projects {
+  flex: 1;
+  margin-bottom: 0;
+  overflow-y: auto;
+
+  .scrollbar();
+}
+
 .files {
   max-height: 100%;
   display: flex;
@@ -233,3 +243,11 @@
   }
 }
 
+.modalBody {
+  :global {
+    .ant-modal-body {
+      overflow: auto;
+      .scrollbar();
+    }
+  }
+}

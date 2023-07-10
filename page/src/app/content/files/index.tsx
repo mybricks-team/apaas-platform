@@ -145,7 +145,7 @@ export default function Files() {
     <>
       <Content title={<TitleBar/>}>
         <Block style={{flex: 1, height: 0, marginBottom: 0, display: 'flex'}}>
-	        <Block style={{ flex: 1, marginBottom: 0, overflowY: 'auto' }}>
+	        <Block className={css.projects}>
 		        <Projects/>
 	        </Block>
           {pathInfo && <Info path={pathInfo}/>}
@@ -793,7 +793,8 @@ function MoveFileModal({app, onOk, onCancel}) {
       onOk={ok}
       onCancel={cancel}
       confirmLoading={btnLoading}
-      bodyStyle={{height: 500, overflow: 'auto'}}
+      className={css.modalBody}
+      bodyStyle={{height: 500}}
     >
       <Spin spinning={ctx.loading}>
         <FolderList

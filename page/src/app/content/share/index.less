@@ -1,9 +1,13 @@
-﻿.files {
+﻿@import url(../../../theme.less);
+
+.files {
   overflow: auto;
   max-height: 100%;
   margin-left: -5px;
   display: flex;
   flex-wrap: wrap;
+
+  .scrollbar();
 
   .loading {
     display: flex;

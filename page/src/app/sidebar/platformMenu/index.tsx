@@ -36,7 +36,7 @@ export default function PlatformMenu() {
   appCtx = observe(AppCtx, {from: 'parents'})
   return (
     <>
-      <div style={{overflow: 'scroll'}}>
+      <div className={css.overflowAuto}>
         <My />
         <Group />
       </div>
