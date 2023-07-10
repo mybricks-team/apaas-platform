@@ -533,10 +533,10 @@ export default class SystemService {
         msg: '缺少必要参数'
       }
     }
-    const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
+    const shellPath = path.join(process.cwd(), './upgrade_platform.sh')
     Logger.info(shellPath)
     const res = await childProcess.execSync(`sh ${shellPath} ${version}`, {
-      cwd: path.join(process.cwd(), '../'),
+      cwd: path.join(process.cwd(), './'),
     })
     return {
       code: 1,
