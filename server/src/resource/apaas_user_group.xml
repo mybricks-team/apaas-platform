@@ -42,6 +42,9 @@
         <if test="name">
             name = #{name},
         </if>
+        <if test="icon">
+            icon = #{icon},
+        </if>
         updator_name = #{updatorName},
         updator_id = #{updatorId},
         update_time = #{updateTime}

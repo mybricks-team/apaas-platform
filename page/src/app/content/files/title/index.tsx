@@ -307,6 +307,7 @@ function SearchModal({open, onCancel}) {
         }}
         renderItem={(item) => {
           const {
+            icon,
             name,
             path,
             extName,
@@ -334,7 +335,7 @@ function SearchModal({open, onCancel}) {
                     <div className={css.descText}>路径：<Path path={path} APPSMap={APPSMap} onClick={itemClick}/></div>
                   </>
                 )}
-                avatar={isGroup ? <UserGroup width={32} height={32}/> : <Icon icon={appReg.icon} width={32} height={32}/>}
+                avatar={<Icon icon={isGroup ? (icon || UserGroup) : appReg.icon} width={32} height={32}/>}
               />
             </List.Item>
           )
@@ -348,7 +349,7 @@ function Path({path, onClick, APPSMap}) {
   const length = path.length - 1
 
   return path.map((item, idx) => {
-    const { name, extName } = item || {}
+    const { name, extName, icon: itemIcon } = item || {}
     const isMy = !item
     const appReg = APPSMap[extName]
     const isGroup = !extName || extName === 'group'
@@ -357,9 +358,7 @@ function Path({path, onClick, APPSMap}) {
       return <></>
     }
 
-    const icon = isMy ? <Icon icon="https://assets.mybricks.world/icon/myprojects.7cd8f4c7813982aa.png" width={16} height={16}/> : (
-      isGroup ? <UserGroup width={16} height={16}/> : <Icon icon={appReg.icon} width={16} height={16}/>
-    )
+    const icon = <Icon icon={isMy ? 'https://assets.mybricks.world/icon/myprojects.7cd8f4c7813982aa.png' : (isGroup ? (itemIcon || UserGroup) : appReg.icon)} width={16} height={16}/>
 
     return (
       <div className={css.path}>

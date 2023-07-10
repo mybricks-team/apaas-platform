@@ -117,6 +117,7 @@ export default class UserGroupDao extends DOBase {
   public async update(params: {
     id: number;
     name?: string;
+    icon?: string;
     updatorId: string;
     updatorName: string;
   }) {

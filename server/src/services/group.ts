@@ -27,7 +27,7 @@ export default class UserGroupService {
 
   @Post('/userGroup/create')
   async create(@Body() body) {
-    const { userId, name } = body;
+    const { userId, name, icon } = body;
     if (!userId) {
       return {
         code: -1,
@@ -45,6 +45,7 @@ export default class UserGroupService {
       }
       const rtn = await this.userGroupDao.create({
         name,
+        icon,
         creatorId: userId,
         creatorName: user.name || userId
       })
@@ -93,6 +94,45 @@ export default class UserGroupService {
       await this.userGroupDao.update({
         id,
         name,
+        updatorId: userId,
+        updatorName: user.name || userId
+      })
+
+      return {
+        code: 1,
+        data: { id },
+      };
+    } catch (ex) {
+      return {
+        code: -1,
+        message: ex.message,
+      };
+    }
+  }
+
+  @Post('/userGroup/update')
+  async update(@Body() body) {
+    const { userId, name, id, icon } = body;
+    if (!userId) {
+      return {
+        code: -1,
+        message: '未获取userId',
+      };
+    }
+
+    try {
+      const user = await this.userDao.queryByEmail({email: userId})
+      if (!user) {
+        return {
+          code: -1,
+          message: '用户不存在'
+        };
+      }
+
+      await this.userGroupDao.update({
+        id,
+        name,
+        icon,
         updatorId: userId,
         updatorName: user.name || userId
       })

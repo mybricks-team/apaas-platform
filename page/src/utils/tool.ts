@@ -1,3 +1,4 @@
+import axios from 'axios'
 import moment from 'moment'
 
 /** 文件列表排序 */
@@ -53,4 +54,42 @@ function isThisYear(time) {
   const n = moment().format('YYYY')
 
   return t === n
+}
+
+export function staticServer({content, folderPath, fileName, noHash}: any): Promise<{url: string}> {
+  let blob = new Blob([content])
+  let formData = new window.FormData()
+ 
+  formData.append('file', blob, fileName)
+  formData.append('folderPath', folderPath)
+  noHash && formData.append('noHash', JSON.stringify(noHash))
+
+  return new Promise((resolve, reject) => {
+    axios
+      .post('/paas/api/flow/saveFile', formData)
+      .then(({ data }: any) => {
+        if (data.code === 1 && data.data) {
+          resolve(data.data)
+        } else {
+          reject('上传失败')
+        }
+      })
+  })
+}
+
+export function uuid(length = 32): string {
+  let text = '';
+
+  const possible1 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+  const possible2 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+
+  for (let i = 0; i < length; i++) {
+    if(i === 0) {
+      text += possible1.charAt(Math.floor(Math.random() * possible1.length))
+    } else {
+      text += possible2.charAt(Math.floor(Math.random() * possible2.length))
+    }
+  }
+
+  return text
 }

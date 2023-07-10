@@ -19,3 +19,33 @@
 
   .scrollbar();
 }
+
+.iconUploader {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  :global {
+    .ant-upload.ant-upload-drag .ant-upload {
+      padding: 0;
+    }
+    .ant-upload.ant-upload-drag {
+      width: 80px;
+      height: 80px;
+    }
+    .ant-upload-drag-container {
+      height: 100%;
+      width: 100%;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  img {
+    width: 70px;
+    height: 70px;
+  }
+}

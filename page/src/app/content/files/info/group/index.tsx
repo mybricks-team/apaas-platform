@@ -8,9 +8,11 @@ import React, {
 
 import axios from 'axios'
 import {
+  Spin,
   Table,
   Modal,
   Input,
+  Upload,
   Button,
   Select,
   Avatar,
@@ -22,14 +24,22 @@ import {
 import {evt, observe, useObservable} from '@mybricks/rxui'
 import {UserOutlined, EditOutlined, DownOutlined} from '@ant-design/icons'
 
+import {
+  uuid,
+  copyText,
+  getApiUrl,
+  staticServer
+} from '../../../../../utils'
 import ParentCtx from '../../Ctx'
 import {Title, ClickableIcon} from '..'
 import AppCtx from '../../../../AppCtx'
-import {Divider} from '../../../../components'
 import {useDebounceFn} from '../../../../hooks'
-import {copyText, getApiUrl} from '../../../../../utils'
+import {Divider, UserGroup} from '../../../../components'
+
+import type {UploadProps} from 'antd/es/upload/interface'
 
 const {TextArea} = Input
+const {Dragger} = Upload
 
 import css from './index.less'
 
@@ -55,6 +65,8 @@ class Ctx {
     id: number;
     /** 名称 */
     name: string;
+    /** 图标 */
+    icon?: string;
     /** 创建人ID */
     creatorId: string;
     /** 创建人名称 */
@@ -242,13 +254,14 @@ function GroupTitleConfig () {
 
   const modalOk = useCallback((values) => {
     return new Promise(async (resolve, reject) => {
-      const { name } = values
+      const { name, icon } = values
       axios({
         method: 'post',
-        url: getApiUrl('/paas/api/userGroup/rename'),
+        url: getApiUrl('/paas/api/userGroup/update'),
         data: {
           userId: appCtx.user.email,
           name,
+          icon,
           id: ctx.info.id
         }
       }).then(async ({data}) => {
@@ -256,12 +269,12 @@ function GroupTitleConfig () {
           appCtx.refreshSidebar('group')
           parentCtx.path.at(-1).name = name
           ctx.info.name = name
-          resolve('更改协作组名称成功')
+          resolve('更改协作组信息成功')
         } else {
           reject(data.message)
         }
       }).catch((e) => {
-        reject('更改协作组名称失败' + e?.message || '')
+        reject('更改协作组信息失败' + e?.message || '')
       })
     })
   }, [])
@@ -270,16 +283,17 @@ function GroupTitleConfig () {
     setOpen(false)
   }, [])
 
-  const RenderGroupTitleModal = useMemo(() => {
+  const RenderUpdateGroupInfoModal = useMemo(() => {
     if (typeof open === 'number') {
       return null
     }
+    const { info } = ctx
     return (
-      <GroupTitleModal
+      <UpdateGroupInfoModal
         open={open}
         onOk={modalOk}
         onCancel={modalCancel}
-        defaultValues={{name: ctx.info?.name}}
+        defaultValues={{name: info?.name, icon: info?.icon}}
       />
     )
   }, [open])
@@ -289,23 +303,53 @@ function GroupTitleConfig () {
       <ClickableIcon onClick={iconClick}>
         <EditOutlined style={{fontSize: 14}}/>
       </ClickableIcon>
-      {RenderGroupTitleModal}
+      {RenderUpdateGroupInfoModal}
     </>
   )
 }
 
-function GroupTitleModal ({open, onOk, onCancel, defaultValues}) {
+function UpdateGroupInfoModal ({open, onOk, onCancel, defaultValues}) {
   return (
     <ConfigFormModal
       open={open}
       onOk={onOk}
       onCancel={onCancel}
-      title='更改协作组名称'
+      title='修改协作组信息'
       defaultValues={defaultValues}
       Form={({form, editRef, ok}) => {
         const [context] = useState({
           submittable: true
         })
+        const [imageUrl, setImageUrl] = useState<string>(defaultValues.icon)
+        const [uploadLoading, setUploadLoading] = useState<boolean>(false)
+        const uploadImage: UploadProps['customRequest'] = useCallback((options) => {
+          const { file } = options
+      
+          staticServer({
+            content: file,
+            folderPath: `/imgs/${Date.now()}`,
+            // @ts-ignore
+            fileName: `${uuid()}.${file.name?.split('.').pop()}`,
+          }).then((data) => {
+            options.onSuccess(data.url)
+          }).catch((e) => {
+            options.onError(e)
+          })
+        }, [])
+      
+        const beforeUpload: UploadProps['beforeUpload'] = useCallback((file) => {
+          return new Promise((resolve, reject) => {
+            const fileKB = file.size / 1024
+      
+            if (fileKB <= 10) {
+              resolve()
+            } else {
+              message.info('图标必须小于10KB！')
+              reject()
+            }
+          })
+        }, [])
+
         return (
           <AntdForm
             labelCol={{ span: 3 }}
@@ -314,7 +358,8 @@ function GroupTitleModal ({open, onOk, onCancel, defaultValues}) {
           >
             <AntdForm.Item
               label='名称'
-              name="name"
+              name='name'
+              style={{height: 32, marginBottom: 24}}
               rules={[{ required: true, message: '请输入协作组名称！', validator(rule, value) {
                 return new Promise((resolve, reject) => {
                   if (!value.trim()) {
@@ -337,6 +382,40 @@ function GroupTitleModal ({open, onOk, onCancel, defaultValues}) {
                 autoFocus
                 onPressEnter={() => context.submittable && ok()}
               />
+            </AntdForm.Item>
+            <AntdForm.Item label='图标' name='icon'>
+              <Spin
+                spinning={uploadLoading}
+                size='small'
+                tip='上传中'
+              >
+                <div className={css.iconUploader}>
+                  <Dragger
+                    showUploadList={false}
+                    accept='image/*'
+                    disabled={uploadLoading}
+                    customRequest={uploadImage}
+                    beforeUpload={beforeUpload}
+                    onChange={(info) => {
+                      const { file } = info
+                      const { status, error, response } = file
+
+                      if (status === 'uploading') {
+                        setUploadLoading(true)
+                      } else if (status === 'done') {
+                        setImageUrl(response)
+                        form.setFieldValue('icon', response)
+                        setUploadLoading(false)
+                      } else if (status === 'error') {
+                        setUploadLoading(false)
+                        message.error(error)
+                      }
+                    }}
+                  >
+                    {imageUrl ? <img src={imageUrl}/> : <UserGroup width={70} height={70}/>}
+                  </Dragger>
+                </div>
+              </Spin>
             </AntdForm.Item>
           </AntdForm>
         )

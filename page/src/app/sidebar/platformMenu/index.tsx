@@ -8,19 +8,25 @@ import React, {
 
 import {
   Form,
+  Spin,
   Input,
   Modal,
+  Upload,
   message
 } from 'antd'
 import axios from 'axios'
 import {evt, observe} from '@mybricks/rxui'
 
+import type {UploadProps} from 'antd/es/upload/interface'
+
 import {Item} from '..'
 import {
+  uuid,
   storage,
   fileSort,
   isObject,
-  getApiUrl
+  getApiUrl,
+  staticServer
 } from '../../../utils'
 import AppCtx from '../../AppCtx'
 import NavMenu from './menu/navMenu'
@@ -29,6 +35,8 @@ import {UserGroup, Add} from '../../components'
 import {MYBRICKS_WORKSPACE_DEFAULT_NAV_MY_EXPAND, MYBRICKS_WORKSPACE_DEFAULT_NAV_GROUP_EXPAND} from '../../../const'
 
 import css from './index.less'
+
+const { Dragger } = Upload
 
 export let appCtx: AppCtx = null
 
@@ -168,13 +176,14 @@ function Group() {
 
   const modalOk = useCallback((values, app) => {
     return new Promise(async (resolve, reject) => {
-      const { name } = values
+      const { name, icon } = values
       axios({
         method: 'post',
         url: getApiUrl('/paas/api/userGroup/create'),
         data: {
           userId: appCtx.user.email,
-          name
+          name,
+          icon
         }
       }).then(async ({data}) => {
         if (data.code === 1) {
@@ -218,6 +227,8 @@ function CreateGroupModal({open, onOk, onCancel}) {
   const [form] = Form.useForm()
   const [btnLoading, setBtnLoading] = useState(false)
   const ref = useRef()
+  const [imageUrl, setImageUrl] = useState<string>()
+  const [uploadLoading, setUploadLoading] = useState<boolean>(false)
 
   const { run: ok } = useDebounceFn(() => {
     form.validateFields().then((values) => {
@@ -235,6 +246,8 @@ function CreateGroupModal({open, onOk, onCancel}) {
   const cancel = useCallback(() => {
     onCancel()
     setBtnLoading(false)
+    setImageUrl(void 0)
+    setUploadLoading(false)
     form.resetFields()
   }, [])
 
@@ -246,6 +259,34 @@ function CreateGroupModal({open, onOk, onCancel}) {
     }
   }, [open])
 
+  const uploadImage: UploadProps['customRequest'] = useCallback((options) => {
+    const { file } = options
+
+    staticServer({
+      content: file,
+      folderPath: `/imgs/${Date.now()}`,
+      // @ts-ignore
+      fileName: `${uuid()}.${file.name?.split('.').pop()}`,
+    }).then((data) => {
+      options.onSuccess(data.url)
+    }).catch((e) => {
+      options.onError(e)
+    })
+  }, [])
+
+  const beforeUpload: UploadProps['beforeUpload'] = useCallback((file) => {
+    return new Promise((resolve, reject) => {
+      const fileKB = file.size / 1024
+
+      if (fileKB <= 10) {
+        resolve()
+      } else {
+        message.info('图标必须小于10KB！')
+        reject()
+      }
+    })
+  }, [])
+
   return (
     <Modal
       open={open}
@@ -256,9 +297,6 @@ function CreateGroupModal({open, onOk, onCancel}) {
       onOk={ok}
       onCancel={cancel}
       confirmLoading={btnLoading}
-      bodyStyle={{
-        minHeight: 104
-      }}
     >
       <Form
         labelCol={{ span: 3 }}
@@ -267,7 +305,8 @@ function CreateGroupModal({open, onOk, onCancel}) {
       >
         <Form.Item
           label='名称'
-          name="name"
+          name='name'
+          style={{height: 32, marginBottom: 24}}
           rules={[{ required: true, message: '请输入协作组名称！', validator(rule, value) {
             return new Promise((resolve, reject) => {
               if (!value.trim()) {
@@ -290,6 +329,40 @@ function CreateGroupModal({open, onOk, onCancel}) {
             autoFocus
             onPressEnter={() => context.submittable && ok()}
           />
+        </Form.Item>
+        <Form.Item label='图标' name='icon'>
+          <Spin
+            spinning={uploadLoading}
+            size='small'
+            tip='上传中'
+          >
+            <div className={css.iconUploader}>
+              <Dragger
+                showUploadList={false}
+                accept='image/*'
+                disabled={uploadLoading}
+                customRequest={uploadImage}
+                beforeUpload={beforeUpload}
+                onChange={(info) => {
+                  const { file } = info
+                  const { status, error, response } = file
+
+                  if (status === 'uploading') {
+                    setUploadLoading(true)
+                  } else if (status === 'done') {
+                    setImageUrl(response)
+                    form.setFieldValue('icon', response)
+                    setUploadLoading(false)
+                  } else if (status === 'error') {
+                    setUploadLoading(false)
+                    message.error(error)
+                  }
+                }}
+              >
+                {imageUrl ? <img src={imageUrl}/> : <UserGroup width={70} height={70}/>}
+              </Dragger>
+            </div>
+          </Spin>
         </Form.Item>
       </Form>
     </Modal>
