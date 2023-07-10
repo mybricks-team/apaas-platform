@@ -8,6 +8,7 @@ import React, {
 
 import {
   Form,
+  Spin,
   Modal,
   Input,
   Table,
@@ -723,28 +724,20 @@ function RenameFileModal({app, onOk, onCancel}) {
 }
 
 class Ctx2 {
+  open: boolean
   active: any
   dataSource: any[]
+  loading: boolean
 }
 
 function MoveFileModal({app, onOk, onCancel}) {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const ctx = useObservable(Ctx2, next => {
-    axios({
-      method: 'get',
-      url: getApiUrl('/paas/api/userGroup/getVisibleGroups'),
-      params: {
-        userId: appCtx.user.email
-      }
-    }).then(({ data: { data } }) => {
-      next({
-        dataSource: data.filter((item) => item.roleDescription && item.roleDescription < 3)
-      })
-    })
-
     next({
+      open: false,
       active: null,
-      dataSource: []
+      dataSource: [],
+      loading: false
     })
   })
   const [btnLoading, setBtnLoading] = useState(false)
@@ -766,15 +759,29 @@ function MoveFileModal({app, onOk, onCancel}) {
   const cancel = useCallback(() => {
     onCancel()
     setBtnLoading(false)
+    ctx.open = false
     ctx.active = null
-    ctx.dataSource = ctx.dataSource.map((item) => {
-      Reflect.deleteProperty(item, 'dataSource')
-      return {
-        ...item,
-        open: false
-      }
-    })
+    ctx.dataSource = []
+    ctx.loading = false
   }, [])
+
+  useEffect(() => {
+    const open = !!app
+    ctx.open = open
+    if (open) {
+      ctx.loading = true
+      axios({
+        method: 'get',
+        url: getApiUrl('/paas/api/userGroup/getVisibleGroups'),
+        params: {
+          userId: appCtx.user.email
+        }
+      }).then(({ data: { data } }) => {
+        ctx.dataSource = data.filter((item) => item.roleDescription && item.roleDescription < 3)
+        ctx.loading = false
+      })
+    }
+  }, [app])
 
   return (
     <Modal
@@ -788,71 +795,73 @@ function MoveFileModal({app, onOk, onCancel}) {
       confirmLoading={btnLoading}
       bodyStyle={{height: 500, overflow: 'auto'}}
     >
-      <FolderList
-        active={ctx.active}
-        bodyStyle={{marginLeft: 0}}
-        dataSource={ctx.dataSource}
-        clickWrapper={async (item) => {
-          ctx.active = item
+      <Spin spinning={ctx.loading}>
+        <FolderList
+          active={ctx.active}
+          bodyStyle={{marginLeft: 0}}
+          dataSource={ctx.dataSource}
+          clickWrapper={async (item) => {
+            ctx.active = item
 
-          if (!item.open) {
-            item.loading = true
+            if (!item.open) {
+              item.loading = true
 
-            const params: any = {
-              userId: appCtx.user.email,
-              extNames: 'folder,folder-project,folder-module',
+              const params: any = {
+                userId: appCtx.user.email,
+                extNames: 'folder,folder-project,folder-module',
+              }
+
+              if (!item.groupId) {
+                // 协作组
+                params.groupId = item.id
+              } else {
+                params.groupId = item.groupId
+                params.parentId = item.id
+              }
+
+              axios({
+                method: 'get',
+                url: getApiUrl('/api/file/getGroupFiles'),
+                params
+              }).then(({ data: { data } }) => {
+                item.dataSource = fileSort(data.filter((item) => item.id !== app.id))
+                item.open = true
+                item.loading = false
+              })
             }
-
-            if (!item.groupId) {
-              // 协作组
-              params.groupId = item.id
+          }}
+          clickSwitcher={async (item) => {
+            if (item.open) {
+              item.open = false
             } else {
-              params.groupId = item.groupId
-              params.parentId = item.id
+              item.loading = true
+
+              const params: any = {
+                userId: appCtx.user.email,
+                extNames: 'folder,folder-project,folder-module',
+              }
+
+              if (!item.groupId) {
+                // 协作组
+                params.groupId = item.id
+              } else {
+                params.groupId = item.groupId
+                params.parentId = item.id
+              }
+
+              axios({
+                method: 'get',
+                url: getApiUrl('/api/file/getGroupFiles'),
+                params
+              }).then(({ data: { data } }) => {
+                item.dataSource = fileSort(data.filter((item) => item.id !== app.id))
+                item.open = true
+                item.loading = false
+              })
             }
-
-            axios({
-              method: 'get',
-              url: getApiUrl('/api/file/getGroupFiles'),
-              params
-            }).then(({ data: { data } }) => {
-              item.dataSource = fileSort(data.filter((item) => item.id !== app.id))
-              item.open = true
-              item.loading = false
-            })
-          }
-        }}
-        clickSwitcher={async (item) => {
-          if (item.open) {
-            item.open = false
-          } else {
-            item.loading = true
-
-            const params: any = {
-              userId: appCtx.user.email,
-              extNames: 'folder,folder-project,folder-module',
-            }
-
-            if (!item.groupId) {
-              // 协作组
-              params.groupId = item.id
-            } else {
-              params.groupId = item.groupId
-              params.parentId = item.id
-            }
-
-            axios({
-              method: 'get',
-              url: getApiUrl('/api/file/getGroupFiles'),
-              params
-            }).then(({ data: { data } }) => {
-              item.dataSource = fileSort(data.filter((item) => item.id !== app.id))
-              item.open = true
-              item.loading = false
-            })
-          }
-        }}
-      />
+          }}
+        />
+      </Spin>
     </Modal>
   )
 }
