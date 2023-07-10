@@ -50,7 +50,7 @@ export interface T_App {
 }
 
 /** 只有管理员才能看见的模块namespaces */
-const adminNameSpaces = ['app-store', 'mybricks-app-workflow']
+const adminNameSpaces = []
 
 const MYBRICKS_TEAM_USERS = [
   'charleszpq1995@gmail.com',
@@ -203,29 +203,24 @@ export default class AppCtx {
     this.InstalledAPPS = apps;
     this.APPSMap = APPSMap;
 
-
-    // TODO:先写死，后续配置化
-    const MYBRICKS_TEAM_USER_EMAILS = MYBRICKS_TEAM_USERS
-    const IS_MYBRICKS_TEAM_USER = MYBRICKS_TEAM_USER_EMAILS.includes(this.user.email)
-    if (!IS_MYBRICKS_TEAM_USER) {
+    if (!this.isAdministrator) {
       const SHOW_APPS_MAP  = {};
       this.systemConfig?.appWhiteList?.split(',')?.forEach(extName => {
         SHOW_APPS_MAP[extName] = true
       })
       const SHOW_FOLDERS_MAP = {
-        'folder': true,
-        'folder-project': true
+        'folder': true
       }
       // 搭建应用
       this.DesignAPPS = DesignAPPS.filter(app => {
-        return (this.isAdministrator ? true : !adminNameSpaces.includes(app.namespace)) && SHOW_APPS_MAP[app.extName]
+        return SHOW_APPS_MAP[app.extName]
       });
       this.FolderAPPS = this.FolderAPPS.filter((app) => {
         return SHOW_FOLDERS_MAP[app.extName]
       })
     } else {
       // 搭建应用
-      this.DesignAPPS = DesignAPPS.filter(app => this.isAdministrator ? true : !adminNameSpaces.includes(app.namespace));
+      this.DesignAPPS = DesignAPPS;
     }
   }
 
