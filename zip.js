@@ -34,6 +34,8 @@ const filterFileName = [
   'package-lock.json', 
   'nest-cli.json',
   'application_bugu.json',
+  'application.json',
+  'application_hainiu.json',
   'application_fangzhou.json',
   'application_qingchenghui.json',
   'zip.js'
