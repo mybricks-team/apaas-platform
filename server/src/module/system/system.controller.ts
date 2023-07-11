@@ -622,12 +622,10 @@ export default class SystemService {
         }
         case 'downloadPlatform': {
           const res = await (axios as any).get(`https://my.mybricks.world/runtime/mfs/platform/${version}/mybricks-apaas.zip`)
-          if(!fs.existsSync(path.join(process.cwd(), './_temp_'))) {
-            fs.mkdir(path.join(process.cwd(), './_temp_'))
-          } else {
-            fs.unlinkSync(path.join(process.cwd(), './_temp_'))
+          if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
+            fs.mkdir(path.join(process.cwd(), '../_temp_'))
           }
-          fs.writeFileSync(path.join(process.cwd(), './_temp_'), res.data);
+          fs.writeFileSync(path.join(process.cwd(), '../_temp_'), res.data);
           
           const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
           Logger.info(shellPath)
