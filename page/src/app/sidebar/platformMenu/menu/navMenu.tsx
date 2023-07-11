@@ -160,7 +160,7 @@ export default function NavMenu ({
       )
     }
     return jsx
-  }, [])
+  }, [name, icon])
 
   return (
     <>

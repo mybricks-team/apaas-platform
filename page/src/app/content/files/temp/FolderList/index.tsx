@@ -86,7 +86,7 @@ function Leaf({item, clickWrapper, clickSwitcher, count, active}) {
             <span className={css.title}>
               <i className={`${css.anticon}`}>
                 {/* {getIconInfo({key: iconKey, width: '16px'}).icon} */}
-                <Icon icon={(extName && appCtx.APPSMap[extName]?.icon) || UserGroup} width={20} height={20}/>
+                <Icon icon={(extName && appCtx.APPSMap[extName]?.icon) || (icon || UserGroup)} width={20} height={20}/>
               </i>
               <div className={css.unselect}>
                 <span className={css.name}>
