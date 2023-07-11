@@ -153,9 +153,7 @@ export default function NavMenu ({
     )
     if (menuCtx.canDrag) {
       return (
-        <DragFile item={info} canDrag={true} child={child} drag={(a,b,c) => {
-          console.log({a,b,c})
-        }}>
+        <DragFile item={info} canDrag={true}>
           {jsx}
         </DragFile>
       )
@@ -223,8 +221,8 @@ function onDragLeave (event, dom, item) {
   } } = appCtx
   if (canDrop(dragItem, item)) {
     const domStyle = dom.children[0].style
-    domStyle.outline = '1px dashed #fa6400'
-    domStyle.outlineOffset = '-2px'
+    domStyle.outline = 'none'
+    domStyle.outlineOffset = '0'
   }
 }
 
@@ -233,7 +231,7 @@ function onDragEnd (event, dom, item) {
   notMoveIdMap = {}
 }
 
-function onDrop (event, dom, item, drag) {
+function onDrop (event, dom, item) {
   const { 
     item: dragItem,
     dom: dragDom
@@ -249,6 +247,10 @@ function onDrop (event, dom, item, drag) {
     key: msgKey,
     duration: 0
   })
+
+  const domStyle = dom.children[0].style
+  domStyle.outline = 'none'
+  domStyle.outlineOffset = '0'
 
   appCtx.fileMove(item, dragItem, [async () => await appCtx.getAll(getUrlQuery())]).then((r) => {
     message.destroy(msgKey)
@@ -278,7 +280,7 @@ function canDrop(move, to) {
     }
   } else {
     if (folderExtNameMap[to.extName]) {
-      if (move.parentId === to.id || move.id === to.id || (!move.parentId && !to.parentId ? false : move.parentId === to.parentId) || to.parentId === move.id || notMoveIdMap[to.parentId]) {
+      if (move.parentId === to.id || move.id === to.id || to.parentId === move.id || notMoveIdMap[to.parentId]) {
         if (to.parentId === move.id) {
           notMoveIdMap[to.id] = true
         }
@@ -291,26 +293,26 @@ function canDrop(move, to) {
   return canDrop
 }
 
-function DragFile ({item, drag, canDrag, child, children}) {
+function DragFile ({item, canDrag, children}) {
   const ref = useRef<HTMLDivElement>(null)
 
-  useUpdateEffect(() => {
-    const { dragItem } = appCtx
-    if (dragItem) {
-      if (canDrop(dragItem.item, item)) {
-        const domStyle = (ref.current.children[0] as HTMLDivElement).style
-        domStyle.outline = '1px dashed #fa6400'
-        domStyle.outlineOffset = '-2px'
-      }
-    } else {
-      const { extName } = item
-      if (!extName || folderExtNameMap[extName]) {
-        const domStyle = (ref.current.children[0] as HTMLDivElement).style
-        domStyle.outline = 'none'
-        domStyle.outlineOffset = '0'
-      }
-    }
-  }, [appCtx.dragItem])
+  // useUpdateEffect(() => {
+  //   const { dragItem } = appCtx
+  //   if (dragItem) {
+  //     if (canDrop(dragItem.item, item)) {
+  //       const domStyle = (ref.current.children[0] as HTMLDivElement).style
+  //       domStyle.outline = '1px dashed #fa6400'
+  //       domStyle.outlineOffset = '-2px'
+  //     }
+  //   } else {
+  //     const { extName } = item
+  //     if (!extName || folderExtNameMap[extName]) {
+  //       const domStyle = (ref.current.children[0] as HTMLDivElement).style
+  //       domStyle.outline = 'none'
+  //       domStyle.outlineOffset = '0'
+  //     }
+  //   }
+  // }, [appCtx.dragItem])
 
   useLayoutEffect(() => {
     const { current } = ref
@@ -329,7 +331,7 @@ function DragFile ({item, drag, canDrag, child, children}) {
         onDragEnd(event, current, item)
       })
       current.addEventListener('drop', (event) => {
-        onDrop(event, current, item, drag)
+        onDrop(event, current, item)
       })
     }
    

@@ -343,16 +343,18 @@ function Projects() {
         },
         render: (name, record) => {
           return (
-            <div className={css.tableName} onClick={() => operate('open', record)}>
-              <div className={css.tableNameIcon}>
-                <Icon
-                  icon={APPSMap[record.extName].icon}
-                  width={16}
-                  height={16}
-                />
+            <DragFile item={record} canDrag={(record.creatorId === userId) || [1, 2].includes(roleDescription)} drag={moveModalOk}>
+              <div className={css.tableName} onClick={() => operate('open', record)}>
+                <div className={css.tableNameIcon}>
+                  <Icon
+                    icon={APPSMap[record.extName].icon}
+                    width={16}
+                    height={16}
+                  />
+                </div>
+                {name}
               </div>
-              {name}
-            </div>
+            </DragFile>
           )
         }
       },
@@ -589,7 +591,7 @@ function onDragOver (event, dom, item) {
   if (dragItem.id !== item.id && folderExtNameMap[item.extName]) {
     event.dataTransfer.dropEffect = 'copy'
     const domStyle = dom.children[0].style
-    domStyle.outline = '2px solid #fa6400'
+    domStyle.outline = '4px solid #fa6400'
   } else {
     event.dataTransfer.dropEffect = 'none'
   }
@@ -601,7 +603,7 @@ function onDragLeave (event, dom, item) {
   } } = appCtx
   if (dragItem.id !== item.id && folderExtNameMap[item.extName]) {
     const domStyle = dom.children[0].style
-    domStyle.outline = '1px dashed #fa6400'
+    domStyle.outline = 'none'
   }
 }
 
@@ -626,6 +628,9 @@ function onDrop (event, dom, item, drag) {
     duration: 0
   })
 
+  const domStyle = dom.children[0].style
+  domStyle.outline = 'none'
+
   drag(item, dragItem)
     .then((r) => {
       dragDom.style.display = 'none'
@@ -643,24 +648,24 @@ function onDrop (event, dom, item, drag) {
 function DragFile ({item, drag, canDrag, children}) {
   const ref = useRef<HTMLDivElement>(null)
 
-  useUpdateEffect(() => {
-    const { dragItem } = appCtx
-    if (dragItem) {
-      if (dragItem.item.id !== item.id) {
-        const { extName } = item
-        if (folderExtNameMap[extName]) {
-          const domStyle = (ref.current.children[0] as HTMLDivElement).style
-          domStyle.outline = '1px dashed #fa6400'
-        }
-      }
-    } else {
-      const { extName } = item
-      if (folderExtNameMap[extName]) {
-        const domStyle = (ref.current.children[0] as HTMLDivElement).style
-        domStyle.outline = 'none'
-      }
-    }
-  }, [appCtx.dragItem])
+  // useUpdateEffect(() => {
+  //   const { dragItem } = appCtx
+  //   if (dragItem) {
+  //     if (dragItem.item.id !== item.id) {
+  //       const { extName } = item
+  //       if (folderExtNameMap[extName]) {
+  //         const domStyle = (ref.current.children[0] as HTMLDivElement).style
+  //         domStyle.outline = '1px dashed #fa6400'
+  //       }
+  //     }
+  //   } else {
+  //     const { extName } = item
+  //     if (folderExtNameMap[extName]) {
+  //       const domStyle = (ref.current.children[0] as HTMLDivElement).style
+  //       domStyle.outline = 'none'
+  //     }
+  //   }
+  // }, [appCtx.dragItem])
 
   useLayoutEffect(() => {
     const { current } = ref
