@@ -12,5 +12,6 @@
       "type": "npm",
       "path": "mybricks-hainiu-login@0.0.2"
     }
-  ]
+  ],
+  "platformVersion": "0.0.30"
 }
