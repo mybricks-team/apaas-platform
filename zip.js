@@ -53,8 +53,8 @@ fs.readdirSync(path.join(__dirname, './server-runtime')).forEach(filename => {
   }
 });
 
-read(zipRootFolder.folder('mybricks-platform'), filesPlatform, path.join(__dirname, './server'));
-read(zipRootFolder.folder('mybricks-runtime'), filesRuntime, path.join(__dirname, './server-runtime'));
+read(zipRootFolder.folder('server'), filesPlatform, path.join(__dirname, './server'));
+read(zipRootFolder.folder('server-runtime'), filesRuntime, path.join(__dirname, './server-runtime'));
 
 zipRootFolder.file('upgrade_platform.sh', fs.readFileSync(path.join(__dirname, './upgrade_platform.sh')));
 

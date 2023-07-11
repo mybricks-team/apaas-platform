@@ -2,12 +2,14 @@ import ServicePubDao from './../../dao/ServicePubDao';
 import { Body, Controller, Get, Inject, Post, Req } from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
+import AppDao from '../../dao/AppDao';
 import { uuid } from '../../utils/index';
 import { getConnection } from '@mybricks/rocker-dao';
 import { Logger } from '@mybricks/rocker-commons';
 // @ts-ignore
 import { createVM } from 'vm-node';
 import FileService from '../file/file.controller'
+import * as axios from "axios";
 const childProcess = require('child_process');
 const path = require('path')
 const fs = require('fs')
@@ -20,6 +22,8 @@ export default class SystemService {
 
   servicePubDao: ServicePubDao
 
+  appDao: AppDao;
+
   fileService: FileService
 
   conn: any;
@@ -30,6 +34,7 @@ export default class SystemService {
     this.fileDao = new FileDao();
     this.filePubDao = new FilePubDao();
     this.servicePubDao = new ServicePubDao();
+    this.appDao = new AppDao()
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
@@ -507,8 +512,8 @@ export default class SystemService {
     };
   }
 
-  @Post('/system/checkUpdate')
-  async checkUpdate() {
+  @Post('/system/checkUpdateFromNpm')
+  async checkUpdateFromNpm() {
     const version = await childProcess.execSync('npm view mybricks-apaas-platform version').toString().replace('\n', '')
     if(version) {
       return {
@@ -521,6 +526,103 @@ export default class SystemService {
       return {
         code: -1,
         msg: '获取最新版本失败'
+      }
+    }
+  }
+
+  @Post('/system/channel')
+  async checkUpdate(@Body() body: any) {
+    const { type, version } = body;
+    if(process.env.MYBRICKS_NODE_MODE === 'master') {
+      switch (type) {
+        case 'checkLatestPlatformVersion': {
+          const data = await this.appDao.getLatestAppByNamespace('mybricks-apaas')
+          return {
+            code: 1,
+            data: { version: data.version, name: data.name }
+          }
+        }
+        case 'getCurrentPlatformVersion': {
+          try {
+            const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
+            const { platformVersion } = JSON.parse(appJSON)
+            return {
+              code: 1,
+              data: platformVersion
+            }
+          } catch (e) {
+            console.log(e)
+            return {
+              code: -1,
+              msg: e.message
+            }
+          }
+        }
+        // case 'downloadPlatform': {
+        //   const res = await (axios as any).get(`http://localhost:3100/mfs/platform/${version}/mybricks-apaas.zip`)
+        //   if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
+        //     fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
+        //   }
+        //   fs.writeFileSync(path.join(process.cwd(), '../_temp_/mybricks-apaas.zip'), res.data);
+
+        //   const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
+        //   Logger.info(shellPath)
+        //   const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
+        //     cwd: path.join(process.cwd(), '../'),
+        //   })
+        //   return {
+        //     code: 1,
+        //     msg: log.toString() || '升级成功'
+        //   }
+        // }
+      }
+      return {
+        code: -1,
+        msg: '未知指令'
+      }
+    } else {
+      switch (type) {
+        case 'checkLatestPlatformVersion':
+        case 'getCurrentPlatformVersion': {
+          const res = await (axios as any).post('https://my.mybricks.world/paas/api/system/channel', body)
+          return res.data
+        }
+        case 'downloadPlatform': {
+          const res = await (axios as any).get(`https://my.mybricks.world/runtime/mfs/platform/${version}/mybricks-apaas.zip`)
+          if(!fs.existsSync(path.join(process.cwd(), './_temp_'))) {
+            fs.mkdir(path.join(process.cwd(), './_temp_'))
+          } else {
+            fs.unlinkSync(path.join(process.cwd(), './_temp_'))
+          }
+          fs.writeFileSync(path.join(process.cwd(), './_temp_'), res.data);
+          
+          const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
+          Logger.info(shellPath)
+          const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
+            cwd: path.join(process.cwd(), '../'),
+          })
+          return {
+            code: 1,
+            msg: log.toString() || '升级成功'
+          }
+        }
+        case 'reloadPlatform': {
+          try {
+            const appJSONStr = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
+            let appJSON = JSON.parse(appJSONStr)
+            appJSON.platformVersion = version
+            fs.writeFileSync(path.join(__dirname, '../../../application.json'), JSON.stringify(appJSON, null, 2))
+            childProcess.exec(`npx pm2 reload all`)
+            return {
+              code: 1,
+            };
+          } catch(e) {
+            return {
+              code: -1,
+              msg: e.message || '升级失败'
+            }
+          }
+        }
       }
     }
   }

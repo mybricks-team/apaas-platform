@@ -21,8 +21,6 @@ import {getApiUrl} from '../../../utils'
 import AppCtx, { T_App } from '../../AppCtx'
 import SchemaSetting, {SettingItem} from './schemaSetting'
 
-const pkg = require('../../../../../package.json');
-
 interface MenuItem extends T_App {
   icon: any
   setting?: SettingItem[] | string
@@ -195,7 +193,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   )
 }
 
-const AboutForm = () => {
+const AboutForm = ({ currentPlatformVersion }) => {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [upgradeInfo, setUpgradeInfo] = useState(null)
   const [checkLoading, setCheckLoading] = useState(false)
@@ -211,12 +209,16 @@ const AboutForm = () => {
           onClick={() => {
             setIsDownloading(true)
             message.info('正在执行下载操作', 3)
-              axios.post(getApiUrl('/paas/api/system/doUpdate'), {
+              axios.post(getApiUrl('/paas/api/system/channel'), {
+                type: 'downloadPlatform',
                 version: upgradeInfo.version
               }).then((res) => {
                 if(res?.data?.code === 1) {
                   message.info('安装包下载完毕，即将执行升级操作，请稍后', 3)
-                  axios.post(getApiUrl('/paas/api/system/reloadAll')).then((res) => {
+                  axios.post(getApiUrl('/paas/api/system/channel'), {
+                    type: 'reloadPlatform',
+                    version: upgradeInfo.version
+                  }).then((res) => {
                     setTimeout(() => {
                       message.info('升级中，请稍后，此过程大约15s', 15, () => {
                         message.success('升级成功, 3秒后将自动刷新页面', 3, () => {
@@ -244,17 +246,19 @@ const AboutForm = () => {
   return (
     <div>
       <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks aPaaS Platform</p>
-      <p style={{textAlign: 'center'}}>Version {pkg.version}</p>
+      <p style={{textAlign: 'center'}}>Version {currentPlatformVersion}</p>
       <div style={{display: 'flex', justifyContent: 'center'}}>
         <Button
           loading={checkLoading}
           onClick={() => {
             // console.log('点击检查更新')
             setCheckLoading(true)
-            axios.post(getApiUrl('/paas/api/system/checkUpdate')).then((res) => {
-              console.log('最新版本', res.data)
-              if(res.data.code === 1) {
-                const temp = compareVersion(res.data.data.version, pkg.version)
+            axios.post(getApiUrl('/paas/api/system/channel'), {
+              type: "checkLatestPlatformVersion",
+            }).then(({ data }) => {
+              console.log('最新版本', data)
+              if(data.code === 1) {
+                const temp = compareVersion(data.data.version, currentPlatformVersion)
                 switch(temp) {
                   case -1: {
                     message.info('远程系统版本异常，请联系管理员')
@@ -265,13 +269,13 @@ const AboutForm = () => {
                     break;
                   }
                   case 1: {
-                    setUpgradeInfo(res.data.data)
+                    setUpgradeInfo(data.data)
                     setShowUpgrade(true)
                     break
                   }
                 }
               } else {
-                message.info(res.data.msg)
+                message.info(data.msg)
               }
               setCheckLoading(false)
             })
@@ -292,6 +296,7 @@ export default () => {
   const [configMap, setConfigMap] = useState({})
 
   const [isConfigMount, setIsConfigMount] = useState(false)
+  const [currentPlatformVersion, setCurrentPlatformVersion] = useState('');
 
   const menuItems = useMemo((): MenuItem[] => {
     let defaultItems = [
@@ -318,7 +323,7 @@ export default () => {
     ; (async () => {
       const res = await axios({
         method: 'post',
-        url: getApiUrl('/api/config/get'),
+        url: getApiUrl('/paas/api/config/get'),
         data: {
           scope: menuItems.map((t) => t.namespace),
         },
@@ -338,7 +343,7 @@ export default () => {
       ; (async () => {
         const res = await axios({
           method: 'post',
-          url: getApiUrl('/api/config/update'),
+          url: getApiUrl('/paas/api/config/update'),
           data: {
             namespace: namespace,
             userId: user.email,
@@ -362,6 +367,16 @@ export default () => {
     queryConfig()
   }, [queryConfig])
 
+  useEffect(() => {
+    axios.post(getApiUrl('/paas/api/system/channel'), {
+      type: "getCurrentPlatformVersion",
+    }).then(({ data }) => {
+      if(data.code === 1) {
+        setCurrentPlatformVersion(data.data)
+      }
+    })
+  }, [])
+
   const renderContent = () => {
     switch (true) {
       case !isConfigMount: {
@@ -384,7 +399,7 @@ export default () => {
       }
       case activeKey === 'about': {
         return (
-          <AboutForm />
+          <AboutForm currentPlatformVersion={currentPlatformVersion} />
         )
       }
       /** 其他APP导入的设置 */

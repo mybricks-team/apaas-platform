@@ -59,7 +59,7 @@ const AppCard: FC<AppCardProps> = props => {
 		setTimeout(() => {
 			axios({
 				method: 'get',
-				url: '/api/apps/update/status',
+				url: '/paas/api/apps/update/status',
 				params: otherInfo,
 				// timeout: 3000,
 			}).then(res => {

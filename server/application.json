@@ -40,5 +40,6 @@
       "type": "npm",
       "path": "mybricks-app-mpsite@0.0.59"
     }
-  ]
+  ],
+  "platformVersion": "0.0.30"
 }

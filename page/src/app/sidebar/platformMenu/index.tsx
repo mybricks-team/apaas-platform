@@ -81,7 +81,7 @@ function My() {
 
           axios({
             method: 'get',
-            url: getApiUrl('/api/file/getMyFiles'),
+            url: getApiUrl('/paas/api/file/getMyFiles'),
             params: {
               userId: appCtx.user.email,
               extNames: 'folder,folder-project,folder-module',

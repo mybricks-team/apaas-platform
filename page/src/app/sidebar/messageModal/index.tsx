@@ -35,7 +35,7 @@ const UpgradeButton:FC<{ app: Record<string, unknown>; setCurrentUpgrade(namespa
 		setTimeout(() => {
 			axios({
 				method: 'get',
-				url: getApiUrl('/api/apps/update/status'),
+				url: getApiUrl('/paas/api/apps/update/status'),
 				params: otherInfo,
 				// timeout: 3000,
 			}).then(res => {
