@@ -24,8 +24,7 @@ fi
 tmpPlatformFolder=$tmpFolderBase/node_modules/mybricks-apaas-platform
 cd "./node_modules/mybricks-apaas-platform"
 echo "开始解压"
-unzip mybricks-platform.zip -d ../../
-unzip mybricks-runtime.zip -d ../../
+unzip mybricks-apaas.zip -d ../../
 cd $tmpFolderBase
 rm -rf ./node_modules
 echo "开始执行覆盖操作"
@@ -45,6 +44,7 @@ then
     cp -r "./mybricks-runtime/$filename" ../server-runtime
   done
 fi
+
 echo "覆盖完毕"
 
 echo "开始执行安装依赖操作"
