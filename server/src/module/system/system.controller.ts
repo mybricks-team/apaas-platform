@@ -600,8 +600,23 @@ export default class SystemService {
       }
     } else {
       switch (type) {
-        case 'checkLatestPlatformVersion':
         case 'getCurrentPlatformVersion': {
+          try {
+            const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
+            const { platformVersion } = JSON.parse(appJSON)
+            return {
+              code: 1,
+              data: platformVersion
+            }
+          } catch (e) {
+            console.log(e)
+            return {
+              code: -1,
+              msg: e.message
+            }
+          }
+        }
+        case 'checkLatestPlatformVersion': {
           const res = await (axios as any).post('https://my.mybricks.world/paas/api/system/channel', body)
           return res.data
         }

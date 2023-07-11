@@ -2,9 +2,9 @@ import env from "./utils/env";
 import { start as startDB } from "@mybricks/rocker-dao";
 
 export default function init() {
-  process.on("unhandledRejection", (e) => {
+  process.on("unhandledRejection", (e: any) => {
     console.info(`[global error]: \n`);
-    console.log(e);
+    console.log(e.message);
   });
 
   let dbConfig = null;

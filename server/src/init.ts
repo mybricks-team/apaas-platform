@@ -6,9 +6,9 @@ import { Logger } from '@mybricks/rocker-commons'
 
 export default function init() {
   initLogger()
-  process.on("unhandledRejection", (e) => {
+  process.on("unhandledRejection", (e: any) => {
     Logger.info(`[global error][unhandledRejection]: \n`);
-    Logger.info(e)
+    Logger.info(e.message)
   });
 
   let dbConfig = null;
