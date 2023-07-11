@@ -19,5 +19,9 @@
     "url": "git@github.com:mybricks-team/official-website.git"
   },
   "author": "MyBricks Team",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "jszip": "^3.10.1"
+  }
 }
