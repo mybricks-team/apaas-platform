@@ -625,7 +625,7 @@ export default class SystemService {
           if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
             fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
           }
-          fs.writeFileSync(path.join(process.cwd(), '../_temp_'), res.data);
+          fs.writeFileSync(path.join(process.cwd(), '../_temp_/mybricks-apaas.zip'), res.data);
           
           const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
           Logger.info(shellPath)

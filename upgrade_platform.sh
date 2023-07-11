@@ -34,6 +34,13 @@ cd "../server-runtime"
 npm i --registry=https://registry.npm.taobao.org 
 echo "依赖安装完毕"
 
+echo "开始清除临时文件"
+if [[ -d "$tmpFolderBase" ]];
+then
+  rm -rf "_temp_"
+else
+fi
+
 # echo "开始重启服务"
 # npx pm2 reload index
 # npx pm2 reload index_flow
