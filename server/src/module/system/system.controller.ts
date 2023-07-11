@@ -13,7 +13,7 @@ import * as axios from "axios";
 const childProcess = require('child_process');
 const path = require('path')
 const fs = require('fs')
-import env from "../../utils/env";
+const env = require('../../../env')
 
 @Controller('/paas/api')
 export default class SystemService {
