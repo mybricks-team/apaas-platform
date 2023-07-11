@@ -623,7 +623,7 @@ export default class SystemService {
         case 'downloadPlatform': {
           const res = await (axios as any).get(`https://my.mybricks.world/runtime/mfs/platform/${version}/mybricks-apaas.zip`)
           if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
-            fs.mkdir(path.join(process.cwd(), '../_temp_'))
+            fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
           }
           fs.writeFileSync(path.join(process.cwd(), '../_temp_'), res.data);
           
