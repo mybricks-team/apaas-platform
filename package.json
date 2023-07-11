@@ -7,6 +7,7 @@
     "zip:server": "npm run build && node ./server/zip.js",
     "zip:server-runtime": "node ./server-runtime/zip.js",
     "zip:all": "npm run build && node ./zip.js",
+    "zip:all:hainiu": "npm run build && node ./zip.js hainiu",
     "deploy:fangzhou": "sh deploy_fangzhou.sh",
     "publishToNpm": "npm run zip:all && npm publish --registry=https://registry.npmjs.org"
   },

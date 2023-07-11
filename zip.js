@@ -5,6 +5,8 @@ const JSZip = require('jszip');
 const zip = new JSZip();
 /** 根目录 */
 const zipRootFolder = zip.folder('mybricks-apaas');
+const targetConfig = process.argv[2] ? process.argv[2] : null;
+
 
 /** 遍历文件 */
 function read (zipFolder, files, dirPath) {
@@ -57,7 +59,9 @@ read(zipRootFolder.folder('server'), filesPlatform, path.join(__dirname, './serv
 read(zipRootFolder.folder('server-runtime'), filesRuntime, path.join(__dirname, './server-runtime'));
 
 zipRootFolder.file('upgrade_platform.sh', fs.readFileSync(path.join(__dirname, './upgrade_platform.sh')));
-
+if(targetConfig) {
+  zipRootFolder.folder('server').file('application.json', fs.readFileSync(path.join(__dirname, `./server/application_${targetConfig}.json`)));
+}
 zip.generateAsync({
   type: 'nodebuffer',
   compression: 'DEFLATE',
