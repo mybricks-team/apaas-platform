@@ -76,7 +76,7 @@ export default function Files() {
 
         axios({
           method: "get",
-          url: getApiUrl('/api/file/getFilePath'),
+          url: getApiUrl('/paas/api/file/getFilePath'),
           params: {userId: appCtx.user.email, fileId: parentId, groupId}
         }).then(({data: {data}}) => {
           if (data.length) {
@@ -97,7 +97,7 @@ export default function Files() {
         if (!groupId) {
           axios({
             method: 'get',
-            url: getApiUrl('/api/file/getMyFiles'),
+            url: getApiUrl('/paas/api/file/getMyFiles'),
             params: {
               userId: appCtx.user.email,
               parentId

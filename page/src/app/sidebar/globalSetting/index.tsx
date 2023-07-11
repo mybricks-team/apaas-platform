@@ -21,8 +21,6 @@ import {getApiUrl} from '../../../utils'
 import AppCtx, { T_App } from '../../AppCtx'
 import SchemaSetting, {SettingItem} from './schemaSetting'
 
-const pkg = require('../../../../../package.json');
-
 interface MenuItem extends T_App {
   icon: any
   setting?: SettingItem[] | string
@@ -39,17 +37,18 @@ interface TabsProps {
     icon: JSX.Element
   }>
   style?: any
+  breakCount: number
 }
 
 const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
   if (!Array.isArray(items)) {
     return null
   }
-
-  return (
-    <div className={styles.tabs} style={style}>
-      {items.map((item) => (
-        <div
+  let group1 = [];
+  let group2 = [];
+  items?.forEach((item, index) => {
+    let temp = (
+      <div
           key={item.namespace}
           className={`${styles.tab} ${activeKey === item.namespace ? styles.activeTab : ''
             }`}
@@ -57,8 +56,22 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
         >
           <div className={styles.icon}>{item?.icon}</div>
           <div className={styles.label}>{item?.title}</div>
-        </div>
-      ))}
+      </div>
+    );
+    if(index <= 1) {
+      group1.push(temp)
+    } else {
+      group2.push(temp)
+    }
+  })
+  return (
+    <div className={styles.tabs} style={style}>
+      <div style={{display: 'flex'}}>
+        {...group1}
+      </div>
+      <div style={{display: 'flex'}}>
+        {...group2}
+      </div>
     </div>
   )
 }
@@ -71,7 +84,6 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
     if (!initialValues) {
       return
     }
-    console.log('2@@2', initialValues)
     form?.setFieldsValue?.(initialValues)
   }, [initialValues])
 
@@ -181,10 +193,11 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   )
 }
 
-const AboutForm = () => {
+const AboutForm = ({ currentPlatformVersion }) => {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [upgradeInfo, setUpgradeInfo] = useState(null)
   const [checkLoading, setCheckLoading] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
   let upgradeContainer = null;
   if(showUpgrade) {
     upgradeContainer = (
@@ -192,23 +205,37 @@ const AboutForm = () => {
         <span>最新版本是: {upgradeInfo.version}</span>
         <Button 
           type="primary" 
+          loading={isDownloading}
           onClick={() => {
-            axios.post(getApiUrl('/paas/api/system/doUpdate'), {
-              version: upgradeInfo.version
-            }).then((res) => {
-              if(res?.data?.code === 1) {
-                message.info('安装包下载完毕，即将执行升级操作，请稍后', 3)
-                axios.post(getApiUrl('/paas/api/system/reloadAll')).then((res) => {
-                  setTimeout(() => {
-                    message.info('升级中，请稍后，此过程大约15s', 15, () => {
-                      message.success('升级成功, 3秒后将自动刷新页面', 3, () => {
-                        location.reload()
+            setIsDownloading(true)
+            message.info('正在执行下载操作', 3)
+              axios.post(getApiUrl('/paas/api/system/channel'), {
+                type: 'downloadPlatform',
+                version: upgradeInfo.version
+              }).then((res) => {
+                if(res?.data?.code === 1) {
+                  message.info('安装包下载完毕，即将执行升级操作，请稍后', 3)
+                  axios.post(getApiUrl('/paas/api/system/channel'), {
+                    type: 'reloadPlatform',
+                    version: upgradeInfo.version
+                  }).then((res) => {
+                    setTimeout(() => {
+                      message.info('升级中，请稍后，此过程大约15s', 15, () => {
+                        message.success('升级成功, 3秒后将自动刷新页面', 3, () => {
+                          location.reload()
+                          setIsDownloading(false)
+                        })
                       })
-                    })
-                  }, 3000)
-                })
-              }
-            })
+                    }, 3000)
+                  }).catch(e => {
+                    setIsDownloading(false)
+                    console.log(e)
+                  })
+                }
+              }).catch(e => {
+                setIsDownloading(false)
+                console.log(e)
+              })
           }}
         >
           立即升级?
@@ -218,18 +245,20 @@ const AboutForm = () => {
   }
   return (
     <div>
-      <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks aPaaS OS</p>
-      <p style={{textAlign: 'center'}}>Version {pkg.version}</p>
+      <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks aPaaS Platform</p>
+      <p style={{textAlign: 'center'}}>Version {currentPlatformVersion}</p>
       <div style={{display: 'flex', justifyContent: 'center'}}>
         <Button
           loading={checkLoading}
           onClick={() => {
             // console.log('点击检查更新')
             setCheckLoading(true)
-            axios.post(getApiUrl('/paas/api/system/checkUpdate')).then((res) => {
-              console.log('最新版本', res.data)
-              if(res.data.code === 1) {
-                const temp = compareVersion(res.data.data.version, pkg.version)
+            axios.post(getApiUrl('/paas/api/system/channel'), {
+              type: "checkLatestPlatformVersion",
+            }).then(({ data }) => {
+              console.log('最新版本', data)
+              if(data.code === 1) {
+                const temp = compareVersion(data.data.version, currentPlatformVersion)
                 switch(temp) {
                   case -1: {
                     message.info('远程系统版本异常，请联系管理员')
@@ -240,13 +269,13 @@ const AboutForm = () => {
                     break;
                   }
                   case 1: {
-                    setUpgradeInfo(res.data.data)
+                    setUpgradeInfo(data.data)
                     setShowUpgrade(true)
                     break
                   }
                 }
               } else {
-                message.info(res.data.msg)
+                message.info(data.msg)
               }
               setCheckLoading(false)
             })
@@ -267,6 +296,7 @@ export default () => {
   const [configMap, setConfigMap] = useState({})
 
   const [isConfigMount, setIsConfigMount] = useState(false)
+  const [currentPlatformVersion, setCurrentPlatformVersion] = useState('');
 
   const menuItems = useMemo((): MenuItem[] => {
     let defaultItems = [
@@ -293,7 +323,7 @@ export default () => {
     ; (async () => {
       const res = await axios({
         method: 'post',
-        url: getApiUrl('/api/config/get'),
+        url: getApiUrl('/paas/api/config/get'),
         data: {
           scope: menuItems.map((t) => t.namespace),
         },
@@ -313,7 +343,7 @@ export default () => {
       ; (async () => {
         const res = await axios({
           method: 'post',
-          url: getApiUrl('/api/config/update'),
+          url: getApiUrl('/paas/api/config/update'),
           data: {
             namespace: namespace,
             userId: user.email,
@@ -337,6 +367,16 @@ export default () => {
     queryConfig()
   }, [queryConfig])
 
+  useEffect(() => {
+    axios.post(getApiUrl('/paas/api/system/channel'), {
+      type: "getCurrentPlatformVersion",
+    }).then(({ data }) => {
+      if(data.code === 1) {
+        setCurrentPlatformVersion(data.data)
+      }
+    })
+  }, [])
+
   const renderContent = () => {
     switch (true) {
       case !isConfigMount: {
@@ -359,7 +399,7 @@ export default () => {
       }
       case activeKey === 'about': {
         return (
-          <AboutForm />
+          <AboutForm currentPlatformVersion={currentPlatformVersion} />
         )
       }
       /** 其他APP导入的设置 */
@@ -434,15 +474,9 @@ export default () => {
         )}
         {activeTitle}
       </div>
-      {/* <div className={styles.userInfo}>
-        <div className={styles.left}>
-
-          <div>{user?.email}</div>
-        </div>
-      </div> */}
       <div className={styles.configContainer}>
         <Tabs
-          style={{ display: !activeKey ? 'flex' : 'none' }}
+          style={{ display: !activeKey ? 'block' : 'none' }}
           onClick={({ namespace }) => {
             setActiveKey(namespace)
           }}

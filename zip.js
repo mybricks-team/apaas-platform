@@ -4,7 +4,7 @@ const JSZip = require('jszip');
 
 const zip = new JSZip();
 /** 根目录 */
-const zipRootFolder = zip.folder('mybricks');
+const zipRootFolder = zip.folder('mybricks-apaas');
 
 /** 遍历文件 */
 function read (zipFolder, files, dirPath) {
@@ -34,6 +34,8 @@ const filterFileName = [
   'package-lock.json', 
   'nest-cli.json',
   'application_bugu.json',
+  'application.json',
+  'application_hainiu.json',
   'application_fangzhou.json',
   'application_qingchenghui.json',
   'zip.js'
@@ -51,8 +53,8 @@ fs.readdirSync(path.join(__dirname, './server-runtime')).forEach(filename => {
   }
 });
 
-read(zipRootFolder.folder('mybricks-platform'), filesPlatform, path.join(__dirname, './server'));
-read(zipRootFolder.folder('mybricks-runtime'), filesRuntime, path.join(__dirname, './server-runtime'));
+read(zipRootFolder.folder('server'), filesPlatform, path.join(__dirname, './server'));
+read(zipRootFolder.folder('server-runtime'), filesRuntime, path.join(__dirname, './server-runtime'));
 
 zipRootFolder.file('upgrade_platform.sh', fs.readFileSync(path.join(__dirname, './upgrade_platform.sh')));
 
@@ -63,5 +65,5 @@ zip.generateAsync({
     level: 9
   }
 }).then((content) => {
-  fs.writeFileSync(path.join(__dirname, './mybricks.zip'), content, 'utf-8');
+  fs.writeFileSync(path.join(__dirname, './mybricks-apaas.zip'), content, 'utf-8');
 });
