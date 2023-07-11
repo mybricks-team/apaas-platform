@@ -1,12 +1,13 @@
 {
   "name": "mybricks-apaas-platform",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "",
   "scripts": {
     "build": "cd page && npm install && npm run build",
     "zip:server": "npm run build && node ./server/zip.js",
     "zip:server-runtime": "node ./server-runtime/zip.js",
     "zip:all": "node ./zip.js",
+    "zip:all:hainiu": "node ./zip.js --target=hainiu",
     "deploy:fangzhou": "sh deploy_fangzhou.sh",
     "publishToNpm": "npm run zip:all && npm publish --registry=https://registry.npmjs.org"
   },
@@ -19,5 +20,9 @@
     "url": "git@github.com:mybricks-team/official-website.git"
   },
   "author": "MyBricks Team",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "jszip": "^3.10.1"
+  }
 }

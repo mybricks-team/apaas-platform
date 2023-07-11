@@ -22,7 +22,7 @@ then
     cp -r "./server-runtime/$filename" ../../server-runtime
   done
 fi
-cp ./upgrade_platform.sh ../../
+cp ./upgrade_platform.sh ../../upgrade_platform.sh
 
 echo "覆盖完毕"
 
@@ -34,9 +34,10 @@ cd "../server-runtime"
 npm i --registry=https://registry.npm.taobao.org 
 echo "依赖安装完毕"
 
-# echo "开始重启服务"
-# npx pm2 reload index
-# npx pm2 reload index_flow
-# echo "服务重启成功"
-
-
+echo "开始清除临时文件"
+cd $tmpFolderBase
+cd ../
+if [[ -d "./_temp_" ]];
+then
+  rm -rf "_temp_"
+fi
