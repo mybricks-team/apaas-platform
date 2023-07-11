@@ -297,7 +297,9 @@ function canDrop(move, to) {
   } else {
     if (folderExtNameMap[to.extName]) {
       if (move.parentId === to.id || move.id === to.id || to.parentId === move.id || notMoveIdMap[to.parentId]) {
-        notMoveIdMap[to.id] = true
+        if (to.parentId === move.id) {
+          notMoveIdMap[to.id] = true
+        }
       } else {
         canDrop = true
       }
