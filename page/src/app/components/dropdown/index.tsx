@@ -29,15 +29,14 @@ function dropdown ({observable}) {
     return (
       <div
         ref={ref}
+        onClick={() => setOpen(!open)}
         onMouseEnter={() => {
           if (!show) {
             setShow(true)
           }
           setOpen(true)
         }}
-        onMouseLeave={() => {
-          setOpen(false)
-        }}
+        onMouseLeave={() => setOpen(false)}
       >
         {children}
         {show && createPortal(<Menus menus={menus} positionElement={ref.current} open={open} className={overlayClassName}/>, document.body)}
