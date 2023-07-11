@@ -39,17 +39,18 @@ interface TabsProps {
     icon: JSX.Element
   }>
   style?: any
+  breakCount: number
 }
 
 const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
   if (!Array.isArray(items)) {
     return null
   }
-
-  return (
-    <div className={styles.tabs} style={style}>
-      {items.map((item) => (
-        <div
+  let group1 = [];
+  let group2 = [];
+  items?.forEach((item, index) => {
+    let temp = (
+      <div
           key={item.namespace}
           className={`${styles.tab} ${activeKey === item.namespace ? styles.activeTab : ''
             }`}
@@ -57,8 +58,22 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
         >
           <div className={styles.icon}>{item?.icon}</div>
           <div className={styles.label}>{item?.title}</div>
-        </div>
-      ))}
+      </div>
+    );
+    if(index <= 1) {
+      group1.push(temp)
+    } else {
+      group2.push(temp)
+    }
+  })
+  return (
+    <div className={styles.tabs} style={style}>
+      <div style={{display: 'flex'}}>
+        {...group1}
+      </div>
+      <div style={{display: 'flex'}}>
+        {...group2}
+      </div>
     </div>
   )
 }
@@ -71,7 +86,6 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
     if (!initialValues) {
       return
     }
-    console.log('2@@2', initialValues)
     form?.setFieldsValue?.(initialValues)
   }, [initialValues])
 
@@ -185,6 +199,7 @@ const AboutForm = () => {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [upgradeInfo, setUpgradeInfo] = useState(null)
   const [checkLoading, setCheckLoading] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
   let upgradeContainer = null;
   if(showUpgrade) {
     upgradeContainer = (
@@ -192,23 +207,33 @@ const AboutForm = () => {
         <span>最新版本是: {upgradeInfo.version}</span>
         <Button 
           type="primary" 
+          loading={isDownloading}
           onClick={() => {
-            axios.post(getApiUrl('/paas/api/system/doUpdate'), {
-              version: upgradeInfo.version
-            }).then((res) => {
-              if(res?.data?.code === 1) {
-                message.info('安装包下载完毕，即将执行升级操作，请稍后', 3)
-                axios.post(getApiUrl('/paas/api/system/reloadAll')).then((res) => {
-                  setTimeout(() => {
-                    message.info('升级中，请稍后，此过程大约15s', 15, () => {
-                      message.success('升级成功, 3秒后将自动刷新页面', 3, () => {
-                        location.reload()
+            setIsDownloading(true)
+            message.info('正在执行下载操作', 3)
+              axios.post(getApiUrl('/paas/api/system/doUpdate'), {
+                version: upgradeInfo.version
+              }).then((res) => {
+                if(res?.data?.code === 1) {
+                  message.info('安装包下载完毕，即将执行升级操作，请稍后', 3)
+                  axios.post(getApiUrl('/paas/api/system/reloadAll')).then((res) => {
+                    setTimeout(() => {
+                      message.info('升级中，请稍后，此过程大约15s', 15, () => {
+                        message.success('升级成功, 3秒后将自动刷新页面', 3, () => {
+                          location.reload()
+                          setIsDownloading(false)
+                        })
                       })
-                    })
-                  }, 3000)
-                })
-              }
-            })
+                    }, 3000)
+                  }).catch(e => {
+                    setIsDownloading(false)
+                    console.log(e)
+                  })
+                }
+              }).catch(e => {
+                setIsDownloading(false)
+                console.log(e)
+              })
           }}
         >
           立即升级?
@@ -218,7 +243,7 @@ const AboutForm = () => {
   }
   return (
     <div>
-      <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks aPaaS OS</p>
+      <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks aPaaS Platform</p>
       <p style={{textAlign: 'center'}}>Version {pkg.version}</p>
       <div style={{display: 'flex', justifyContent: 'center'}}>
         <Button
@@ -434,15 +459,9 @@ export default () => {
         )}
         {activeTitle}
       </div>
-      {/* <div className={styles.userInfo}>
-        <div className={styles.left}>
-
-          <div>{user?.email}</div>
-        </div>
-      </div> */}
       <div className={styles.configContainer}>
         <Tabs
-          style={{ display: !activeKey ? 'flex' : 'none' }}
+          style={{ display: !activeKey ? 'block' : 'none' }}
           onClick={({ namespace }) => {
             setActiveKey(namespace)
           }}
