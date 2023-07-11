@@ -22,7 +22,7 @@ then
     cp -r "./server-runtime/$filename" ../../server-runtime
   done
 fi
-cp ./upgrade_platform.sh ../../
+cp ./upgrade_platform.sh ../../upgrade_platform.sh
 
 echo "覆盖完毕"
 
