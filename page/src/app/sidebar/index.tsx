@@ -208,6 +208,8 @@ interface ItemProps {
   suffix?: React.ReactNode;
 
   focusable?: boolean;
+
+  onDragEnter?: (e: any) => void;
 }
 
 interface ModalProps extends PanelItemProps {
@@ -227,7 +229,7 @@ function Modal(props: ModalProps) {
 }
 
 /** 菜单项封装 */
-export function Item({icon, title, namespace, onClick, modal, prefix, suffix, focusable = true}: ItemProps): JSX.Element {
+export function Item({icon, title, namespace, onClick, onDragEnter, modal, prefix, suffix, focusable = true}: ItemProps): JSX.Element {
   const [itemContext] = useState({
     /** 菜单项点击 */
     onClick() {
@@ -260,7 +262,9 @@ export function Item({icon, title, namespace, onClick, modal, prefix, suffix, fo
           <Icon icon={icon} width={20} height={20}/>
         </div>
         <div className={css.menuLabel}>
-          {title}
+          <span>
+            {title}
+          </span>
         </div>
       </>
     )
@@ -272,6 +276,7 @@ export function Item({icon, title, namespace, onClick, modal, prefix, suffix, fo
         className={className}
         style={{paddingLeft: prefix ? 5 : 5 + 14}}
         onClick={evt(itemContext.onClick).stop}
+        onDragEnter={onDragEnter}
       >
         <div className={css.left}>
           {prefix && <div>{prefix}</div>}

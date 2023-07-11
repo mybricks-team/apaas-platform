@@ -148,6 +148,7 @@ export default function NavMenu ({
         namespace={namespace}
         onClick={navClick}
         focusable={focusable}
+        onDragEnter={(e) => e.preventDefault()}
       />
     )
     if (menuCtx.canDrag) {
@@ -193,7 +194,7 @@ const folderExtNameMap = {
 let notMoveIdMap = {}
 
 function onDragStart (event, dom, item) {
-  if (event.target.tagName.toLowerCase() === 'img') {
+  if (!item.extName) {
     event.preventDefault()
   } else {
     appCtx.setDragItem({item, dom})
@@ -209,7 +210,7 @@ function onDragOver (event, dom, item) {
   if (canDrop(dragItem, item)) {
     event.dataTransfer.dropEffect = 'copy'
     const domStyle = dom.children[0].style
-    domStyle.outline = '1px solid #fa6400'
+    domStyle.outline = '2px solid #fa6400'
     domStyle.outlineOffset = '-2px'
   } else {
     event.dataTransfer.dropEffect = 'none'
@@ -249,13 +250,6 @@ function onDrop (event, dom, item, drag) {
     duration: 0
   })
 
-  // const moveModalOk = useCallback((values, app) => {
-  //   return new Promise((resolve, reject) => {
-  //     appCtx.fileMove(values, app, [async () => await ctx.getAll(getUrlQuery())]).then(resolve).catch(reject)
-  //   })
-  // }, [])
-
-
   appCtx.fileMove(item, dragItem, [async () => await appCtx.getAll(getUrlQuery())]).then((r) => {
     message.destroy(msgKey)
     message.success(r)
@@ -265,18 +259,6 @@ function onDrop (event, dom, item, drag) {
     dragDom.style.opacity = 1
     dragDom.draggable = true
   })
-
-  // drag(item, dragItem)
-  //   .then((r) => {
-  //     message.destroy(msgKey)
-  //     message.success(r)
-  //   })
-  //   .catch((e) => {
-  //     message.destroy(msgKey)
-  //     message.warn(e)
-  //     dragDom.style.opacity = 1
-  //     dragDom.draggable = true
-  //   })
 }
 
 function canDrop(move, to) {
@@ -315,60 +297,11 @@ function DragFile ({item, drag, canDrag, child, children}) {
   useUpdateEffect(() => {
     const { dragItem } = appCtx
     if (dragItem) {
-      // let dItem = dragItem.item
-      // let canDrop = false
-
-      // const toGroup = !item.extName
-
-      // if (toGroup) {
-      //   if (!dItem.parentId) {
-      //     console.log(dItem.groupId, item.id)
-      //     if (dItem.groupId === item.id) {
-
-      //     } else {
-      //       canDrop = true
-      //     }
-      //   } else {
-      //     canDrop = true
-      //   }
-      // } else {
-      //   if (folderExtNameMap[item.extName]) {
-      //     if (dItem.parentId === item.id || dItem.id === item.id) {
-
-      //     } else {
-      //       canDrop = true
-      //     }
-      //   }
-      // }
-
-      // if (canDrop) {
-      //   const domStyle = (ref.current.children[0] as HTMLDivElement).style
-      //   domStyle.outline = '1px dashed #fa6400'
-      //   domStyle.outlineOffset = '-2px'
-      // }
-
       if (canDrop(dragItem.item, item)) {
         const domStyle = (ref.current.children[0] as HTMLDivElement).style
         domStyle.outline = '1px dashed #fa6400'
         domStyle.outlineOffset = '-2px'
       }
-
-      // if (dragItem.item.id !== item.id) {
-
-      //   // if (!dragItem.item.parentId)
-
-
-      //   console.log('item: ', {
-      //     move: JSON.parse(JSON.stringify(dragItem.item)),
-      //     to: JSON.parse(JSON.stringify(item))
-      //   })
-      //   const { extName } = item
-      //   if (!extName || folderExtNameMap[extName]) {
-      //     const domStyle = (ref.current.children[0] as HTMLDivElement).style
-      //     domStyle.outline = '1px dashed #fa6400'
-      //     domStyle.outlineOffset = '-2px'
-      //   }
-      // }
     } else {
       const { extName } = item
       if (!extName || folderExtNameMap[extName]) {

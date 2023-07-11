@@ -78,8 +78,18 @@
           }
     
           .menuLabel {
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            span {
+              width: 100%;
+              display: inline-block;
+              user-select: none;
+              align-items: center;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
           }
     
           // &:hover {
@@ -88,6 +98,7 @@
     
           .left {
             display: flex;
+            overflow: hidden;
           }
     
           .right {

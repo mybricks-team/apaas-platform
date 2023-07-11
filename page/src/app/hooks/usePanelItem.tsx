@@ -11,13 +11,16 @@ export interface Props {
   content: React.ReactNode;
   /** 类型，暂时只有modal弹窗 */
   type?: 'modal'
+	/** 点击蒙层关闭 */
+	maskClosable?: boolean
 }
 
 export function usePanelItem ({
 	title = '',
 	width = 800,
 	content,
-	type = 'modal'
+	type = 'modal',
+	maskClosable = false
 }: Props) {
 	const [show, setShow] = useState(false);
 	const showModal = useCallback(() => {
@@ -36,6 +39,7 @@ export function usePanelItem ({
 				destroyOnClose
 				onCancel={() => setShow(false)}
 				open={show}
+				maskClosable={maskClosable}
 			>
 				{content}
 			</Modal> : null 

@@ -101,7 +101,7 @@ const AppList: FC<AppListProps> = props => {
 						<div className={styles.rowContainer}>
 							{chunk(appList, 2).map(([app1, app2], index) => {
 								return (
-									<Row key={app1.namespace} className={styles.rows} gutter={48}>
+									<Row key={app1.namespace} className={styles.rows} gutter={0}>
 										<Col span={12}>
 											<AppCard
 												disabled={currentUpgrade ? currentUpgrade !== app1.namespace : false}

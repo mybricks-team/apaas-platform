@@ -17,7 +17,7 @@ export function Icon({icon, onClick, className, width = '100%', height = '100%',
 
   if (iconType === 'string') {
     const src = ((icon as string).startsWith('http') ? icon : getApiUrl(icon)) as string
-    return <img className={className} src={src} onClick={onClick} width={width} height={height} style={style}/>
+    return <img draggable={false} className={className} src={src} onClick={onClick} width={width} height={height} style={style}/>
   }
 
   if (iconType === 'function') {

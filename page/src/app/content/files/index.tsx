@@ -279,7 +279,7 @@ function Projects() {
 
           return (
             <DragFile key={project.id} item={project} canDrag={showOperate} drag={moveModalOk}>
-              <div className={css.file} onClick={() => operate('open', project)}>
+              <div className={css.file} onClick={() => operate('open', project)} onDragEnter={(e) => e.preventDefault()}>
                 {
                   alreadyShared ? (
                     <div className={css.share}>
@@ -578,11 +578,7 @@ const folderExtNameMap = {
 }
 
 function onDragStart (event, dom, item) {
-  if (event.target.tagName.toLowerCase() === 'img') {
-    event.preventDefault()
-  } else {
-    appCtx.setDragItem({item, dom})
-  }
+  appCtx.setDragItem({item, dom})
 }
 
 function onDragOver (event, dom, item) {
@@ -591,8 +587,9 @@ function onDragOver (event, dom, item) {
     item: dragItem
   } } = appCtx
   if (dragItem.id !== item.id && folderExtNameMap[item.extName]) {
-    event.dataTransfer.dropEffect = 'move'
-    dom.children[0].style.border = '1px solid #fa6400'
+    event.dataTransfer.dropEffect = 'copy'
+    const domStyle = dom.children[0].style
+    domStyle.outline = '2px solid #fa6400'
   } else {
     event.dataTransfer.dropEffect = 'none'
   }
@@ -603,7 +600,8 @@ function onDragLeave (event, dom, item) {
     item: dragItem
   } } = appCtx
   if (dragItem.id !== item.id && folderExtNameMap[item.extName]) {
-    dom.children[0].style.border = '1px dashed #fa6400'
+    const domStyle = dom.children[0].style
+    domStyle.outline = '1px dashed #fa6400'
   }
 }
 
@@ -630,6 +628,7 @@ function onDrop (event, dom, item, drag) {
 
   drag(item, dragItem)
     .then((r) => {
+      dragDom.style.display = 'none'
       message.destroy(msgKey)
       message.success(r)
     })
@@ -650,13 +649,15 @@ function DragFile ({item, drag, canDrag, children}) {
       if (dragItem.item.id !== item.id) {
         const { extName } = item
         if (folderExtNameMap[extName]) {
-          (ref.current.children[0] as HTMLDivElement).style.border = '1px dashed #fa6400'
+          const domStyle = (ref.current.children[0] as HTMLDivElement).style
+          domStyle.outline = '1px dashed #fa6400'
         }
       }
     } else {
       const { extName } = item
       if (folderExtNameMap[extName]) {
-        (ref.current.children[0] as HTMLDivElement).style.border = '1px solid #EEE'
+        const domStyle = (ref.current.children[0] as HTMLDivElement).style
+        domStyle.outline = 'none'
       }
     }
   }, [appCtx.dragItem])
