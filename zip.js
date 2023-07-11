@@ -4,24 +4,23 @@ const JSZip = require('jszip');
 
 const zip = new JSZip();
 /** 根目录 */
-const rootDir = zip.folder('mybricks');
+const zipRootFolder = zip.folder('mybricks');
 
 /** 遍历文件 */
-function read (zip, files, dirPath) {
+function read (zipFolder, files, dirPath) {
   files.forEach(function (fileName) {
     const fillPath = dirPath + '/' + fileName;
     const file = fs.statSync(fillPath);
     if (file.isDirectory()) {
-      const childDir = zip.folder(fileName);
+      const childZipFolder = zipFolder.folder(fileName);
       const files = fs.readdirSync(fillPath)
-      read(childDir, files, fillPath);
+      read(childZipFolder, files, fillPath);
     } else {
-      zip.file(fileName, fs.readFileSync(fillPath));
+      zipFolder.file(fileName, fs.readFileSync(fillPath));
     }
   });
 }
 
-const zipDirPath = path.join(__dirname, './server');
 /** 过滤不打进zip包的文件名 */
 const filterFileName = [
   '.DS_Store', 
@@ -39,11 +38,23 @@ const filterFileName = [
   'application_qingchenghui.json',
   'zip.js'
 ];
-const files = fs.readdirSync(zipDirPath).filter(filename => {
-  return !filterFileName.includes(filename);
+const filesPlatform = [];
+const filesRuntime = [];
+fs.readdirSync(path.join(__dirname, './server')).forEach(filename => {
+  if(!filterFileName.includes(filename)) {
+    filesPlatform.push(filename);
+  }
+});
+fs.readdirSync(path.join(__dirname, './server-runtime')).forEach(filename => {
+  if(!filterFileName.includes(filename)) {
+    filesRuntime.push(filename);
+  }
 });
 
-read(rootDir, files, zipDirPath);
+read(zipRootFolder.folder('mybricks-platform'), filesPlatform, path.join(__dirname, './server'));
+read(zipRootFolder.folder('mybricks-runtime'), filesRuntime, path.join(__dirname, './server-runtime'));
+
+zipRootFolder.file('upgrade_platform.sh', fs.readFileSync(path.join(__dirname, './upgrade_platform.sh')));
 
 zip.generateAsync({
   type: 'nodebuffer',
