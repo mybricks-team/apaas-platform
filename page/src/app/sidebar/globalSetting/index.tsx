@@ -208,13 +208,13 @@ const AboutForm = ({ currentPlatformVersion }) => {
           loading={isDownloading}
           onClick={() => {
             setIsDownloading(true)
-            message.info('正在执行下载操作', 3)
+            message.info('正在执行下载操作, 此过程大约15s', 15)
               axios.post(getApiUrl('/paas/api/system/channel'), {
                 type: 'downloadPlatform',
                 version: upgradeInfo.version
               }).then((res) => {
                 if(res?.data?.code === 1) {
-                  message.info('安装包下载完毕，即将执行升级操作，请稍后', 10)
+                  message.info('安装包下载完毕，即将执行升级操作，请稍后', 5)
                   axios.post(getApiUrl('/paas/api/system/channel'), {
                     type: 'reloadPlatform',
                     version: upgradeInfo.version
@@ -246,7 +246,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
   return (
     <div>
       <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks aPaaS Platform</p>
-      <p style={{textAlign: 'center'}}>Version {currentPlatformVersion}</p>
+      <p style={{textAlign: 'center'}}>Version: {currentPlatformVersion}</p>
       <div style={{display: 'flex', justifyContent: 'center'}}>
         <Button
           loading={checkLoading}
