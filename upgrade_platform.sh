@@ -6,7 +6,7 @@ echo "开始解压"
 unzip mybricks-apaas.zip -d ./
 cd ./mybricks-apaas
 echo "开始执行覆盖操作"
-if [[ -d "./mybricks-platform" ]];
+if [[ -d "./server" ]];
 then
   files=$(ls "$tmpFolderBase/mybricks-apaas/server")
   for filename in $files
@@ -14,7 +14,7 @@ then
     cp -r "./mybricks-platform/$filename" ../../server
   done
 fi
-if [[ -d "./mybricks-runtime" ]];
+if [[ -d "./server-runtime" ]];
 then
   files=$(ls "$tmpFolderBase/mybricks-apaas/server-runtime")
   for filename in $files
@@ -22,6 +22,7 @@ then
     cp -r "./mybricks-runtime/$filename" ../../server-runtime
   done
 fi
+cp ./upgrade_platform.sh ../../
 
 echo "覆盖完毕"
 
