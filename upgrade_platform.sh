@@ -25,23 +25,23 @@ tmpPlatformFolder=$tmpFolderBase/node_modules/mybricks-apaas-platform
 cd "./node_modules/mybricks-apaas-platform"
 echo "开始解压"
 unzip mybricks-apaas.zip -d ../../
-cd $tmpFolderBase
 rm -rf ./node_modules
+cd $tmpFolderBase/mybricks-apaas
 echo "开始执行覆盖操作"
 if [[ -d "./mybricks-platform" ]];
 then
-  files=$(ls "$tmpFolderBase/mybricks-platform")
+  files=$(ls "$tmpFolderBase/mybricks-apaas/mybricks-platform")
   for filename in $files
   do
-    cp -r "./mybricks-platform/$filename" ../server
+    cp -r "./mybricks-platform/$filename" ../../server
   done
 fi
 if [[ -d "./mybricks-runtime" ]];
 then
-  files=$(ls "$tmpFolderBase/mybricks-runtime")
+  files=$(ls "$tmpFolderBase/mybricks-apaas/mybricks-runtime")
   for filename in $files
   do
-    cp -r "./mybricks-runtime/$filename" ../server-runtime
+    cp -r "./mybricks-runtime/$filename" ../../server-runtime
   done
 fi
 
