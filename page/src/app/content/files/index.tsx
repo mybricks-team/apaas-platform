@@ -278,8 +278,8 @@ function Projects() {
           const alreadyShared = project.shareType === 1
 
           return (
-            <DragFile item={project} canDrag={showOperate} drag={moveModalOk}>
-              <div key={project.id} className={css.file} onClick={() => operate('open', project)}>
+            <DragFile key={project.id} item={project} canDrag={showOperate} drag={moveModalOk}>
+              <div className={css.file} onClick={() => operate('open', project)}>
                 {
                   alreadyShared ? (
                     <div className={css.share}>
