@@ -3,7 +3,8 @@ import React, {
   useMemo,
   useState,
   useEffect,
-  useCallback
+  useCallback,
+  useLayoutEffect
 } from 'react'
 
 import {
@@ -38,18 +39,21 @@ import Info from './info'
 import TitleBar from './title'
 import AppCtx from '../../AppCtx'
 import {Content, Block} from '..'
-import {useDebounceFn} from '../../hooks'
 import Ctx, {folderExtnames} from './Ctx'
 import FolderList from './temp/FolderList'
 import {Divider, Dropdown} from '../../components'
+import {useDebounceFn, useUpdateEffect} from '../../hooks'
 import {Icon, Trash, More, SharerdIcon} from '../../components'
 
 import css from './index.less'
 
 const {confirm} = Modal
 
+let appCtx: AppCtx
+
 export default function Files() {
-  const appCtx = observe(AppCtx, {from: 'parents'})
+  // const appCtx = observe(AppCtx, {from: 'parents'})
+  appCtx = observe(AppCtx, {from: 'parents'})
   const ctx = useObservable(Ctx, next => {
     const {APPSMap} = appCtx
     next({
@@ -128,6 +132,10 @@ export default function Files() {
     })
   }, {to: 'children'})
 
+  useMemo(() => {
+    appCtx.getAll = ctx.getAll
+  }, [])
+
   useComputed(() => {
     const {urlQuery} = appCtx
     const {parentId, groupId} = urlQuery
@@ -156,7 +164,7 @@ export default function Files() {
 }
 
 function Projects() {
-  const appCtx = observe(AppCtx, {from: 'parents'})
+  // const appCtx = observe(AppCtx, {from: 'parents'})
   const ctx = observe(Ctx, {from: "parents"})
   const [createApp, setCreateApp] = useState(null)
   const [moveApp, setMoveApp] = useState(null)
@@ -246,6 +254,12 @@ function Projects() {
     }
   }, []);
 
+  const moveModalOk = useCallback((values, app) => {
+    return new Promise((resolve, reject) => {
+      appCtx.fileMove(values, app, [async () => await ctx.getAll(getUrlQuery())]).then(resolve).catch(reject)
+    })
+  }, [])
+
   /** 渲染项目列表 */
   const Render: JSX.Element | JSX.Element[] = useComputed(() => {
     let JSX: JSX.Element | JSX.Element[] = <></>;
@@ -264,32 +278,34 @@ function Projects() {
           const alreadyShared = project.shareType === 1
 
           return (
-            <div key={project.id} className={css.file} onClick={() => operate('open', project)}>
-              {
-                alreadyShared ? (
-                  <div className={css.share}>
-                    <SharerdIcon width={14} height={14} />
-                  </div>
-                ) : null
-              }
-              <div className={css.snap}>
-                <Icon icon={project.icon || icon} width={bigIcon ? 140 : 32} height={bigIcon ? '100%' : 32}/>
-              </div>
-              <div className={css.tt}>
-                <div className={css.typeIcon}>
-                  <Icon icon={icon} width={18} height={18}/>
+            <DragFile item={project} canDrag={showOperate} drag={moveModalOk}>
+              <div key={project.id} className={css.file} onClick={() => operate('open', project)}>
+                {
+                  alreadyShared ? (
+                    <div className={css.share}>
+                      <SharerdIcon width={14} height={14} />
+                    </div>
+                  ) : null
+                }
+                <div className={css.snap}>
+                  <Icon icon={project.icon || icon} width={bigIcon ? 140 : 32} height={bigIcon ? '100%' : 32}/>
                 </div>
-                <div className={css.detail}>
-                  <div className={css.name}>
-                    {project.name}
+                <div className={css.tt}>
+                  <div className={css.typeIcon}>
+                    <Icon icon={icon} width={18} height={18}/>
                   </div>
-                  <div className={css.path} data-content-start={project.path}>
-                    {project.creatorName}
+                  <div className={css.detail}>
+                    <div className={css.name}>
+                      {project.name}
+                    </div>
+                    <div className={css.path} data-content-start={project.path}>
+                      {project.creatorName}
+                    </div>
                   </div>
+                  {showOperate && <RenderOperate project={project} operate={operate}/>}
                 </div>
-                {showOperate && <RenderOperate project={project} operate={operate}/>}
               </div>
-            </div>
+            </DragFile>
           );
         });
       } else {
@@ -386,78 +402,78 @@ function Projects() {
     )
   })
 
-  const moveModalOk = useCallback((values, app) => {
-    return new Promise(async (resolve, reject) => {
-      if (!values) {
-        reject('请选择要移入的协作组或文件夹')
-        return
-      }
+  // const moveModalOk = useCallback((values, app) => {
+  //   return new Promise(async (resolve, reject) => {
+  //     if (!values) {
+  //       reject('请选择要移入的协作组或文件夹')
+  //       return
+  //     }
 
-      const { id, groupId } = values
+  //     const { id, groupId } = values
 
-      if (app.id === id) {
-        reject(`目标文件夹${app.name}已被选中，无法移动`)
-        return
-      }
+  //     if (app.id === id) {
+  //       reject(`目标文件夹${app.name}已被选中，无法移动`)
+  //       return
+  //     }
 
-      const isGroup = typeof groupId === 'undefined'
+  //     const isGroup = typeof groupId === 'undefined'
 
-      const data: any = {
-        fileId: app.id,
-      }
+  //     const data: any = {
+  //       fileId: app.id,
+  //     }
 
-      if (isGroup) {
-        data.toGroupId = id
-      } else {
-        data.toFileId = id
-      }
+  //     if (isGroup) {
+  //       data.toGroupId = id
+  //     } else {
+  //       data.toFileId = id
+  //     }
 
-      axios({
-        method: 'post',
-        url: getApiUrl('/api/file/moveFile'),
-        data
-      }).then(async ({data: {data: message}}) => {
-        if (typeof message === 'string') {
-          reject(message)
-        } else {
-          const refreshSiderAry = []
-          if (folderExtnames.includes(app.extName)) {
-            // 如果是文件夹
-            // 移动位置
-            if (data.toGroupId) {
-              const sideMenu = appCtx.sidebarInfo[`?appId=files&groupId=${id}`]
-              if (sideMenu?.open) {
-                refreshSiderAry.push(sideMenu)
-              }
-            } else {
-              const sideMenu = appCtx.sidebarInfo[`?appId=files&groupId=${groupId}&parentId=${id}`]
-              if (sideMenu?.open) {
-                refreshSiderAry.push(sideMenu)
-              }
-            }
-            // 移出位置
-            const sideMenu = appCtx.sidebarInfo[`?appId=files${app.groupId ? `&groupId=${app.groupId}` : ''}${app.parentId ? `&parentId=${app.parentId}` : ''}`]
-            if (sideMenu?.open) {
-              refreshSiderAry.push(sideMenu)
-            }
-          }
+  //     axios({
+  //       method: 'post',
+  //       url: getApiUrl('/api/file/moveFile'),
+  //       data
+  //     }).then(async ({data: {data: message}}) => {
+  //       if (typeof message === 'string') {
+  //         reject(message)
+  //       } else {
+  //         const refreshSiderAry = []
+  //         if (folderExtnames.includes(app.extName)) {
+  //           // 如果是文件夹
+  //           // 移动位置
+  //           if (data.toGroupId) {
+  //             const sideMenu = appCtx.sidebarInfo[`?appId=files&groupId=${id}`]
+  //             if (sideMenu?.open) {
+  //               refreshSiderAry.push(sideMenu)
+  //             }
+  //           } else {
+  //             const sideMenu = appCtx.sidebarInfo[`?appId=files&groupId=${groupId}&parentId=${id}`]
+  //             if (sideMenu?.open) {
+  //               refreshSiderAry.push(sideMenu)
+  //             }
+  //           }
+  //           // 移出位置
+  //           const sideMenu = appCtx.sidebarInfo[`?appId=files${app.groupId ? `&groupId=${app.groupId}` : ''}${app.parentId ? `&parentId=${app.parentId}` : ''}`]
+  //           if (sideMenu?.open) {
+  //             refreshSiderAry.push(sideMenu)
+  //           }
+  //         }
 
-          await Promise.all([
-            await ctx.getAll(getUrlQuery()),
-            ...refreshSiderAry.map((sideMenu) => {
-              return new Promise(async (resolve) => {
-                const items = await sideMenu.getFiles(sideMenu.id)
-                sideMenu.items = items
-                resolve(true)
-              })
-            })
-          ])
+  //         await Promise.all([
+  //           await ctx.getAll(getUrlQuery()),
+  //           ...refreshSiderAry.map((sideMenu) => {
+  //             return new Promise(async (resolve) => {
+  //               const items = await sideMenu.getFiles(sideMenu.id)
+  //               sideMenu.items = items
+  //               resolve(true)
+  //             })
+  //           })
+  //         ])
 
-          resolve('移动成功')
-        }
-      })
-    })
-  }, [])
+  //         resolve('移动成功')
+  //       }
+  //     })
+  //   })
+  // }, [])
 
   const moveModalCancel = useCallback(() => {
     setMoveApp(null)
@@ -553,6 +569,125 @@ function Projects() {
       {RenderMoveFileModal}
     </>
   );
+}
+
+const folderExtNameMap = {
+  'folder': true,
+  'folder-module': true,
+  'folder-project': true
+}
+
+function onDragStart (event, dom, item) {
+  if (event.target.tagName.toLowerCase() === 'img') {
+    event.preventDefault()
+  } else {
+    appCtx.setDragItem({item, dom})
+  }
+}
+
+function onDragOver (event, dom, item) {
+  event.preventDefault()
+  const { dragItem: {
+    item: dragItem
+  } } = appCtx
+  if (dragItem.id !== item.id && folderExtNameMap[item.extName]) {
+    event.dataTransfer.dropEffect = 'move'
+    dom.children[0].style.border = '1px solid #fa6400'
+  } else {
+    event.dataTransfer.dropEffect = 'none'
+  }
+}
+
+function onDragLeave (event, dom, item) {
+  const { dragItem: {
+    item: dragItem
+  } } = appCtx
+  if (dragItem.id !== item.id && folderExtNameMap[item.extName]) {
+    dom.children[0].style.border = '1px dashed #fa6400'
+  }
+}
+
+function onDragEnd (event, dom, item) {
+  appCtx.setDragItem(null)
+}
+
+function onDrop (event, dom, item, drag) {
+  const { 
+    item: dragItem,
+    dom: dragDom
+   } = appCtx.dragItem
+
+  dragDom.style.opacity = 0.5
+  dragDom.draggable = false
+
+  const msgKey = `move-${new Date().getTime()}`
+
+  message.loading({
+    content: '移动中...',
+    key: msgKey,
+    duration: 0
+  })
+
+  drag(item, dragItem)
+    .then((r) => {
+      message.destroy(msgKey)
+      message.success(r)
+    })
+    .catch((e) => {
+      message.destroy(msgKey)
+      message.warn(e)
+      dragDom.style.opacity = 1
+      dragDom.draggable = true
+    })
+}
+
+function DragFile ({item, drag, canDrag, children}) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useUpdateEffect(() => {
+    const { dragItem } = appCtx
+    if (dragItem) {
+      if (dragItem.item.id !== item.id) {
+        const { extName } = item
+        if (folderExtNameMap[extName]) {
+          (ref.current.children[0] as HTMLDivElement).style.border = '1px dashed #fa6400'
+        }
+      }
+    } else {
+      const { extName } = item
+      if (folderExtNameMap[extName]) {
+        (ref.current.children[0] as HTMLDivElement).style.border = '1px solid #EEE'
+      }
+    }
+  }, [appCtx.dragItem])
+
+  useLayoutEffect(() => {
+    const { current } = ref
+    if (canDrag) {
+      current.draggable = canDrag
+      current.addEventListener('dragstart', (event) => {
+        onDragStart(event, current, item)
+      })
+      current.addEventListener('dragover', (event) => {
+        onDragOver(event, current, item)
+      })
+      current.addEventListener('dragleave', (event) => {
+        onDragLeave(event, current, item)
+      })
+      current.addEventListener('dragend', (event) => {
+        onDragEnd(event, current, item)
+      })
+      current.addEventListener('drop', (event) => {
+        onDrop(event, current, item, drag)
+      })
+    }
+  }, [canDrag])
+
+  return (
+    <div ref={ref}>
+      {children}
+    </div>
+  )
 }
 
 function RenderOperate({project, operate, size = 28, iconSize = 18}) {
@@ -731,7 +866,7 @@ class Ctx2 {
 }
 
 function MoveFileModal({app, onOk, onCancel}) {
-  const appCtx = observe(AppCtx, {from: 'parents'})
+  // const appCtx = observe(AppCtx, {from: 'parents'})
   const ctx = useObservable(Ctx2, next => {
     next({
       open: false,

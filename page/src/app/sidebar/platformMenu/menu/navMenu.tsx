@@ -1,11 +1,20 @@
-import React, {useMemo, useCallback, useEffect} from 'react'
+import React, {
+  useRef,
+  useMemo,
+  useEffect,
+  useCallback,
+  useLayoutEffect
+} from 'react'
 
+import {message} from 'antd'
 import {useComputed, useObservable} from '@mybricks/rxui'
 
 import {appCtx} from '..'
 import {Item} from '../..'
 import ItemList from './itemList'
 import NavSwitch from './navSwitch'
+import {getUrlQuery} from '../../../../utils'
+import {useUpdateEffect} from '../../../hooks'
 
 export type Child = {[key: string]: {
   open: boolean;
@@ -18,10 +27,12 @@ export interface MenuCtx {
   switchOnly: boolean;
   getFiles: (...args: any) => Promise<any>;
   onClick: (...args: any) => void;
+  canDrag: boolean;
 }
 
 interface Props {
   id: string | null;
+  canDrag?: (args: any) => boolean;
   namespace?: string;
   icon: JSX.Element | string | ((...args: any) => JSX.Element);
   name: string;
@@ -33,6 +44,7 @@ interface Props {
   getFiles: (...args: any) => Promise<any>;
   onClick: (...args) => void;
   suffix?: React.ReactNode
+  info?: any
 }
 
 /**
@@ -55,12 +67,14 @@ export default function NavMenu ({
   child,
   level = 1,
   namespace,
+  canDrag = () => false,
   focusable = true,
   switchOnly = false,
   CustomList,
   getFiles,
   onClick,
-  suffix
+  suffix,
+  info = {}
 }: Props): JSX.Element {
   const menuCtx: MenuCtx = useObservable({
     id,
@@ -69,7 +83,8 @@ export default function NavMenu ({
     items: [],
     switchOnly,
     getFiles,
-    onClick
+    onClick,
+    canDrag: canDrag(id)
   });
 
   useMemo(() => {
@@ -104,7 +119,7 @@ export default function NavMenu ({
 
   const List: JSX.Element = useMemo(() => {
     return !child ? (<></>) : (
-      <RenderList id={id} CustomList={CustomList} level={level} child={child} menuCtx={menuCtx} />
+      <RenderList id={id} CustomList={CustomList} level={level} child={child} menuCtx={menuCtx} canDrag={canDrag} />
     );
   }, []);
 
@@ -123,8 +138,8 @@ export default function NavMenu ({
     }
   }, []);
 
-  return (
-    <>
+  const RenderItem = useMemo(() => {
+    let jsx = (
       <Item
         prefix={Switch}
         suffix={suffix}
@@ -134,21 +149,260 @@ export default function NavMenu ({
         onClick={navClick}
         focusable={focusable}
       />
+    )
+    if (menuCtx.canDrag) {
+      return (
+        <DragFile item={info} canDrag={true} child={child} drag={(a,b,c) => {
+          console.log({a,b,c})
+        }}>
+          {jsx}
+        </DragFile>
+      )
+    }
+    return jsx
+  }, [])
+
+  return (
+    <>
+      {RenderItem}
       {List}
     </>
   );
 }
 
-function RenderList ({id, CustomList, level, child, menuCtx}): JSX.Element {
+function RenderList ({id, CustomList, level, child, menuCtx, canDrag}): JSX.Element {
   return useComputed(() => {
     if (menuCtx.open) {
       return (
         <div style={{marginLeft: level * 28}}>
-          {CustomList ? <CustomList menuCtx={menuCtx} child={child.child} /> : <ItemList id={id} child={child.child} menuCtx={menuCtx} />}
+          {CustomList ? <CustomList menuCtx={menuCtx} child={child.child} /> : <ItemList id={id} child={child.child} menuCtx={menuCtx} canDrag={canDrag} />}
         </div>
       );
     }
 
     return <></>;
   });
+}
+
+const folderExtNameMap = {
+  'folder': true,
+  'folder-module': true,
+  'folder-project': true
+}
+
+let notMoveIdMap = {}
+
+function onDragStart (event, dom, item) {
+  if (event.target.tagName.toLowerCase() === 'img') {
+    event.preventDefault()
+  } else {
+    appCtx.setDragItem({item, dom})
+  }
+}
+
+function onDragOver (event, dom, item) {
+  event.preventDefault()
+  const { dragItem: {
+    item: dragItem
+  } } = appCtx
+  
+  if (canDrop(dragItem, item)) {
+    event.dataTransfer.dropEffect = 'copy'
+    const domStyle = dom.children[0].style
+    domStyle.outline = '1px solid #fa6400'
+    domStyle.outlineOffset = '-2px'
+  } else {
+    event.dataTransfer.dropEffect = 'none'
+  }
+}
+
+function onDragLeave (event, dom, item) {
+  const { dragItem: {
+    item: dragItem
+  } } = appCtx
+  if (canDrop(dragItem, item)) {
+    const domStyle = dom.children[0].style
+    domStyle.outline = '1px dashed #fa6400'
+    domStyle.outlineOffset = '-2px'
+  }
+}
+
+function onDragEnd (event, dom, item) {
+  appCtx.setDragItem(null)
+  notMoveIdMap = {}
+}
+
+function onDrop (event, dom, item, drag) {
+  const { 
+    item: dragItem,
+    dom: dragDom
+   } = appCtx.dragItem
+
+  dragDom.style.opacity = 0.5
+  dragDom.draggable = false
+
+  const msgKey = `move-${new Date().getTime()}`
+
+  message.loading({
+    content: '移动中...',
+    key: msgKey,
+    duration: 0
+  })
+
+  // const moveModalOk = useCallback((values, app) => {
+  //   return new Promise((resolve, reject) => {
+  //     appCtx.fileMove(values, app, [async () => await ctx.getAll(getUrlQuery())]).then(resolve).catch(reject)
+  //   })
+  // }, [])
+
+
+  appCtx.fileMove(item, dragItem, [async () => await appCtx.getAll(getUrlQuery())]).then((r) => {
+    message.destroy(msgKey)
+    message.success(r)
+  }).catch((e) => {
+    message.destroy(msgKey)
+    message.warn(e)
+    dragDom.style.opacity = 1
+    dragDom.draggable = true
+  })
+
+  // drag(item, dragItem)
+  //   .then((r) => {
+  //     message.destroy(msgKey)
+  //     message.success(r)
+  //   })
+  //   .catch((e) => {
+  //     message.destroy(msgKey)
+  //     message.warn(e)
+  //     dragDom.style.opacity = 1
+  //     dragDom.draggable = true
+  //   })
+}
+
+function canDrop(move, to) {
+  let canDrop = false
+
+  const toGroup = !to.extName
+
+  if (toGroup) {
+    if (!move.parentId) {
+      if (move.groupId === to.id) {
+
+      } else {
+        canDrop = true
+      }
+    } else {
+      canDrop = true
+    }
+  } else {
+    if (folderExtNameMap[to.extName]) {
+      if (move.parentId === to.id || move.id === to.id || to.parentId === move.id || notMoveIdMap[to.parentId]) {
+        notMoveIdMap[to.id] = true
+      } else {
+        canDrop = true
+      }
+    }
+  }
+
+  return canDrop
+}
+
+function DragFile ({item, drag, canDrag, child, children}) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useUpdateEffect(() => {
+    const { dragItem } = appCtx
+    if (dragItem) {
+      // let dItem = dragItem.item
+      // let canDrop = false
+
+      // const toGroup = !item.extName
+
+      // if (toGroup) {
+      //   if (!dItem.parentId) {
+      //     console.log(dItem.groupId, item.id)
+      //     if (dItem.groupId === item.id) {
+
+      //     } else {
+      //       canDrop = true
+      //     }
+      //   } else {
+      //     canDrop = true
+      //   }
+      // } else {
+      //   if (folderExtNameMap[item.extName]) {
+      //     if (dItem.parentId === item.id || dItem.id === item.id) {
+
+      //     } else {
+      //       canDrop = true
+      //     }
+      //   }
+      // }
+
+      // if (canDrop) {
+      //   const domStyle = (ref.current.children[0] as HTMLDivElement).style
+      //   domStyle.outline = '1px dashed #fa6400'
+      //   domStyle.outlineOffset = '-2px'
+      // }
+
+      if (canDrop(dragItem.item, item)) {
+        const domStyle = (ref.current.children[0] as HTMLDivElement).style
+        domStyle.outline = '1px dashed #fa6400'
+        domStyle.outlineOffset = '-2px'
+      }
+
+      // if (dragItem.item.id !== item.id) {
+
+      //   // if (!dragItem.item.parentId)
+
+
+      //   console.log('item: ', {
+      //     move: JSON.parse(JSON.stringify(dragItem.item)),
+      //     to: JSON.parse(JSON.stringify(item))
+      //   })
+      //   const { extName } = item
+      //   if (!extName || folderExtNameMap[extName]) {
+      //     const domStyle = (ref.current.children[0] as HTMLDivElement).style
+      //     domStyle.outline = '1px dashed #fa6400'
+      //     domStyle.outlineOffset = '-2px'
+      //   }
+      // }
+    } else {
+      const { extName } = item
+      if (!extName || folderExtNameMap[extName]) {
+        const domStyle = (ref.current.children[0] as HTMLDivElement).style
+        domStyle.outline = 'none'
+        domStyle.outlineOffset = '0'
+      }
+    }
+  }, [appCtx.dragItem])
+
+  useLayoutEffect(() => {
+    const { current } = ref
+    if (canDrag) {
+      current.draggable = canDrag
+      current.addEventListener('dragstart', (event) => {
+        onDragStart(event, current, item)
+      })
+      current.addEventListener('dragover', (event) => {
+        onDragOver(event, current, item)
+      })
+      current.addEventListener('dragleave', (event) => {
+        onDragLeave(event, current, item)
+      })
+      current.addEventListener('dragend', (event) => {
+        onDragEnd(event, current, item)
+      })
+      current.addEventListener('drop', (event) => {
+        onDrop(event, current, item, drag)
+      })
+    }
+   
+  }, [])
+
+  return (
+    <div ref={ref}>
+      {children}
+    </div>
+  )
 }

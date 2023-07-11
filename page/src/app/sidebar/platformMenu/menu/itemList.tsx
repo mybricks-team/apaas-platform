@@ -10,6 +10,7 @@ interface Props {
   id: string;
   child: Child;
   menuCtx: MenuCtx;
+  canDrag?: () => boolean;
 }
 
 /**
@@ -20,7 +21,7 @@ interface Props {
  * @param {Object} param0.menuCtx 上下文
  * @returns 
  */
-export default function ItemList ({id, child, menuCtx}: Props): JSX.Element {
+export default function ItemList ({id, child, menuCtx, canDrag}: Props): JSX.Element {
   const appCtx = observe(AppCtx, {from: 'parents'})
   /**
    * 获取groupId 
@@ -60,6 +61,8 @@ export default function ItemList ({id, child, menuCtx}: Props): JSX.Element {
           icon={app.icon}
           getFiles={menuCtx.getFiles}
           onClick={menuCtx.onClick}
+          canDrag={canDrag}
+          info={item}
         />
       );
     });

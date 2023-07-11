@@ -1,6 +1,8 @@
 import {FC} from 'react'
 
-import {getUrlQuery} from '../utils'
+import axios from 'axios'
+
+import {getApiUrl, getUrlQuery} from '../utils'
 import {FolderModule, FolderProject} from './components'
 
 /** 用户信息 */
@@ -235,6 +237,96 @@ export default class AppCtx {
         sideMenu.items = items
       }
       resolve(true)
+    })
+  }
+
+  /** 拖拽移动 */
+
+  dragItem = null
+
+  setDragItem(dragItem) {
+    this.dragItem = dragItem
+  }
+
+  dropItem = null
+
+  setDropItem(dropItem) {
+    if (!this.dropItem || this.dropItem.id !== dropItem.id) {
+      this.dropItem = dropItem
+    }
+  }
+
+  fileMove(to, move, cbAry = []) {
+    return new Promise(async (resolve, reject) => {
+      if (!to) {
+        reject('请选择要移入的协作组或文件夹')
+        return
+      }
+
+      const { id, groupId } = to
+
+      if (move.id === id) {
+        reject(`目标文件夹${move.name}已被选中，无法移动`)
+        return
+      }
+
+      const isGroup = typeof groupId === 'undefined'
+
+      const data: any = {
+        fileId: move.id,
+      }
+
+      if (isGroup) {
+        data.toGroupId = id
+      } else {
+        data.toFileId = id
+      }
+
+      axios({
+        method: 'post',
+        url: getApiUrl('/api/file/moveFile'),
+        data
+      }).then(async ({data: {data: message}}) => {
+        if (typeof message === 'string') {
+          reject(message)
+        } else {
+          const refreshSiderAry = []
+          if (['folder', 'folder-project', 'folder-module'].includes(move.extName)) {
+            // 如果是文件夹
+            // 移动位置
+            if (data.toGroupId) {
+              const sideMenu = this.sidebarInfo[`?appId=files&groupId=${id}`]
+              if (sideMenu?.open) {
+                refreshSiderAry.push(sideMenu)
+              }
+            } else {
+              const sideMenu = this.sidebarInfo[`?appId=files&groupId=${groupId}&parentId=${id}`]
+              if (sideMenu?.open) {
+                refreshSiderAry.push(sideMenu)
+              }
+            }
+            // 移出位置
+            const sideMenu = this.sidebarInfo[`?appId=files${move.groupId ? `&groupId=${move.groupId}` : ''}${move.parentId ? `&parentId=${move.parentId}` : ''}`]
+            if (sideMenu?.open) {
+              refreshSiderAry.push(sideMenu)
+            }
+          }
+
+          await Promise.all([
+            ...cbAry.map((cb) => cb()),
+            // await ctx.getAll(getUrlQuery()),
+            ...refreshSiderAry.map((sideMenu) => {
+              return new Promise(async (resolve) => {
+                const items = await sideMenu.getFiles(sideMenu.id)
+                sideMenu.items = items
+                resolve(true)
+              })
+            })
+          ])
+
+          resolve('移动成功')
+        }
+      })
     })
   }
 }

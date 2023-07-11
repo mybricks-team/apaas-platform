@@ -132,6 +132,7 @@ function Group() {
         namespace={`group`}
         child={proxyLocal}
         focusable={false}
+        canDrag={(id) => !!id}
         icon={UserGroup}
         suffix={Suffix}
         getFiles={(id) => {
