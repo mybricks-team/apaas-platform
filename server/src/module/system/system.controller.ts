@@ -13,6 +13,7 @@ import * as axios from "axios";
 const childProcess = require('child_process');
 const path = require('path')
 const fs = require('fs')
+import env from "../../utils/env";
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -558,23 +559,40 @@ export default class SystemService {
             }
           }
         }
-        // case 'downloadPlatform': {
-        //   const res = await (axios as any).get(`http://localhost:3100/mfs/platform/${version}/mybricks-apaas.zip`)
-        //   if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
-        //     fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
-        //   }
-        //   fs.writeFileSync(path.join(process.cwd(), '../_temp_/mybricks-apaas.zip'), res.data);
+        case 'downloadPlatform': {
+          if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
+            fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
+          }
+          // @ts-ignore
+          fs.copyFileSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `./platform/${version}/mybricks-apaas.zip`), path.join(process.cwd(), '../_temp_/mybricks-apaas.zip'))
 
-        //   const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
-        //   Logger.info(shellPath)
-        //   const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
-        //     cwd: path.join(process.cwd(), '../'),
-        //   })
-        //   return {
-        //     code: 1,
-        //     msg: log.toString() || '升级成功'
-        //   }
-        // }
+          const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
+          Logger.info(shellPath)
+          const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
+            cwd: path.join(process.cwd(), '../'),
+          })
+          return {
+            code: 1,
+            msg: log.toString() || '升级成功'
+          }
+        }
+        case 'reloadPlatform': {
+          try {
+            const appJSONStr = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
+            let appJSON = JSON.parse(appJSONStr)
+            appJSON.platformVersion = version
+            fs.writeFileSync(path.join(__dirname, '../../../application.json'), JSON.stringify(appJSON, null, 2))
+            childProcess.exec(`npx pm2 reload all`)
+            return {
+              code: 1,
+            };
+          } catch(e) {
+            return {
+              code: -1,
+              msg: e.message || '升级失败'
+            }
+          }
+        }
       }
       return {
         code: -1,
