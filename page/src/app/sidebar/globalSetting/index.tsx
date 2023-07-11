@@ -214,7 +214,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
                 version: upgradeInfo.version
               }).then((res) => {
                 if(res?.data?.code === 1) {
-                  message.info('安装包下载完毕，即将执行升级操作，请稍后', 3)
+                  message.info('安装包下载完毕，即将执行升级操作，请稍后', 10)
                   axios.post(getApiUrl('/paas/api/system/channel'), {
                     type: 'reloadPlatform',
                     version: upgradeInfo.version
