@@ -3,29 +3,44 @@
 ### 前置环境配置
 
 1. 容器必须安装有 `MySQL 5.7`、`Node` V14 以上（V14.16以下）（备注，如果安装的是 MySQL8.x，注意密码加密方式设置为：Legacy Password Encryption，切记不要设置为 Strong Password Encryption）
-2. nginx 对`3000`端口反向代理，目的是在外部能够访问服务，以下为示例配置
-
-```
-location / {
-    set $req_id $msec$rdm_number;
-    proxy_set_header X-Trace-Id $req_id;
-    proxy_pass          http://127.0.0.1:3000;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_redirect      off;
-    proxy_set_header    Host                $host;
-    proxy_set_header    X-Real-IP           $remote_addr;
-    proxy_set_header    X-Forwarded-For     $proxy_add_x_forwarded_for;
-    proxy_set_header    X-Request-Id        $pid-$msec-$remote_addr-$request_length;
-    proxy_set_header    X-Forwarded-Proto   $scheme;
-}
-```
 
 ### 开始安装
 
 1. 拿到安装的 `zip` 包，
-2. 将其 `解压` 到文件夹，并`进入 server 文件夹`
-3. `使用管理用权限` 执行如下安装命令即可，至此`服务器端的操作结束`，安装完毕后会`自动退出安装服务并拉起搭建服务`
+2. 在zip包的同级目录，新建一个自己的配置文件，并命名为 `PlatformConfig.json`
+```
+{
+  "database": {
+    "host": "",
+    "user": "",
+    "password": "",
+    "port": ,
+    "databaseName": ""
+  },
+  "platformConfig": {
+    "logo": "cdn地址",
+    "title": "前端 | 工作台",
+    "favicon": "cdn地址"
+  },
+  "adminUser": {
+    "email": "这里是初始化的管理员邮箱",
+    "password": "这里是初始化的管理员密码"
+  },
+  "installApps": [
+    {
+      "type": "npm",
+      "path": "mybricks-app-pcspa-for-manatee@1.0.20"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-hainiu-login@0.0.3"
+    }
+  ],
+  "platformDomain": "这里是部署后的平台域名"
+}
+```
+3. 将其 `解压` 到文件夹，并`进入 server 文件夹`
+4. `使用管理用权限` 执行如下安装命令即可，至此`服务器端的操作结束`，安装完毕后会`自动退出安装服务并拉起搭建服务`
 
 ```shell
 cd server
@@ -33,10 +48,6 @@ sudo sh ./deploy.sh
 ```
 
 4. 安装过程中查看服务器端的输出日志，出现如下字样了，即可打开浏览器，输入反向代理后的地址,例如：https://mybricks.world
-
-```shell
-【install】本地 localhost://3000 服务已开启，请打开浏览器，输入反向代理的地址，进行后续数据库配置
-```
 
 ### 安装后配置
 安装完毕后，可以使用安装时配置的管理员账号登录进行平台的初始化配置：
