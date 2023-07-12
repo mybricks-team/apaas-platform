@@ -10,8 +10,8 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-hainiu-login@0.0.2"
+      "path": "mybricks-hainiu-login@0.0.3"
     }
   ],
-  "platformVersion": "0.0.30"
+  "platformVersion": "0.0.37"
 }
