@@ -209,8 +209,8 @@ export default class AppCtx {
       const BLACK_APPS_MAP  = {};
       const SHOW_FOLDERS_MAP = {
         'folder': true,
-        'folder-project': true,
-        'folder-module': true,
+        // 'folder-project': true,
+        // 'folder-module': true,
       }
       this.systemConfig?.appBlackList?.split(',')?.forEach(extName => {
         BLACK_APPS_MAP[extName] = true
