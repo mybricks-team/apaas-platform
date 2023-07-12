@@ -40,6 +40,7 @@ const filterFileName = [
   'application_hainiu.json',
   'application_fangzhou.json',
   'application_qingchenghui.json',
+  'PlatformConfig_demo.json',
   'zip.js'
 ];
 const filesPlatform = [];
