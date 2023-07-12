@@ -1,13 +1,13 @@
 {
   "name": "mybricks-apaas-platform",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "",
   "scripts": {
     "build": "cd page && npm install && npm run build",
     "zip:server": "npm run build && node ./server/zip.js",
     "zip:server-runtime": "node ./server-runtime/zip.js",
     "zip:all": "npm run build && node ./zip.js",
-    "zip:all:hainiu": "npm run build && node ./zip.js hainiu",
+    "deploy:install:hainiu": "npm run build && node ./zip.js hainiu",
     "deploy:fangzhou": "sh deploy_fangzhou.sh",
     "publishToNpm": "npm run zip:all && npm publish --registry=https://registry.npmjs.org"
   },

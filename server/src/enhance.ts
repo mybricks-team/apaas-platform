@@ -8,18 +8,27 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
     if(ns?.indexOf('/') > -1){
       app.useStaticAssets(path.join(baseFolder, `/${encodeURIComponent(ns)}/assets/`), {
         prefix: `/${ns}`,
-        index: false
+        index: false,
+        setHeaders: (res, path, stat) => {
+          res.set('Access-Control-Allow-Origin', '*');
+        }
       });
     } else {
       app.useStaticAssets(path.join(baseFolder, `/${ns}/assets/`), {
         prefix: `/${ns}`,
-        index: false
+        index: false,
+        setHeaders: (res, path, stat) => {
+          res.set('Access-Control-Allow-Origin', '*');
+        }
       });
     }
     // 静态资源hash规范，也支持直接访问
     app.useStaticAssets(path.join(baseFolder, `/${ns}/assets/`), {
       prefix: `/`,
-      index: false
+      index: false,
+      setHeaders: (res, path, stat) => {
+        res.set('Access-Control-Allow-Origin', '*');
+      }
     });
   })
 }

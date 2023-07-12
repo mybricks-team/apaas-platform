@@ -27,13 +27,17 @@ async function bootstrap() {
   app.useStaticAssets(path.join(__dirname, "../_assets/"), {
     prefix: "/",
     index: false,
+    setHeaders: (res, path, stat) => {
+      res.set('Access-Control-Allow-Origin', '*');
+    }
   });
-  if(fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
     app.useStaticAssets(env.FILE_LOCAL_STORAGE_FOLDER, {
       prefix: `/${env.FILE_LOCAL_STORAGE_PREFIX}`,
       index: false,
+      setHeaders: (res, path, stat) => {
+        res.set('Access-Control-Allow-Origin', '*');
+      }
     });
-  }
   app.use(bodyParser.json({ limit: "100mb" }));
 
   enhanceApp(app, {
