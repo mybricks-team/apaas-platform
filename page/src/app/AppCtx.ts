@@ -206,16 +206,19 @@ export default class AppCtx {
     this.APPSMap = APPSMap;
 
     if (!this.isAdministrator) {
-      const SHOW_APPS_MAP  = {};
-      this.systemConfig?.appWhiteList?.split(',')?.forEach(extName => {
-        SHOW_APPS_MAP[extName] = true
-      })
+      const BLACK_APPS_MAP  = {};
       const SHOW_FOLDERS_MAP = {
-        'folder': true
+        'folder': true,
+        'folder-project': true,
+        'folder-module': true,
       }
+      this.systemConfig?.appBlackList?.split(',')?.forEach(extName => {
+        BLACK_APPS_MAP[extName] = true
+        SHOW_FOLDERS_MAP[extName] = false
+      })
       // 搭建应用
       this.DesignAPPS = DesignAPPS.filter(app => {
-        return SHOW_APPS_MAP[app.extName]
+        return !BLACK_APPS_MAP[app.extName]
       });
       this.FolderAPPS = this.FolderAPPS.filter((app) => {
         return SHOW_FOLDERS_MAP[app.extName]

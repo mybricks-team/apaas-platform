@@ -155,10 +155,10 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         </Form.Item>
         <Form.Item
           initialValue=""
-          label="应用白名单"
-          name="appWhiteList"
+          label="应用黑名单"
+          name="appBlackList"
         >
-          <Input.TextArea rows={2} placeholder='默认开放应用白名单' />
+          <Input.TextArea rows={2} placeholder='默认关闭应用黑名单' />
         </Form.Item>
         <Form.Item
           initialValue=""
