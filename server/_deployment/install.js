@@ -189,13 +189,18 @@ function installApplication() {
 }
 
 function startService() {
-  console.log(`【install】: 正在启动线上服务`)
-  childProcess.execSync(`
-    npx pm2 start ecosystem.config.js
-  `, {
-    cwd: path.join(__dirname, '../')
+  return new Promise((resolve) => {
+    console.log(`【install】: 正在启动线上服务`)
+    setTimeout(() => {
+      console.log(`【install】: 线上服务启动成功，服务启动在 http://localhost:3100`)
+      resolve()
+    }, 3000)
+    childProcess.execSync(`
+      npx pm2 start ecosystem.config.js
+    `, {
+      cwd: path.join(__dirname, '../')
+    })
   })
-  console.log(`【install】: 线上服务启动成功，服务启动在 http://localhost:3100`)
 }
 
 async function start() {
@@ -206,7 +211,7 @@ async function start() {
     await startInstallServer()
 
     installApplication()
-    startService()
+    await startService()
     exit()
   } else {
     console.log(`[install] 已安装，正在执行重启服务操作`)
