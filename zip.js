@@ -40,6 +40,8 @@ const filterFileName = [
   'application_hainiu.json',
   'application_fangzhou.json',
   'application_qingchenghui.json',
+  'install_back.js',
+  'index.html',
   'PlatformConfig_demo.json',
   'zip.js'
 ];
