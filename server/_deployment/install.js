@@ -46,7 +46,7 @@ async function _initDatabaseRecord() {
   if(UserInputConfig.platformConfig) {
     console.log(`【install】: 检测到平台初始化配置`)
     const insertConfig = `
-      INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_config\` (\`config\`, \`app_namespace\`, \`create_time\`, \`update_time\`, \`creator_id\`, \`creator_name\`) VALUES ('${JSON.stringify(UserInputConfig.database.databaseName)}', 'system', ${Date.now()}, ${Date.now()}, '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}');
+      INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_config\` (\`config\`, \`app_namespace\`, \`create_time\`, \`update_time\`, \`creator_id\`, \`creator_name\`, \`updator_id\`, \`updator_name\`) VALUES ('${JSON.stringify(UserInputConfig.database.databaseName)}', 'system', ${Date.now()}, ${Date.now()}, '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}');
     `
     await _execSqlSync(insertConfig)
   }
@@ -95,20 +95,27 @@ function persistenceToConfig() {
 }
 
 function mergeToApplication() {
-  const appConfigPath = path.join(__dirname, '../application.json')
-  let appConfig = {
-    "installApps": [
-      {
-        "type": "npm",
-        "path": "mybricks-material@0.0.97"
-      }
-    ],
-    "platformVersion": require(path.join(__dirname, '../package.json')).version
-  };
-  if(UserInputConfig.installApps) {
-    appConfig.installApps = appConfig.installApps.concat(UserInputConfig.installApps)
+  try {
+    const appConfigPath = path.join(__dirname, '../application.json')
+    let appConfig = {
+      "installApps": [
+        {
+          "type": "npm",
+          "path": "mybricks-material@0.0.97"
+        }
+      ],
+      "platformVersion": require(path.join(__dirname, '../package.json')).version
+    };
+  
+    if(UserInputConfig.installApps) {
+      console.log('[install] 检测到自定义安装应用，正在合并')
+      appConfig.installApps = appConfig.installApps.concat(UserInputConfig.installApps)
+    }
+    fs.writeFileSync(appConfigPath, JSON.stringify(appConfig, null, 2), 'utf-8')
+    console.log('[install] 配置文件写入成功')
+  } catch(e) {
+    console.log('[install] mergeToApplication失败：' + e.message)
   }
-  fs.writeFileSync(appConfigPath, JSON.stringify(appConfig), 'utf-8')
 }
 
 function injectPLatformConfig() {
@@ -150,16 +157,15 @@ function clearEnv() {
 }
 
 async function startInstallServer() {
-  const externalConfigPath = path.join(__dirname, '../../../PLatformConfig.json')
+  const externalConfigPath = path.join(__dirname, '../../../PlatformConfig.json')
   if(fs.existsSync(externalConfigPath)) {
     console.log('[install] 已找到外部配置文件，将使用外部配置文件')
     try {
       let externalConfig = JSON.parse(fs.readFileSync(externalConfigPath, 'utf-8'))
       Object.assign(UserInputConfig, externalConfig)
       await startInstall()
-      exit()
     } catch(e) {
-      console.log('[install] 外部配置文件格式错误，请检查JSON格式')
+      console.log('[install] ' + e.message)
       exit()
     }
   } else {
@@ -167,6 +173,30 @@ async function startInstallServer() {
   }
 }
 
+function exit() {
+  console.log(`【install】: 安装服务已退出`)
+  process.exit(1)
+}
+
+function installApplication() {
+  console.log(`【install】: 开始安装应用`)
+  childProcess.execSync(`
+    node installApplication.js
+  `, {
+    cwd: path.join(__dirname, '../')
+  })
+  console.log(`【install】: 应用安装成功`)
+}
+
+function startService() {
+  console.log(`【install】: 正在启动线上服务`)
+  childProcess.execSync(`
+    npx pm2 start ecosystem.config.js
+  `, {
+    cwd: path.join(__dirname, '../')
+  })
+  console.log(`【install】: 线上服务启动成功，服务启动在 http://localhost:3100`)
+}
 
 async function start() {
   clearEnv()
@@ -174,9 +204,15 @@ async function start() {
   if(!flag) {
     console.log(`[install] 未安装，正在执行安装操作`)
     await startInstallServer()
+
+    installApplication()
+    startService()
+    exit()
   } else {
     console.log(`[install] 已安装，正在执行重启服务操作`)
   }
 }
 
-start()
+start().then(() => {
+
+})
