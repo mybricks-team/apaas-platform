@@ -209,7 +209,7 @@ export default class AppCtx {
       const BLACK_APPS_MAP  = {};
       const SHOW_FOLDERS_MAP = {
         'folder': true,
-        // 'folder-project': true,
+        // 'folder-project': true,// 这里比较恶心，私有化版本不能展示，但是现在展示逻辑由白名单改为了黑名单，所以这里直接写死指定用户才能看到，后续有需求再改
         // 'folder-module': true,
       }
       this.systemConfig?.appBlackList?.split(',')?.forEach(extName => {
