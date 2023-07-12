@@ -1,9 +1,11 @@
+var http = require("http");
 const fs = require('fs-extra');
 const path = require('path');
 const mysql = require('mysql2');
 const childProcess = require('child_process');
 
 let MYSQL_CONNECTION = null
+let INSTALL_SERVER = null
 let UserInputConfig = {};
 
 const _execSqlSync = (sql) => {
@@ -40,37 +42,49 @@ async function _initDatabaseTables() {
 
 async function _initDatabaseRecord() {
   const insertUser = `
-    INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_user\` (\`email\`, \`password\`, \`create_time\`, \`update_time\`, \`status\`, \`role\`) VALUES ('${UserInputConfig.adminUser.email}', '${Buffer.from(UserInputConfig.adminUser.password).toString('base64')}', ${Date.now()}, ${Date.now()}, 1, 10);
+    INSERT INTO \`${UserInputConfig.databaseName}\`.\`apaas_user\` (\`email\`, \`password\`, \`create_time\`, \`update_time\`, \`status\`, \`role\`) VALUES ('${UserInputConfig.userId}', '${Buffer.from(UserInputConfig.userPassword).toString('base64')}', ${Date.now()}, ${Date.now()}, 1, 10);
   `
   await _execSqlSync(insertUser)
-  if(UserInputConfig.platformConfig) {
-    console.log(`【install】: 检测到平台初始化配置`)
-    const insertConfig = `
-      INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_config\` (\`config\`, \`app_namespace\`, \`create_time\`, \`update_time\`, \`creator_id\`, \`creator_name\`) VALUES ('${JSON.stringify(UserInputConfig.database.databaseName)}', 'system', ${Date.now()}, ${Date.now()}, '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}');
-    `
-    await _execSqlSync(insertConfig)
-  }
   console.log(`【install】: 数据记录初始化成功`)
 }
 
 async function _initDatabase() {
-  await _execSqlSync(`create database IF NOT EXISTS \`${UserInputConfig.database.databaseName}\` default charset utf8mb4;`)
-  await _execSqlSync(`use \`${UserInputConfig.database.databaseName}\`;`)
-  console.log(`【install】: database ${UserInputConfig.database.databaseName}初始化成功并使用`)
+  await _execSqlSync(`create database IF NOT EXISTS \`${UserInputConfig.databaseName}\` default charset utf8mb4;`)
+  await _execSqlSync(`use \`${UserInputConfig.databaseName}\`;`)
+  console.log(`【install】: database ${UserInputConfig.databaseName}初始化成功并使用`)
 }
 
 function connectDB() {
   try {
     MYSQL_CONNECTION = mysql.createConnection({
-      host: UserInputConfig.database.host,
-      user: UserInputConfig.database.user,
-      password: UserInputConfig.database.password,
-      port: UserInputConfig.database.port
+      host: UserInputConfig.databaseHost,
+      user: UserInputConfig.databaseRootUser,
+      password: UserInputConfig.databasePassword,
+      port: UserInputConfig.databasePort
     });
   } catch(e) {
     console.log(e)
   }
   console.log(`【install】: 数据库连接成功：${JSON.stringify(UserInputConfig)}`)
+}
+
+function startService() {
+  childProcess.execSync(`
+    npx pm2 start ecosystem.config.js
+  `, {
+    cwd: path.join(__dirname, '../')
+  })
+  console.log(`【install】: 线上服务启动成功`)
+}
+
+function stopInstall() {
+  INSTALL_SERVER.close()
+  console.log(`【install】: 停止安装服务成功`)
+}
+
+function exit() {
+  console.log(`【install】: 安装服务已退出`)
+  process.exit(1)
 }
 
 function persistenceToConfig() {
@@ -81,11 +95,11 @@ function persistenceToConfig() {
   const data = {
     "database": {
       "dbType": "MYSQL",
-      "host": UserInputConfig.database.host,
-      "user": UserInputConfig.database.user,
-      "password": UserInputConfig.database.password,
-      "port": UserInputConfig.database.port,
-      "database": UserInputConfig.database.databaseName,
+      "host": UserInputConfig.databaseHost,
+      "user": UserInputConfig.databaseRootUser,
+      "password": UserInputConfig.databasePassword,
+      "port": UserInputConfig.databasePort,
+      "database": UserInputConfig.databaseName,
       "sqlPath": "."
     }
   }
@@ -94,21 +108,13 @@ function persistenceToConfig() {
   console.log(`【install】: 配置持久化成功`)
 }
 
-function mergeToApplication() {
-  const appConfigPath = path.join(__dirname, '../application.json')
-  let appConfig = {
-    "installApps": [
-      {
-        "type": "npm",
-        "path": "mybricks-material@0.0.97"
-      }
-    ],
-    "platformVersion": require(path.join(__dirname, '../package.json')).version
-  };
-  if(UserInputConfig.installApps) {
-    appConfig.installApps = appConfig.installApps.concat(UserInputConfig.installApps)
-  }
-  fs.writeFileSync(appConfigPath, JSON.stringify(appConfig), 'utf-8')
+function installApplication() {
+  childProcess.execSync(`
+    node installApplication.js
+  `, {
+    cwd: path.join(__dirname, '../')
+  })
+  console.log(`【install】: 应用安装成功`)
 }
 
 function injectPLatformConfig() {
@@ -128,7 +134,9 @@ async function startInstall() {
   await _initDatabaseTables()
   await _initDatabaseRecord()
   persistenceToConfig()
-  mergeToApplication()
+  installApplication()
+  stopInstall()
+  startService()
 }
 
 function isInstalled() {
@@ -140,8 +148,12 @@ function isInstalled() {
 function clearEnv() {
   try {
     const config = path.join(__dirname, '../config')
+    const apps = path.join(__dirname, '../_apps')
     if(fs.existsSync(config)) {
       fs.removeSync(config)
+    }
+    if(fs.existsSync(apps)) {
+      fs.removeSync(apps)
     }
     childProcess.execSync(`npx pm2 stop index`)
     childProcess.execSync(`npx pm2 delete index`)
@@ -149,31 +161,43 @@ function clearEnv() {
   }
 }
 
-async function startInstallServer() {
-  const externalConfigPath = path.join(__dirname, '../../../PLatformConfig.json')
-  if(fs.existsSync(externalConfigPath)) {
-    console.log('[install] 已找到外部配置文件，将使用外部配置文件')
-    try {
-      let externalConfig = JSON.parse(fs.readFileSync(externalConfigPath, 'utf-8'))
-      Object.assign(UserInputConfig, externalConfig)
-      await startInstall()
-      exit()
-    } catch(e) {
-      console.log('[install] 外部配置文件格式错误，请检查JSON格式')
-      exit()
+function startInstallServer() {
+  INSTALL_SERVER = http.createServer((req, res) => {
+    const reqPath = req.url
+    const reqMethod = req.method
+    if(reqPath === '/') {
+      const str = fs.readFileSync(path.join(__dirname, './install.html'), 'utf-8');
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(str);
+    } else if(reqPath === '/submitConfig' && reqMethod === 'POST') {
+      let bodyStr = '';
+      req.on('data', chunk => {
+        bodyStr = bodyStr + chunk.toString();
+      });
+      req.on('end', async () => {
+        const inputConfig = JSON.parse(bodyStr);
+        Object.assign(UserInputConfig, inputConfig)
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        await startInstall()
+        res.end(JSON.stringify({
+          code: 1
+        }))
+        exit()
+      })
     }
-  } else {
-    console.log('[install] 未找到外部配置文件，将使用默认配置文件')
-  }
+  })
+  INSTALL_SERVER.listen(3000, () => {
+    console.log("【install】本地 http://localhost:3000 服务已开启，请打开浏览器，输入反向代理的地址，进行后续数据库配置");
+  });
 }
 
 
-async function start() {
+function start() {
   clearEnv()
   const flag = isInstalled()
   if(!flag) {
     console.log(`[install] 未安装，正在执行安装操作`)
-    await startInstallServer()
+    startInstallServer()
   } else {
     console.log(`[install] 已安装，正在执行重启服务操作`)
   }
