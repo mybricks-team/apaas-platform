@@ -107,6 +107,7 @@ export default class AppsService {
     return {
       code: 1,
       data: apps,
+      message: 'succeed'
     };
   }
 

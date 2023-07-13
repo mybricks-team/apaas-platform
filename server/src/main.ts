@@ -1,7 +1,6 @@
 import { NestFactory } from "@nestjs/core";
 import AppManage from "./AppManage.module";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { HttpException, ValidationPipe } from '@nestjs/common';
 
 import * as path from "path";
 import * as cookieParser from "cookie-parser";
@@ -15,6 +14,7 @@ import { checkHealthMiddleware } from './middleware/checkHealth.middleware';
 import { loadModule } from "./module-loader";
 import { enhanceApp } from "./enhance";
 import init from "./init";
+import ValidationPipe from "./pipe/validationPipe";
 
 const env = require('../env.js')
 const fs = require('fs-extra')
@@ -43,13 +43,7 @@ async function bootstrap() {
   enhanceApp(app, {
     appNamespaceList: loadedModule.namespace,
   });
-  app.useGlobalPipes(
-    new ValidationPipe({
-      exceptionFactory: (validationErrors = []) => {
-        throw new HttpException(Object.values(validationErrors?.[0]?.constraints)?.[0], -1);
-      },
-    }),
-  );
+  app.useGlobalPipes(new ValidationPipe());
   app.use(checkHealthMiddleware);
 
   // app.enableCors({
