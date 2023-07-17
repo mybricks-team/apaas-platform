@@ -149,13 +149,7 @@ export default class WorkspaceService {
 
   @Get("/workspace/getFullFile")
   async getFullFile(@Query() query) {
-    const { userId, fileId } = query;
-    // if (!userId) {
-    //   return {
-    //     code: -1,
-    //     message: 'error'
-    //   }
-    // }
+    const { fileId } = query;
 
     try {
       const rtn = await this.fileDao.queryById(fileId);
@@ -347,8 +341,7 @@ export default class WorkspaceService {
         commitInfo,
         type,
         uri,
-        fileContentId,
-        projectId
+        fileContentId
       } = body;
 
       /** 不存在 fileContentId 则取最新一条记录 */
@@ -393,8 +386,7 @@ export default class WorkspaceService {
         commitInfo,
         creatorId: userId,
         creatorName: userId,
-        fileContentId,
-        projectId
+        fileContentId
       });
       data.pib_id = id;
 
