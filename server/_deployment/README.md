@@ -2,7 +2,7 @@
 
 ### 前置环境配置
 
-1. 容器必须安装有 `MySQL 5.7`、`Node` V14 以上（V14.16以下）（备注，如果安装的是 MySQL8.x，注意密码加密方式设置为：Legacy Password Encryption，切记不要设置为 Strong Password Encryption）
+1. 容器必须安装有 `MySQL 5.7`、`Node` V14 以上（V14.16以下，例如V14.15.4）（备注，如果安装的是 MySQL8.x，注意密码加密方式设置为：Legacy Password Encryption，切记不要设置为 Strong Password Encryption）
 
 ### 开始安装
 
@@ -40,7 +40,7 @@
 }
 ```
 3. 将其 `解压` 到文件夹，并`进入 server 文件夹`
-4. `使用管理用权限` 执行如下安装命令即可，至此`服务器端的操作结束`，安装完毕后会`自动退出安装服务并拉起搭建服务`
+4. `使用管理权限` 执行如下安装命令即可，至此`服务器端的操作结束`，安装完毕后会`自动退出安装服务并拉起搭建服务`
 
 ```shell
 cd server
