@@ -21,8 +21,12 @@
   },
   "author": "MyBricks Team",
   "license": "ISC",
+<<<<<<< Updated upstream
   "dependencies": {},
   "devDependencies": {
+=======
+  "dependencies": {
+>>>>>>> Stashed changes
     "jszip": "^3.10.1"
   }
 }
