@@ -34,7 +34,7 @@ import ParentCtx from '../../Ctx'
 import {Title, ClickableIcon} from '..'
 import AppCtx from '../../../../AppCtx'
 import {useDebounceFn} from '../../../../hooks'
-import {Divider, UserGroup} from '../../../../components'
+import {Add, Divider, UserGroup, mybricksGroupIcons} from '../../../../components'
 
 import type {UploadProps} from 'antd/es/upload/interface'
 
@@ -320,7 +320,6 @@ function UpdateGroupInfoModal ({open, onOk, onCancel, defaultValues}) {
         const [context] = useState({
           submittable: true
         })
-        const [imageUrl, setImageUrl] = useState<string>(defaultValues.icon)
         const [uploadLoading, setUploadLoading] = useState<boolean>(false)
         const uploadImage: UploadProps['customRequest'] = useCallback((options) => {
           const { file } = options
@@ -336,6 +335,8 @@ function UpdateGroupInfoModal ({open, onOk, onCancel, defaultValues}) {
             options.onError(e)
           })
         }, [])
+        const [icon, setIcon] = useState(defaultValues.icon || 'MybricksGroupIcon0')
+        const [groupIcons, setGroupIcons] = useState([...mybricksGroupIcons].concat(defaultValues.icon ? (defaultValues.icon.startsWith('Mybricks') ? [] : [{key: defaultValues.icon, Icon: () => <img src={defaultValues.icon}/>}]) : []))
       
         const beforeUpload: UploadProps['beforeUpload'] = useCallback((file) => {
           return new Promise((resolve, reject) => {
@@ -348,6 +349,11 @@ function UpdateGroupInfoModal ({open, onOk, onCancel, defaultValues}) {
               reject()
             }
           })
+        }, [])
+
+        const onIconClick = useCallback((key) => {
+          setIcon(key)
+          form.setFieldValue('icon', key)
         }, [])
 
         return (
@@ -384,38 +390,52 @@ function UpdateGroupInfoModal ({open, onOk, onCancel, defaultValues}) {
               />
             </AntdForm.Item>
             <AntdForm.Item label='图标' name='icon'>
-              <Spin
-                spinning={uploadLoading}
-                size='small'
-                tip='上传中'
-              >
-                <div className={css.iconUploader}>
-                  <Dragger
-                    showUploadList={false}
-                    accept='image/*'
-                    disabled={uploadLoading}
-                    customRequest={uploadImage}
-                    beforeUpload={beforeUpload}
-                    onChange={(info) => {
-                      const { file } = info
-                      const { status, error, response } = file
-
-                      if (status === 'uploading') {
-                        setUploadLoading(true)
-                      } else if (status === 'done') {
-                        setImageUrl(response)
-                        form.setFieldValue('icon', response)
-                        setUploadLoading(false)
-                      } else if (status === 'error') {
-                        setUploadLoading(false)
-                        message.error(error)
-                      }
-                    }}
-                  >
-                    {imageUrl ? <img src={imageUrl}/> : <UserGroup width={70} height={70}/>}
-                  </Dragger>
+              <div className={css.iconList}>
+            {groupIcons.map(({key, Icon}) => {
+              const width = ['MybricksGroupIcon0', 'MybricksGroupIcon1'].includes(key) ? 20 : 200
+              return (
+                <div key={key} className={`${css.icon}${icon === key ? ` ${css.iconActive}` : ''}`} onClick={() => onIconClick(key)}>
+                  <Icon width={width} height={width}/>
                 </div>
-              </Spin>
+              )
+            })}
+            {/* <div className={css.icon}>
+              <Add width={15} height={15}/>
+            </div> */}
+            <Spin
+              spinning={uploadLoading}
+              size='small'
+              // tip='上传中'
+            >
+              <Upload
+                showUploadList={false}
+                accept='image/*'
+                disabled={uploadLoading}
+                customRequest={uploadImage}
+                beforeUpload={beforeUpload}
+                onChange={(info) => {
+                  const { file } = info
+                  const { status, error, response } = file
+
+                  if (status === 'uploading') {
+                    setUploadLoading(true)
+                  } else if (status === 'done') {
+                    onIconClick(response)
+                    // form.setFieldValue('icon', response)
+                    setGroupIcons(groupIcons.concat({key: response, Icon: () => <img src={response}/>}))
+                    setUploadLoading(false)
+                  } else if (status === 'error') {
+                    setUploadLoading(false)
+                    message.error(error)
+                  }
+                }}
+              >
+              <div className={css.icon}>
+                <Add width={15} height={15}/>
+              </div>
+            </Upload>
+          </Spin>
+          </div>
             </AntdForm.Item>
           </AntdForm>
         )

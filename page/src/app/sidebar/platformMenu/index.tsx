@@ -31,7 +31,7 @@ import {
 import AppCtx from '../../AppCtx'
 import NavMenu from './menu/navMenu'
 import {useDebounceFn} from '../../hooks'
-import {UserGroup, Add} from '../../components'
+import {UserGroup, Add, mybricksGroupIcons} from '../../components'
 import {MYBRICKS_WORKSPACE_DEFAULT_NAV_MY_EXPAND, MYBRICKS_WORKSPACE_DEFAULT_NAV_GROUP_EXPAND} from '../../../const'
 
 import css from './index.less'
@@ -228,8 +228,9 @@ function CreateGroupModal({open, onOk, onCancel}) {
   const [form] = Form.useForm()
   const [btnLoading, setBtnLoading] = useState(false)
   const ref = useRef()
-  const [imageUrl, setImageUrl] = useState<string>()
   const [uploadLoading, setUploadLoading] = useState<boolean>(false)
+  const [icon, setIcon] = useState('MybricksGroupIcon0')
+  const [groupIcons, setGroupIcons] = useState([...mybricksGroupIcons])
 
   const { run: ok } = useDebounceFn(() => {
     form.validateFields().then((values) => {
@@ -247,7 +248,6 @@ function CreateGroupModal({open, onOk, onCancel}) {
   const cancel = useCallback(() => {
     onCancel()
     setBtnLoading(false)
-    setImageUrl(void 0)
     setUploadLoading(false)
     form.resetFields()
   }, [])
@@ -286,6 +286,11 @@ function CreateGroupModal({open, onOk, onCancel}) {
         reject()
       }
     })
+  }, [])
+
+  const onIconClick = useCallback((key) => {
+    setIcon(key)
+    form.setFieldValue('icon', key)
   }, [])
 
   return (
@@ -332,13 +337,24 @@ function CreateGroupModal({open, onOk, onCancel}) {
           />
         </Form.Item>
         <Form.Item label='图标' name='icon'>
-          <Spin
-            spinning={uploadLoading}
-            size='small'
-            tip='上传中'
-          >
-            <div className={css.iconUploader}>
-              <Dragger
+          <div className={css.iconList}>
+            {groupIcons.map(({key, Icon}) => {
+              const width = ['MybricksGroupIcon0', 'MybricksGroupIcon1'].includes(key) ? 20 : 200
+              return (
+                <div key={key} className={`${css.icon}${icon === key ? ` ${css.iconActive}` : ''}`} onClick={() => onIconClick(key)}>
+                  <Icon width={width} height={width}/>
+                </div>
+              )
+            })}
+            {/* <div className={css.icon}>
+              <Add width={15} height={15}/>
+            </div> */}
+            <Spin
+              spinning={uploadLoading}
+              size='small'
+              // tip='上传中'
+            >
+              <Upload
                 showUploadList={false}
                 accept='image/*'
                 disabled={uploadLoading}
@@ -351,8 +367,9 @@ function CreateGroupModal({open, onOk, onCancel}) {
                   if (status === 'uploading') {
                     setUploadLoading(true)
                   } else if (status === 'done') {
-                    setImageUrl(response)
-                    form.setFieldValue('icon', response)
+                    onIconClick(response)
+                    // form.setFieldValue('icon', response)
+                    setGroupIcons(groupIcons.concat({key: response, Icon: () => <img src={response}/>}))
                     setUploadLoading(false)
                   } else if (status === 'error') {
                     setUploadLoading(false)
@@ -360,10 +377,12 @@ function CreateGroupModal({open, onOk, onCancel}) {
                   }
                 }}
               >
-                {imageUrl ? <img src={imageUrl}/> : <UserGroup width={70} height={70}/>}
-              </Dragger>
-            </div>
+              <div className={css.icon}>
+                <Add width={15} height={15}/>
+              </div>
+            </Upload>
           </Spin>
+          </div>
         </Form.Item>
       </Form>
     </Modal>
