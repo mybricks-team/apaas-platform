@@ -25,8 +25,8 @@ const timeout = function(time?, options?) {
     if (respond) {
       req.on('timeout', () => {
         res.status(200).json({
-          code: -1,
-          msg:'网络不佳，请稍后重试'
+          code: 10001,
+          msg: '接口超时，请确认网络连接情况'
         })
       })
     }
