@@ -1,6 +1,6 @@
 import { init } from '@mybricks/rocker-commons';
 
-import { MidLog } from '@rockerjs/midlog';
+import { MidLog } from 'mybricks-midlog';
 const path = require('path');
 const logDir = path.join(__dirname, '../../../logs');
 
