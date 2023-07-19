@@ -178,14 +178,17 @@ function Group() {
   const modalOk = useCallback((values, app) => {
     return new Promise(async (resolve, reject) => {
       const { name, icon } = values
+      const data: any = {
+        userId: appCtx.user.email,
+        name
+      }
+      if (icon && icon.startsWith('http') || icon.startsWith('Mybricks')) {
+        data.icon = icon
+      }
       axios({
         method: 'post',
         url: getApiUrl('/paas/api/userGroup/create'),
-        data: {
-          userId: appCtx.user.email,
-          name,
-          icon
-        }
+        data
       }).then(async ({data}) => {
         if (data.code === 1) {
           await appCtx.refreshSidebar('group')

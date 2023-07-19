@@ -255,15 +255,18 @@ function GroupTitleConfig () {
   const modalOk = useCallback((values) => {
     return new Promise(async (resolve, reject) => {
       const { name, icon } = values
+      const data: any = {
+        userId: appCtx.user.email,
+        id: ctx.info.id,
+        name
+      }
+      if (icon && icon.startsWith('http') || icon.startsWith('Mybricks')) {
+        data.icon = icon
+      }
       axios({
         method: 'post',
         url: getApiUrl('/paas/api/userGroup/update'),
-        data: {
-          userId: appCtx.user.email,
-          name,
-          icon,
-          id: ctx.info.id
-        }
+        data
       }).then(async ({data}) => {
         if (data.code === 1) {
           appCtx.refreshSidebar('group')
