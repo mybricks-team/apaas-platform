@@ -65,4 +65,8 @@ export default class AssetService {
 
     return { code: 1, message: '应用发布成功!' };
   }
+
+  async publishAppToOrigin(appId: number) {
+    // TODO: 发布到中心化资产
+  }
 }

@@ -24,4 +24,17 @@ export default class AssetController {
       return this.assetService.publishAPP(body, file);
     } else if (type === AssetType.MATERIAL) {}
   }
+
+  @Post('/origin/push')
+  publishAssetToOrigin(@Body() body) {
+    const { type } = body;
+
+    if (type === AssetType.APP) {
+      if (!body.appId) {
+        return { code: -1, message: '参数 appId 不能为空' };
+      }
+
+      return this.assetService.publishAppToOrigin(body.appId);
+    }
+  }
 }
