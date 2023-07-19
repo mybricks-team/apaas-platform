@@ -1,5 +1,5 @@
 import {Body, Controller, Post, Req, UploadedFile, UseInterceptors} from '@nestjs/common';
-import {FileInterceptor} from "@nestjs/platform-express";
+import {FileInterceptor} from '@nestjs/platform-express';
 import AssetService, {AssetType} from '../asset/asset.service';
 
 @Controller('/paas/api/asset')

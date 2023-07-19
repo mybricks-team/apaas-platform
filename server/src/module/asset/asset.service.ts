@@ -39,6 +39,7 @@ export default class AssetService {
       description: string;
       version: string;
       creatorName: string;
+      changeLog: string;
     },
     file
   ) {
@@ -60,7 +61,7 @@ export default class AssetService {
       ...query,
       install_type: InstallType.LOCAL,
       type: AssetType.APP,
-      install_info: JSON.stringify({ path: subPath, origin: 'local' }),
+      install_info: JSON.stringify({ path: subPath, origin: 'local', changeLog: query.changeLog || '优化部分逻辑，修复若干 bug' }),
       creator_name: query.creatorName || '',
       icon: query.icon || '',
       description: query.description || '',
