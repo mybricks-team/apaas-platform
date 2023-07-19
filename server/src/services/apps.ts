@@ -28,10 +28,7 @@ export default class AppsService {
   async getAllInstalledList({ filterSystemApp }: {filterSystemApp: boolean}) {
     const appsFolder = env.getAppInstallFolder()
     if (!fs.existsSync(appsFolder)) {
-      return {
-        code: 1,
-        data: [],
-      };
+      return []
     }
     const dirNames = fs.readdirSync(appsFolder);
     const apps = [];
