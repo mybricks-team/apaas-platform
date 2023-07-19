@@ -12,7 +12,7 @@ export default class AssetController {
 
   @Post('/publish')
   @UseInterceptors(FileInterceptor('file'))
-  publishAsset(@Body() body, @UploadedFile() file) {
+  publishAsset(@Body() body, @UploadedFile() file, @Req() request) {
     const { type } = body;
 
     if (type === AssetType.APP) {
@@ -21,7 +21,7 @@ export default class AssetController {
       if (!name || !namespace || !version || !file) {
         return { code: -1, message: '参数 name、namespace、version、file 不能为空' };
       }
-      return this.assetService.publishAPP(body, file);
+      return this.assetService.publishAPP(body, file, request);
     } else if (type === AssetType.MATERIAL) {}
 
     return { code: -1, message: '参数 type 必须为 app、material 其中之一' }

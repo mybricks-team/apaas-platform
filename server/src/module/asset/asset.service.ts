@@ -41,7 +41,8 @@ export default class AssetService {
       creatorName: string;
       changeLog: string;
     },
-    file
+    file,
+    request
   ) {
     const app = await this.appDao.getAppByNamespace_Version(query.namespace, query.version);
 
@@ -71,8 +72,9 @@ export default class AssetService {
     if (!insertId) {
       return { code: -1, message: '应用发布失败，数据插入错误' };
     }
-
-    return { code: 1, message: '应用发布成功!' };
+    //TODO: 目前是发布应用自动同步到中心化资产平台
+    return await this.publishAppToOrigin({ appId: insertId, userId: query.creatorName || '' }, request);
+    // return { code: 1, message: '应用发布成功!' };
   }
 
   async publishAppToOrigin(params: { appId: number; userId: string }, request) {
@@ -87,7 +89,7 @@ export default class AssetService {
     formData.append('userId', params.userId);
     formData.append('payload', JSON.stringify(app));
     const info = JSON.parse(app.installInfo ?? '{}');
-    formData.append('file', fs.readFileSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, info.path)));
+    formData.append('file', fs.readFileSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, info.path)), app.namespace + '.zip');
 
     const domainName = getRealDomain(request);
     try {
@@ -99,7 +101,7 @@ export default class AssetService {
         }
       );
 
-      if (res.status !== 200 || res.status !== 201 || !res.data || res.data.code !== 1) {
+      if ((res.status !== 200 && res.status !== 201) || !res.data || res.data.code !== 1) {
         return { code: -1, message: res.data?.message || '发布到中心化资产平台失败' };
       } else {
         return { code: 1, message: res.data?.message || '发布到中心化资产平台成功' };
