@@ -1,9 +1,13 @@
 import {Injectable} from '@nestjs/common';
 import * as path from 'path';
+import * as axios from 'axios';
+import * as FormData from 'form-data';
+import * as fs from 'fs';
 import UploadService from '../upload/upload.service';
 import AppDao from '../../dao/AppDao';
-import {uuid} from '../../utils';
+import {getRealDomain, uuid} from '../../utils';
 import FlowService from '../flow/flow.service';
+const env = require('../../../env');
 
 enum InstallType {
   NPM = 'npm',
@@ -52,21 +56,55 @@ export default class AssetService {
       folderPath: `/asset/app/${query.namespace}/${query.version}`,
     });
 
-    await this.appDao.insertApp({
+    const { insertId } = await this.appDao.insertApp({
       ...query,
       install_type: InstallType.LOCAL,
       type: AssetType.APP,
-      install_info: JSON.stringify({ path: subPath }),
+      install_info: JSON.stringify({ path: subPath, origin: 'local' }),
       creator_name: query.creatorName || '',
       icon: query.icon || '',
       description: query.description || '',
       create_time: Date.now(),
     });
 
+    if (!insertId) {
+      return { code: -1, message: '应用发布失败，数据插入错误' };
+    }
+
     return { code: 1, message: '应用发布成功!' };
   }
 
-  async publishAppToOrigin(appId: number) {
-    // TODO: 发布到中心化资产
+  async publishAppToOrigin(appId: number, request) {
+    const [app] = await this.appDao.getAppById(appId);
+
+    if (!app) {
+      return { code: -1, message: '应用不存在!' };
+    }
+
+    const formData = new FormData();
+    Object.keys(app).forEach(key => {
+      formData.append(key, app[key]);
+    });
+    const info = JSON.parse(app.installInfo ?? '{}');
+    formData.append('zip', fs.readFileSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, info.path)));
+
+    const domainName = getRealDomain(request);
+    try {
+      const res = await (axios as any).post(
+        `${domainName}/central/channel/gateway`,
+        formData,
+        {
+          headers: formData.getHeaders()
+        }
+      );
+
+      if (res.status !== 200 || res.status !== 201 || !res.data || res.data.code !== 1) {
+        return { code: -1, message: res.data?.message || '发布到中心化资产平台失败' };
+      } else {
+        return { code: 1, message: res.data?.message || '发布到中心化资产平台成功' };
+      }
+    } catch(e) {
+      return { code: -1, message: e.message || '发布到中心化资产平台失败' };
+    }
   }
 }

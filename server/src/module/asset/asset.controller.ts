@@ -1,4 +1,4 @@
-import {Body, Controller, Post, UploadedFile, UseInterceptors} from '@nestjs/common';
+import {Body, Controller, Post, Req, UploadedFile, UseInterceptors} from '@nestjs/common';
 import {FileInterceptor} from "@nestjs/platform-express";
 import AssetService, {AssetType} from '../asset/asset.service';
 
@@ -28,7 +28,7 @@ export default class AssetController {
   }
 
   @Post('/origin/push')
-  publishAssetToOrigin(@Body() body) {
+  publishAssetToOrigin(@Body() body, @Req() request) {
     const { type } = body;
 
     if (type === AssetType.APP) {
@@ -36,7 +36,7 @@ export default class AssetController {
         return { code: -1, message: '参数 appId 不能为空' };
       }
 
-      return this.assetService.publishAppToOrigin(body.appId);
+      return this.assetService.publishAppToOrigin(body.appId, request);
     }
   }
 }

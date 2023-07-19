@@ -30,6 +30,14 @@
         order by id desc limit 1
     </select>
 
+    <select id="getAppById">
+        SELECT
+            *
+        from apaas_app
+        WHERE status = 1
+        and id = #{id}
+    </select>
+
     <select id="getAppByNamespace_Version">
         SELECT
             name,

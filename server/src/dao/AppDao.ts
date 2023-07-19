@@ -61,6 +61,11 @@ export default class AppDao extends DOBase {
   public async getAppByNamespace_Version(namespace: string, version: string): Promise<Array<AppDO>> {
     return await this.exe<Array<AppDO>>("apaas_app:getAppByNamespace_Version", { namespace, version });
   }
+
+  @Mapping(AppDO)
+  public async getAppById(id: number): Promise<Array<AppDO>> {
+    return await this.exe<Array<AppDO>>("apaas_app:getAppById", { id });
+  }
 	
 	async insertApp(params: {
 		name: string;
@@ -75,7 +80,7 @@ export default class AppDao extends DOBase {
 		create_time: number;
 	}) {
 
-		return await this.exe('apaas_app:insert', {
+		return await this.exe<{ insertId: number }>('apaas_app:insert', {
       ...params,
       id: genMainIndexOfDB()
     })
