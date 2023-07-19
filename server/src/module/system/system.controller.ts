@@ -537,10 +537,16 @@ export default class SystemService {
     if(process.env.MYBRICKS_NODE_MODE === 'master') {
       switch (type) {
         case 'checkLatestPlatformVersion': {
-          const data = await this.appDao.getLatestAppByNamespace('mybricks-apaas')
-          return {
-            code: 1,
-            data: { version: data.version, name: data.name }
+          const res = (await (axios as any).post('http://localhost:4100/central/channel/gateway', {
+            action: 'platform_checkLatestVersion'
+          })).data
+          if(res.code === 1) {
+            return {
+              code: 1,
+              data: { version: res.data.version }
+            }
+          } else {
+            return res
           }
         }
         case 'getCurrentPlatformVersion': {
