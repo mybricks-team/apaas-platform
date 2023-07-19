@@ -36,7 +36,7 @@ export default class AssetController {
         return { code: -1, message: '参数 appId 不能为空' };
       }
 
-      return this.assetService.publishAppToOrigin(body.appId, request);
+      return this.assetService.publishAppToOrigin(body, request);
     }
   }
 }

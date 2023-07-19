@@ -74,19 +74,19 @@ export default class AssetService {
     return { code: 1, message: '应用发布成功!' };
   }
 
-  async publishAppToOrigin(appId: number, request) {
-    const [app] = await this.appDao.getAppById(appId);
+  async publishAppToOrigin(params: { appId: number; userId: string }, request) {
+    const [app] = await this.appDao.getAppById(params.appId);
 
     if (!app) {
       return { code: -1, message: '应用不存在!' };
     }
 
     const formData = new FormData();
-    Object.keys(app).forEach(key => {
-      formData.append(key, app[key]);
-    });
+    formData.append('action', 'app_publishVersion');
+    formData.append('userId', params.userId);
+    formData.append('payload', JSON.stringify(app));
     const info = JSON.parse(app.installInfo ?? '{}');
-    formData.append('zip', fs.readFileSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, info.path)));
+    formData.append('file', fs.readFileSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, info.path)));
 
     const domainName = getRealDomain(request);
     try {
