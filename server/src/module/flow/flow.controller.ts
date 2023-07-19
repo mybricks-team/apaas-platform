@@ -136,6 +136,7 @@ export default class FlowController {
       return {
         data: {
           url: `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`,
+          subPath,
         },
         code: 1,
       };
@@ -162,7 +163,7 @@ export default class FlowController {
           return this.flowService.saveFile({
             str: file.buffer,
             // filename: file.originalname,
-            filename: `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
+            filename: body.noHash ? file.originalname : `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
             folderPath: body.folderPath
           });
         }),
