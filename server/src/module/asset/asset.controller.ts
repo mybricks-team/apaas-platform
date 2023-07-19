@@ -23,6 +23,8 @@ export default class AssetController {
       }
       return this.assetService.publishAPP(body, file);
     } else if (type === AssetType.MATERIAL) {}
+
+    return { code: -1, message: '参数 type 必须为 app、material 其中之一' }
   }
 
   @Post('/origin/push')
