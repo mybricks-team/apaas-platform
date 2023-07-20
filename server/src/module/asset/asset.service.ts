@@ -102,12 +102,12 @@ export default class AssetService {
       );
 
       if ((res.status !== 200 && res.status !== 201) || !res.data || res.data.code !== 1) {
-        return { code: -1, message: res.data?.message || '发布到中心化资产平台失败' };
+        return { code: -1, message: '发布到中心化资产平台失败：' + res.data?.message || '' };
       } else {
-        return { code: 1, message: res.data?.message || '发布到中心化资产平台成功' };
+        return { code: 1, message: '发布到中心化资产平台成功：' + res.data?.message || '' };
       }
     } catch(e) {
-      return { code: -1, message: e.message || '发布到中心化资产平台失败' };
+      return { code: -1, message: '发布到中心化资产平台失败：' + e.message || '' };
     }
   }
 }
