@@ -120,9 +120,6 @@ export default class AppsService {
   @Get("/getLatestAllFromSource")
   async getLatestAllFromSource() {
     try {
-      // const buf = require('child_process').execSync('curl -x 10.28.121.13:11080 https://mybricks.world/api/apps/getLatestAll')
-      // const data = JSON.parse(buf)
-      // return data
       const localAppList = await this.appDao.queryLatestApp();
       let remoteAppList = []
       let mergedList = []
@@ -142,10 +139,18 @@ export default class AppsService {
             remoteAppList = temp.data
           }
         }
-        mergedList = localAppList.concat(remoteAppList?.map(i => {
+        let tempList = localAppList.concat(remoteAppList?.map(i => {
           i.isRemote = true
           return i
         }))
+        // 去重
+        let nsMap = {}
+        tempList?.forEach(i => {
+          if(!nsMap[i.namespace]) {
+            mergedList.push(i)
+            nsMap[i.namespace] = true
+          }
+        }) 
       } catch(e) {
         console.log(e)
       }
