@@ -54,7 +54,7 @@ export default class AssetService {
 
     const subPath = await this.flowService.saveFile({
       str: file.buffer,
-      filename: `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
+      filename: `${query.namespace}.zip`,
       folderPath: `/asset/app/${query.namespace}/${query.version}`,
     });
 

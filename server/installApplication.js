@@ -4,7 +4,7 @@ const path = require('path')
 const parse5 = require('parse5');
 const mysql = require('mysql2');
 const axios = require('axios');
-const { APPS_BASE_FOLDER, NPM_REGISTRY } = require('./env');
+const { APPS_BASE_FOLDER, NPM_REGISTRY, FILE_LOCAL_STORAGE_FOLDER } = require('./env');
 
 let MYSQL_CONNECTION = null
 
@@ -281,15 +281,129 @@ async function installApplication() {
               fs.removeSync(tempFolder)
               fs.mkdirSync(tempFolder)
             }
-            const res = (await axios.post('http://localhost:4100/central/channel/gateway', {
+            const res = (await axios.post(
+              // 'https://my.mybricks.world/central/channel/gateway', 
+              'http://localhost:4100/central/channel/gateway', 
+              {
               action: 'app_downloadByVersion',
               payload: JSON.stringify({
                 namespace: pkgName,
                 version: pkgVersion
               })
-            })).data
+              })).data
             const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
             fs.writeFileSync(tempPathZipFile, Buffer.from(res.data.data));
+            cp.execSync(`cd ${tempFolder} && unzip ${tempPathZipFile} -d ${destAppDir}`)
+          } catch(e) {
+            console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)
+            console.log(`【install】: 错误是: ${e.toString()}`)
+            fs.removeSync(tempFolder)
+            continue;
+          }
+          // copy aplication
+          let srcAppDir = path.join(destAppDir, `./${pkgName}`)
+          let pkg;
+          let bePath;
+          let fePath;
+          if(fs.existsSync(srcAppDir)) {
+            pkg = require(path.join(srcAppDir, './package.json'));
+            bePath = path.join(srcAppDir, './nodejs')
+            fePath = path.join(srcAppDir, './assets')
+            if(fs.existsSync(bePath)) {
+              try{
+                if(isYarnExist()) {
+                  cp.execSync(`cd ${srcAppDir} && yarn --registry ${NPM_REGISTRY}  --production`)
+                } else {
+                  cp.execSync(`cd ${srcAppDir} && npm i --registry=${NPM_REGISTRY} --production`)
+                }
+                // 移动依赖
+                fs.moveSync(path.join(srcAppDir, `./node_modules`), path.join(destAppDir, `./node_modules`), {overwrite: true})
+              } catch(e) {
+                console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)
+                console.log(`【install】: 错误是: ${e.toString()}`)
+                fs.removeSync(srcAppDir)
+                fs.removeSync(tempFolder)
+                continue;
+              }
+              // 存在后端
+              if(fs.existsSync(path.join(bePath, './mapper'))) {
+                // 存在mapper
+                fs.copySync(path.join(bePath, './mapper'), path.join(process.cwd(), `./src/resource`))
+              }
+            }
+            
+            // copy xml
+            if(fs.existsSync(fePath)) { // 存在前端
+              if(pkg?.mybricks?.type !== 'system') { // 非系统任务
+                const feDirs = fs.readdirSync(fePath)
+                console.log('非系统任务', fePath, feDirs)
+                feDirs?.forEach(name => {
+                  if(name.indexOf('.html') !== -1 && name !== 'preview.html') {
+                    // 默认注入所有的资源
+                    const srcHomePage = path.join(fePath, name)
+                    const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
+                    let handledHomePageDom = parse5.parse(rawHomePageStr);
+                    travelDom(handledHomePageDom, {
+                      ajaxScriptStr: injectAjaxScript({
+                        namespace: pkg.name ? pkg.name : ''
+                      }),
+                      appConfigScriptStr: injectAppConfigScript({
+                        namespace: pkg.name ? pkg.name : '',
+                        version: pkg?.version,
+                        ...(pkg?.mybricks || {})
+                      })
+                    })
+                    let handledHomePageStr = parse5.serialize(handledHomePageDom)
+                    fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')  
+                  }
+                })
+                
+              }
+              console.log(`【install】: 资源准备完毕 ${pkgName}`)
+            }
+
+            // exec hooks
+            if(pkg?.mybricks?.preInstall) {
+              prepareEnv()
+              setTimeout(async () => {
+                await execJs({
+                  jsPath: path.join(destAppDir, pkg.mybricks.preInstall)
+                })
+              }, 100)
+            }
+            fs.copySync(srcAppDir, destAppDir)
+            console.log(`【install】: 依赖安装中,请稍后 ${pkgName}`)
+            fs.removeSync(srcAppDir)
+            fs.removeSync(tempFolder)
+          }
+        } else if(appConfig.type === 'local') {
+          const pkgVersion = appConfig.version;
+          let pkgName = appConfig.namespace;
+          if(!fs.existsSync(APPS_BASE_FOLDER)) {
+            fs.mkdirSync(APPS_BASE_FOLDER)
+          }
+          const destAppDir = path.join(APPS_BASE_FOLDER, `./${pkgName}`)
+          
+          // judge jump
+          const existedAppPkgPath = path.join(destAppDir, './package.json')
+          if(fs.existsSync(existedAppPkgPath)) {
+            const existedAppPkg = require(existedAppPkgPath);
+            if(existedAppPkg?.version === pkgVersion) {
+              console.log(`【install】: 应用 ${pkgName} 已安装，跳过...`)
+              continue
+            }
+          }
+          console.log(`【install】: 应用 ${pkgName} 正在加载中...`)
+          const tempFolder = destAppDir + '_temp';
+          try{
+            if(!fs.existsSync(tempFolder)) {
+              fs.mkdirSync(tempFolder)
+            } else {
+              fs.removeSync(tempFolder)
+              fs.mkdirSync(tempFolder)
+            }
+            const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
+            fs.copyFileSync(path.join(FILE_LOCAL_STORAGE_FOLDER, `./asset/app/${pkgName}/${pkgVersion}/${pkgName}.zip`), tempPathZipFile)
             cp.execSync(`cd ${tempFolder} && unzip ${tempPathZipFile} -d ${destAppDir}`)
           } catch(e) {
             console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)

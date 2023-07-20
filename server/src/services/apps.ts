@@ -92,12 +92,6 @@ export default class AppsService {
     return apps
   }
 
-  @Get('/test')
-  async test() {
-    Logger.info('123132313')
-  return '123'
-  }
-
   @Get("/getInstalledList")
   async getInstalledList() {
     const apps = await this.getAllInstalledList({ filterSystemApp: true })
@@ -223,8 +217,7 @@ export default class AppsService {
 
   @Post("/update")
   async appUpdate(@Body() body, @Req() req) {
-    const { namespace, version } = body;
-
+    const { namespace, version, isRemote } = body;
     const applications = require(path.join(
       process.cwd(),
       "./application.json"
@@ -232,13 +225,20 @@ export default class AppsService {
 
     let remoteApps = [];
     try {
-      if(env.isStaging() || env.isProd() || env.isPrivateAppStore()) {
-        remoteApps = await this.appDao.queryLatestApp();
+      if(isRemote) {
+        const temp = (await (axios as any).post(
+          "http://localhost:4100/central/channel/gateway", 
+          // "https://my.mybricks.world/central/channel/gateway", 
+          {
+            action: 'app_checkLatestVersion',
+            payload: { namespace }
+          }
+        )).data;
+        if(temp.code === 1) {
+          remoteApps = temp.data
+        }
       } else {
-        const appRes = await (axios as any).get(
-          "https://mybricks.world/api/apps/getLatestAll"
-        );
-        remoteApps = appRes.data.data || [];
+        remoteApps = await this.appDao.queryLatestApp();
       }
     } catch (e) {
       Logger.info(`获取远程应用版本失败: ${e}`);
@@ -247,7 +247,6 @@ export default class AppsService {
     if (!remoteApps.length) {
       return { code: 0, message: "升级失败，查询最新应用失败" };
     }
-
     /** 应用中心是否存在此应用 */
     const remoteApp = remoteApps.find((a) => a.namespace === namespace);
 
@@ -269,15 +268,44 @@ export default class AppsService {
     if (!installedApp) {
       /** 新加应用 */
       installPkgName = remoteApp.namespace;
-      applications.installApps.push({
-        type: "npm",
-        path: `${installPkgName}@${version}`,
-      });
+      if(remoteApp.installType === 'oss') {
+        const installInfo = JSON.parse(remoteApp?.installInfo || '{}')
+        applications.installApps.push({
+          type: "oss",
+          path: installInfo.ossPath,
+          namespace: remoteApp.namespace,
+          version: version,
+        });
+      } else if(remoteApp.installType === 'local') {
+        applications.installApps.push({
+          type: "local",
+          version: version,
+          namespace: installPkgName,
+          path: ''
+        });
+      } else {
+        applications.installApps.push({
+          type: "npm",
+          version: version,
+          namespace: installPkgName,
+          path: `${installPkgName}@${version}`,
+        });
+      }
     } else {
       // 升级版本
-      installPkgName = installedApp.path.substr(0, installedApp.path.lastIndexOf('@'))
-      installedApp.path = `${installPkgName}@${version}`;
-      applications.installApps.splice(installedIndex, 1, installedApp);
+      if(installedApp.type === 'npm') {
+        installPkgName = installedApp.path.substr(0, installedApp.path.lastIndexOf('@'))
+        installedApp.path = `${installPkgName}@${version}`;
+        applications.installApps.splice(installedIndex, 1, installedApp);
+      } else if(installedApp.type === 'oss') {
+        const installInfo = JSON.parse(remoteApp?.installInfo || '{}')
+        installedApp.version = version
+        installedApp.path = installInfo.ossPath
+        applications.installApps.splice(installedIndex, 1, installedApp);
+      } else if(installedApp.type === 'local') {
+        installedApp.version = version
+        applications.installApps.splice(installedIndex, 1, installedApp);
+      }
     }
     const rawApplicationStr = fs.readFileSync(
       path.join(process.cwd(), "./application.json"),
