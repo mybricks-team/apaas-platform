@@ -565,22 +565,30 @@ export default class SystemService {
         }
       }
       case 'downloadPlatform': {
-        const res = await (axios as any).get(`https://my.mybricks.world/runtime/mfs/platform/${version}/mybricks-apaas.zip`, {
-          responseType: "arraybuffer",
-        })
-        if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
-          fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
-        }
-        fs.writeFileSync(path.join(process.cwd(), '../_temp_/mybricks-apaas.zip'), res.data);
-        
-        const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
-        Logger.info(shellPath)
-        const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
-          cwd: path.join(process.cwd(), '../'),
-        })
-        return {
-          code: 1,
-          msg: log.toString() || '升级成功'
+        const res = (await (axios as any).post(`http://localhost:4100/central/channel/gateway`, {
+          action: "platform_downloadByVersion",
+          payload: JSON.stringify({ version: '0.0.31' })
+        })).data
+        if(res.code === 1) {
+          if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
+            fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
+          }
+          fs.writeFileSync(path.join(process.cwd(), '../_temp_/mybricks-apaas.zip'), Buffer.from(res.data.data));
+          
+          const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
+          Logger.info(shellPath)
+          const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
+            cwd: path.join(process.cwd(), '../'),
+          })
+          return {
+            code: 1,
+            msg: log.toString() || '升级成功'
+          }
+        } else {
+          return {
+            code: -1,
+            msg: '下载失败，请重试'
+          }
         }
       }
       case 'reloadPlatform': {
