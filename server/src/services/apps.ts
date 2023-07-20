@@ -119,28 +119,47 @@ export default class AppsService {
 
   @Get("/getLatestAllFromSource")
   async getLatestAllFromSource() {
-    if(env.isStaging() || env.isProd() || env.isPrivateAppStore()) {
+    try {
+      // const buf = require('child_process').execSync('curl -x 10.28.121.13:11080 https://mybricks.world/api/apps/getLatestAll')
+      // const data = JSON.parse(buf)
+      // return data
+      const localAppList = await this.appDao.queryLatestApp();
+      let remoteAppList = []
+      let mergedList = []
       try {
-        // const buf = require('child_process').execSync('curl -x 10.28.121.13:11080 https://mybricks.world/api/apps/getLatestAll')
-        // const data = JSON.parse(buf)
-        // return data
-        const data = await this.appDao.queryLatestApp();
-        return {
-          code: 1,
-          data
+        if(env.isStaging() || env.isProd()) {
+          // todo: 内网未通，暂时注释
+          // remoteAppList = require('child_process').execSync('curl -x 10.28.121.13:11080 https://mybricks.world/api/apps/getLatestAll')
+        } else {
+          const temp = (await (axios as any).post(
+            "http://localhost:4100/central/channel/gateway", 
+            // "https://my.mybricks.world/central/channel/gateway", 
+            {
+              action: 'app_getAllLatestList'
+            }
+          )).data;
+          if(temp.code === 1) {
+            remoteAppList = temp.data
+          }
         }
-      } catch (e) {
-        return {
-          code: -1,
-          data: [],
-          msg: e.toString()
-        }
+        mergedList = localAppList.concat(remoteAppList?.map(i => {
+          i.isRemote = true
+          return i
+        }))
+      } catch(e) {
+        console.log(e)
       }
-    } else {
-      const appRes = await (axios as any).get(
-        "https://mybricks.world/api/apps/getLatestAll"
-      );
-      return appRes?.data;
+
+      return {
+        code: 1,
+        data: mergedList
+      }
+    } catch (e) {
+      return {
+        code: -1,
+        data: [],
+        msg: e.toString()
+      }
     }
   }
 
