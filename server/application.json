@@ -28,8 +28,10 @@
       "path": "mybricks-app-login@0.0.5"
     },
     {
-      "type": "npm",
-      "path": "mybricks-app-mpsite@0.0.70"
+      "type": "oss",
+      "namespace": "mybricks-app-mpsite",
+      "version": "0.0.72",
+      "path": "mybricks-app-mpsite@0.0.72"
     }
   ],
   "platformVersion": "0.0.45"
