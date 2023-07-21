@@ -260,7 +260,7 @@ function GroupTitleConfig () {
         id: ctx.info.id,
         name
       }
-      if (icon && icon.startsWith('http') || icon.startsWith('Mybricks')) {
+      if (icon && (icon.startsWith('http') || icon.startsWith('Mybricks'))) {
         data.icon = icon
       }
       axios({
