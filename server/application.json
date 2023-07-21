@@ -7,8 +7,9 @@
       "path": "asset-center/asset/app/mybricks-pc-page/0.3.46/mybricks-pc-page.zip"
     },
     {
-      "type": "npm",
-      "path": "mybricks-material@0.1.1"
+      "type": "oss",
+      "version": "0.1.2",
+      "namespace": "mybricks-material"
     },
     {
       "type": "npm",
