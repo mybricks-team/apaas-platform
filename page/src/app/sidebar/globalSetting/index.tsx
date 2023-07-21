@@ -246,7 +246,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
   return (
     <div>
       <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks aPaaS Platform</p>
-      <p style={{textAlign: 'center'}}>当前版本 {currentPlatformVersion}</p>
+      <p style={{textAlign: 'center'}}>当前版本是 {currentPlatformVersion}</p>
       <div style={{display: 'flex', justifyContent: 'center'}}>
         <Button
           loading={checkLoading}
