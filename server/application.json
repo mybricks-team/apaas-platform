@@ -8,8 +8,9 @@
     },
     {
       "type": "oss",
-      "version": "0.1.2",
-      "namespace": "mybricks-material"
+      "version": "0.1.9",
+      "namespace": "mybricks-material",
+      "path": "asset-center/asset/app/mybricks-material/0.1.9/mybricks-material.zip"
     },
     {
       "type": "npm",
@@ -30,8 +31,7 @@
     {
       "type": "oss",
       "namespace": "mybricks-app-mpsite",
-      "version": "0.0.72",
-      "path": "mybricks-app-mpsite@0.0.72"
+      "version": "0.0.73"
     }
   ],
   "platformVersion": "0.0.45"
