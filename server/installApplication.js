@@ -282,8 +282,8 @@ async function installApplication() {
               fs.mkdirSync(tempFolder)
             }
             const res = (await axios.post(
-              // 'https://my.mybricks.world/central/channel/gateway', 
-              'http://localhost:4100/central/channel/gateway', 
+              'https://my.mybricks.world/central/channel/gateway', 
+              // 'http://localhost:4100/central/channel/gateway', 
               {
               action: 'app_downloadByVersion',
               payload: JSON.stringify({

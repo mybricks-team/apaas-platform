@@ -536,7 +536,10 @@ export default class SystemService {
     const { type, version } = body;
     switch (type) {
       case 'checkLatestPlatformVersion': {
-        const res = (await (axios as any).post('http://localhost:4100/central/channel/gateway', {
+        const res = (await (axios as any).post(
+          'https://my.mybricks.world/central/channel/gateway', 
+          // 'http://localhost:4100/central/channel/gateway', 
+          {
           action: 'platform_checkLatestVersion'
         })).data
         if(res.code === 1) {
@@ -565,7 +568,10 @@ export default class SystemService {
         }
       }
       case 'downloadPlatform': {
-        const res = (await (axios as any).post(`http://localhost:4100/central/channel/gateway`, {
+        const res = (await (axios as any).post(
+          `https://my.mybricks.world/central/channel/gateway`, 
+          // `http://localhost:4100/central/channel/gateway`, 
+          {
           action: "platform_downloadByVersion",
           payload: JSON.stringify({ version: '0.0.31' })
         })).data
@@ -622,7 +628,10 @@ export default class SystemService {
     if(process.env.MYBRICKS_NODE_MODE === 'master') {
       switch (type) {
         case 'checkLatestPlatformVersion': {
-          const res = (await (axios as any).post('http://localhost:4100/central/channel/gateway', {
+          const res = (await (axios as any).post(
+            'https://my.mybricks.world/central/channel/gateway', 
+            // 'http://localhost:4100/central/channel/gateway', 
+          {
             action: 'platform_checkLatestVersion'
           })).data
           if(res.code === 1) {
