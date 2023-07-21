@@ -95,7 +95,7 @@ export default class AssetService {
     const domainName = getRealDomain(request);
     try {
       const res = await (axios as any).post(
-        `${domainName}/central/channel/gateway`,
+        `${domainName}/central/api/channel/gateway`,
         formData,
         {
           headers: formData.getHeaders()

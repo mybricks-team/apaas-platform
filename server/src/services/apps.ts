@@ -123,8 +123,8 @@ export default class AppsService {
           // remoteAppList = require('child_process').execSync('curl -x 10.28.121.13:11080 https://mybricks.world/api/apps/getLatestAll')
         } else {
           const temp = (await (axios as any).post(
-            // "http://localhost:4100/central/channel/gateway", 
-            "https://my.mybricks.world/central/channel/gateway", 
+            // "http://localhost:4100/central/api/channel/gateway", 
+            "https://my.mybricks.world/central/api/channel/gateway", 
             {
               action: 'app_getAllLatestList'
             }
@@ -227,8 +227,8 @@ export default class AppsService {
     try {
       if(isRemote) {
         const temp = (await (axios as any).post(
-          // "http://localhost:4100/central/channel/gateway", 
-          "https://my.mybricks.world/central/channel/gateway", 
+          // "http://localhost:4100/central/api/channel/gateway", 
+          "https://my.mybricks.world/central/api/channel/gateway", 
           {
             action: 'app_checkLatestVersion',
             payload: { namespace }

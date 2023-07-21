@@ -537,8 +537,8 @@ export default class SystemService {
     switch (type) {
       case 'checkLatestPlatformVersion': {
         const res = (await (axios as any).post(
-          'https://my.mybricks.world/central/channel/gateway', 
-          // 'http://localhost:4100/central/channel/gateway', 
+          'https://my.mybricks.world/central/api/channel/gateway', 
+          // 'http://localhost:4100/central/api/channel/gateway', 
           {
           action: 'platform_checkLatestVersion'
         })).data
@@ -569,8 +569,8 @@ export default class SystemService {
       }
       case 'downloadPlatform': {
         const res = (await (axios as any).post(
-          `https://my.mybricks.world/central/channel/gateway`, 
-          // `http://localhost:4100/central/channel/gateway`, 
+          `https://my.mybricks.world/central/api/channel/gateway`, 
+          // `http://localhost:4100/central/api/channel/gateway`, 
           {
           action: "platform_downloadByVersion",
           payload: JSON.stringify({ version: '0.0.31' })
@@ -629,8 +629,8 @@ export default class SystemService {
       switch (type) {
         case 'checkLatestPlatformVersion': {
           const res = (await (axios as any).post(
-            'https://my.mybricks.world/central/channel/gateway', 
-            // 'http://localhost:4100/central/channel/gateway', 
+            'https://my.mybricks.world/central/api/channel/gateway', 
+            // 'http://localhost:4100/central/api/channel/gateway', 
           {
             action: 'platform_checkLatestVersion'
           })).data
