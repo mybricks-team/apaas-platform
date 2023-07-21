@@ -573,7 +573,7 @@ export default class SystemService {
           // `http://localhost:4100/central/api/channel/gateway`, 
           {
           action: "platform_downloadByVersion",
-          payload: JSON.stringify({ version: '0.0.31' })
+          payload: JSON.stringify({ version })
         })).data
         if(res.code === 1) {
           if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
