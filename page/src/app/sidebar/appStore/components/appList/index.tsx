@@ -77,14 +77,14 @@ const AppList: FC<AppListProps> = props => {
 					)}
 					{type === 'all' ? '应用市场' : '我的应用'}
 				</div>
-				<div>
+				{/* <div>
 					{
 						type === 'installed' &&
 						<Button type='link' onClick={() => setType(c => c === 'installed' ? 'all' : 'installed')}>
 							{`跳转到「应用市场」`}
 						</Button>
 					}
-				</div>
+				</div> */}
 			</div>
 			<div className={`${styles.appList}`}>
 				
