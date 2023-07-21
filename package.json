@@ -1,6 +1,6 @@
 {
   "name": "mybricks-apaas-platform",
-  "version": "0.0.37",
+  "version": "0.0.41",
   "description": "",
   "scripts": {
     "build": "cd page && npm install && npm run build",
@@ -9,7 +9,7 @@
     "zip:all": "npm run build && node ./zip.js",
     "deploy:install:hainiu": "npm run build && node ./zip.js hainiu",
     "deploy:fangzhou": "sh deploy_fangzhou.sh",
-    "publishToNpm": "npm run zip:all && npm publish --registry=https://registry.npmjs.org"
+    "publishToNpm": "npm run zip:all && npm publish --registry=https://registry.npmjs.org && node sync.js --origin=https://my.mybricks.world"
   },
   "files": [
     "mybricks-apaas.zip",
@@ -21,7 +21,9 @@
   },
   "author": "MyBricks Team",
   "license": "ISC",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "axios": "^1.4.0",
     "jszip": "^3.10.1"
   }
 }
