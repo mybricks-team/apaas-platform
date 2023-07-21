@@ -254,7 +254,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
             // console.log('点击检查更新')
             setCheckLoading(true)
             axios.post(getApiUrl('/paas/api/system/channel'), {
-              type: "checkLatestPlatformVersion",
+              action: "checkLatestPlatformVersion",
             }).then(({ data }) => {
               console.log('最新版本', data)
               if(data.code === 1) {
