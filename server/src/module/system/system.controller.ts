@@ -557,7 +557,8 @@ export default class SystemService {
           const { platformVersion } = JSON.parse(appJSON)
           return {
             code: 1,
-            data: platformVersion
+            data: platformVersion,
+            msg: 'success'
           }
         } catch (e) {
           console.log(e)
