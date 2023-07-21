@@ -54,7 +54,7 @@ export default class AssetService {
 
     const subPath = await this.flowService.saveFile({
       str: file.buffer,
-      filename: `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
+      filename: `${query.namespace}.zip`,
       folderPath: `/asset/app/${query.namespace}/${query.version}`,
     });
 
@@ -91,6 +91,7 @@ export default class AssetService {
     const info = JSON.parse(app.installInfo ?? '{}');
     formData.append('file', fs.readFileSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, info.path)), app.namespace + '.zip');
 
+    // const domainName = 'http://localhost:4100';
     const domainName = getRealDomain(request);
     try {
       const res = await (axios as any).post(
