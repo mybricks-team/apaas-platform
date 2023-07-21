@@ -298,14 +298,18 @@ export default class AppsService {
         installedApp.path = `${installPkgName}@${version}`;
         applications.installApps.splice(installedIndex, 1, installedApp);
       } else if(installedApp.type === 'oss') {
+        installPkgName = installedApp.namespace
         const installInfo = JSON.parse(remoteApp?.installInfo || '{}')
         installedApp.version = version
         installedApp.path = installInfo.ossPath
         applications.installApps.splice(installedIndex, 1, installedApp);
       } else if(installedApp.type === 'local') {
+        installPkgName = installedApp.namespace
         installedApp.version = version
         applications.installApps.splice(installedIndex, 1, installedApp);
       }
+
+      console.log('更新版本', installedApp)
     }
     const rawApplicationStr = fs.readFileSync(
       path.join(process.cwd(), "./application.json"),
@@ -342,6 +346,7 @@ export default class AppsService {
         env.getAppInstallFolder(),
         `./${installPkgName}/nodejs/index.module.ts`
       );
+      console.log('1111', serverModulePath)
       if (fs.existsSync(serverModulePath)) {
         Logger.info("有service，即将重启服务");
         childProcess.exec(
@@ -379,7 +384,7 @@ export default class AppsService {
       );
       const app = appPkg?.installApps?.find((a) => {
         if(a.type === 'oss') {
-          const pkgName = a.name
+          const pkgName = a.namespace
           const pkgVersion = a.version
           return pkgName === namespace && version === pkgVersion;
         } else if(a.type === 'npm') {

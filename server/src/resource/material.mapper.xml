@@ -408,4 +408,8 @@
         </if>
         order by create_time desc;
     </select>
+
+    <select id="getMaterialByNamespace">
+        select * from material_info where namespace = #{namespace};
+    </select>
 </mapper>
