@@ -1,8 +1,8 @@
 {
   "installApps": [
     {
-      "type": "npm",
-      "path": "mybricks-pc-page@0.3.42"
+      "type": "oss",
+      "path": "mybricks-pc-page@0.3.44"
     },
     {
       "type": "npm",
