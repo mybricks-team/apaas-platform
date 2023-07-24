@@ -225,6 +225,17 @@ export default class AppCtx {
       this.FolderAPPS = this.FolderAPPS.filter((app) => {
         return SHOW_FOLDERS_MAP[app.extName]
       })
+      if(this.user?.role >= 3) {
+        // @ts-ignore
+        this.FolderAPPS.push({
+          title: '项目文件夹',
+          description: '通过项目的方式管理文件',
+          type: 'user',
+          extName: 'folder-project',
+          namespace: 'mybricks-folder-project',
+          icon: FolderProject
+        })
+      }
     } else {
       // 搭建应用
       this.DesignAPPS = DesignAPPS;
