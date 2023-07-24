@@ -17,8 +17,10 @@
       "path": "mybricks-cloud-com@0.0.92"
     },
     {
-      "type": "npm",
-      "path": "mybricks-domain@0.2.37"
+      "type": "oss",
+      "version": "0.2.37",
+      "namespace": "mybricks-domain",
+      "path": "asset-center/asset/app/mybricks-domain/0.2.37/mybricks-domain.zip"
     },
     {
       "type": "npm",
