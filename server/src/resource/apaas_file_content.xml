@@ -141,18 +141,27 @@
     where id = #{id}
   </update>
 
-    <select id="getContentVersions">
-        select
-        id,
-        file_id,
-        creator_id,
-        create_time,
-        update_time,
-        version
-        from apaas_file_content
-        where
-        file_id = #{fileId}
-        order by update_time desc
-        limit #{limit} offset #{offset};
-    </select>
+  <select id="getContentVersions">
+      select
+      id,
+      file_id,
+      creator_id,
+      create_time,
+      update_time,
+      version
+      from apaas_file_content
+      where
+      file_id = #{fileId}
+      order by update_time desc
+      limit #{limit} offset #{offset};
+  </select>
+
+  <select id="getContentVersionsCount">
+      select
+      count(*) as total
+      from apaas_file_content
+      where
+      file_id = #{fileId}
+  </select>
+    
 </mapper>

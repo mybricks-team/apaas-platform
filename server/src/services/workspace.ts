@@ -525,8 +525,9 @@ export default class WorkspaceService {
       limit: Number(pageSize),
       offset: (Number(pageIndex) - 1) * Number(pageSize),
     });
+    const total = await this.fileContentDao.getContentVersionsCount({fileId})
 
-    return { code: 1, data };
+    return { code: 1, data, total };
   }
 
   @Get("/workspace/publish/versions")
@@ -538,6 +539,7 @@ export default class WorkspaceService {
       offset: (Number(pageIndex) - 1) * Number(pageSize),
       type,
     });
+    const total = await this.filePubDao.getContentVersionsCount({fileId, type})
 
     // const fileContentIds = filePubs
     //   .filter((t) => t.fileContentId)
@@ -572,7 +574,7 @@ export default class WorkspaceService {
     //   }
     // }
 
-    return { code: 1, data: filePubs };
+    return { code: 1, data: filePubs, total};
   }
 
   @Get("/workspace/publish/content")

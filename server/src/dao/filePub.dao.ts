@@ -2,6 +2,7 @@ import { Column, DOBase, Mapping } from "@mybricks/rocker-dao";
 import { EffectStatus } from "../constants";
 import * as moment from "dayjs";
 import { genMainIndexOfDB } from "../utils";
+import { async } from "rxjs";
 
 export class FilePublishDO {
   @Column
@@ -117,6 +118,17 @@ export default class FilePubDao extends DOBase {
       "apaas_file_pub:getContentVersions",
       params
     );
+  }
+
+  async getContentVersionsCount(params: {
+    fileId: number;
+    type: string;
+  }) {
+    const res = await this.exe<any>(
+      "apaas_file_pub:getContentVersionsCount",
+      params
+    );
+    return res?.[0] ? res?.[0]?.total : null;
   }
 
   @Mapping(FilePublishDO)

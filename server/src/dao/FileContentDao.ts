@@ -108,6 +108,13 @@ export default class FileContentDao extends DOBase {
 	  return await this.exe<FileContentDO[]>('apaas_file_content:getContentVersions', params) as any;
   }
 
+  public async getContentVersionsCount(params: {
+    fileId: number;
+  }): Promise<number> {
+    const res =  await this.exe<number>('apaas_file_content:getContentVersionsCount', params) as any;
+    return res?.[0] ? res?.[0]?.total : null
+  }
+
   public async create(params: {
     fileId: number
     creatorId: string

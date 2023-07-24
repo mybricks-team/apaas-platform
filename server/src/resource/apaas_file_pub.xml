@@ -95,6 +95,17 @@
         limit #{limit} offset #{offset};
     </select>
 
+    <select id="getContentVersionsCount">
+        select 
+            count(*) as total
+        from apaas_file_pub
+        where
+            file_id = #{fileId}
+            <if test="type">
+                and type = #{type}
+            </if>
+    </select>
+
     <select id="getPublishByFileId">
         select
             *
