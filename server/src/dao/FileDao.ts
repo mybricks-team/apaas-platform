@@ -452,7 +452,7 @@ export default class FileDao extends DOBase {
     if (!query.parentId) {
       query.parentId = null;
     }
-    if (query.extName === 'folder') {
+    if (['folder', 'folder-project', 'folder-module'].includes(query.extName)) {
       const files = await this.deepGetFilesByParentId([query.fileId], []);
       updateFiles = updateFiles.concat(
         files.map((file) => {
