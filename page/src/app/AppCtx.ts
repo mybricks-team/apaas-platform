@@ -119,7 +119,7 @@ export default class AppCtx {
     this.isAdministrator = bool
   }
 
-  FolderAPPS: Array<T_App> = [
+  FolderAPPS: Array<any> = [
     {
       title: '文件夹',
       description: '文件夹',
@@ -147,7 +147,7 @@ export default class AppCtx {
   ];
   /** 侧边栏应用列表 */
   DockerAPPS: Array<T_App> = [];
-  /** 搭建应用列表 */
+  /** 搭建应用列表：只有UI界面的才会展示 */
   DesignAPPS: Array<T_App> = [];
   /** 原始应用安装列表(接口请求获取) */
   InstalledAPPS: Array<T_App> = [];
@@ -162,7 +162,7 @@ export default class AppCtx {
     ];
 
     /** 平台默认,侧边栏应用 */
-    const DockerAPPS: Array<T_App> = [
+    const DockerAPPS: Array<any> = [
       /** TODO:暂时隐藏，目前应用也没有分享按钮 */
       {
         title: '大家的分享',
@@ -187,7 +187,11 @@ export default class AppCtx {
         DockerAPPS.push(app);
         this.hasInstalledMaterialCenter = true
       } else {
-        DesignAPPS.push(app);
+        // 有UI界面的才会展示
+        // @ts-ignore
+        if(app._hasPage) {
+          DesignAPPS.push(app);
+        }
       }
 
       APPSMap[app.namespace] = app;
