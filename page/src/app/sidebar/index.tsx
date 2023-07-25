@@ -275,9 +275,7 @@ export function Item({icon, title, namespace, onClick, onDragEnter, modal, prefi
       <div
         className={className}
         style={{paddingLeft: prefix ? 5 : 5 + 14}}
-        onClick={evt(() => {
-          itemContext.onClick()
-        }).stop}
+        onClick={() => itemContext.onClick()}
         onDragEnter={onDragEnter}
       >
         <div className={css.left}>
