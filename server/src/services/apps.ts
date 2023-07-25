@@ -259,9 +259,16 @@ export default class AppsService {
     let installedIndex = null;
     let installPkgName = "";
     applications.installApps.forEach((app, index) => {
-      if (app.path?.indexOf(namespace) !== -1) {
-        installedApp = app;
-        installedIndex = index;
+      if(app.type === 'npm') {
+        if (app.path?.indexOf(namespace) !== -1) {
+          installedApp = app;
+          installedIndex = index;
+        }
+      } else if(app.type === 'oss') {
+        if (app.namespace?.indexOf(namespace) !== -1) {
+          installedApp = app;
+          installedIndex = index;
+        }
       }
     });
 
