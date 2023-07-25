@@ -18,9 +18,9 @@
     },
     {
       "type": "oss",
-      "version": "0.2.37",
+      "version": "0.2.38",
       "namespace": "mybricks-domain",
-      "path": "asset-center/asset/app/mybricks-domain/0.2.37/mybricks-domain.zip"
+      "path": "asset-center/asset/app/mybricks-domain/0.2.38/mybricks-domain.zip"
     },
     {
       "type": "npm",
