@@ -1,7 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
-const fs = require('fs-extra');
+import { Injectable } from '@nestjs/common';
 const env = require('../../../env.js')
-const path = require('path');
 import UploadService from '../upload/upload.service';
 import { DOMAIN_EXE_CODE_TEMPLATE } from './domain.template'
 
