@@ -50,7 +50,7 @@
     },
     {
       "type": "npm",
-      "path": "@ks-lfe/locallife-eevee-page@0.0.1"
+      "path": "@ks-lfe/locallife-eevee-page@0.0.2-alpha.0"
     }
   ]
 }
