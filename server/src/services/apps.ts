@@ -266,6 +266,7 @@ export default class AppsService {
     if (!remoteApp) {
       return { code: 0, message: "升级失败，不存在此应用" };
     }
+    const remoteAppInstallInfo = JSON.parse(remoteApp.installInfo || "{}");
     /** 已安装应用 */
     let installedApp = null;
     let installedIndex = null;
@@ -288,10 +289,9 @@ export default class AppsService {
       /** 新加应用 */
       installPkgName = remoteApp.namespace;
       if(remoteApp.installType === 'oss') {
-        const installInfo = JSON.parse(remoteApp?.installInfo || '{}')
         applications.installApps.push({
           type: "oss",
-          path: installInfo.ossPath,
+          path: remoteAppInstallInfo.ossPath,
           namespace: remoteApp.namespace,
           version: version,
         });
@@ -318,9 +318,8 @@ export default class AppsService {
         applications.installApps.splice(installedIndex, 1, installedApp);
       } else if(installedApp.type === 'oss') {
         installPkgName = installedApp.namespace
-        const installInfo = JSON.parse(remoteApp?.installInfo || '{}')
         installedApp.version = version
-        installedApp.path = installInfo.ossPath
+        installedApp.path = remoteAppInstallInfo.ossPath
         applications.installApps.splice(installedIndex, 1, installedApp);
       } else if(installedApp.type === 'local') {
         installPkgName = installedApp.namespace
@@ -340,7 +339,6 @@ export default class AppsService {
     );
 
     Logger.info("准备应用成功, 开始安装应用");
-
     try {
       const logStr = childProcess.execSync("node installApplication.js", {
         cwd: path.join(process.cwd()),
@@ -365,23 +363,27 @@ export default class AppsService {
         env.getAppInstallFolder(),
         `./${installPkgName}/nodejs/index.module.ts`
       );
-      console.log('1111', serverModulePath)
       if (fs.existsSync(serverModulePath)) {
-        Logger.info("有service，即将重启服务");
-        childProcess.exec(
-          "npx pm2 reload index",
-          {
-            cwd: path.join(process.cwd()),
-          },
-          (error, stdout, stderr) => {
-            if (error) {
-              Logger.info(`exec error: ${error}`);
-              return;
+        if(remoteAppInstallInfo?.noServiceUpdate) {
+          Logger.info("有service，但是未更新服务端，无需重启");
+        } else {
+          Logger.info("有service，即将重启服务");
+          childProcess.exec(
+            "npx pm2 reload index",
+            {
+              cwd: path.join(process.cwd()),
+            },
+            (error, stdout, stderr) => {
+              if (error) {
+                Logger.info(`exec error: ${error}`);
+                return;
+              }
+              Logger.info(`stdout: ${stdout}`);
+              Logger.info(`stderr: ${stderr}`);
             }
-            Logger.info(`stdout: ${stdout}`);
-            Logger.info(`stderr: ${stderr}`);
-          }
-        );
+          );
+        }
+
       } else {
         Logger.info("无service，无需重启");
       }
