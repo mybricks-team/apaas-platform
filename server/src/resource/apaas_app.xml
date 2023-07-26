@@ -17,6 +17,9 @@
             create_time
         from apaas_app
         WHERE status = 1
+        <if test="creatorName">
+            and creator_name = #{creatorName}
+        </if>
         and id in (select max(id) from apaas_app GROUP BY name)
         order by create_time desc
     </select>

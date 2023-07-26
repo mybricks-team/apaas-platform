@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Req, Headers } from "@nestjs/common";
 import * as fs from "fs";
 import * as path from "path";
 import * as childProcess from "child_process";
@@ -110,8 +110,13 @@ export default class AppsService {
   }
 
   @Get("/getLatestAll")
-  async getLatestAll() {
-    const allApps = await this.appDao.queryLatestApp();
+  async getLatestAll(@Headers('username') us: string, ) {
+    let allApps;
+    if(us && us !== 'zouyongsheng') {
+      allApps = await this.appDao.queryLatestApp({ creatorName: us });
+    } else {
+      allApps = await this.appDao.queryLatestApp();
+    }
     return {
       code: 1,
       data: allApps,
