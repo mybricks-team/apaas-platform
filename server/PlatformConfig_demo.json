@@ -17,8 +17,13 @@
   },
   "installApps": [
     {
+      "type": "oss",
+      "version": "1.0.38",
+      "namespace": "mybricks-app-pcspa"
+    },
+    {
       "type": "npm",
-      "path": "mybricks-app-pcspa-for-manatee@1.0.16"
+      "path": "mybricks-app-login@0.0.5"
     }
   ],
   "platformDomain": "http://testweb.manateeai.com/"
