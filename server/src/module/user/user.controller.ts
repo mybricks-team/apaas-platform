@@ -186,52 +186,61 @@ export default class UserController {
     @Request() request, @Body() body,
     @Body('HAINIU_UserInfo') HAINIU_UserInfo: string,
   ) {
-    const { fileId } = body
-    let userEmail;
-    if(us) {
-      userEmail = `${us}@kuaishou.com`;
-    } else {
-      if(request.cookies?.['mybricks-login-user']) {
-        const userCookie = JSON.parse(request.cookies?.['mybricks-login-user'])
-        userEmail = userCookie?.email
-      } else if(HAINIU_UserInfo) {
-        const userCookie = JSON.parse(HAINIU_UserInfo)
-        userEmail = userCookie?.email
-        try {
-          userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.name
-        } catch(e) {
-          console.log(e)
+    try {
+
+      const { fileId } = body
+      let userEmail;
+      if(us) {
+        userEmail = `${us}@kuaishou.com`;
+      } else {
+        if(request.cookies?.['mybricks-login-user']) {
+          const userCookie = JSON.parse(request.cookies?.['mybricks-login-user'])
+          userEmail = userCookie?.email
+        } else if(HAINIU_UserInfo) {
+          const userCookie = JSON.parse(HAINIU_UserInfo)
+          userEmail = userCookie?.email
+          try {
+            userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.name
+          } catch(e) {
+            console.log(e)
+          }
         }
       }
-    }
-    if (!userEmail) {
+      if (!userEmail) {
+        return {
+          code: -1,
+          msg: '未登录',
+        };
+      }
+      const userInfo = await this.userDao.queryByEmail({
+        email: userEmail,
+      });
+      if (userInfo) {
+        const data: any = {
+          ...userInfo,
+          isAdmin: userInfo.role === 10,
+        }
+        if (fileId) {
+          const roleDescription = await this.fileDao.getRoleDescription({userId: userEmail, fileId})
+          data.roleDescription = roleDescription
+        }
+        
+        return {
+          code: 1,
+          data,
+        };
+      } else {
+        return {
+          code: -1,
+          msg: '未登录',
+        };
+      }
+    } catch(e) {
+      console.log(e)
       return {
         code: -1,
-        msg: '未登录',
-      };
-    }
-    const userInfo = await this.userDao.queryByEmail({
-      email: userEmail,
-    });
-    if (userInfo) {
-      const data: any = {
-        ...userInfo,
-        isAdmin: userInfo.role === 10,
+        msg: e.message || '获取用户态失败'
       }
-      if (fileId) {
-        const roleDescription = await this.fileDao.getRoleDescription({userId: userEmail, fileId})
-        data.roleDescription = roleDescription
-      }
-      
-      return {
-        code: 1,
-        data,
-      };
-    } else {
-      return {
-        code: -1,
-        msg: '未登录',
-      };
     }
   }
 

@@ -832,8 +832,8 @@ export default class FileDao extends DOBase {
     userId: string
     fileId: number
   }) {
-    const [{role_description}] = await this.exe<Array<{role_description: number}>>('apaas_file:getRoleDescription', params)
-
+    const res = await this.exe<Array<{role_description: number}>>('apaas_file:getRoleDescription', params)
+    const role_description = res && res[0] && res[0].role_description
     return role_description
   }
 }
