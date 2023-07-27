@@ -4,11 +4,16 @@ import axios from 'axios'
 import {message} from 'antd'
 import {useObservable} from '@mybricks/rxui'
 
+import {
+  storage,
+  getApiUrl,
+  getUrlQuery,
+  removeCookie
+} from '../utils'
 import AppCtx from './AppCtx'
 import Sideber from './sidebar'
 import Content from './content'
 import Noaccess from './noaccess'
-import {getApiUrl, getUrlQuery, storage} from '../utils'
 import { MYBRICKS_WORKSPACE_DEFAULT_PATH } from '../const'
 
 import css from './index.less'
@@ -34,6 +39,7 @@ export default function App() {
         }))?.data?.data
         if (!user) {
           if(location.href.indexOf('jumped') === -1) {
+            removeCookie('mybricks-login-user')
             location.href = `/?jumped=true&redirectUrl=${encodeURIComponent(location.href)}`
           }
           return
