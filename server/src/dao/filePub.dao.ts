@@ -2,7 +2,6 @@ import { Column, DOBase, Mapping } from "@mybricks/rocker-dao";
 import { EffectStatus } from "../constants";
 import * as moment from "dayjs";
 import { genMainIndexOfDB } from "../utils";
-import { async } from "rxjs";
 
 export class FilePublishDO {
   @Column
