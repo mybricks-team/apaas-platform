@@ -17,7 +17,6 @@ import init from "./init";
 import ValidationPipe from "./pipe/validationPipe";
 
 const env = require('../env.js')
-const fs = require('fs-extra')
 
 async function bootstrap() {
   const loadedModule = loadModule();
@@ -31,13 +30,13 @@ async function bootstrap() {
       res.set('Access-Control-Allow-Origin', '*');
     }
   });
-    app.useStaticAssets(env.FILE_LOCAL_STORAGE_FOLDER, {
-      prefix: `/${env.FILE_LOCAL_STORAGE_PREFIX}`,
-      index: false,
-      setHeaders: (res, path, stat) => {
-        res.set('Access-Control-Allow-Origin', '*');
-      }
-    });
+  app.useStaticAssets(env.FILE_LOCAL_STORAGE_FOLDER, {
+    prefix: `/${env.FILE_LOCAL_STORAGE_PREFIX}`,
+    index: false,
+    setHeaders: (res, path, stat) => {
+      res.set('Access-Control-Allow-Origin', '*');
+    }
+  });
   app.use(bodyParser.json({ limit: "100mb" }));
 
   enhanceApp(app, {
