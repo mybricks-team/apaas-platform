@@ -78,10 +78,12 @@ export default class AppDao extends DOBase {
 		version: string;
 		creator_name: string;
 		create_time: number;
+    status?: number
 	}) {
 
 		return await this.exe<{ insertId: number }>('apaas_app:insert', {
       ...params,
+      status: params?.status || 1,
       id: genMainIndexOfDB()
     })
 	}

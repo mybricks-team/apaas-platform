@@ -89,7 +89,7 @@
         #{version},
         #{creator_name},
         #{create_time},
-        1
+        #{status}
         )
     </insert>
 </mapper>

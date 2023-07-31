@@ -126,6 +126,7 @@ const App = () => {
         }),
         version: allValues.appVersion,
         creator_name: allValues.appPublishEmail,
+        status: -2 // 待审核
       }
     }
     axios.post('/paas/api/apps/register', info).then(({ data }) => {
@@ -213,7 +214,12 @@ const App = () => {
         >
           {
             current === 0 ? (
-              <Form.Item label="是否新应用" name="isNewApp" required>
+              <Form.Item 
+                label="是否新应用" 
+                name="isNewApp" 
+                help="若为新增应用需要系统管理员审核才可发布"
+                required
+              >
                 <Radio.Group 
                   defaultValue={true} 
                   onChange={(e) => {
