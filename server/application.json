@@ -2,9 +2,9 @@
   "installApps": [
     {
       "type": "oss",
-      "version": "0.3.57",
+      "version": "0.3.58",
       "namespace": "mybricks-pc-page",
-      "path": "asset-center/asset/app/mybricks-pc-page/0.3.57/mybricks-pc-page.zip"
+      "path": "asset-center/asset/app/mybricks-pc-page/0.3.58/mybricks-pc-page.zip"
     },
     {
       "type": "oss",
