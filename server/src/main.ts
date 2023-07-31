@@ -45,21 +45,13 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.use(checkHealthMiddleware);
 
-  // app.enableCors({
-  //   origin: (req: any, callback) => {
-  //     var corsOptions;
-  //     if ([].indexOf(req?.header?.('Origin')) !== -1) {
-  //       corsOptions = { origin: true }
-  //     } else {
-  //       corsOptions = { origin: false }
-  //     }
-  //     callback(null, corsOptions)
-  //   },
-  //   allowedHeaders:
-  //     "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
-  //   methods: "GET,PUT,POST,DELETE,UPDATE,OPTIONS",
-  //   credentials: true,
-  // })
+  app.enableCors({
+    // origin: [],
+    origin: true,
+    allowedHeaders: "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
+    methods: "GET,PUT,POST,DELETE,UPDATE,PATCH,OPTIONS",
+    credentials: true,
+  })
 
   app.use(
     proxyMiddleWare({
