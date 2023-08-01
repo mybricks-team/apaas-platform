@@ -114,15 +114,7 @@ function SystemMenus() {
   
   useEffect(() => {
     if (isAdministrator) {
-      /** 检查应用更新 */
-      axios({
-        method: 'get',
-        url: getApiUrl('/api/apps/update/check')
-      }).then(res => {
-        if (res.data.code === 1) {
-          setMessages(res.data.data);
-        }
-      })
+      // 检查消息通道
     }
   }, []);
 
