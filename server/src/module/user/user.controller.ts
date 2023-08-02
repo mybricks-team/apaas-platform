@@ -82,8 +82,9 @@ export default class UserController {
             {
               id: user.id,
               email: user.email,
+              name: user.name,
+              avatar: user.avatar,
               isAdmin: user.role === 10,
-              licenseCode: user.licenseCode,
               createTime: user.createTime,
             },
           ],

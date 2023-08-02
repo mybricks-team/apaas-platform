@@ -100,6 +100,7 @@
     <insert id="batchCreate">
         insert into material_info
         (
+        id,
         namespace,
         version,
         icon,
@@ -119,6 +120,7 @@
         )
         <foreach collection="materials" item="item" open="values " separator="," close="" index="index">
             <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
                 #{item.namespace},
                 #{item.version},
                 #{item.icon},
@@ -262,6 +264,7 @@
     <insert id="createPub">
         insert into material_pub_info
         (
+        id,
         material_id,
         commit_info,
         version,
@@ -275,6 +278,7 @@
         content
         )
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
             #{materialId},
             #{commitInfo},
             #{version},
@@ -292,6 +296,7 @@
     <insert id="batchCreatePub">
         insert into material_pub_info
         (
+        id,
         material_id,
         commit_info,
         version,
@@ -306,6 +311,7 @@
         )
         <foreach collection="materialPubs" item="item" open="values " separator="," close="" index="index">
             <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
                 #{item.materialId},
                 #{item.commitInfo},
                 #{item.version},
