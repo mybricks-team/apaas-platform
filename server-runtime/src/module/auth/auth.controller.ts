@@ -224,14 +224,20 @@ export default class AuthController {
       if (!fs.existsSync(readyExePath)) {
 	      return {code: -1, msg: '注册失败'};
       }
-			
+
+      const files = fs.readdirSync(readyExeTemplateFolderPath);
+      const entityFile = files?.find(file => {
+        return file.startsWith('DOMAIN_META') && file.endsWith('.json');
+      });
+      const entity = entityFile ? require(path.join(readyExeTemplateFolderPath, entityFile)) : null;
+
       const { startExe } = require(readyExePath);
       console.log('运行容器：获取可执行方法成功');
       const con = new DOBase();
       console.log('运行容器：获取连接成功');
       const pool = getPool();
       console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`);
-      let res = await startExe(body, { dbConnection: con, genUniqueId: genMainIndexOfDB });
+      let res = await startExe(body, { dbConnection: con, genUniqueId: genMainIndexOfDB, entity });
       console.log('运行容器：运行完毕');
 			
       return res ? { code: 1, data: res } : { code: -1, msg: '注册失败' };
