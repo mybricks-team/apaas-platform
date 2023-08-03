@@ -162,7 +162,7 @@ export default class WorkspaceService {
 
       return {
         code: 1,
-        data: Object.assign({}, rtn, { content: content?.content }),
+        data: Object.assign({}, rtn, { content: content?.content, version: content?.version || null }),
       };
     } catch (ex) {
       return {

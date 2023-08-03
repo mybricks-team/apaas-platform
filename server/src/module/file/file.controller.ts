@@ -290,8 +290,13 @@ export default class FileController {
       }
     }
 
-    const [file] = await Promise.all([
+    const [file, versions] = await Promise.all([
       await this.fileDao.queryById(fileId),
+      await this.fileContentDao.getContentVersions({
+        fileId,
+        limit: 1,
+        offset: 0,
+      }),
       /** 删除超时用户，status设置为-1 */
       await this.fileCooperationDao.delete({ fileId, timeInterval })
     ])
@@ -356,6 +361,11 @@ export default class FileController {
     /** 查询用户信息 */
     const users = await this.userDao.queryByEmails({ emails: userIds })
 
+    Reflect.deleteProperty(file, 'icon');
+    if (versions?.[0]?.version) {
+      file.version = versions[0].version
+    }
+
     return {
       code: 1,
       data: {
@@ -371,7 +381,8 @@ export default class FileController {
             updateTime: cooperationUser.updateTime
           }
         }),
-        roleDescription
+        roleDescription,
+        file
       }
     }
   }
