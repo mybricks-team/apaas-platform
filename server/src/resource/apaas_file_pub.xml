@@ -80,6 +80,7 @@
             id,
             file_id,
             file_content_id,
+            commit_info,
             creator_id,
             create_time,
             update_time,

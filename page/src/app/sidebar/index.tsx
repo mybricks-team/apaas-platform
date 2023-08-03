@@ -111,11 +111,31 @@ function signOut() {
 function SystemMenus() {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const { isAdministrator } = appCtx
-  const [messages, setMessages] = useState<any[]>([])
+  const [messages, setMessages] = useState([])
   
   useEffect(() => {
     if (isAdministrator) {
       // 检查消息通道
+      // axios.post(getApiUrl('/paas/api/system/channel'),  {
+      //   type: "getLatestNoticeList", 
+      //   isAdministrator: true
+      // }).then(({ data }) => {
+      //   if (data.code === 1) {
+      //     let alreadyReadStr = localStorage.getItem('MYBRICKS_NOTICE_ALREADY_READ') || '';
+      //     if(alreadyReadStr) {
+      //       let alreadyReadObj = JSON.parse(alreadyReadStr)
+      //       let filterList = []
+      //       data?.data?.forEach((item) => {
+      //         if(!alreadyReadObj[item.id] || alreadyReadObj[item.id]?.updateTime !== item.updateTime) {
+      //           filterList.push(item)
+      //         }
+      //       })
+      //       setMessages(filterList)
+      //     } else {
+      //       setMessages(data.data);
+      //     }
+      //   }
+      // })
     }
   }, []);
 
@@ -140,7 +160,7 @@ function SystemMenus() {
             modal={{
               title: '消息通知',
               // @ts-ignore
-              content: <MessageModal messages={messages}/>
+              content: <MessageModal messages={messages} appsMap={appCtx.APPSMap} />
             }}
           />
           <Item
