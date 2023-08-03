@@ -165,11 +165,13 @@ function SystemMenus() {
           />
           <Item
             icon={<PlatformMessage width={20} height={20}/>}
-            title={messages.length ? (
-              <Badge count={messages.length} size='small' offset={[10, 0]}>
-                消息通知
-              </Badge>
-            ) : <>消息通知</>}
+            title={messages.length ? 
+               (
+                <Badge count={messages.length} overflowCount={9} size='small' style={{ position: 'absolute', left: 38, top: -2, width: 30 }} >
+                  消息通知
+                </Badge>
+              )
+            : '消息通知'}
             modal={{
               title: '消息通知',
               // @ts-ignore
@@ -254,6 +256,7 @@ export function Item({icon, title, namespace, onClick, onDragEnter, modal, prefi
 
   /** 菜单项信息 */
   const ItemInfo: JSX.Element = useMemo(() => {
+    console.log('2222222')
     return (
       <>
         <div className={css.menuIcon}>
