@@ -23,8 +23,8 @@ const { Panel } = Collapse
 
 const MessageModal = props => {
 	const { appsMap, messages, onDelete } = props
-	console.log('内部消息是', messages)
-	console.log('收到应用枚举是', appsMap)
+	// console.log('内部消息是', messages)
+	// console.log('收到应用枚举是', appsMap)
 
 	const _renderMessageContent = () => {
 		if(messages.length) {
