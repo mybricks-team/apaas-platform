@@ -145,6 +145,35 @@ export default class UserController {
     }
   }
 
+  @Post('/addUser')
+  async addUser(@Body() body) {
+    const { email, name, avatar } = body;
+    const user = await this.userDao.queryByEmail({ email });
+    if (user) {
+      Logs.info(`邮箱${email}已被注册.`);
+
+      return {
+        code: -1,
+        msg: `邮箱${email}已被注册.`,
+      };
+    } else {
+      const { id } = await this.userDao.create({
+        email,
+        name,
+        avatar
+      });
+
+      Logs.info(`新用户${email}注册完成.`);
+
+      return {
+        code: 1,
+        data: {
+          userId: id,
+        },
+      };
+    }
+  }
+
   @Post('/login')
   async login(@Body() body) {
     const { email, psd } = body;
