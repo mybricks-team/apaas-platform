@@ -17,53 +17,80 @@ import {getApiUrl} from '../../../utils'
 
 import styles from './index.less'
 
-interface MessageModalProps {
-	visible: boolean;
-	onClose(): void;
-	messages: any[];
-}
 const { Panel } = Collapse
 
-const MessageModal: FC<MessageModalProps> = props => {
-	const { visible, messages, onClose } = props
-	const [currentUpgrade, setCurrentUpgrade] = useState('')
-	
-  return (
-		<div className={`${styles.messageModal} fangzhou-theme`} style={{ minHeight: '400px' }}>
-		  {messages.length ? (
-			  <Collapse
+
+
+const MessageModal = props => {
+	const { appsMap, messages, onClose } = props
+	console.log('内部消息是', messages)
+	console.log('收到应用枚举是', appsMap)
+
+	const _renderMessageContent = () => {
+		if(messages.length) {
+			let items = [];
+			messages.map(message => {
+				if(message.type === 'platform') {
+					items.push(
+						<Panel 
+							header={<div style={{color: 'black'}}>你收到一条来自于 <span style={{color: 'red'}}>平台</span> 的消息：</div>} 
+							key={'open'} 
+							className="site-collapse-custom-panel"
+							collapsible={'disabled'}
+							showArrow={false}
+							extra={
+								<Button onClick={() => {
+									console.log('点解了')
+								}}>关闭</Button>
+							}
+						>
+							{message.content}
+						</Panel>
+					)
+				} else {
+					const appName = appsMap?.[message.name]?.title
+					items.push(
+						<Panel 
+							header={<div style={{color: 'black'}}>你收到一条来自于应用 <span style={{color: 'red'}}>{appName}</span> 的消息：</div>} 
+							key={'open'} 
+							collapsible={'disabled'}
+							showArrow={false}
+							data-message={JSON.stringify({id: message.id, updateTime: message.updateTime})}
+							className="site-collapse-custom-panel"
+							extra={
+								<Button onClick={() => {
+									console.log('点解了')
+								}}>关闭</Button>
+							}
+						>
+							{message.content}
+						</Panel>
+					)
+				}
+				
+			})
+			return (
+				<Collapse
 				  bordered={false}
-				  defaultActiveKey={[messages[0].namespace]}
+					defaultActiveKey={['open']}
 				  expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
 				  className="site-collapse-custom-collapse"
 			  >
-				  {messages.map(message => {
-					  return (
-						  <Panel header={`【${message.name}】应用升级通知`} key={message.namespace} className="site-collapse-custom-panel">
-							  <p className={styles.messageContent}>
-								  <div className={styles.icon}>
-									  <img src={message.icon} alt=""/>
-								  </div>
-								  <div className={styles.message}>
-									  <div className={styles.tips}>
-										  <div>{message.name}存在新版本(<b>{message.version}</b>)，请确认是否升级？</div>
-										  <div>应用描述：{message.description}</div>
-									  </div>
-									  <div className={styles.btnGroup}>
-										  <UpgradeButton disabled={currentUpgrade ? currentUpgrade !== message.namespace : false} app={message} setCurrentUpgrade={setCurrentUpgrade} />
-									  </div>
-								  </div>
-							  </p>
-						  </Panel>
-					  )
-				  })}
+				  {...items}
 			  </Collapse>
-		  ) : (
+			)
+		} else {
+			return (
 				<div className={styles.empty}>
 					<Empty description="暂无消息" />
 				</div>
-		  )}
-		{/* </Modal> */}
+			) 
+		}
+	}
+
+  return (
+		<div className={`${styles.messageModal} fangzhou-theme`} style={{ minHeight: '400px' }}>
+			{_renderMessageContent()}
 		</div>
   )
 }

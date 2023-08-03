@@ -533,7 +533,7 @@ export default class SystemService {
 
   @Post('/system/channel')
   async checkUpdate(@Body() body: any) {
-    const { type, version } = body;
+    const { type, version, isAdministrator } = body;
     switch (type) {
       case 'checkLatestPlatformVersion': {
         const res = (await (axios as any).post(
@@ -613,6 +613,16 @@ export default class SystemService {
             msg: e.message || '升级失败'
           }
         }
+      }
+      case 'getLatestNoticeList': {
+        const res = (await (axios as any).post(
+          `https://my.mybricks.world/central/api/channel/gateway`, 
+          // `http://localhost:4100/central/api/channel/gateway`, 
+          {
+          action: "notice_latestList",
+          payload: JSON.stringify({ isAdministrator })
+        })).data
+        return res
       }
     }
     return {
