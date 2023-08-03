@@ -22,14 +22,14 @@ const { Panel } = Collapse
 
 
 const MessageModal = props => {
-	const { appsMap, messages, onClose } = props
+	const { appsMap, messages, onDelete } = props
 	console.log('内部消息是', messages)
 	console.log('收到应用枚举是', appsMap)
 
 	const _renderMessageContent = () => {
 		if(messages.length) {
 			let items = [];
-			messages.map(message => {
+			messages.map((message, index) => {
 				if(message.type === 'platform') {
 					items.push(
 						<Panel 
@@ -38,10 +38,19 @@ const MessageModal = props => {
 							className="site-collapse-custom-panel"
 							collapsible={'disabled'}
 							showArrow={false}
+							
 							extra={
-								<Button onClick={() => {
-									console.log('点解了')
-								}}>关闭</Button>
+								<Button 
+									data-message={JSON.stringify({id: message.id, updateTime: message.updateTime, index})}
+									onClick={(e) => {
+										const message = JSON.parse(e.currentTarget?.dataset?.message)
+										if(message) {
+											onDelete(message)
+										}
+									}}
+								>
+									关闭
+								</Button>
 							}
 						>
 							{message.content}
@@ -55,13 +64,21 @@ const MessageModal = props => {
 							key={'open'} 
 							collapsible={'disabled'}
 							showArrow={false}
-							data-message={JSON.stringify({id: message.id, updateTime: message.updateTime})}
 							className="site-collapse-custom-panel"
 							extra={
-								<Button onClick={() => {
-									console.log('点解了')
-								}}>关闭</Button>
-							}
+								<Button
+									data-message={JSON.stringify({id: message.id, updateTime: message.updateTime, index})} 
+									onClick={(e) => {
+									const message = JSON.parse(e.currentTarget?.dataset?.message)
+										if(message) {
+											onDelete(message)
+										}
+									}
+								}
+							>
+								关闭
+							</Button>
+						}
 						>
 							{message.content}
 						</Panel>

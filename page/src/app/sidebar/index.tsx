@@ -23,6 +23,8 @@ import { ItemProps, ModalProps } from './type'
 
 import css from './index.less'
 
+const LOCALSTORAGE_MESSAGE_KEY = 'MYBRICKS_NOTICE_ALREADY_READ'
+
 let appCtx
 
 const { confirm } = AntdModal
@@ -116,28 +118,39 @@ function SystemMenus() {
   useEffect(() => {
     if (isAdministrator) {
       // 检查消息通道
-      // axios.post(getApiUrl('/paas/api/system/channel'),  {
-      //   type: "getLatestNoticeList", 
-      //   isAdministrator: true
-      // }).then(({ data }) => {
-      //   if (data.code === 1) {
-      //     let alreadyReadStr = localStorage.getItem('MYBRICKS_NOTICE_ALREADY_READ') || '';
-      //     if(alreadyReadStr) {
-      //       let alreadyReadObj = JSON.parse(alreadyReadStr)
-      //       let filterList = []
-      //       data?.data?.forEach((item) => {
-      //         if(!alreadyReadObj[item.id] || alreadyReadObj[item.id]?.updateTime !== item.updateTime) {
-      //           filterList.push(item)
-      //         }
-      //       })
-      //       setMessages(filterList)
-      //     } else {
-      //       setMessages(data.data);
-      //     }
-      //   }
-      // })
+      axios.post(getApiUrl('/paas/api/system/channel'),  {
+        type: "getLatestNoticeList", 
+        isAdministrator: true
+      }).then(({ data }) => {
+        if (data.code === 1) {
+          let alreadyReadStr = localStorage.getItem(LOCALSTORAGE_MESSAGE_KEY) || '{}';
+          if(alreadyReadStr) {
+            let alreadyReadObj = JSON.parse(alreadyReadStr)
+            let filterList = []
+            data?.data?.forEach((item) => {
+              if(!alreadyReadObj[item.id] || alreadyReadObj[item.id]?.updateTime !== item.updateTime) {
+                filterList.push(item)
+              }
+            })
+            setMessages(filterList)
+          } else {
+            setMessages(data.data);
+          }
+        }
+      })
     }
   }, []);
+
+  const onDeleteMessage = ({id, updateTime, index}) => {
+    let alreadyReadStr = localStorage.getItem(LOCALSTORAGE_MESSAGE_KEY) || '{}';
+    let alreadyReadObj = JSON.parse(alreadyReadStr) 
+    alreadyReadObj[id] = { id, updateTime }
+    localStorage.setItem(LOCALSTORAGE_MESSAGE_KEY, JSON.stringify(alreadyReadObj))
+
+    const newMessage = [...messages]
+    newMessage.splice(index, 1)
+    setMessages(newMessage)
+  }
 
   return (
     <>
@@ -160,7 +173,7 @@ function SystemMenus() {
             modal={{
               title: '消息通知',
               // @ts-ignore
-              content: <MessageModal messages={messages} appsMap={appCtx.APPSMap} />
+              content: <MessageModal messages={messages} appsMap={appCtx.APPSMap} onDelete={onDeleteMessage} />
             }}
           />
           <Item
