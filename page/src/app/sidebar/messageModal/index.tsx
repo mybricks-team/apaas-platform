@@ -13,8 +13,6 @@ import {
 import axios from 'axios'
 import {CaretRightOutlined} from '@ant-design/icons'
 
-import {getApiUrl} from '../../../utils'
-
 import styles from './index.less'
 
 const { Panel } = Collapse
