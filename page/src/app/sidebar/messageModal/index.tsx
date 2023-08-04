@@ -10,7 +10,6 @@ import {
 	message,
 	Collapse
 } from 'antd'
-import axios from 'axios'
 import {CaretRightOutlined} from '@ant-design/icons'
 
 import styles from './index.less'
