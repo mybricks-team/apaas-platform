@@ -262,9 +262,7 @@ export function Item({icon, title, namespace, onClick, onDragEnter, modal, prefi
           <Icon icon={icon} width={20} height={20}/>
         </div>
         <div className={css.menuLabel}>
-          <span>
-            {title}
-          </span>
+          {title}
         </div>
       </>
     )
