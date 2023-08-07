@@ -1,5 +1,6 @@
 import * as moment from "dayjs";
 const crypto = require('crypto');
+const os = require('os');
 const { SnowFlake } = require('gen-uniqueid');
 const SNOW_FLAKE = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
 import { Logger } from '@mybricks/rocker-commons'
@@ -158,4 +159,20 @@ export function getAdminInfoByProjectId(projectId) {
 
 export function genMainIndexOfDB() {
   return SNOW_FLAKE.NextId();
+}
+
+export function getOSInfo() {
+  return {
+    arch: os.arch(), // 获取操作系统的位数，如32位或64位
+    type: os.type(), // 获取操作系统类型，如Linux或Windows_NT
+    release: os.release(), // 获取操作系统版本，如6.1.7601
+    hostname: os.hostname() // 获取主机名，如localhost
+  }
+}
+
+export function getPlatformFingerPrint() {
+  const { arch, type, release, hostname } = getOSInfo();
+  var serverInfo = arch + type + release + hostname;
+  var hash = crypto.createHash('md5').update(serverInfo).digest('hex');
+  return hash;
 }

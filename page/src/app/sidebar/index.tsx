@@ -256,7 +256,6 @@ export function Item({icon, title, namespace, onClick, onDragEnter, modal, prefi
 
   /** 菜单项信息 */
   const ItemInfo: JSX.Element = useMemo(() => {
-    console.log('2222222')
     return (
       <>
         <div className={css.menuIcon}>

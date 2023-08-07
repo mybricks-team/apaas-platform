@@ -44,6 +44,14 @@ export default function App() {
           }
           return
         }
+        // 平台打开钩子
+        (await axios({
+          method: "post",
+          url: getApiUrl('/paas/api/system/channel'),
+          data: {
+            type: 'connect'
+          }
+        }));
         // 平台配置
         const systemConfig = (await axios({
           method: "post",

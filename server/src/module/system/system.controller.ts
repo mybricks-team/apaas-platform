@@ -3,7 +3,7 @@ import { Body, Controller, Get, Inject, Post, Req } from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
 import AppDao from '../../dao/AppDao';
-import { uuid } from '../../utils/index';
+import { getOSInfo, getPlatformFingerPrint, uuid } from '../../utils/index';
 import { getConnection } from '@mybricks/rocker-dao';
 import { Logger } from '@mybricks/rocker-commons';
 // @ts-ignore
@@ -531,103 +531,147 @@ export default class SystemService {
     }
   }
 
+  async _sendReport(content: string) {
+    const res = (await (axios as any).post(
+      // `https://my.mybricks.world/central/api/channel/gateway`, 
+      `http://localhost:4100/central/api/channel/gateway`, 
+      {
+      action: "log_report",
+      payload: content
+    }).data)
+
+    return res
+  }
+
   @Post('/system/channel')
-  async checkUpdate(@Body() body: any) {
-    const { type, version, isAdministrator } = body;
-    switch (type) {
-      case 'checkLatestPlatformVersion': {
-        const res = (await (axios as any).post(
-          'https://my.mybricks.world/central/api/channel/gateway', 
-          // 'http://localhost:4100/central/api/channel/gateway', 
-          {
-          action: 'platform_checkLatestVersion'
-        })).data
-        if(res.code === 1) {
+  async channel(@Body() body: any) {
+    const { type, version, isAdministrator, payload } = body;
+    try {
+      switch (type) {
+        case 'checkLatestPlatformVersion': {
+          const res = (await (axios as any).post(
+            'https://my.mybricks.world/central/api/channel/gateway', 
+            // 'http://localhost:4100/central/api/channel/gateway', 
+            {
+            action: 'platform_checkLatestVersion'
+          })).data
+          if(res.code === 1) {
+            return {
+              code: 1,
+              data: { version: res.data.version }
+            }
+          } else {
+            return res
+          }
+        }
+        case 'getCurrentPlatformVersion': {
+          try {
+            const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
+            const { platformVersion } = JSON.parse(appJSON)
+            return {
+              code: 1,
+              data: platformVersion
+            }
+          } catch (e) {
+            console.log(e)
+            return {
+              code: -1,
+              msg: e.message
+            }
+          }
+        }
+        case 'downloadPlatform': {
+          const res = (await (axios as any).post(
+            `https://my.mybricks.world/central/api/channel/gateway`, 
+            // `http://localhost:4100/central/api/channel/gateway`, 
+            {
+            action: "platform_downloadByVersion",
+            payload: JSON.stringify({ version })
+          })).data
+          if(res.code === 1) {
+            if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
+              fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
+            }
+            fs.writeFileSync(path.join(process.cwd(), '../_temp_/mybricks-apaas.zip'), Buffer.from(res.data.data));
+            
+            const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
+            Logger.info(shellPath)
+            const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
+              cwd: path.join(process.cwd(), '../'),
+            })
+            return {
+              code: 1,
+              msg: log.toString() || '升级成功'
+            }
+          } else {
+            return {
+              code: -1,
+              msg: '下载失败，请重试'
+            }
+          }
+        }
+        case 'reloadPlatform': {
+          try {
+            const appJSONStr = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
+            let appJSON = JSON.parse(appJSONStr)
+            appJSON.platformVersion = version
+            fs.writeFileSync(path.join(__dirname, '../../../application.json'), JSON.stringify(appJSON, null, 2))
+            childProcess.exec(`npx pm2 reload all`)
+            return {
+              code: 1,
+            };
+          } catch(e) {
+            return {
+              code: -1,
+              msg: e.message || '升级失败'
+            }
+          }
+        }
+        case 'getLatestNoticeList': {
+          const res = (await (axios as any).post(
+            `https://my.mybricks.world/central/api/channel/gateway`, 
+            // `http://localhost:4100/central/api/channel/gateway`, 
+            {
+            action: "notice_latestList",
+            payload: JSON.stringify({ isAdministrator })
+          })).data
+          return res
+        }
+        case 'connect': {
+          // 每次进来初始化，上报一次数据
+          const info = require(path.join(__dirname, '../../../application.json'))
+          await this._sendReport(JSON.stringify({
+            uuid: getPlatformFingerPrint(),
+            namespace: 'platform',
+            content: {
+              ...info,
+              platformInfo: getOSInfo() 
+            }
+          }))
           return {
             code: 1,
-            data: { version: res.data.version }
+            msg: 'succeed' 
           }
-        } else {
+        }
+        case 'report': {
+          const res = await this._sendReport(JSON.stringify({
+            uuid: getPlatformFingerPrint(),
+            namespace: payload.namespace,
+            content: payload
+          }))
           return res
         }
       }
-      case 'getCurrentPlatformVersion': {
-        try {
-          const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
-          const { platformVersion } = JSON.parse(appJSON)
-          return {
-            code: 1,
-            data: platformVersion
-          }
-        } catch (e) {
-          console.log(e)
-          return {
-            code: -1,
-            msg: e.message
-          }
-        }
+      return {
+        code: -1,
+        msg: '未知指令'
       }
-      case 'downloadPlatform': {
-        const res = (await (axios as any).post(
-          `https://my.mybricks.world/central/api/channel/gateway`, 
-          // `http://localhost:4100/central/api/channel/gateway`, 
-          {
-          action: "platform_downloadByVersion",
-          payload: JSON.stringify({ version })
-        })).data
-        if(res.code === 1) {
-          if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
-            fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
-          }
-          fs.writeFileSync(path.join(process.cwd(), '../_temp_/mybricks-apaas.zip'), Buffer.from(res.data.data));
-          
-          const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
-          Logger.info(shellPath)
-          const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
-            cwd: path.join(process.cwd(), '../'),
-          })
-          return {
-            code: 1,
-            msg: log.toString() || '升级成功'
-          }
-        } else {
-          return {
-            code: -1,
-            msg: '下载失败，请重试'
-          }
-        }
+    } catch(err) {
+      console.log(err)
+      return {
+        code: -1,
+        msg: `[${type}]:` + err.message
       }
-      case 'reloadPlatform': {
-        try {
-          const appJSONStr = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
-          let appJSON = JSON.parse(appJSONStr)
-          appJSON.platformVersion = version
-          fs.writeFileSync(path.join(__dirname, '../../../application.json'), JSON.stringify(appJSON, null, 2))
-          childProcess.exec(`npx pm2 reload all`)
-          return {
-            code: 1,
-          };
-        } catch(e) {
-          return {
-            code: -1,
-            msg: e.message || '升级失败'
-          }
-        }
-      }
-      case 'getLatestNoticeList': {
-        const res = (await (axios as any).post(
-          `https://my.mybricks.world/central/api/channel/gateway`, 
-          // `http://localhost:4100/central/api/channel/gateway`, 
-          {
-          action: "notice_latestList",
-          payload: JSON.stringify({ isAdministrator })
-        })).data
-        return res
-      }
-    }
-    return {
-      code: -1,
-      msg: '未知指令'
     }
   }
 
