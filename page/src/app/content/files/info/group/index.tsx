@@ -793,6 +793,23 @@ function NewUserConfigModal({open, onCancel}) {
         if (data.code === 1) {
           await getUsers(tableInfo)
           ctx.getInfo(ctx.info.id)
+          const success = []
+          const error = []
+          if (Array.isArray(data.data)) {
+            data.data.forEach((item) => {
+              if (item.status === 1) {
+                success.push(item.userId)
+              } else {
+                error.push(item.userId)
+              }
+            })
+          }
+          if (success.length) {
+            message.success(`${success.join()} 添加成功`)
+          }
+          if (error.length) {
+            message.warning((`${error.join()} 添加失败，请填写正确的用户账号`))
+          }
           resolve('添加协作用户成功')
         } else {
           reject(data.message)
@@ -869,7 +886,7 @@ function AddUserForm({open, onOk, onCancel}) {
     form.validateFields().then((values) => {
       setBtnLoading(true)
       onOk(values).then((msg) => {
-        message.success(msg)
+        // message.success(msg)
         cancel()
       }).catch((e) => {
         setBtnLoading(false)
@@ -931,7 +948,7 @@ function AddUserForm({open, onOk, onCancel}) {
             }}
             ref={ref}
             autoFocus
-            placeholder={`请正确填写协作用户邮箱，以英文逗号隔开（xxx@163.com,www@163.com）`}
+            placeholder={`请正确填写协作用户账号，以英文逗号隔开`}
             onPressEnter={() => context.submittable && ok()}
           />
         </AntdForm.Item>

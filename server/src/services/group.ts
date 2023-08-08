@@ -208,10 +208,18 @@ export default class UserGroupService {
   async addUserGroupRelation(@Body() body) {
     const { userId, userIds, roleDescription = 2, groupId } = body
 
+    const result = []
+
     const [user, users] = await Promise.all([
       await this.userDao.queryByEmail({email: userId}),
       await this.userDao.queryByEmails({emails: userIds})
-    ])
+    ]) as any
+
+    userIds.forEach((userId) => {
+      if (!users.find((user) => user.email === userId)) {
+        result.push({userId, status: -1})
+      }
+    })
 
     await Promise.all((users as any).map(async (item) => {
       if (item.email === userId) {
@@ -219,14 +227,18 @@ export default class UserGroupService {
       }
       const hasUser = await this.userGroupRelation.queryByUserIdAndUserGroupId({userId: item.email, userGroupId: groupId})
       if (hasUser) {
-        await this.userGroupRelation.update({
-          updatorId: userId,
-          updatorName: user.name || userId,
-          userGroupId: groupId,
-          userId: item.email,
-          roleDescription
-        })
+        if (hasUser.status === -1) {
+          result.push({userId: item.email, status: 1})
+          await this.userGroupRelation.update({
+            updatorId: userId,
+            updatorName: user.name || userId,
+            userGroupId: groupId,
+            userId: item.email,
+            roleDescription
+          })
+        }
       } else {
+        result.push({userId: item.email, status: 1})
         await this.userGroupRelation.create({
           creatorId: userId,
           creatorName: user.name || userId,
@@ -239,7 +251,7 @@ export default class UserGroupService {
 
     return {
       code:1,
-      data: {}
+      data: result
     }
   }
 
