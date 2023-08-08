@@ -533,8 +533,8 @@ export default class SystemService {
 
   async _sendReport(content: string) {
     const res = (await (axios as any).post(
-      // `https://my.mybricks.world/central/api/channel/gateway`, 
-      `http://localhost:4100/central/api/channel/gateway`, 
+      `https://my.mybricks.world/central/api/channel/gateway`, 
+      // `http://localhost:4100/central/api/channel/gateway`, 
       {
       action: "log_report",
       payload: content
