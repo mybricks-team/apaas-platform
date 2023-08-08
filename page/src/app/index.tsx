@@ -44,14 +44,16 @@ export default function App() {
           }
           return
         }
-        // 平台打开钩子
-        (await axios({
-          method: "post",
-          url: getApiUrl('/paas/api/system/channel'),
-          data: {
-            type: 'connect'
-          }
-        }));
+        if(user?.isAdmin) {
+          // 管理员打开才上报平台数据
+          (await axios({
+            method: "post",
+            url: getApiUrl('/paas/api/system/channel'),
+            data: {
+              type: 'connect'
+            }
+          }));
+        }
         // 平台配置
         const systemConfig = (await axios({
           method: "post",
