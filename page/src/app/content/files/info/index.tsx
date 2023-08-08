@@ -45,7 +45,7 @@ export function Title({content, suffix = <></>}) {
   return (
     <div className={css.title}>
       <div className={css.content}>
-        {content || '加载中...'}
+        <span>{content || '加载中...'}</span>
         {suffix}
       </div>
     </div>
