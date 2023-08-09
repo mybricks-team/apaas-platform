@@ -10,7 +10,6 @@ import FileTaskDao from "./dao/FileTaskDao";
 import { loadModule } from "./module-loader";
 import ConfigService from "./services/config";
 import AppsService from "./services/apps";
-import IntelligenceService from './services/intelligence';
 import FilePubDao from "./dao/filePub.dao";
 import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
@@ -53,7 +52,6 @@ import UserGroupModule from "./module/userGroup/userGroup.module";
     ConfigService,
     AppsService,
     HomeService,
-    IntelligenceService,
     PublicService
   ],
   providers: [
