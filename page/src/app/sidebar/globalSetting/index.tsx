@@ -10,7 +10,8 @@ import {
   Input,
   Button,
   message,
-  Switch
+  Switch,
+  Select
 } from 'antd'
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
@@ -204,8 +205,7 @@ const OssForm = ({ initialValues, onSubmit, style }) => {
       return
     }
     form?.setFieldsValue?.({
-      openOss: initialValues.openOss,
-      ...(initialValues?.items?.[0] ?? {})
+      ...initialValues
     })
   }, [initialValues])
 
@@ -229,10 +229,26 @@ const OssForm = ({ initialValues, onSubmit, style }) => {
         {
           openOss && (
             <>
+            <Form.Item
+              initialValue="aliyun"
+              label="平台"
+              name="platform"
+              required
+              rules={[{ required: true }]}
+            >
+              <Select
+                options={[
+                  {
+                    value: 'aliyun',
+                    label: '阿里云',
+                  },
+                ]}
+              />
+            </Form.Item>
               <Form.Item
                 initialValue=""
-                label="accessKey"
-                name="accessKey"
+                label="accessKeyId"
+                name="accessKeyId"
                 rules={[{ required: true }]}
               >
                 <Input placeholder='' />
@@ -279,12 +295,8 @@ const OssForm = ({ initialValues, onSubmit, style }) => {
           type="primary"
           onClick={() => {
             form?.validateFields().then((values) => {
-              const { openOss, ...others } = values
               typeof onSubmit === 'function' && onSubmit({
-                openOss,
-                items: [
-                  others
-                ]
+                ...(values ?? {})
               })
             })
           }}

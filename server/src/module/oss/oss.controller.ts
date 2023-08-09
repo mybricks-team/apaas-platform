@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
+import { } from 'querystring'
 import { FileInterceptor } from '@nestjs/platform-express';
 const env = require('../../../env.js');
 import { getRealDomain } from '../../utils/index';
@@ -33,15 +34,22 @@ export default class OssController {
   async saveFile(@Request() request, @Body() body, @UploadedFile() file) {
     const ossConfig = await this.ossService.getOssConfig();
 
-    if (ossConfig?.openOss) {
+    const { openOss, cdnDomain, ...configItem } = ossConfig || {}
+
+    if (openOss) {
       try {
-        const { url } = await this.ossService.saveFile({
+        let { url } = await this.ossService.saveFile({
           buffer: file.buffer,
           name: `${uuid()}-${new Date().getTime()}${path.extname(
             file.originalname,
           )}`,
           path: body.folderPath,
-        }, ossConfig);
+        }, configItem);
+
+        if (cdnDomain) { // 替换正则
+          const domainReg = /^(https?:\/\/)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/; 
+          url = url.replace(domainReg, cdnDomain)
+        }
         return {
           data: {
             url,
@@ -52,6 +60,7 @@ export default class OssController {
         return {
           code: -1,
           msg: `上传失败: ${err}`,
+          message: `上传失败: ${err}`,
         };
       }
     }

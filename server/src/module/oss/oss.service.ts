@@ -23,19 +23,25 @@ export default class OssService {
     return configList?.[0]?.config as any as OssConfig
   }
 
-  async saveFile(file, ossConfig:OssConfig) {
+  async saveFile(file, ossConfig:OssConfig = {}) {
+    const { cdnDomain, ...config } = ossConfig
+
     const client = new OSS({
-      region: ossConfig.region,
-      accessKeyId: ossConfig.accessKeyId,
-      accessKeySecret: ossConfig.accessKeySecret,
-      bucket: ossConfig.bucket,
+      region: config.region,
+      accessKeyId: config.accessKeyId,
+      accessKeySecret: config.accessKeySecret,
+      bucket: config.bucket,
     });
 
     try {
-      const result = await client.put(file.path + file.name, Buffer.from(file.buffer));
+      let filePath = ''
+      file?.path?.split('/').forEach(path => {
+        filePath += `${path}/`
+      })
+      const result = await client.put(filePath + file.name, Buffer.from(file.buffer));
   
       if (result.res.status === 200) {
-        return { path: result.name, url: result.url };
+        return { name: result.name, url: result.url };
       } else {
         throw new Error('上传 OSS 失败!')
       }
