@@ -7,7 +7,7 @@
     select id, file_id,version,creator_id, create_time, update_time
     from apaas_file_content
     where
-    file_id = 452748583526469
+    file_id = #{fileId}
     order by update_time desc
     limit 1;
   </select>
