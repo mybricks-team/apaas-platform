@@ -61,6 +61,22 @@ export default class FileContentDao extends DOBase {
   }
 
   @Mapping(FileContentDO)
+  public async queryLatestByFileId<T>(fileId: number): Promise<T> {
+    const fileContents = await this.exe<FileContentDO[]>('apaas_file_content:queryLatestByFileId', { fileId })
+
+    if (Array.isArray(fileContents)) {
+      if (fileContents.length > 0) {
+        // @ts-ignore
+        return fileContents.length == 1 ? fileContents[0] : fileContents
+      } else {
+        return
+      }
+    } else {
+      return fileContents
+    }
+  }
+
+  @Mapping(FileContentDO)
   public async queryById(params: {
     id: number
   }): Promise<FileContentDO[]> {

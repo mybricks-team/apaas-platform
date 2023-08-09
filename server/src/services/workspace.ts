@@ -301,12 +301,7 @@ export default class WorkspaceService {
       }
 
       if (content) {
-        const contentItem = (await this.fileContentDao.queryBy<FileContentDO>({
-          fileId: fileId,
-          sortType: "desc",
-          limit: 1,
-          orderBy: "update_time",
-        })) as any;
+        const contentItem = (await this.fileContentDao.queryLatestByFileId<FileContentDO>(fileId)) as any;
         await this.fileContentDao.create({
           fileId,
           content,
@@ -346,12 +341,7 @@ export default class WorkspaceService {
 
       /** 不存在 fileContentId 则取最新一条记录 */
       if (!fileContentId) {
-        const fileContent = (await this.fileContentDao.queryBy<FileContentDO>({
-          fileId: fileId,
-          sortType: "desc",
-          limit: 1,
-          orderBy: "create_time",
-        })) as any;
+        const fileContent = (await this.fileContentDao.queryLatestByFileId<FileContentDO>(fileId)) as any;
 
         fileContentId = fileContent?.id || null;
       }
