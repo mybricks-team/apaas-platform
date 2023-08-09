@@ -14,7 +14,7 @@ import {
 } from 'antd'
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
-import {SettingOutlined, LeftOutlined, InfoCircleOutlined} from '@ant-design/icons'
+import Icon, {SettingOutlined, LeftOutlined, InfoCircleOutlined} from '@ant-design/icons'
 
 import compareVersion from 'compare-version'
 import {getApiUrl} from '../../../utils'
@@ -27,6 +27,7 @@ interface MenuItem extends T_App {
 }
 
 import styles from './index.less'
+import { values } from 'lodash-es'
 
 interface TabsProps {
   onClick: (e: any) => void
@@ -58,7 +59,7 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
           <div className={styles.label}>{item?.title}</div>
       </div>
     );
-    if(index <= 1) {
+    if(index <= 2) {
       group1.push(temp)
     } else {
       group2.push(temp)
@@ -193,6 +194,108 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   )
 }
 
+const OssForm = ({ initialValues, onSubmit, style }) => {
+  const [form] = Form.useForm()
+
+  const openOss = Form.useWatch('openOss', form);
+
+  useEffect(() => {
+    if (!initialValues) {
+      return
+    }
+    form?.setFieldsValue?.({
+      openOss: initialValues.openOss,
+      ...(initialValues?.items?.[0] ?? {})
+    })
+  }, [initialValues])
+
+  return (
+    <div className={styles.globalForm} style={style}>
+      <Form
+        form={form}
+        labelCol={{ span: 5 }}
+        wrapperCol={{ span: 19 }}
+        labelAlign="top"
+        autoComplete="off"
+      >
+        <Form.Item
+          initialValue=""
+          label="开启OSS上传"
+          name="openOss"
+          extra="开启后搭建应用内的资源（比如图片）将会上传到OSS系统中"
+        >
+          <Switch checked={openOss} />
+        </Form.Item>
+        {
+          openOss && (
+            <>
+              <Form.Item
+                initialValue=""
+                label="accessKey"
+                name="accessKey"
+                rules={[{ required: true }]}
+              >
+                <Input placeholder='' />
+              </Form.Item>
+              <Form.Item
+                initialValue=""
+                label="accessKeySecret"
+                name="accessKeySecret"
+                rules={[{ required: true }]}
+              >
+                <Input placeholder='' />
+              </Form.Item>
+              <Form.Item
+                initialValue=""
+                label="地域 (Region Id)"
+                name="region"
+                rules={[{ required: true }]}
+              >
+                <Input placeholder='' />
+              </Form.Item>
+              <Form.Item
+                initialValue=""
+                label="存储空间 (Bucket)"
+                name="bucket"
+                rules={[{ required: true }]}
+              >
+                <Input placeholder='' />
+              </Form.Item>
+              <Form.Item
+                initialValue=""
+                label="CDN域名"
+                name="cdnDomain"
+              >
+                <Input placeholder='' />
+              </Form.Item>
+            </>
+          )
+        }
+      </Form>
+      <div className={styles.btnGroups}>
+        <Button
+          size="middle"
+          style={{ position: 'absolute', right: 0 }}
+          type="primary"
+          onClick={() => {
+            form?.validateFields().then((values) => {
+              const { openOss, ...others } = values
+              typeof onSubmit === 'function' && onSubmit({
+                openOss,
+                items: [
+                  others
+                ]
+              })
+            })
+          }}
+        >
+          保存
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 const AboutForm = ({ currentPlatformVersion }) => {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [upgradeInfo, setUpgradeInfo] = useState(null)
@@ -289,6 +392,12 @@ const AboutForm = ({ currentPlatformVersion }) => {
   )
 }
 
+const OssIcon = (props) => {
+  return (
+    <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7999" width="200" height="200"><path d="M901 459.4c-38.7-35.8-87.6-47.2-120.6-50.6-1.8-68.6-23.1-126.2-63.5-171.6-78.4-88.1-199.9-95.6-208-95.9-176.9 6.1-250.8 138-270.5 226C102.9 387.1 64.3 499.5 63.3 560.2 63.3 722 188.8 772 256.7 775.9c91.2-0.3 160.7-23.5 207.3-73.5 39.8-42.6 52.8-93.7 56.9-128.1l75.3 68.1 45.2-49.9L492 457.4 338.3 574.1l40.7 53.6 74.4-56.5c-3.4 23.9-12.9 57.8-38.6 85.3-33.2 35.6-86.1 52.4-155.6 52.2-13.2-0.9-128.6-12.8-128.6-147.9 0.1-5 3.6-122 138.3-128.8l28.7-1.5 3.1-28.5c0.8-7.6 22.6-186.9 207.4-193.4 1 0.1 99.4 6.6 158.8 73.7 34.4 38.9 49.7 91.6 45.5 156.9l-2.3 38.4 38.4-2.7c0.8 0 65.7-4.2 107 34.2C879.2 531 891.4 564 892 607c-3.5 15.8-24.7 94.7-99.5 101.6H532V776l263.4-0.2C904.5 766 950 667 958.9 616l0.5-5.7c-0.1-64.5-19.7-115.2-58.4-150.9z" fill="#555555" p-id="8000"></path></svg>
+  )
+}
+
 export default () => {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const user = appCtx.user
@@ -301,6 +410,7 @@ export default () => {
   const menuItems = useMemo((): MenuItem[] => {
     let defaultItems = [
       { title: '全局设置', namespace: 'system', icon: <SettingOutlined /> },
+      { title: '存储设置', namespace: 'mybricks-oss-config', icon: <OssIcon />},
       { title: '关于', namespace: 'about', icon: <InfoCircleOutlined /> }
     ]
     if (!Array.isArray(appCtx.InstalledAPPS)) {
@@ -389,6 +499,17 @@ export default () => {
       case activeKey === 'system': {
         return (
           <GlobalForm
+            style={{ paddingTop: 20 }}
+            initialValues={configMap?.[activeKey]?.config}
+            onSubmit={(values) => {
+              submitConfig(activeKey, values)
+            }}
+          />
+        )
+      }
+      case activeKey === 'mybricks-oss-config': {
+        return (
+          <OssForm
             style={{ paddingTop: 20 }}
             initialValues={configMap?.[activeKey]?.config}
             onSubmit={(values) => {

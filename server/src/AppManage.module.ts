@@ -27,6 +27,7 @@ import ShareModule from "./module/share/share.module";
 import UserModule from "./module/user/user.module";
 import UserFileModule from "./module/userFile/userFile.module";
 import UserGroupModule from "./module/userGroup/userGroup.module";
+import OssModule from './module/oss/oss.module'
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import UserGroupModule from "./module/userGroup/userGroup.module";
     UserModule,
     UserFileModule,
     UserGroupModule,
+    OssModule,
     ...loadModule().modules,
   ],
   controllers: [
