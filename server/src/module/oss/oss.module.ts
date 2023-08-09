@@ -5,8 +5,8 @@ import FlowService from '../flow/flow.service';
 import OssController from './oss.controller';
 
 @Module({
-  imports: [],
   controllers: [OssController],
-  providers: [OssService]
+  providers: [],
+  imports: []
 })
 export default class OssModule {}

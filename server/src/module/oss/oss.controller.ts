@@ -23,7 +23,7 @@ export default class OssController {
   flowService: FlowService;
   ossService: OssService;
 
-  constructor(params) {
+  constructor() {
     this.ossService = new OssService();
     this.flowService = new FlowService();
   }
