@@ -72,6 +72,17 @@ export default class AppsService {
             // 约定的设置字段
             temp["setting"] = `/${pkgJson.name}/setting.html`; // 约定
           }
+          // 应用设置页面
+          if (pkgJson?.mybricks?.groupSetting) {
+            temp["groupSetting"] = pkgJson?.mybricks?.groupSetting;
+          } else if (
+            fs.existsSync(
+              path.join(appsFolder, appName, "./assets/groupSetting.html")
+            )
+          ) {
+            // 约定的设置字段
+            temp["groupSetting"] = `/${pkgJson.name}/groupSetting.html`; // 约定
+          }
           if(
             fs.existsSync(
               path.join(appsFolder, appName, "./assets/index.html")

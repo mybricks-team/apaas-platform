@@ -10,9 +10,13 @@ export default class ConfigService {
   }
 
   @Post("/config/get")
-  async getAll(@Body("scope") scope: string[]) {
+  async getAll(
+    @Body("scope") scope: string[],
+    @Body('type') type: string,
+    @Body('id') id: number,
+  ) {
     const configList = await this.configDao.getConfig({
-      namespace: scope,
+      namespace: type ? scope.reduce((pre, item) => [...pre, item, `${item}@${type}[${id}]`], []) : scope,
     });
     const result: any = {};
     configList?.forEach((item) => {
@@ -30,24 +34,26 @@ export default class ConfigService {
   async updateConfig(
     @Body("userId") userId: string,
     @Body("config") config: any,
-    @Body("namespace") namespace: string
+    @Body("namespace") namespace: string,
+    @Body('type') type: string,
+    @Body('id') id: number,
   ) {
-    const [curConfig] = await this.configDao.getConfig({
-      namespace: [namespace],
-    });
+    const curNamespace = type ? `${namespace}@${type}[${id}]` : namespace;
+    const [curConfig] = await this.configDao.getConfig({ namespace: [curNamespace] });
+
     if (curConfig) {
       await this.configDao.update({
         config: JSON.stringify(config),
         updatorId: userId,
         updatorName: userId,
-        namespace: namespace,
+        namespace: curNamespace,
       });
     } else {
       await this.configDao.create({
         creatorId: userId,
         creatorName: userId,
         config: JSON.stringify(config),
-        namespace: namespace,
+        namespace: curNamespace,
       });
     }
 

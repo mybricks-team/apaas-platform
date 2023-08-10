@@ -10,7 +10,6 @@
     .descriptionLabel {
       display: flex;
       justify-content: space-between;
-      display: flex;
       font-size: 12px;
       color: #999999;
       height: 32px;
@@ -80,6 +79,30 @@
     border-radius: 5px;
     &:hover {
       background-color: #3d5c800d;
+    }
+  }
+
+  .btnGroup {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .primaryButton {
+    min-width: 92px;
+    margin-top: 8px;
+    cursor: pointer;
+    color: @color-primary;
+    padding: 6px 0;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 3px;
+    border: 1px solid @color-primary;
+    display: flex;
+    justify-content: center;
+    background-color: #fff;
+
+    &:hover {
+      opacity: .85;
     }
   }
 

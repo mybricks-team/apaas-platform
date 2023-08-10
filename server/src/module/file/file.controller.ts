@@ -810,6 +810,7 @@ export default class FileController {
     let res = {
       projectId: null, // 只存储最近的projectId，因为project不存在嵌套，只会有一个
 	    moduleId: null, // 只存储最近的module，往上遍历会存在多次嵌套
+      groupId: null, // 协作组
       absoluteNamePath: '',
       absoluteIdPath: ''
     }
@@ -864,7 +865,8 @@ export default class FileController {
         const [coopGroupInfo] = await this.userGroupDao.queryByIds({ids: [tempItem?.groupId]})
         res.absoluteNamePath = `/${coopGroupInfo.name}${res.absoluteNamePath}`
         // @ts-ignore
-        res.absoluteIdPath = `/${coopGroupInfo.id}${res.absoluteIdPath}`
+        res.absoluteIdPath = `/${coopGroupInfo.id}${res.absoluteIdPath}`;
+        res.groupId = coopGroupInfo.id;
       }
       return res
     } catch (e) {

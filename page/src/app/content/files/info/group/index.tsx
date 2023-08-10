@@ -35,6 +35,7 @@ import {Title, ClickableIcon} from '..'
 import AppCtx from '../../../../AppCtx'
 import {useDebounceFn} from '../../../../hooks'
 import {Add, Divider, UserGroup, mybricksGroupIcons} from '../../../../components'
+import GroupSetting from './group-setting';
 
 import type {UploadProps} from 'antd/es/upload/interface'
 
@@ -139,10 +140,10 @@ export default function Group(props) {
 function GroupOperate(props) {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const [open, setOpen] = useState<number | boolean>(0)
+  const [showSetting, setShowSetting] = useState(false);
 
-  const deleteClick = useCallback(() => {
-    setOpen(true)
-  }, [])
+  const deleteClick = useCallback(() => setOpen(true), []);
+  const openSetting = useCallback(() => setShowSetting(true), []);
 
   const modalOk = useCallback(() => {
     return new Promise(async (resolve, reject) => {
@@ -189,8 +190,12 @@ function GroupOperate(props) {
   return (
     <>
       <Divider />
-      <button className={css.dangerButton} onClick={deleteClick}>删除协作组</button>
+      <div className={css.btnGroup}>
+        <button className={css.primaryButton} onClick={openSetting}>设置</button>
+        <button className={css.dangerButton} onClick={deleteClick}>删除协作组</button>
+      </div>
       {RenderDeleteGroupModal}
+      <GroupSetting visible={showSetting} onClose={() => setShowSetting(false)} />
     </>
   )
 }

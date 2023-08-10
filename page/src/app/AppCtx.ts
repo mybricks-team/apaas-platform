@@ -43,6 +43,8 @@ export interface T_App {
   version?: string;
   /** 应用设置 */
   setting?: string | any;
+  /** 协作组设置 */
+  groupSetting?: string | any;
   /** 应用导出设置 */
   exports?: IAppExport[];
  
