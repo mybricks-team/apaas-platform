@@ -21,13 +21,9 @@
   },
   "author": "MyBricks Team",
   "license": "ISC",
-<<<<<<< Updated upstream
   "dependencies": {},
   "devDependencies": {
     "axios": "^1.4.0",
-=======
-  "dependencies": {
->>>>>>> Stashed changes
     "jszip": "^3.10.1"
   }
 }
