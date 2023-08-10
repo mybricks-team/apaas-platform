@@ -15,6 +15,7 @@ export default class ConfigService {
     @Body('type') type: string,
     @Body('id') id: number,
   ) {
+    if(scope.length === 0) return { code: 1, data: {} };
     const configList = await this.configDao.getConfig({
       namespace: type ? scope.reduce((pre, item) => [...pre, item, `${item}@${type}[${id}]`], []) : scope,
     });
