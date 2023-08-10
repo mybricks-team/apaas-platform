@@ -138,7 +138,7 @@ const GroupSetting: FC<{ onClose?(): void; visible: boolean }> = props => {
         if (typeof activeItem?.groupSetting === 'string' && activeItem?.groupSetting.includes('.html')) {
           return (
             <iframe
-              src={`/${activeItem.namespace}/${activeItem?.groupSetting}`}
+              src={`/${activeItem.namespace}/${activeItem?.groupSetting}?groupId=${pathInfo.id}`}
               // @ts-ignore
               frameborder="no"
               border="0"
