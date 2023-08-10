@@ -1,6 +1,6 @@
 {
   "name": "mybricks-apaas-platform",
-  "version": "0.0.55",
+  "version": "0.0.56",
   "description": "",
   "scripts": {
     "build": "cd page && npm install && npm run build",
