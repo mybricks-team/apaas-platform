@@ -30,18 +30,22 @@ export default function App() {
     useMemo(() => {
       /** 初始化(获取应用、配置和角色) */
       (async () => {
-        const user = (await axios({
+        const userRes = (await axios({
           method: "post",
           url: '/paas/api/user/signed',
           data: {
             HAINIU_UserInfo: localStorage.getItem('HAINIU_UserInfo')
           }
-        }))?.data?.data
-        if (!user) {
-          if(location.href.indexOf('jumped') === -1) {
-            removeCookie('mybricks-login-user')
-            location.href = `/?jumped=true&redirectUrl=${encodeURIComponent(location.href)}`
-          }
+        }))?.data
+        const user = userRes?.data
+        if (userRes.code !== 1) {
+          message.warn( userRes.msg || '登录信息已过期，请重新登录', 2)
+          setTimeout(() => {
+            if(location.href.indexOf('jumped') === -1) {
+              removeCookie('mybricks-login-user')
+              location.href = `/?jumped=true&redirectUrl=${encodeURIComponent(location.href)}`
+            }
+          }, 2000)
           return
         }
         if(user?.isAdmin) {

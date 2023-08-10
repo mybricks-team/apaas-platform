@@ -1,3 +1,4 @@
+import UserSessionDao from './../../dao/UserSessionDao';
 import {
   Get,
   Controller,
@@ -18,11 +19,13 @@ export default class UserController {
   fileDao: FileDao;
   userDao: UserDao;
   userService: UserService;
+  userSessionDao: UserSessionDao;
 
   constructor() {
     this.fileDao = new FileDao();
     this.userDao = new UserDao();
     this.userService = new UserService();
+    this.userSessionDao = new UserSessionDao();
   }
 
   @Get('/getAll')
@@ -105,7 +108,7 @@ export default class UserController {
 
   @Post('/register')
   async register(@Body() body) {
-    const { email, psd } = body;
+    const { email, psd, fingerprint } = body;
 
     if (
       !email ||
@@ -133,6 +136,11 @@ export default class UserController {
         email,
         password: psd,
       });
+
+      if(fingerprint) {
+        // 刷新登录态
+        await this.userService.createOrUpdateFingerprint({ userId: id, fingerprint })
+      }
 
       Logs.info(`新用户${email}注册完成.`);
 
@@ -176,7 +184,7 @@ export default class UserController {
 
   @Post('/login')
   async login(@Body() body) {
-    const { email, psd } = body;
+    const { email, psd, fingerprint } = body;
 
     Logs.info(`用户${email} 申请登录.`);
 
@@ -184,13 +192,16 @@ export default class UserController {
     if (user) {
       if (user.verifyPassword(psd)) {
         Logs.info(`用户${email} 登录成功.`);
+        if(fingerprint) {
+          // 刷新登录态
+          await this.userService.createOrUpdateFingerprint({ userId: user.id, fingerprint })
+        }
 
         return {
           code: 1,
           data: Object.assign(user.isAdmin ? { isAdmin: 1 } : {}, {
             id: user.id,
-            email: user.email,
-            licenseCode: user.licenseCode,
+            email: user.email
           }),
         };
       } else {
@@ -225,7 +236,18 @@ export default class UserController {
       } else {
         if(request.cookies?.['mybricks-login-user']) {
           const userCookie = JSON.parse(request.cookies?.['mybricks-login-user'])
+          console.log('111', userCookie)
           userEmail = userCookie?.email
+          // 单点
+          if(userCookie?.fingerprint) {
+            const sess = await this.userSessionDao.queryByUserId({ userId: userCookie.id })
+            if(sess.fingerprint !== userCookie.fingerprint) {
+              return {
+                code: -1,
+                msg: '当前账号已在其他设备登录，请重新登录'
+              }
+            }
+          }
         } else if(HAINIU_UserInfo) {
           const userCookie = JSON.parse(HAINIU_UserInfo)
           userEmail = userCookie?.email
@@ -328,6 +350,21 @@ export default class UserController {
         code: -1,
         msg: '暂无权限操作'
       }
+    }
+  }
+
+  @Post('/queryCurrentSession')
+  async queryCurrentSession(@Body('userId') userId: number) {
+    if(!userId) {
+      return {
+        code: -1,
+        msg: '参数缺失'
+      }
+    }
+    const res  = await this.userSessionDao.queryByUserId({userId})
+    return {
+      code: 1,
+      data: res
     }
   }
 }
