@@ -16,8 +16,9 @@ export default class ConfigService {
     @Body('id') id: number,
   ) {
     if(scope?.length === 0) return { code: 1, data: {} };
+    const allTypes = ['group'];
     const configList = await this.configDao.getConfig({
-      namespace: type ? scope.reduce((pre, item) => type === 'all' ? [...pre, item, `${item}@${type}[${id}]`] : [...pre, `${item}@${type}[${id}]`], []) : scope,
+      namespace: type ? scope.reduce((pre, item) => type === 'all' ? [...pre, item, ...allTypes.map(t => `${item}@${t}[${id}]`)] : [...pre, `${item}@${type}[${id}]`], []) : scope,
     });
     const result: any = {};
     configList?.forEach((item) => {
