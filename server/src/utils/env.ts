@@ -13,6 +13,9 @@ export default {
   isPrivateAppStore() {
     return process.env.MYBRICKS_PRIVATE_APP_STORE; 
   },
+  isPlatform_Fangzhou() {
+    return process.env.PLATFORM_HOSTNAME === 'FANGZHOU';
+  },
   getAppInstallFolder() {
     const ENV = process.env.NODE_ENV;
     const APPS_BASE_FOLDER = (ENV === 'staging' || ENV === 'production') ? '/kwaishop-fangzhou-apaas-platform-service/apaas/_apps' : path.join(process.cwd(), "../_apps");

@@ -141,9 +141,14 @@ export default class AppsService {
       let remoteAppList = []
       let mergedList = []
       try {
-        if(env.isStaging() || env.isProd()) {
-          // todo: 内网未通，暂时注释
-          // remoteAppList = require('child_process').execSync('curl -x 10.28.121.13:11080 https://mybricks.world/api/apps/getLatestAll')
+        if(env.isPlatform_Fangzhou()) {
+          remoteAppList = await this.appDao.queryLatestApp(); 
+          // const temp = JSON.parse(require('child_process').execSync(`
+          //   curl -x 10.28.121.13:11080  --location --request POST 'https://my.mybricks.world/central/api/channel/gateway' --header 'Content-Type: application/json' --data '{"action": "app_getAllLatestList"}'
+          // `).toString())
+          // if(temp.code === 1) {
+          //   remoteAppList = temp.data
+          // }
         } else {
           const temp = (await (axios as any).post(
             // "http://localhost:4100/central/api/channel/gateway", 
