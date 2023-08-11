@@ -160,11 +160,12 @@ export default class AppsService {
           if(temp.code === 1) {
             remoteAppList = temp.data
           }
+          // 远端app地址增加标记位
+          remoteAppList?.forEach(i => {
+            i.isRemote = true
+          })
         }
-        let tempList = localAppList.concat(remoteAppList?.map(i => {
-          i.isRemote = true
-          return i
-        }))
+        let tempList = localAppList.concat(remoteAppList)
         // 去重
         let nsMap = {}
         tempList?.forEach(i => {
