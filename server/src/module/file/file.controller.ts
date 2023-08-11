@@ -811,6 +811,7 @@ export default class FileController {
       projectId: null, // 只存储最近的projectId，因为project不存在嵌套，只会有一个
 	    moduleId: null, // 只存储最近的module，往上遍历会存在多次嵌套
       groupId: null, // 协作组
+      groupName: '',
       absoluteNamePath: '',
       absoluteIdPath: ''
     }
