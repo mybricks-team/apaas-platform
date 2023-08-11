@@ -867,6 +867,7 @@ export default class FileController {
         // @ts-ignore
         res.absoluteIdPath = `/${coopGroupInfo.id}${res.absoluteIdPath}`;
         res.groupId = coopGroupInfo.id;
+        res.groupName = coopGroupInfo.name;
       }
       return res
     } catch (e) {
