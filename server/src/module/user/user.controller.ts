@@ -236,7 +236,6 @@ export default class UserController {
       } else {
         if(request.cookies?.['mybricks-login-user']) {
           const userCookie = JSON.parse(request.cookies?.['mybricks-login-user'])
-          console.log('111', userCookie)
           userEmail = userCookie?.email
           // 单点
           if(userCookie?.fingerprint) {

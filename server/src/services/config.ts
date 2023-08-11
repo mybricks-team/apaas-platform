@@ -17,12 +17,20 @@ export default class ConfigService {
   ) {
     if(scope?.length === 0) return { code: 1, data: {} };
     const configList = await this.configDao.getConfig({
-      namespace: type ? scope.reduce((pre, item) => [...pre, item, `${item}@${type}[${id}]`], []) : scope,
+      namespace: type ? scope.reduce((pre, item) => type === 'all' ? [...pre, item, `${item}@${type}[${id}]`] : [...pre, `${item}@${type}[${id}]`], []) : scope,
     });
     const result: any = {};
     configList?.forEach((item) => {
       // @ts-ignore
       result[item.appNamespace] = item;
+
+      if (type && type !== 'all') {
+        const curNamespace = item.appNamespace.replace(`@${type}[${id}]`, '');
+
+        result[curNamespace] = { ...item, appNamespace: curNamespace };
+
+        delete result[item.appNamespace];
+      }
     });
 
     return {
