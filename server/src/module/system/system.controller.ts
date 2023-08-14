@@ -15,6 +15,7 @@ const path = require('path')
 const fs = require('fs')
 const env = require('../../../env')
 import platformEnvUtils from '../../utils/env'
+import RefreshDao from "../../dao/RefreshDao";
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -25,6 +26,7 @@ export default class SystemService {
   servicePubDao: ServicePubDao
 
   appDao: AppDao;
+  refreshDao: RefreshDao;
 
   fileService: FileService
 
@@ -37,6 +39,7 @@ export default class SystemService {
     this.filePubDao = new FilePubDao();
     this.servicePubDao = new ServicePubDao();
     this.appDao = new AppDao()
+    this.refreshDao = new RefreshDao()
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
@@ -846,6 +849,126 @@ export default class SystemService {
     childProcess.exec(`npx pm2 reload all`)
     return {
       code: 1,
+    };
+  }
+
+  @Get('/system/refactorUser')
+  async refactorUser() {
+    const tables = [
+      {
+        name: 'apaas_config',
+        fieldName: ['creator_id', 'updator_id'],
+      },
+      {
+        name: 'apaas_file',
+        fieldName: ['creator_id', 'updator_id'],
+      },
+      {
+        name: 'apaas_file_content',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'apaas_file_cooperation',
+        fieldName: ['user_id'],
+      },
+      {
+        name: 'apaas_file_pub',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'apaas_module_info',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'apaas_module_pub_info',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'apaas_project_info',
+        fieldName: [],
+      },
+      {
+        name: 'apaas_service_pub',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'apaas_user',
+        fieldName: [],
+      },
+      {
+        name: 'apaas_user_file_relation',
+        fieldName: ['creator_id', 'updator_id'],
+      },
+      {
+        name: 'apaas_user_group',
+        fieldName: ['creator_id', 'updator_id'],
+      },
+      {
+        name: 'apaas_user_group_relation',
+        fieldName: ['creator_id', 'updator_id', 'user_id'],
+      },
+      {
+        name: 'apaas_user_log',
+        fieldName: ['user_id'],
+      },
+      {
+        name: 'apaas_user_session',
+        fieldName: ['user_id'],
+      },
+      {
+        name: 'domain_table_action',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'domain_table_meta',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'material_info',
+        fieldName: ['creator_id', 'updator_id'],
+      },
+      {
+        name: 'material_pub_info',
+        fieldName: ['creator_id', 'updator_id'],
+      }
+    ];
+    const allUser = await this.refreshDao.queryAll('apaas_user', ['email']);
+    const userMap = allUser.reduce((pre, user) => ({ ...pre, [user.email]: user.id }), {});
+    const ignoreList = [];
+
+    for (const table of tables) {
+      if (table && table.fieldName.length) {
+        const ignoreTable = { name: table.name, fields: table.fieldName, ignoreList: [] };
+        const tableInfo = await this.refreshDao.queryAll(table.name, table.fieldName);
+
+        for (const item of tableInfo) {
+          for (const field of table.fieldName) {
+            if (typeof item[field] !== 'string') {
+              continue;
+            }
+            const userId = userMap[item[field]];
+
+            if (userId) {
+              await this.refreshDao.update({ table: table.name, id: item.id, value: userId, field });
+            } else {
+              ignoreTable.ignoreList.push(item.id);
+            }
+          }
+        }
+
+        if (ignoreTable.ignoreList.length) {
+          ignoreList.push(ignoreTable);
+        }
+      }
+    }
+
+    if (ignoreList.length) {
+      fs.writeFileSync(path.join(__dirname, './refreshIgnoreList.json'), JSON.stringify(ignoreList), 'utf-8');
+    }
+
+    return {
+      code: 1,
+      data: '刷新完成',
     };
   }
 }
