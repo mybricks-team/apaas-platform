@@ -14,6 +14,7 @@ const childProcess = require('child_process');
 const path = require('path')
 const fs = require('fs')
 const env = require('../../../env')
+import { isPlatform_Fangzhou } from '../../utils/env'
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -546,6 +547,12 @@ export default class SystemService {
   @Post('/system/channel')
   async channel(@Body() body: any) {
     const { type, version, isAdministrator, payload } = body;
+    if(isPlatform_Fangzhou()) {
+      return {
+        code: -1,
+        msg: '该平台暂不支持此功能'
+      }
+    }
     try {
       switch (type) {
         case 'checkLatestPlatformVersion': {
