@@ -100,7 +100,7 @@ export default class UserGroupDao extends DOBase {
 
   public async delete(params: {
     id: number;
-    updatorId: string;
+    updatorId: string | number;
     updatorName: string;
   }) {
     const result = await this.exe<any>(

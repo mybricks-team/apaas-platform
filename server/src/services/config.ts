@@ -54,7 +54,7 @@ export default class ConfigService {
     const userId = await this.userService.getCurrentUserId(originUserId);
     const curNamespace = type ? `${namespace}@${type}[${id}]` : namespace;
     const [curConfig] = await this.configDao.getConfig({ namespace: [curNamespace] });
-
+    console.log(userId)
     if (curConfig) {
       await this.configDao.update({
         config: JSON.stringify(config),

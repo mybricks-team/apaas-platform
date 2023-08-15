@@ -468,7 +468,7 @@ export default () => {
           url: getApiUrl('/paas/api/config/update'),
           data: {
             namespace: namespace,
-            userId: user.email,
+            userId: user.id,
             config: values,
           },
         })

@@ -327,19 +327,19 @@ export default class UserController {
 
   @Post('/setUserRole')
   async setUserRole(
-    @Body('email') email: string,
+    @Body('userId') userId: string,
     @Body('role') role: number,
-    @Body('updator') updator: string
+    @Body('updatorId') updatorId: string
   ) {
-    if(!email || !role || !updator) {
+    if(!userId || !role || !updatorId) {
       return {
         code: -1,
         msg: '参数缺失'
       }
     }
-    const user = await this.userService.queryByEmail({ email: updator })
+    const user = await this.userDao.queryById({ id: updatorId })
     if(user.role === 10) {
-      await this.userService.setUserRole({email,role})
+      await this.userService.setUserRole({userId: userId, role})
       return {
         code: 1,
         msg: '设置成功'

@@ -176,8 +176,8 @@ export default class UserGroupService {
   async delete(@Body() body) {
     const { id, userId } = body
 
-    const user = await this.userDao.queryByEmail({email: userId})
-    const result = await this.userGroupDao.delete({id, updatorId: user.email, updatorName: user.name || user.email })
+    const user = await this.userDao.queryById({id: userId})
+    const result = await this.userGroupDao.delete({id, updatorId: user.id, updatorName: user.name })
 
     if (result.changedRows !== 0) {
       return {

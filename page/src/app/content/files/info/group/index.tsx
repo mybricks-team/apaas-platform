@@ -102,7 +102,8 @@ export default function Group(props) {
           const roleDescription = userGroupRelation?.roleDescription
           ctx.manageable = roleDescription === 1
           ctx.editable = roleDescription === 2
-          ctx.isFounder = data.creatorId === appCtx.user.email
+          ctx.isFounder = +data.creatorId === +appCtx.user.id
+          console.log('ctx', ctx)
           resolve(true)
         })
       })
@@ -151,7 +152,7 @@ function GroupOperate(props) {
         method: 'post',
         url: getApiUrl('/paas/api/userGroup/delete'),
         data: {
-          userId: appCtx.user.email,
+          userId: appCtx.user.id,
           id: props.id
         }
       }).then(({data}) => {

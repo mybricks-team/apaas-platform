@@ -150,7 +150,7 @@
             role = #{role},
             update_time = #{updateTime}
         where
-            email = #{email} and
+            id = #{userId} and
             status = 1
     </update>
 

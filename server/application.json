@@ -8,9 +8,9 @@
     },
     {
       "type": "oss",
-      "version": "0.2.47",
+      "version": "0.1.24",
       "namespace": "mybricks-material",
-      "path": "asset-center/asset/app/mybricks-material/0.1.23/mybricks-material.zip"
+      "path": "asset-center/asset/app/mybricks-material/0.1.24/mybricks-material.zip"
     },
     {
       "type": "npm",

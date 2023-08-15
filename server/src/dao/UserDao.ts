@@ -99,7 +99,7 @@ export default class UserDao extends DOBase {
     return result?.[0] ? result?.[0]?.total : null
   }
 
-  public async setUserRole(param: { role, email }): Promise<any> {
+  public async setUserRole(param: { role, userId }): Promise<any> {
     let newParam = {
       ...param,
       updateTime: Date.now()

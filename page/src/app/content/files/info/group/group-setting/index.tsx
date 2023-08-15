@@ -99,7 +99,7 @@ const GroupSetting: FC<{ onClose?(): void; visible: boolean }> = props => {
           url: getApiUrl('/paas/api/config/update'),
           data: {
             namespace: namespace,
-            userId: user.email,
+            userId: user.id,
             config: values,
             type: 'group',
             id: pathInfo.id,

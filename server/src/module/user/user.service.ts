@@ -22,8 +22,8 @@ export default class UserService {
     return await this.userDao.getTotalCountByParam({ role, email });
   }
 
-  async setUserRole({ role, email }) {
-    return await this.userDao.setUserRole({email,role});
+  async setUserRole({ role, userId }) {
+    return await this.userDao.setUserRole({userId,role});
   }
 
   async queryByEmail({ email }) {
@@ -41,6 +41,7 @@ export default class UserService {
 
   /** 获取用户 ID，传的是字符串则查找用户，数字则直接返回 */
   async getCurrentUserId(userId: string | number) {
+    // email中存储其他唯一键：真正的邮箱或者其他唯一的key
     // @ts-ignore
     if (userId && typeof userId !== 'number' && (userId.includes('@') || Number(userId) != userId)) {
       const user = await this.queryByEmail({ email: userId });
