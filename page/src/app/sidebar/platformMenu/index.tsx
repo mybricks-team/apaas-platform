@@ -83,7 +83,7 @@ function My() {
             method: 'get',
             url: getApiUrl('/paas/api/file/getMyFiles'),
             params: {
-              userId: appCtx.user.email,
+              userId: appCtx.user.id,
               extNames: 'folder,folder-project,folder-module',
               parentId
             }
@@ -143,9 +143,9 @@ function Group() {
               // 查文件夹
               axios({
                 method: 'get',
-                url: getApiUrl('/api/file/getGroupFiles'),
+                url: getApiUrl('/paas/api/file/getGroupFiles'),
                 params: {
-                  userId: appCtx.user.email,
+                  userId: appCtx.user.id,
                   extNames: 'folder,folder-project,folder-module',
                   parentId,
                   groupId
@@ -159,7 +159,7 @@ function Group() {
                 method: 'get',
                 url: getApiUrl('/paas/api/userGroup/getVisibleGroups'),
                 params: {
-                  userId: appCtx.user.email
+                  userId: appCtx.user.id
                 }
               }).then(({ data: { data } }) => {
                 resolve(data)

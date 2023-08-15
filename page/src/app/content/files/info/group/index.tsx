@@ -95,7 +95,7 @@ export default function Group(props) {
       return new Promise((resolve) => {
         axios({
           method: "get",
-          url: getApiUrl(`/paas/api/userGroup/getGroupInfoByGroupId?id=${id}&userId=${appCtx.user.email}&pageIndex=1&pageSize=5`)
+          url: getApiUrl(`/paas/api/userGroup/getGroupInfoByGroupId?id=${id}&userId=${appCtx.user.id}&pageIndex=1&pageSize=5`)
         }).then(({data: {data}}) => {
           ctx.info = data
           const { userGroupRelation } = data

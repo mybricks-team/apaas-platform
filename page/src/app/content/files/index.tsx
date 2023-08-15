@@ -99,7 +99,7 @@ export default function Files() {
             method: 'get',
             url: getApiUrl('/paas/api/file/getMyFiles'),
             params: {
-              userId: appCtx.user.email,
+              userId: appCtx.user.id,
               parentId
             }
           }).then(({data}) => {
@@ -115,7 +115,7 @@ export default function Files() {
             method: 'get',
             url: getApiUrl('/api/file/getGroupFiles'),
             params: {
-              userId: appCtx.user.email,
+              userId: appCtx.user.id,
               parentId,
               groupId
             }
@@ -191,8 +191,8 @@ function Projects() {
             return new Promise((resolve) => {
               axios({
                 method: "post",
-                url: getApiUrl('/api/workspace/deleteFile'),
-                data: {id: item.id, userId: appCtx.user.email}
+                url: getApiUrl('/paas/api/workspace/deleteFile'),
+                data: {id: item.id, userId: appCtx.user.id}
               }).then(async ({data}) => {
                 if (data.code === 1) {
                   ctx.getAll(getUrlQuery());
@@ -226,7 +226,7 @@ function Projects() {
               axios({
                 method: "post",
                 url: clickShare ? getApiUrl('/paas/api/file/share/mark') : getApiUrl('/paas/api/file/share/unmark'),
-                data: {id: item.id, userId: appCtx.user.email}
+                data: {id: item.id, userId: appCtx.user.id}
               }).then(async ({data}) => {
                 if (data.code === 1) {
                   ctx.getAll(getUrlQuery());
@@ -519,7 +519,7 @@ function Projects() {
           data: {
             id: app.id,
             name,
-            userId: appCtx.user.email
+            userId: appCtx.user.id
           }
         }).then(async ({data}) => {
           if (data.code === 1) {
@@ -915,7 +915,7 @@ function MoveFileModal({app, onOk, onCancel}) {
         method: 'get',
         url: getApiUrl('/paas/api/userGroup/getVisibleGroups'),
         params: {
-          userId: appCtx.user.email
+          userId: appCtx.user.id
         }
       }).then(({ data: { data } }) => {
         ctx.dataSource = data.filter((item) => item.roleDescription && item.roleDescription < 3)
@@ -949,7 +949,7 @@ function MoveFileModal({app, onOk, onCancel}) {
               item.loading = true
 
               const params: any = {
-                userId: appCtx.user.email,
+                userId: appCtx.user.id,
                 extNames: 'folder,folder-project,folder-module',
               }
 
@@ -963,7 +963,7 @@ function MoveFileModal({app, onOk, onCancel}) {
 
               axios({
                 method: 'get',
-                url: getApiUrl('/api/file/getGroupFiles'),
+                url: getApiUrl('/paas/api/file/getGroupFiles'),
                 params
               }).then(({ data: { data } }) => {
                 item.dataSource = fileSort(data.filter((item) => item.id !== app.id))
@@ -979,7 +979,7 @@ function MoveFileModal({app, onOk, onCancel}) {
               item.loading = true
 
               const params: any = {
-                userId: appCtx.user.email,
+                userId: appCtx.user.id,
                 extNames: 'folder,folder-project,folder-module',
               }
 

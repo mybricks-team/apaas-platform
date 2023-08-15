@@ -21,6 +21,13 @@
         and status = #{status}
     </select>
 
+    <select id="queryById">
+        select *
+        from apaas_user
+        where id = #{id}
+        and status = #{status}
+    </select>
+
     <select id="queryByRoleAndName">
         select * from apaas_user where status = 1
         <if test="role">

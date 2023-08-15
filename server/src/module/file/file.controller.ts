@@ -223,8 +223,8 @@ export default class FileController {
     @Body("name") name: string,
     @Body("userId") userId: string,
   ) {
-    const user = await this.userDao.queryByEmail({ email: userId })
-    const result = await this.fileDao.update({ id, name, updatorId: user.email, updatorName: user.name || user.email })
+    const user = await this.userDao.queryById({ id: userId })
+    const result = await this.fileDao.update({ id, name, updatorId: user.id, updatorName: user.name || user.email })
 
     return {
       code: 1,
@@ -923,7 +923,7 @@ export default class FileController {
       data: files.filter((item) => {
         const { hasIcon } = item
         if (hasIcon === "1") {
-          item.icon = `/api/workspace/getFileIcon?fileId=${item.id}`;
+          item.icon = `/paas/api/workspace/getFileIcon?fileId=${item.id}`;
         } else if (hasIcon.startsWith('http')) {
           item.icon = hasIcon
         }
@@ -935,9 +935,8 @@ export default class FileController {
 
   @Get("/getGroupFiles")
   async getGroupFiles(@Query() query) {
-    const { userId, parentId, extNames, status, groupId } = query
+    const { parentId, extNames, status, groupId } = query
     const params: any = {
-      userId,
       parentId,
       status,
       groupId
@@ -1480,8 +1479,7 @@ export default class FileController {
     const rtn = await this.fileDao.updateShare({
       id: id,
       shareType: 1,
-      updatorId: userId,
-      updatorName: userId
+      updatorId: userId
     })
     return {
       code: rtn.affectedRows > 0 ? 1 : -1,

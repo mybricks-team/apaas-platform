@@ -174,7 +174,7 @@ export default class WorkspaceService {
 
   @Post("/workspace/createFile")
   async createFile(@Body() body) {
-    const { userId, name, extName, namespace, type, parentId, groupId } = body;
+    const { userId, userName, name, extName, namespace, type, parentId, groupId } = body;
     if (!userId) {
       return {
         code: -1,
@@ -188,7 +188,7 @@ export default class WorkspaceService {
         name,
         namespace,
         creatorId: userId,
-        creatorName: userId,
+        creatorName: userName,
         extName: extName,
         groupId,
         parentId,
@@ -641,8 +641,7 @@ export default class WorkspaceService {
 	    const file = await this.fileDao.queryById(id);
       const rtn = await this.fileDao.deleteFile({
         id,
-        updatorId: userId,
-        updatorName: userId,
+        updatorId: userId
       });
 			
 			try {
@@ -678,8 +677,7 @@ export default class WorkspaceService {
     try {
       await this.fileDao.recoverFile({
         id,
-        updatorId: userId,
-        updatorName: userId,
+        updatorId: userId
       });
 
       return { code: 1, data: null };
