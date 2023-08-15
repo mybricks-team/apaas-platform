@@ -365,7 +365,7 @@ export default class FileController {
           return {
             id: user.id,
             name: user.name,
-            userId: user.id,
+            userId: user.email,
             email: user.email,
             avatar: user.avatar,
             status: cooperationUser.status,
@@ -392,7 +392,8 @@ export default class FileController {
             return {
               ...user,
               userGroupId: user.user_group_id,
-              userId: user.user_id,
+              userId: user.email,
+              originUserId: user.user_id,
               creatorId: user.creator_id,
               creatorName: user.creator_name,
               createTime: user.create_time,
@@ -411,7 +412,7 @@ export default class FileController {
             const user = await this.userDao.queryById({
               id: file.creatorId,
             });
-            resolve({userId: user.id, name: user.name, email: user.email, avatar: user.avatar});
+            resolve({ originUserId: user.id, userId: user.email, name: user.name, email: user.email, avatar: user.avatar});
           }
         } else {
           resolve(null);
