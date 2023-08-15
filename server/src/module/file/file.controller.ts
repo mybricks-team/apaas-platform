@@ -408,10 +408,10 @@ export default class FileController {
         if (fileId) {
           const file = await this.fileDao.queryById(fileId);
           if (file) {
-            const user = await this.userDao.queryByEmail({
-              email: file.creatorId,
+            const user = await this.userDao.queryById({
+              id: file.creatorId,
             });
-            resolve({name: user.name, email: user.email, avatar: user.avatar});
+            resolve({userId: user.id, name: user.name, email: user.email, avatar: user.avatar});
           }
         } else {
           resolve(null);
@@ -435,9 +435,7 @@ export default class FileController {
     }
 
     if (groupOwner) {
-      const index = groupAdminUsers.findIndex(
-        (user) => user.email === groupOwner.email
-      );
+      const index = groupAdminUsers.findIndex((user) => user.email === groupOwner.email);
 
       if (index !== -1) {
         const owner = groupAdminUsers[index];
@@ -532,8 +530,10 @@ export default class FileController {
 
   @Post("/createCooperationUser")
   async createCooperationUser(@Body() body) {
-    const { email, creatorId, groupId, fileId, roleDescription } = body
-    const user = await this.userDao.queryByEmail({email: creatorId})
+    const { userId: originUserId, email, creatorId: originCreatorId, groupId, fileId, roleDescription } = body;
+    const userId = await this.userService.getCurrentUserId(originUserId || email);
+    const creatorId = await this.userService.getCurrentUserId(originCreatorId);
+    const user = await this.userDao.queryById({id: creatorId});
 
     if (groupId) {
       const data = await this.userGroupRelationDao.create({
@@ -541,7 +541,7 @@ export default class FileController {
         creatorName: user.name,
         roleDescription,
         userGroupId: groupId,
-        userId: email
+        userId
       })
 
       return {
@@ -550,7 +550,7 @@ export default class FileController {
       }
     } else {
       const data = await this.userFileRelationDao.create({
-        userId: email,
+        userId,
         fileId,
         creatorId,
         roleDescription
@@ -565,8 +565,10 @@ export default class FileController {
 
   @Post("/updateCooperationUser")
   async updateCooperationUser(@Body() body) {
-    const { email, updatorId, groupId, fileId, roleDescription, status } = body
-    const user = await this.userDao.queryByEmail({email: updatorId})
+    const { userId: originUserId, email, updatorId: originUpdatorId, groupId, fileId, roleDescription, status } = body
+    const userId = await this.userService.getCurrentUserId(originUserId || email);
+    const updatorId = await this.userService.getCurrentUserId(originUpdatorId);
+    const user = await this.userDao.queryById({id: updatorId});
 
     if (groupId) {
       const data = this.userGroupRelationDao.update({
@@ -574,7 +576,7 @@ export default class FileController {
         updatorName: user.name,
         roleDescription: roleDescription,
         userGroupId: groupId,
-        userId: email,
+        userId,
         status
       })
 
@@ -584,7 +586,7 @@ export default class FileController {
       }
     } else {
       const data = await this.userFileRelationDao.create({
-        userId: email,
+        userId,
         fileId,
         creatorId: updatorId,
         roleDescription
@@ -898,7 +900,8 @@ export default class FileController {
 
   @Get("/getMyFiles")
   async getMyFiles(@Query() query) {
-    const { userId, parentId, extNames, status } = query
+    const { userId: originUserId, parentId, extNames, status } = query
+    const userId = await this.userService.getCurrentUserId(originUserId);
     const params: any = {
       userId,
       parentId,

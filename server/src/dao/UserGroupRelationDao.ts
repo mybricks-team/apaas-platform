@@ -58,11 +58,11 @@ export class UserGroupRelationDO {
 export default class UserGroupRelationDao extends DOBase {
 
   public async create(params: {
-    creatorId: string;
+    creatorId: string | number;
     creatorName?: string;
     roleDescription: number;
     userGroupId: number;
-    userId: string;
+    userId: string | number;
   }) {
     const time = new Date().getTime()
     return await this.exe<any>(

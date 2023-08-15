@@ -1,28 +1,21 @@
-import {
-  Get,
-  Controller,
-  Body,
-  Post,
-  Param,
-  Headers,
-  Query,
-  Request,
-} from '@nestjs/common';
-import { Logs } from '../utils';
+import { Get, Controller, Body, Post, Query } from '@nestjs/common';
 import UserDao from '../dao/UserDao'
 import UserGroupDao from '../dao/UserGroupDao'
 import UserGroupRelation from '../dao/UserGroupRelationDao'
+import UserService from '../module/user/user.service';
 
 @Controller('/paas/api')
 export default class UserGroupService {
   userDao: UserDao;
   userGroupDao: UserGroupDao;
   userGroupRelation: UserGroupRelation;
+  userService: UserService;
 
   constructor() {
     this.userDao = new UserDao();
     this.userGroupDao = new UserGroupDao();
     this.userGroupRelation = new UserGroupRelation();
+    this.userService = new UserService();
   }
 
   @Post('/userGroup/create')
@@ -149,9 +142,10 @@ export default class UserGroupService {
 
   @Get('/userGroup/getVisibleGroups')
   async getVisibleGroups(@Query() query) {
-    const { userId } = query
+    const { userId: originUserId } = query;
+    const userId = await this.userService.getCurrentUserId(originUserId);
     const userGroupRelations = await this.userGroupRelation.queryByUserId({userId})
-    let data = []
+    let data = [];
 
     if (userGroupRelations.length) {
       data = await this.userGroupDao.queryByIds({ids: userGroupRelations.map((item) => item.userGroupId)})

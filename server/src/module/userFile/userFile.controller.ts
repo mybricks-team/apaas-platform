@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Param, Body, Req, Query, Inject } from '@nestjs/common'
 import UserFileService from './userFile.service';
+import UserService from '../user/user.service';
 
 @Controller("/paas/api/userFile")
 export default class UserFileController {
@@ -7,6 +8,8 @@ export default class UserFileController {
 
   @Inject(UserFileService)
   userFileService: UserFileService;
+  @Inject(UserService)
+  userService: UserService;
 
   @Get('/getFileUserInfoByFileIdAndUserId')
   async getFileUserInfoByFileIdAndUserId (@Query('fileId') fileId: number, @Query('userId') userId: string) {
@@ -27,8 +30,9 @@ export default class UserFileController {
 
   @Get('/getUser')
   async getUser(@Query() query) {
-    const { email, id } = query
-    const data = await this.userFileService.getFileUserInfoByFileIdAndUserId({ fileId: id, userId: email })
+    const { email, userId: originUserId, id } = query
+    const userId = await this.userService.getCurrentUserId(originUserId || email);
+    const data = await this.userFileService.getFileUserInfoByFileIdAndUserId({ fileId: id, userId });
     
     return {
       code: 1,

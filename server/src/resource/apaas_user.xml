@@ -155,6 +155,6 @@
     </update>
 
     <select id="getGroupOwnerInfo">
-        select * from apaas_user where email in (select creator_id from apaas_user_group where id = #{groupId})
+        select * from apaas_user where id in (select creator_id from apaas_user_group where id = #{groupId})
     </select>
 </mapper>

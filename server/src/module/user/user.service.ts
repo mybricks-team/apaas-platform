@@ -40,7 +40,7 @@ export default class UserService {
   }
 
   /** 获取用户 ID，传的是字符串则查找用户，数字则直接返回 */
-  async getCurrentUserId(userId: string | number) {
+  async getCurrentUserId(userId: any) {
     // email中存储其他唯一键：真正的邮箱或者其他唯一的key
     // @ts-ignore
     if (userId && typeof userId !== 'number' && (userId.includes('@') || Number(userId) != userId)) {
