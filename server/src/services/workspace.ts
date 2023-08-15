@@ -13,6 +13,7 @@ import ConfigService from './config'
 import { getRealDomain } from "../utils";
 import UserGroupDao from "../dao/UserGroupDao"
 import UploadService from '../module/upload/upload.service';
+import UserService from '../module/user/user.service';
 import { getAdminInfoByProjectId } from '../utils/index'
 import { Logger } from '@mybricks/rocker-commons';
 
@@ -29,6 +30,7 @@ export default class WorkspaceService {
   filePubDao: FilePubDao;
   fileService: FileService;
   configService: ConfigService;
+  userService: UserService;
   userDao: UserDao;
   userGroupDao: UserGroupDao;
   uploadService: UploadService;
@@ -39,6 +41,7 @@ export default class WorkspaceService {
     this.filePubDao = new FilePubDao();
     this.configDao = new ConfigDao();
     this.fileService = new FileService();
+    this.userService = new UserService();
     this.configService = new ConfigService()
     this.userDao = new UserDao();
     this.userGroupDao = new UserGroupDao();
@@ -47,19 +50,15 @@ export default class WorkspaceService {
 
   @Get("/workspace/getAll")
   async getAll(@Query() query) {
-    const { userId, parentId, groupId } = query;
+    const { userId: originUserId, parentId, groupId } = query;
+    const userId = await this.userService.getCurrentUserId(originUserId);
+
     if (!userId) {
-      return {
-        code: -1,
-        message: "error",
-      };
+      return { code: -1, message: "error" };
     }
 
     try {
-      const params = {
-        parentId,
-        groupId
-      }
+      const params: Record<string, unknown> = { parentId, groupId };
       if (!groupId) {
         params.creatorId = userId
       }
@@ -80,10 +79,7 @@ export default class WorkspaceService {
         }),
       };
     } catch (ex) {
-      return {
-        code: -1,
-        message: ex.message,
-      };
+      return { code: -1, message: ex.message };
     }
   }
 
@@ -234,8 +230,9 @@ export default class WorkspaceService {
   @Post("/workspace/saveFile")
   async updateFile(@Body() body) {
     try {
-      let { userId, fileId, shareType, name, content, icon, namespace, type } =
-        body;
+      let { userId: originUserId, fileId, shareType, name, content, icon, namespace, type } = body;
+      const userId = await this.userService.getCurrentUserId(originUserId);
+
       if (!userId) {
         return {
           code: -1,
@@ -259,7 +256,7 @@ export default class WorkspaceService {
             id: fileId,
             namespace,
             updatorId: userId,
-            updatorName: userId,
+            updatorName: originUserId,
           });
         }
       }
@@ -269,7 +266,7 @@ export default class WorkspaceService {
           id: fileId,
           type,
           updatorId: userId,
-          updatorName: userId,
+          updatorName: originUserId,
         });
       }
 
@@ -287,7 +284,7 @@ export default class WorkspaceService {
           id: fileId,
           icon,
           updatorId: userId,
-          updatorName: userId,
+          updatorName: originUserId,
         });
       }
 
@@ -296,7 +293,7 @@ export default class WorkspaceService {
           id: fileId,
           shareType,
           updatorId: userId,
-          updatorName: userId,
+          updatorName: originUserId,
         });
       }
 
@@ -305,11 +302,9 @@ export default class WorkspaceService {
         await this.fileContentDao.create({
           fileId,
           content,
-          version: contentItem?.version
-            ? getNextVersion(contentItem?.version)
-            : "1.0.0",
+          version: contentItem?.version ? getNextVersion(contentItem?.version) : "1.0.0",
           creatorId: userId,
-          creatorName: userId,
+          creatorName: originUserId,
         });
       }
 
@@ -330,7 +325,7 @@ export default class WorkspaceService {
     try {
       let {
         extName,
-        userId,
+        userId: originUserId,
         fileId,
         content,
         commitInfo,
@@ -339,6 +334,7 @@ export default class WorkspaceService {
         fileContentId
       } = body;
 
+      const userId = await this.userService.getCurrentUserId(originUserId);
       /** 不存在 fileContentId 则取最新一条记录 */
       if (!fileContentId) {
         const fileContent = (await this.fileContentDao.queryLatestByFileId<FileContentDO>(fileId)) as any;
@@ -351,7 +347,7 @@ export default class WorkspaceService {
           id: fileId,
           uri: uri,
           updatorId: userId,
-          updatorName: userId,
+          updatorName: originUserId,
         })
       }
 
@@ -375,20 +371,14 @@ export default class WorkspaceService {
         type,
         commitInfo,
         creatorId: userId,
-        creatorName: userId,
+        creatorName: originUserId,
         fileContentId
       });
       data.pib_id = id;
 
-      return {
-        code: 1,
-        data: data,
-      };
+      return { code: 1, data: data };
     } catch (ex) {
-      return {
-        code: -1,
-        message: ex.message,
-      };
+      return { code: -1, message: ex.message };
     }
   }
 

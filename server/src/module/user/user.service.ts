@@ -38,6 +38,16 @@ export default class UserService {
       await this.userSessionDao.create({ userId, fingerprint })
     }
   }
-  
-  
+
+  /** 获取用户 ID，传的是字符串则查找用户，数字则直接返回 */
+  async getCurrentUserId(userId: string | number) {
+    // @ts-ignore
+    if (userId && (userId.includes('@') || Number(userId) !== userId)) {
+      const user = await this.queryByEmail({ email: userId });
+
+      return user?.id;
+    }
+
+    return userId
+  }
 }

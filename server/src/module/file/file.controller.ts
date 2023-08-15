@@ -12,6 +12,7 @@ import { isNumber, getAdminInfoByProjectId } from '../../utils'
 import ModuleDao from "../../dao/ModuleDao";
 import FileService from "./file.service";
 import UserFileRelationDao from "../../dao/UserFileRelationDao";
+import UserService from '../user/user.service';
 const path = require('path');
 import {Logger} from '@mybricks/rocker-commons'
 
@@ -29,6 +30,7 @@ export default class FileController {
   modulePubDao: ModulePubDao
 
   fileService: FileService
+  userService: UserService
   userFileRelationDao: UserFileRelationDao
 
   constructor() {
@@ -43,6 +45,7 @@ export default class FileController {
     this.moduleDao = new ModuleDao()
     this.modulePubDao = new ModulePubDao()
     this.fileService = new FileService()
+    this.userService = new UserService()
     this.userFileRelationDao = new UserFileRelationDao()
   }
 
@@ -97,8 +100,9 @@ export default class FileController {
   @Post('/delete')
   async deleteFile(
     @Body("fileId") fileId: number,
-    @Body("updatorId") updatorId: string,
+    @Body("updatorId") originUpdatorId: string,
   ) {
+    const updatorId = await this.userService.getCurrentUserId(originUpdatorId);
     if(!fileId || !updatorId) {
       return {
         code: -1,
@@ -114,7 +118,7 @@ export default class FileController {
           msg: '删除失败，您没有此文件权限'
         }
       }
-      const res = await this.fileDao.deleteFile({ id: fileId, updatorId: updatorId, updatorName: updatorId })
+      const res = await this.fileDao.deleteFile({ id: fileId, updatorId, updatorName: originUpdatorId })
       return {
         code: 1,
         data: res
@@ -130,7 +134,7 @@ export default class FileController {
   @Post("/create")
   async create(
     @Body("name") name: string,
-    @Body("creatorId") creatorId: string,
+    @Body("creatorId") originCreatorId: string,
     @Body("creatorName") creatorName: string,
     @Body("extName") extName: string,
     @Body("groupId") groupId: number,
@@ -138,22 +142,13 @@ export default class FileController {
     @Body("parentId") parentId: number,
     @Body("icon") icon: string,
   ) {
+    const creatorId = await this.userService.getCurrentUserId(originCreatorId);
+
     if(!name || !creatorId || !extName) {
-      return {
-        code: -1,
-        msg: '参数不合法'
-      }
+      return { code: -1, msg: '参数不合法' };
     }
-    const param = {
-      parentId,
-      groupId,
-      name,
-      extName,
-      icon,
-      creatorId,
-      creatorName,
-      description
-    }
+    const param = { parentId, groupId, name, extName, icon, creatorId, creatorName, description };
+
     try {
       const result = await this.fileDao.createFile(param)
       return {
@@ -170,12 +165,11 @@ export default class FileController {
 
   @Post("/createFileBaseTemplate")
   async createFile(@Body() body) {
-    const { userId, name, extName, namespace, type, parentId, groupId, templateId } = body;
+    const { userId: originUserId, name, extName, namespace, type, parentId, groupId, templateId } = body;
+    const userId = await this.userService.getCurrentUserId(originUserId);
+
     if (!userId) {
-      return {
-        code: -1,
-        msg: "缺少userId参数",
-      };
+      return { code: -1, msg: "缺少userId参数" };
     }
     try {
       const rtn = await this.fileDao.createFile({
@@ -183,7 +177,7 @@ export default class FileController {
         name,
         namespace,
         creatorId: userId,
-        creatorName: userId,
+        creatorName: originUserId,
         extName: extName,
         groupId,
         parentId,
@@ -196,13 +190,10 @@ export default class FileController {
           content: latestSave?.content,
           version: '1.0.0',
           creatorId: userId,
-          creatorName: userId,
+          creatorName: originUserId,
         });
 			} else {
-        return {
-          code: -1,
-          msg: '新建失败，请重试'
-        }
+        return { code: -1, msg: '新建失败，请重试' };
       }
 
       return {
@@ -210,10 +201,7 @@ export default class FileController {
         data: { id: rtn.id },
       };
     } catch (ex) {
-      return {
-        code: -1,
-        msg: ex.message,
-      };
+      return { code: -1, msg: ex.message };
     }
   }
 
