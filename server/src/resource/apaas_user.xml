@@ -41,7 +41,7 @@
     </select>
 
     <select id="queryByEmails">
-        select name, email, avatar  
+        select id, name, email, avatar
         from apaas_user
         where status = #{status}
         and email in 
@@ -51,6 +51,21 @@
         order by field (email, 
             <foreach collection="emails" open="" close="" separator="," item="email" index="i">
                 #{email}
+            </foreach>
+        )
+    </select>
+
+    <select id="queryByIds">
+        select id, name, email, avatar
+        from apaas_user
+        where status = #{status}
+        and id in
+            <foreach collection="ids" open="(" close=")" separator="," item="id" index="i">
+                #{id}
+            </foreach>
+        order by field (id,
+            <foreach collection="ids" open="" close="" separator="," item="id" index="i">
+                #{id}
             </foreach>
         )
     </select>

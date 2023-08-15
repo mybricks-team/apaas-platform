@@ -267,7 +267,8 @@ export default class FileController {
 
   @Get("/getCooperationUsers")
   async getCooperationUsers(@Query() query) {
-    const { userId, timeInterval } = query;
+    const { userId: originUserId, timeInterval } = query;
+    const userId = await this.userService.getCurrentUserId(originUserId);
     const fileId = Number(query.fileId);
 
     if (!isNumber(fileId) || !userId) {
@@ -347,7 +348,7 @@ export default class FileController {
 
     const userIds = cooperationUsers.map((cooperationUser) => cooperationUser.userId)
     /** 查询用户信息 */
-    const users = await this.userDao.queryByEmails({ emails: userIds })
+    const users = await this.userDao.queryByIds({ ids: userIds })
 
     Reflect.deleteProperty(file, 'icon');
     if (versions?.[0]?.version) {
@@ -362,8 +363,10 @@ export default class FileController {
         }).map((cooperationUser, index) => {
           const user = users[index]
           return {
+            id: user.id,
             name: user.name,
-            userId: user.email,
+            userId: user.id,
+            email: user.email,
             avatar: user.avatar,
             status: cooperationUser.status,
             updateTime: cooperationUser.updateTime
@@ -451,7 +454,8 @@ export default class FileController {
 
   @Post("/toggleFileCooperationStatus")
   async toggleFileCooperationStatus(@Body() body) {
-    const { userId, status } = body
+    const { userId: originUserId, status } = body
+    const userId = await this.userService.getCurrentUserId(originUserId);
     const fileId = Number(body.fileId)
 
     if (!isNumber(fileId) || !userId) {
@@ -478,7 +482,6 @@ export default class FileController {
       }
 
       let roleDescription = 3
-
       const { groupId, creatorId } = file
 
       if (creatorId === userId) {
@@ -486,8 +489,8 @@ export default class FileController {
       } else {
         const [fileDescription, groupDescription] = await Promise.all([
           new Promise(async (resolve) => {
-            const userFileFelation = await this.userFileRelationDao.query({userId, fileId})
-            resolve(userFileFelation?.roleDescription)
+            const userFileRelation = await this.userFileRelationDao.query({userId, fileId})
+            resolve(userFileRelation?.roleDescription)
           }),
           new Promise(async (resolve) => {
             if (!groupId) {
