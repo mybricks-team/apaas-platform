@@ -13,10 +13,14 @@
                 icon,
             </if>
             status,
-            creator_name,
+            <if test="creatorName">
+                creator_name,
+            </if>
             create_time,
             creator_id,
-            updator_name,
+            <if test="updatorName">
+                updator_name,
+            </if>
             update_time,
             updator_id
         )
@@ -27,10 +31,14 @@
                 #{icon},
             </if>
             #{status},
-            #{creatorName},
+            <if test="creatorName">
+                #{creatorName},
+            </if>
             #{createTime},
             #{creatorId},
-            #{updatorName},
+            <if test="updatorName">
+                #{updatorName},
+            </if>
             #{updateTime},
             #{updatorId},
         </trim>

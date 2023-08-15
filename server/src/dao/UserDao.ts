@@ -140,6 +140,20 @@ export default class UserDao extends DOBase {
   }
 
   @Mapping(UserDO)
+  public async queryByIds(params: {
+    ids: string[]
+  }): Promise<UserDO> {
+    params = Object.assign({status: 1}, params)
+
+    const result = await this.exe<any>(
+      'apaas_user:queryByIds',
+      params
+    )
+
+    return result
+  }
+
+  @Mapping(UserDO)
   public async queryByEmails(params: {
     emails: string[]
   }): Promise<UserDO> {

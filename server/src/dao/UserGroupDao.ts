@@ -57,7 +57,7 @@ export default class UserGroupDao extends DOBase {
     name: string;
     icon?: string;
     creatorId: string;
-    creatorName: string;
+    creatorName?: string;
   }) {
     const time = new Date().getTime()
     return await this.exe<any>(
@@ -69,7 +69,7 @@ export default class UserGroupDao extends DOBase {
         createTime: time,
         updateTime: time,
         updatorId: params.creatorId,
-        updatorName: params.creatorName
+        updatorName: ''
       }
     )
   }

@@ -63,7 +63,7 @@ export default function Files() {
           if (groupId !== ctx.groupId) {
             axios({
               method: 'get',
-              url: getApiUrl(`/paas/api/userGroup/getUserGroupRelation?id=${groupId}&userId=${appCtx.user.email}`)
+              url: getApiUrl(`/paas/api/userGroup/getUserGroupRelation?id=${groupId}&userId=${appCtx.user.id}`)
             }).then(({data: {data}}) => {
               ctx.roleDescription = data?.roleDescription || 3
             })
@@ -77,7 +77,7 @@ export default function Files() {
         axios({
           method: "get",
           url: getApiUrl('/paas/api/file/getFilePath'),
-          params: {userId: appCtx.user.email, fileId: parentId, groupId}
+          params: {fileId: parentId, groupId}
         }).then(({data: {data}}) => {
           if (data.length) {
             if (data[0]) {

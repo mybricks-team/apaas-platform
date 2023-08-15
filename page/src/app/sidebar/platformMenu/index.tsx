@@ -179,7 +179,7 @@ function Group() {
     return new Promise(async (resolve, reject) => {
       const { name, icon } = values
       const data: any = {
-        userId: appCtx.user.email,
+        userId: appCtx.user.id,
         name
       }
       if (icon && (icon.startsWith('http') || icon.startsWith('Mybricks'))) {

@@ -36,7 +36,7 @@ export default class UserGroupService {
     }
 
     try {
-      const user = await this.userDao.queryByEmail({email: userId})
+      const user = await this.userDao.queryById({id: userId})
       if (!user) {
         return {
           code: -1,
@@ -46,15 +46,12 @@ export default class UserGroupService {
       const rtn = await this.userGroupDao.create({
         name,
         icon,
-        creatorId: userId,
-        creatorName: user.name || userId
+        creatorId: userId
       })
-
       const userGroupId = rtn.insertId
 
       await this.userGroupRelation.create({
         creatorId: userId,
-        creatorName: user.name || userId,
         userId,
         roleDescription: 1,
         userGroupId
@@ -65,6 +62,7 @@ export default class UserGroupService {
         data: { id: rtn.insertId },
       };
     } catch (ex) {
+      console.log(ex)
       return {
         code: -1,
         message: ex.message,
@@ -121,7 +119,7 @@ export default class UserGroupService {
     }
 
     try {
-      const user = await this.userDao.queryByEmail({email: userId})
+      const user = await this.userDao.queryById ({id: userId})
       if (!user) {
         return {
           code: -1,
@@ -211,39 +209,37 @@ export default class UserGroupService {
     const result = []
 
     const [user, users] = await Promise.all([
-      await this.userDao.queryByEmail({email: userId}),
-      await this.userDao.queryByEmails({emails: userIds})
+      await this.userDao.queryById({id: userId}),
+      await this.userDao.queryByIds({ids: userIds})
     ]) as any
 
     userIds.forEach((userId) => {
-      if (!users.find((user) => user.email === userId)) {
+      if (!users?.find((user) => user.id == userId)) {
         result.push({userId, status: -1})
       }
     })
 
     await Promise.all((users as any).map(async (item) => {
-      if (item.email === userId) {
+      if (item.id == userId) {
         return
       }
-      const hasUser = await this.userGroupRelation.queryByUserIdAndUserGroupId({userId: item.email, userGroupId: groupId})
+      const hasUser = await this.userGroupRelation.queryByUserIdAndUserGroupId({userId: item.id, userGroupId: groupId})
       if (hasUser) {
         if (hasUser.status === -1) {
-          result.push({userId: item.email, status: 1})
+          result.push({userId: item.id, status: 1})
           await this.userGroupRelation.update({
             updatorId: userId,
-            updatorName: user.name || userId,
             userGroupId: groupId,
-            userId: item.email,
+            userId: item.id,
             roleDescription
           })
         }
       } else {
-        result.push({userId: item.email, status: 1})
+        result.push({userId: item.id, status: 1})
         await this.userGroupRelation.create({
           creatorId: userId,
-          creatorName: user.name || userId,
           userGroupId: groupId,
-          userId: item.email,
+          userId: item.id,
           roleDescription
         })
       }
@@ -286,7 +282,6 @@ export default class UserGroupService {
       await this.userGroupRelation.queryByUserGroupId({userGroupId: id, limit: Number(pageSize), offset: Number(pageSize) * (Number(pageIndex) - 1)}),
       await this.userGroupRelation.queryUserTotalByUserGroupId({userGroupId: id})
     ])
-
     return {
       code: 1,
       data: {
@@ -304,14 +299,13 @@ export default class UserGroupService {
     const { id, userId, operatedUserId } = body
     const roleDescription = Number(body.roleDescription)
     const [user, userGroupRelation] = await Promise.all([
-      await this.userDao.queryByEmail({email: userId}),
+      await this.userDao.queryById({ id: userId }),
       await this.userGroupRelation.queryByUserIdAndUserGroupId({userId, userGroupId: id})
     ])
 
     if (userGroupRelation?.roleDescription === 1) {
       const params: any = {
         updatorId: userId,
-        updatorName: user.name || userId,
         userGroupId: id,
         userId: operatedUserId,
       }
@@ -336,7 +330,7 @@ export default class UserGroupService {
     } else {
       return {
         code: -1,
-        message: '无权操作'
+        msg: '无权操作'
       }
     }
   }

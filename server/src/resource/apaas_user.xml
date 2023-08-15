@@ -55,6 +55,18 @@
         )
     </select>
 
+
+    <select id="queryByIds">
+        select *
+        from apaas_user
+        where status = #{status}
+        and id in 
+            <foreach collection="ids" open="(" close=")" separator="," item="id" index="i">
+                #{id}
+            </foreach>
+        order by id
+    </select>
+
     <insert id="insert">
         insert into apaas_user
         (

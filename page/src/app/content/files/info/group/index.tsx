@@ -261,7 +261,7 @@ function GroupTitleConfig () {
     return new Promise(async (resolve, reject) => {
       const { name, icon } = values
       const data: any = {
-        userId: appCtx.user.email,
+        userId: appCtx.user.id,
         id: ctx.info.id,
         name
       }
@@ -653,22 +653,28 @@ function NewUserConfigModal({open, onCancel}) {
       url: getApiUrl('/paas/api/userGroup/updateUserGroupRelation'),
       data: {
         id: ctx.info.id,
-        userId: appCtx.user.email,
-        operatedUserId: user.email,
+        userId: appCtx.user.id,
+        operatedUserId: user.id,
         roleDescription: value
       }
-    }).then(() => {
-      message.success('设置成功')
-      if (value === -1) {
-        ctx.getInfo(ctx.info.id)
-        getUsers({
-          ...tableInfo,
-          pageIndex: tableInfo.users.length === 1 ? tableInfo.pageIndex - 1 : tableInfo.pageIndex
-        })
+    }).then(({ data }) => {
+      if(data.code === 1) {
+        if (value === -1) {
+          message.success('设置成功')
+          ctx.getInfo(ctx.info.id)
+          getUsers({
+            ...tableInfo,
+            pageIndex: tableInfo.users.length === 1 ? tableInfo.pageIndex - 1 : tableInfo.pageIndex
+          })
+        } else {
+          user.roleDescription = value
+          setTableLoading(false)
+        }
       } else {
-        user.roleDescription = value
+        message.warn(data.msg || '设置失败')
         setTableLoading(false)
       }
+      
     }).catch((e) => {
       message.error('设置失败')
       console.error(e)
@@ -684,6 +690,14 @@ function NewUserConfigModal({open, onCancel}) {
     const {email} = appCtx.user
     return [
       {
+        title: 'ID',
+        dataIndex: 'id',
+        key: 'id',
+        render: (id) => {
+          return <span className={css.copy} onClick={() => copy(id)}>{id}</span>
+        }
+      },
+      {
         title: '名称',
         dataIndex: 'name',
         key: 'name',
@@ -694,7 +708,7 @@ function NewUserConfigModal({open, onCancel}) {
         }
       },
       {
-        title: 'ID',
+        title: 'account',
         dataIndex: 'email',
         key: 'email',
         render: (email) => {
@@ -789,7 +803,7 @@ function NewUserConfigModal({open, onCancel}) {
         method: 'post',
         url: getApiUrl('/paas/api/userGroup/addUserGroupRelation'),
         data: {
-          userId: appCtx.user.email,
+          userId: appCtx.user.id,
           userIds: userIds.split(','),
           roleDescription,
           groupId: ctx.info.id
