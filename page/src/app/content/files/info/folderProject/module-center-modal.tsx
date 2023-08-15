@@ -45,7 +45,7 @@ const ModuleCenterModal: FC<ModuleCenterModal> = props => {
 	const install = useCallback((moduleId: number) => {
 		setModuleId(moduleId);
 		
-		axios({ method: "post", url: getApiUrl('/paas/api/module/install'), data: { id: moduleId, projectId, userId: appCtx.user.email } })
+		axios({ method: "post", url: getApiUrl('/paas/api/module/install'), data: { id: moduleId, projectId, userId: appCtx.user.id } })
 			.then(res => {
 				if (res.data.code === 1) {
 					message.success('安装成功');

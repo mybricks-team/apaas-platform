@@ -178,7 +178,7 @@ async function installApplication() {
               fs.writeFileSync(tempFolder + '/package.json', JSON.stringify({}), 'utf-8')
             }
             if(isYarnExist()) {
-              cp.execSync(`cd ${tempFolder} && yarn add ${npmPkg} --registry ${NPM_REGISTRY}  --production`)
+              cp.execSync(`cd ${tempFolder} && yarn add ${npmPkg} --registry=${NPM_REGISTRY}  --production`)
             } else {
               cp.execSync(`cd ${tempFolder} && npm i --registry=${NPM_REGISTRY} ${npmPkg} --production`)
             }
@@ -312,7 +312,7 @@ async function installApplication() {
             if(fs.existsSync(bePath)) {
               try{
                 if(isYarnExist()) {
-                  cp.execSync(`cd ${srcAppDir} && yarn --registry ${NPM_REGISTRY}  --production`)
+                  cp.execSync(`cd ${srcAppDir} && yarn install --prod --registry=${NPM_REGISTRY}`)
                 } else {
                   cp.execSync(`cd ${srcAppDir} && npm i --registry=${NPM_REGISTRY} --production`)
                 }

@@ -912,6 +912,7 @@ export default class FileController {
     }
 
     const files = await this.fileDao.getMyFiles(params)
+    // const userInfo = await this.userDao.queryById({ id: userId })
 
     return {
       code: 1,
@@ -922,6 +923,8 @@ export default class FileController {
         } else if (hasIcon.startsWith('http')) {
           item.icon = hasIcon
         }
+        // 我的文件可以直接重写creatorName
+        // item.creatorName = userInfo.name || userInfo.email
 
         return item.extName !== "component";
       }),

@@ -103,7 +103,6 @@ export default function Group(props) {
           ctx.manageable = roleDescription === 1
           ctx.editable = roleDescription === 2
           ctx.isFounder = +data.creatorId === +appCtx.user.id
-          console.log('ctx', ctx)
           resolve(true)
         })
       })
@@ -526,7 +525,7 @@ function UserList ({ data = [], total = 0 }: UserListProps) {
         return (
           <DefaultAvatar
             avatar={user.avatar}
-            content={user.name || user.email}
+            content={user.name}
           />
         )
       })}
@@ -722,7 +721,7 @@ function NewUserConfigModal({open, onCancel}) {
         key: 'roleDescription',
         width: 80,
         render: (roleDescription, record) => {
-          if (record.email === creatorId) {
+          if (record.id == creatorId) {
             return <div className={css.tagOwner}>所有者</div>
           } else if (roleDescription === 1) {
             return <div className={css.tagManageable}>可管理</div>
@@ -743,7 +742,7 @@ function NewUserConfigModal({open, onCancel}) {
           return (
             <TableUserOperation
               /** 禁用所有者和当前用户的操作 */
-              disabled={[creatorId, email].includes(record.email)}
+              disabled={record.id == creatorId}
               record={record}
               update={(value, user) => update(value, user, tableInfo)}
             />

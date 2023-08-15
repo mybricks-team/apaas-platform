@@ -136,7 +136,7 @@ export function Create(): JSX.Element {
       const params: any = {
         extName,
         userId: appCtx.user.id,
-        userName: appCtx.user.name || appCtx.user.email,
+        userName: appCtx.user.name,
       }
 
       if (isGroup) {
