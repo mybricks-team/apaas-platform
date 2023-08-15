@@ -993,7 +993,7 @@ export default class FileController {
 
   @Get("/getFilePath")
   async getFilePath(@Query() query) {
-    const { fileId, userId, groupId } = query;
+    const { fileId, groupId } = query;
     const path = [];
 
     if (fileId) {
@@ -1157,7 +1157,7 @@ export default class FileController {
 
   @Post('/getFolderProjectInfoByProjectId')
   async getFolderProjectInfoByProjectId(@Body() body) {
-    const { id, userName } = body
+    const { id, userId } = body
     const folder = await this.fileDao.queryById(id);
     const [[projectModuleInfo], files] = await Promise.all([
       await this.moduleDao.getProjectModuleInfo(id),
@@ -1169,7 +1169,7 @@ export default class FileController {
       apps: files,
       moduleList: JSON.parse(projectModuleInfo?.module_info || '{}')?.moduleList || []
     };
-    if (folder.creatorName === userName) {
+    if (folder.creatorId == userId) {
       data.adminInfo = {
         ...getAdminInfoByProjectId(id)
       }

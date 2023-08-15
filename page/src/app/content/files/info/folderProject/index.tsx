@@ -34,7 +34,7 @@ export default function FolderProject(props) {
 					url: getApiUrl(`/paas/api/file/getFolderProjectInfoByProjectId`),
           data: {
             id: props.id,
-            userName: appCtx?.user?.email
+            userId: appCtx?.user?.id
           }
 				}).then(({data: {data}}) => {
 					ctx.info = {
