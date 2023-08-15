@@ -53,10 +53,6 @@ export class UserDO {
   @Column
   avatar: string
 
-  get isAdmin() {
-    return this.email === 'chemingjun@126.com'
-  }
-
   verifyPassword(psd: string) {
     return this.password === psd
   }
@@ -74,16 +70,10 @@ export default class UserDao extends DOBase {
 
   @Mapping(UserDO)
   public async queryByRoleAndName(param): Promise<UserDO[]> {
-    let newParam: any = {
-      limit: param.pageSize || 10,
-      offset: ((param.page || 1) - 1) * (param.pageSize || 10)
-    }
-    if(param.role) {
-      newParam.role = param.role
-    }
-    if(param.email) {
-      newParam.email = param.email
-    }
+    let newParam: any = { ...param }
+    newParam['limit'] = param.pageSize || 10;
+    newParam['offset'] = ((param.page || 1) - 1) * (param.pageSize || 10)
+    
     const result = await this.exe<any>(
       'apaas_user:queryByRoleAndName',
       newParam

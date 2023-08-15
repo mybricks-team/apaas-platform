@@ -199,7 +199,7 @@ export default class UserController {
 
         return {
           code: 1,
-          data: Object.assign(user.isAdmin ? { isAdmin: 1 } : {}, {
+          data: Object.assign({}, {
             id: user.id,
             email: user.email
           }),

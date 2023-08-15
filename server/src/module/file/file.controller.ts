@@ -212,7 +212,7 @@ export default class FileController {
     @Body("userId") userId: string,
   ) {
     const user = await this.userDao.queryById({ id: userId })
-    const result = await this.fileDao.update({ id, name, updatorId: user.id, updatorName: user.name || user.email })
+    const result = await this.fileDao.update({ id, name, updatorId: user.id, updatorName: user.name })
 
     return {
       code: 1,

@@ -238,8 +238,8 @@ export default class ModuleController {
         description: file?.description,
         version,
         originFileId: fileId,
-        creatorId: user.email,
-        creatorName: user.name || user.email,
+        creatorId: user.id,
+        creatorName: user.name,
       });
 
       /** 插入module_pub_info记录 */
@@ -258,8 +258,8 @@ export default class ModuleController {
         }),
         commitInfo: commitInfo ?? '',
         version,
-        creatorId: user.email,
-        creatorName: user.name || user.email,
+        creatorId: user + '',
+        creatorName: user.name,
       })
 
       return {

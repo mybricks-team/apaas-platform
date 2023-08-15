@@ -480,8 +480,8 @@ export default class WorkspaceService {
         }),
         type: 'prod',
         // commitInfo,
-        creatorId: user.email,
-        creatorName: user.name || user.email,
+        creatorId: user.id + '',
+        creatorName: user.name,
         // fileContentId
       });
 			

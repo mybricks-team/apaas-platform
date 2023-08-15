@@ -1,6 +1,5 @@
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { Module } from "@nestjs/common";
-import ProductServices from "./services/product";
 
 import WorkspaceService from "./services/workspace";
 import TaskController from "./services/task.controller";
@@ -47,7 +46,6 @@ import OssModule from './module/oss/oss.module'
   controllers: [
     AppsService,
     proxy,
-    ProductServices,
     WorkspaceService,
     UserGroupService,
     TaskController,
