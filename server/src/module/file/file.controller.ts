@@ -739,7 +739,8 @@ export default class FileController {
 
   @Get('/getFileRoot')
   async getFileList(@Query() query) {
-    const { parentId, creatorId, fileId, checkModule } = query;
+    const { parentId, creatorId: originCreatorId, fileId, checkModule } = query;
+    const creatorId = await this.userService.getCurrentUserId(originCreatorId);
 
     if (!parentId) {
       const file = await this.fileDao.queryById(fileId);
