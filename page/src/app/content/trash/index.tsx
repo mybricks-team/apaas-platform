@@ -85,7 +85,9 @@ const ProjectItem = ({ item, user, refresh }) => {
 				<Icon icon={item.icon || appReg?.icon} width={bigIcon ? 140 : 32} height={bigIcon ? '100%' : 32}/>
 			</div>
 			<div className={styles.tt}>
-				<Icon icon={appReg?.icon} width={18} height={18}/>
+				<div className={styles.typeIcon}>
+					<Icon icon={appReg?.icon} width={18} height={18}/>
+				</div>
 				<div className={styles.detail}>
 					<div className={styles.name}>
 						{item.name}
