@@ -52,20 +52,25 @@ export default class ConfigService {
     @Body('id') id: number,
   ) {
     const userId = await this.userService.getCurrentUserId(originUserId);
+    const user = await this.userService.queryById({ id: userId });
     const curNamespace = type ? `${namespace}@${type}[${id}]` : namespace;
     const [curConfig] = await this.configDao.getConfig({ namespace: [curNamespace] });
-    console.log(userId)
+
+    if (!user) {
+      return { code: -1, msg: '用户不存在' };
+    }
+
     if (curConfig) {
       await this.configDao.update({
         config: JSON.stringify(config),
         updatorId: userId,
-        updatorName: originUserId,
+        updatorName: user.name || user.email || userId,
         namespace: curNamespace,
       });
     } else {
       await this.configDao.create({
         creatorId: userId,
-        creatorName: originUserId,
+        creatorName: user.name || user.email || userId,
         config: JSON.stringify(config),
         namespace: curNamespace,
       });

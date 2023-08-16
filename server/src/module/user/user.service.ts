@@ -30,6 +30,10 @@ export default class UserService {
     return await this.userDao.queryByEmail({email});
   }
 
+  async queryById({ id }) {
+    return await this.userDao.queryById({ id });
+  }
+
   async createOrUpdateFingerprint({ userId, fingerprint }) {
     const sess = await this.userSessionDao.queryByUserId({ userId });
     if (sess) {
