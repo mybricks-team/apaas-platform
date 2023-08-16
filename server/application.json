@@ -1,40 +1,42 @@
 {
   "installApps": [
     {
-      "type": "npm",
-      "version": "0.3.68",
+      "type": "oss",
+      "version": "0.3.77",
       "namespace": "mybricks-pc-page",
-      "path": "mybricks-pc-page@0.3.76-rc.1"
+      "path": "asset-center/asset/app/mybricks-pc-page/0.3.77/mybricks-pc-page.zip"
     },
     {
-      "type": "npm",
-      "version": "0.1.24",
+      "type": "oss",
+      "version": "0.1.28",
       "namespace": "mybricks-material",
-      "path": "mybricks-material@0.1.26-rc.1"
+      "path": "asset-center/asset/app/mybricks-material/0.1.28/mybricks-material.zip"
     },
     {
       "type": "npm",
-      "path": "mybricks-cloud-com@0.0.92-rc.1"
+      "path": "mybricks-cloud-com@0.0.93"
     },
     {
-      "type": "npm",
-      "version": "0.2.52",
+      "type": "oss",
+      "version": "0.2.54",
       "namespace": "mybricks-domain",
-      "path": "mybricks-domain@0.2.52-rc.1"
+      "path": "asset-center/asset/app/mybricks-domain/0.2.54/mybricks-domain.zip"
     },
     {
-      "type": "npm",
-      "path": "mybricks-app-website@0.1.21-rc.1"
+      "type": "oss",
+      "version": "0.1.22",
+      "namespace": "mybricks-app-website",
+      "path": "asset-center/asset/app/mybricks-app-website/0.1.22/mybricks-app-website.zip"
     },
     {
       "type": "npm",
       "path": "mybricks-app-login@0.0.5"
     },
     {
-      "type": "npm",
+      "type": "oss",
       "namespace": "mybricks-app-mpsite",
-      "version": "0.0.73",
-      "path": "mybricks-app-mpsite@0.0.96-rc.1"
+      "version": "0.0.97",
+      "path": "asset-center/asset/app/mybricks-app-mpsite/0.0.97/mybricks-app-mpsite.zip"
     }
   ],
   "platformVersion": "0.0.45"
