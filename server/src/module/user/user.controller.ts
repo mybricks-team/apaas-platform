@@ -300,6 +300,8 @@ export default class UserController {
           ...userInfo,
           isAdmin: userInfo.role === 10,
         }
+        delete data.password;
+        delete data.mobilePhone;
         if (fileId) {
           const roleDescription = await this.fileDao.getRoleDescription({userId: userEmail, fileId})
           data.roleDescription = roleDescription
