@@ -185,13 +185,16 @@ function GroupOperate(props) {
       />
     )
   }, [open])
+  const showSettingButton = useMemo(() => {
+    return !!appCtx.InstalledAPPS.filter(app => app?.groupSetting).length;
+  }, []);
 
 
   return (
     <>
       <Divider />
       <div className={css.btnGroup}>
-        <button className={css.primaryButton} onClick={openSetting}>设置</button>
+        {showSettingButton ? <button className={css.primaryButton} onClick={openSetting}>设置</button> : null}
         <button className={css.dangerButton} onClick={deleteClick}>删除协作组</button>
       </div>
       {RenderDeleteGroupModal}
