@@ -14,28 +14,75 @@
         </if>
     </select>
 
+    <select id="queryByEmailWithPwd">
+        select * from apaas_user
+        where email = #{email}
+        and status = #{status}
+    </select>
+
     <select id="queryByEmail">
-        select *
+        select
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
         from apaas_user
         where email = #{email}
         and status = #{status}
     </select>
 
     <select id="searchByKeyword">
-        select *
+        select 
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
         from apaas_user
         where status = 1 and email like '%${keyword}%' or name like '%${keyword}%'
     </select>
 
     <select id="queryById">
-        select *
+        select
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
         from apaas_user
         where id = #{id}
         and status = #{status}
     </select>
 
     <select id="queryByRoleAndName">
-        select * from apaas_user where status = 1
+        select 
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
+        from apaas_user where status = 1
         <if test="role">
             and role = #{role}
         </if>
@@ -119,7 +166,18 @@
     </insert>
 
     <select id="queryAll">
-        select * from apaas_user
+        select
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
+        from apaas_user
         where
         status = 1
     </select>
@@ -161,6 +219,17 @@
     </update>
 
     <select id="getGroupOwnerInfo">
-        select * from apaas_user where id in (select creator_id from apaas_user_group where id = #{groupId})
+        select 
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
+        from apaas_user where id in (select creator_id from apaas_user_group where id = #{groupId})
     </select>
 </mapper>
