@@ -217,7 +217,7 @@ export default class UserController {
 
     Logs.info(`用户${email} 申请登录.`);
 
-    const user = await this.userDao.queryByEmail({ email });
+    const user = await this.userDao.queryByEmailWithPwd({ email })
     if (user) {
       if (user.verifyPassword(psd)) {
         Logs.info(`用户${email} 登录成功.`);
