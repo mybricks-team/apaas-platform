@@ -943,7 +943,7 @@ export default class SystemService {
 
         for (const item of tableInfo) {
           for (const field of table.fieldName) {
-            if (typeof item[field] !== 'string') {
+            if (typeof item[field] !== 'string' || Number(item[field]) == item[field]) {
               continue;
             }
             const userId = userMap[item[field]];
