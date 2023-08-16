@@ -280,7 +280,7 @@ export default class UserController {
           const userCookie = JSON.parse(HAINIU_UserInfo)
           userEmail = userCookie?.email
           try {
-            userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.name
+            userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.nick
           } catch(e) {
             console.log(e)
           }
