@@ -535,13 +535,13 @@ function UserList ({ data = [], total = 0 }: UserListProps) {
         )
       })}
       {total > 5 && (
-        <DefaultAvatar content={total}/>
+        <DefaultAvatar title={String(total)} content={`共 ${total} 个协作者`}/>
       )}
     </div>
   )
 }
 
-function DefaultAvatar({avatar = '', content}) {
+function DefaultAvatar({avatar = '', content, title = ''}) {
   return (
     <div className={css.avatarWrapper}>
       <Tooltip title={content}>
@@ -557,7 +557,7 @@ function DefaultAvatar({avatar = '', content}) {
               size={32}
               style={{backgroundColor: '#ebedf0', fontSize: 14, fontWeight: 600, color: '#95999e'}}
             >
-              {typeof content === 'string' ? content[0].toUpperCase() : content}
+              {title || (typeof content === 'string' ? content[0].toUpperCase() : content)}
             </Avatar>
           )}
         </div>
