@@ -119,7 +119,7 @@ const GroupSetting: FC<{ onClose?(): void; visible: boolean }> = props => {
   )
 
   useEffect(() => {
-    queryConfig()
+    menuItems.length && queryConfig();
   }, [queryConfig])
 
   const renderContent = () => {

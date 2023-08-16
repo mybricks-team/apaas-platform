@@ -383,7 +383,7 @@
             (material_info.namespace = #{item.namespace} and material_pub_info.version = #{item.version})
         </foreach>
         and material_info.status = 1
-        and material_info.type = 'component';
+        and material_info.type = #{type};
     </select>
 
     <select id="getMaterialVersions">

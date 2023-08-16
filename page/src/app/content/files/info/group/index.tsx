@@ -529,7 +529,8 @@ function UserList ({ data = [], total = 0 }: UserListProps) {
         return (
           <DefaultAvatar
             avatar={user.avatar}
-            content={user.name}
+            /** 当头像不存在，使用名词或者 email 首字母做头像 */
+            content={user.name || user.email}
           />
         )
       })}

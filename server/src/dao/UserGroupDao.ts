@@ -69,7 +69,7 @@ export default class UserGroupDao extends DOBase {
         createTime: time,
         updateTime: time,
         updatorId: params.creatorId,
-        updatorName: ''
+        updatorName: params.creatorName || ''
       }
     )
   }

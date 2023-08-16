@@ -39,7 +39,8 @@ export default class UserGroupService {
       const rtn = await this.userGroupDao.create({
         name,
         icon,
-        creatorId: userId
+        creatorId: userId,
+        creatorName: user.name || user.email || userId
       })
       const userGroupId = rtn.insertId
 
