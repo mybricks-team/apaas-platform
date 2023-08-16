@@ -21,6 +21,12 @@
         and status = #{status}
     </select>
 
+    <select id="searchByKeyword">
+        select *
+        from apaas_user
+        where status = 1 and email like '%${keyword}%' or name like '%${keyword}%'
+    </select>
+
     <select id="queryById">
         select *
         from apaas_user

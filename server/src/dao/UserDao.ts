@@ -116,6 +116,21 @@ export default class UserDao extends DOBase {
   }
 
   @Mapping(UserDO)
+  public async searchByKeyword(params: {
+    keyword: string
+  }): Promise<UserDO> {
+    const result = await this.exe<any>(
+      'apaas_user:searchByKeyword',
+      {
+        ...params,
+        status: 1
+      }
+    )
+
+    return result;
+  }
+
+  @Mapping(UserDO)
   public async queryById(params: {
     id: string
   }): Promise<UserDO> {

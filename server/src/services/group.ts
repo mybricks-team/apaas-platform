@@ -199,6 +199,12 @@ export default class UserGroupService {
   @Post('/userGroup/addUserGroupRelation')
   async addUserGroupRelation(@Body() body) {
     const { userId, userIds, roleDescription = 2, groupId } = body
+    if(!Array.isArray(userIds)) {
+      return {
+        code: -1,
+        msg: 'userIds必须为数组'
+      }
+    }
 
     const result = []
 

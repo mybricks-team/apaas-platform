@@ -74,6 +74,35 @@ export default class UserController {
     }
   }
 
+  @Post('/searchByKeyword')
+  async searchByKeyword(@Body('keyword') keyword: string) {
+    if (keyword) {
+      const list: any = await this.userDao.searchByKeyword({ keyword })
+      if (list) {
+        return {
+          code: 1,
+          data: list?.map((user) => {
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+            }
+          }),
+        };
+      } else {
+        return {
+          code: 1,
+          data: null,
+        };
+      }
+    } else {
+      return {
+        code: -1,
+        msg: `email is null`,
+      };
+    }
+  }
+
   @Get('/queryBy')
   async queryBy(@Query() query) {
     if (query.email) {

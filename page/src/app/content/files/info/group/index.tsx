@@ -43,6 +43,7 @@ const {TextArea} = Input
 const {Dragger} = Upload
 
 import css from './index.less'
+import CustomDebounceSelect from './debounceSelect'
 
 /** 协作用户信息 */
 interface GroupUser {
@@ -600,14 +601,14 @@ function ConfigFormModal({
     form.resetFields()
   }, [])
 
-  useEffect(() => {
-    if (open && ref.current) {
-      form.setFieldsValue(defaultValues)
-      setTimeout(() => {
-        (ref.current as any).focus()
-      }, 100)
-    }
-  }, [open])
+  // useEffect(() => {
+  //   if (open && ref.current) {
+  //     form.setFieldsValue(defaultValues)
+  //     setTimeout(() => {
+  //       (ref.current as any).focus()
+  //     }, 100)
+  //   }
+  // }, [open])
 
   const RenderForm = useMemo(() => {
     return <Form form={form} editRef={ref} ok={ok}/>
@@ -807,7 +808,9 @@ function NewUserConfigModal({open, onCancel}) {
         url: getApiUrl('/paas/api/userGroup/addUserGroupRelation'),
         data: {
           userId: appCtx.user.id,
-          userIds: userIds.split(','),
+          userIds: userIds?.map(i => {
+            return i.value
+          }),
           roleDescription,
           groupId: ctx.info.id
         }
@@ -837,7 +840,7 @@ function NewUserConfigModal({open, onCancel}) {
           reject(data.message)
         }
       }).catch((e) => {
-        reject('添加协作用户失败' + e?.message || '')
+        reject('添加协作用户失败' + e?.msg || '')
       })
     })
   }, [])
@@ -949,30 +952,11 @@ function AddUserForm({open, onOk, onCancel}) {
           </Select>
         </AntdForm.Item>
         <AntdForm.Item
-          label='用户邮箱'
+          label='账号'
           name='userIds'
-          rules={[{ required: true, message: '协作用户邮箱不允许为空！', validator(rule, value) {
-            return new Promise((resolve, reject) => {
-              if (!value.trim()) {
-                reject(rule.message)
-              } else [
-                resolve(true)
-              ]
-            })
-          }}]}
+          rules={[{ required: true, message: '账号不允许为空！' }]}
         >
-          <TextArea
-            onCompositionStart={() => {
-              context.submittable = false
-            }}
-            onCompositionEnd={() => {
-              context.submittable = true
-            }}
-            ref={ref}
-            autoFocus
-            placeholder={`请正确填写协作用户账号，以英文逗号隔开`}
-            onPressEnter={() => context.submittable && ok()}
-          />
+          <CustomDebounceSelect />
         </AntdForm.Item>
         <AntdForm.Item wrapperCol={{offset: 4, span: 20}} style={{marginBottom: 0}}>
           <Button
