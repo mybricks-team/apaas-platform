@@ -267,8 +267,8 @@ export default class FileController {
 
   @Get("/getCooperationUsers")
   async getCooperationUsers(@Query() query) {
-    const { userId: originUserId, timeInterval } = query;
-    const userId = await this.userService.getCurrentUserId(originUserId);
+    const { email, userId: originUserId, timeInterval } = query;
+    const userId = await this.userService.getCurrentUserId(originUserId || email);
     const fileId = Number(query.fileId);
 
     if (!isNumber(fileId) || !userId) {
