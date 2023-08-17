@@ -18,7 +18,7 @@
   "installApps": [
     {
       "type": "oss",
-      "version": "1.0.38",
+      "version": "1.0.80",
       "namespace": "mybricks-app-pcspa"
     },
     {
