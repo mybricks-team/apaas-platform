@@ -483,7 +483,7 @@ export default class FileController {
       let roleDescription = 3
       const { groupId, creatorId } = file
 
-      if (creatorId === userId) {
+      if (creatorId == userId) {
         roleDescription = 1
       } else {
         const [fileDescription, groupDescription] = await Promise.all([
