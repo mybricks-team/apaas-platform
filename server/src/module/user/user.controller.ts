@@ -303,7 +303,7 @@ export default class UserController {
         delete data.password;
         delete data.mobilePhone;
         if (fileId) {
-          const roleDescription = await this.fileDao.getRoleDescription({userId: userEmail, fileId})
+          const roleDescription = await this.fileDao.getRoleDescription({userId: userInfo.id, fileId})
           data.roleDescription = roleDescription
         }
         
