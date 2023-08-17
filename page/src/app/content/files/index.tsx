@@ -380,7 +380,7 @@ function Projects() {
         key: 'action',
         width: 60,
         render: (_, record) => {
-          const showOperate = (record.creatorId === userId) || [1, 2].includes(roleDescription)
+          const showOperate = (record.creatorId == userId) || [1, 2].includes(roleDescription)
           return showOperate && <RenderOperate project={record} operate={operate} size={24} iconSize={14}/>
         }
       }

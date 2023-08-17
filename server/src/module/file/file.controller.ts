@@ -298,7 +298,7 @@ export default class FileController {
         const { creatorId, groupId } = file
 
         // 创建人、最高权限
-        if (creatorId === userId) {
+        if (creatorId == userId) {
           resolve(1)
         } else {
           const [fileDescription, groupDescription] = await Promise.all([
@@ -342,7 +342,7 @@ export default class FileController {
     }
 
     const cooperationUsers = await this.fileCooperationDao.queryOnlineUsers({ fileId })
-    const curUserIndex = cooperationUsers.findIndex((cooperationUser) => cooperationUser.userId === userId)
+    const curUserIndex = cooperationUsers.findIndex((cooperationUser) => cooperationUser.userId == userId)
     /** 把当前用户提前 */
     cooperationUsers[0] = cooperationUsers.splice(curUserIndex, 1, cooperationUsers[0])[0]
 
