@@ -18,6 +18,9 @@ export class FileContentDO {
   @Column('creator_name')
   creatorName: string;
 
+  @Column('creator_email')
+  creatorEmail: string;
+
   @Column('create_time')
   createTime(a) {
     return moment(a).format("YYYY-MM-DD HH:mm:ss")

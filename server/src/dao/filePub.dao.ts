@@ -19,6 +19,9 @@ export class FilePublishDO {
   @Column("creator_name")
   creatorName: string;
 
+  @Column('creator_email')
+  creatorEmail: string;
+
   @Column("commit_info")
   commitInfo: string;
 

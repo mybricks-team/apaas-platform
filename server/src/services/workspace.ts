@@ -507,7 +507,7 @@ export default class WorkspaceService {
     });
     const total = await this.fileContentDao.getContentVersionsCount({fileId})
 
-    return { code: 1, data, total };
+    return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total };
   }
 
   @Get("/workspace/publish/versions")
@@ -554,7 +554,7 @@ export default class WorkspaceService {
     //   }
     // }
 
-    return { code: 1, data: filePubs, total};
+    return { code: 1, data: filePubs.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total};
   }
 
   @Get("/workspace/publish/content")

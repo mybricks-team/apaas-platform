@@ -77,18 +77,21 @@
 
     <select id="getContentVersions">
         select
-            id,
-            file_id,
-            file_content_id,
-            commit_info,
-            creator_id,
-            create_time,
-            update_time,
-            version,
-            type
-        from apaas_file_pub
+            apaas_file_pub.id,
+            apaas_file_pub.file_id,
+            apaas_file_pub.file_content_id,
+            apaas_file_pub.commit_info,
+            apaas_file_pub.creator_id,
+            apaas_file_pub.create_time,
+            apaas_file_pub.update_time,
+            apaas_file_pub.version,
+            apaas_file_pub.type,
+            apaas_user.name as creator_name,
+            apaas_user.email as creator_email
+        from apaas_file_pub, apaas_user
         where
             file_id = #{fileId}
+            and apaas_file_pub.creator_id = apaas_user.id
             <if test="type">
                 and type = #{type}
             </if>

@@ -151,15 +151,18 @@
 
   <select id="getContentVersions">
       select
-      id,
-      file_id,
-      creator_id,
-      create_time,
-      update_time,
-      version
-      from apaas_file_content
+        apaas_file_content.id,
+        apaas_file_content.file_id,
+        apaas_file_content.creator_id,
+        apaas_file_content.create_time,
+        apaas_file_content.update_time,
+        apaas_user.name as creator_name,
+        apaas_user.email as creator_email,
+        apaas_file_content.version
+      from apaas_file_content, apaas_user
       where
       file_id = #{fileId}
+      and creator_id = apaas_user.id
       order by update_time desc
       limit #{limit} offset #{offset};
   </select>
