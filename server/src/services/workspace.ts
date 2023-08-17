@@ -567,10 +567,13 @@ export default class WorkspaceService {
 
   @Post("/workspace/file/revert")
   async revertFile(@Body() body) {
-    const { fileContentId, filePubId, userId } = body;
+    const { fileContentId, filePubId, userId: originUserId } = body;
     if (!filePubId && !fileContentId) {
       return { code: 0, message: "filePubId 或 fileContentId 不能为空" };
     }
+
+    const userId = await this.userService.getCurrentUserId(originUserId);
+    const user = await this.userService.queryById({ id: userId });
 
     if (fileContentId) {
       const [fileContent] = await this.fileContentDao.queryById({
@@ -580,12 +583,13 @@ export default class WorkspaceService {
       if (!fileContent) {
         return { code: 0, message: "保存记录不存在" };
       }
+
       await this.fileContentDao.create({
         fileId: fileContent.fileId,
         content: fileContent.content,
         version: getNextVersion(fileContent?.version || "1.0.0"),
         creatorId: userId,
-        creatorName: userId,
+        creatorName: user?.name || user?.email || userId,
       });
     } else if (filePubId) {
       const [filePub] = await this.filePubDao.getPublishByFileId(filePubId);
@@ -610,7 +614,7 @@ export default class WorkspaceService {
         content: fileContent.content,
         version: getNextVersion(fileContent?.version || "1.0.0"),
         creatorId: userId,
-        creatorName: userId,
+        creatorName: user?.name || user?.email || userId,
       });
     }
 
