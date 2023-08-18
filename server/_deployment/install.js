@@ -101,9 +101,9 @@ function mergeToApplication() {
       "installApps": [
         {
           "type": "oss",
-          "version": "0.1.22",
+          "version": "0.1.30",
           "namespace": "mybricks-material",
-          "path": "asset-center/asset/app/mybricks-material/0.1.28/mybricks-material.zip"
+          "path": "asset-center/asset/app/mybricks-material/0.1.30/mybricks-material.zip"
         }
       ],
       "platformVersion": require(path.join(__dirname, '../package.json')).version

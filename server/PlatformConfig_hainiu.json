@@ -18,12 +18,12 @@
   "installApps": [
     {
       "type": "oss",
-      "version": "1.0.80",
+      "version": "1.0.82",
       "namespace": "mybricks-app-pcspa"
     },
     {
       "type": "npm",
-      "path": "mybricks-app-login@0.0.5"
+      "path": "mybricks-hainiu-login@0.0.4"
     }
   ],
   "platformDomain": "http://testweb.manateeai.com/"

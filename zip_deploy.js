@@ -44,7 +44,6 @@ const filterFileName = [
   'install_back.js',
   'index.html',
   'PlatformConfig_demo.json',
-  'ecosystem.config.js',
   'zip.js',
   'zip_deploy.js',
   'tsconfig.json' // 临时放进去，等领域模型改造完，就放出来
