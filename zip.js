@@ -47,7 +47,6 @@ const filterFileName = [
   'ecosystem.config.js',
   'zip.js',
   'zip_deploy.js',
-  'tsconfig.json' // 临时放进去，等领域模型改造完，就放出来
 ];
 const filesPlatform = [];
 const filesRuntime = [];
