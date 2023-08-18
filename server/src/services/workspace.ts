@@ -149,6 +149,8 @@ export default class WorkspaceService {
 
     try {
       const rtn = await this.fileDao.queryById(fileId);
+      /** fileDao.queryById 引用处比较多，就不修改其连表当时，使用单独查一次 user 的方式 */
+      const user = await this.userDao.queryById({ id: rtn.updatorId });
       const content = (await this.fileContentDao.queryBy({
         fileId: fileId,
         sortType: "desc",
@@ -158,7 +160,7 @@ export default class WorkspaceService {
 
       return {
         code: 1,
-        data: Object.assign({}, rtn, { content: content?.content, version: content?.version || null }),
+        data: Object.assign({}, rtn, { updatorName: user?.name || user?.email || rtn.updatorName, content: content?.content, version: content?.version || null }),
       };
     } catch (ex) {
       return {
