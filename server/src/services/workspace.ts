@@ -149,14 +149,14 @@ export default class WorkspaceService {
 
     try {
       const rtn = await this.fileDao.queryById(fileId);
+      const res = await this.fileContentDao.getLatestContentId({ fileId: fileId });
       /** fileDao.queryById 引用处比较多，就不修改其连表当时，使用单独查一次 user 的方式 */
       const user = await this.userDao.queryById({ id: rtn.updatorId });
-      const content = (await this.fileContentDao.queryBy({
-        fileId: fileId,
-        sortType: "desc",
-        limit: 1,
-        orderBy: "update_time",
-      })) as any;
+      let content = null
+      if(res?.id) {
+        const temp = await this.fileContentDao.queryById({ id: res?.id })
+        content = temp ? temp[0] : null
+      }
 
       return {
         code: 1,
