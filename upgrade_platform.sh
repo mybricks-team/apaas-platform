@@ -11,7 +11,7 @@ then
   files=$(ls "$tmpFolderBase/mybricks-apaas/server")
   for filename in $files
   do
-    cp -r "./server/$filename" ../../server
+    cp -rf "./server/$filename" ../../server
   done
 fi
 if [[ -d "./server-runtime" ]];
@@ -19,7 +19,7 @@ then
   files=$(ls "$tmpFolderBase/mybricks-apaas/server-runtime")
   for filename in $files
   do
-    cp -r "./server-runtime/$filename" ../../server-runtime
+    cp -rf "./server-runtime/$filename" ../../server-runtime
   done
 fi
 cp ./upgrade_platform.sh ../../upgrade_platform.sh
