@@ -2,7 +2,7 @@
 
 ## 前置环境配置
 
-1. 容器必须安装有 `MySQL 5.7`、`Node` V14 以上（V14.16以下，例如V14.15.4）（备注，如果安装的是 MySQL8.x，注意密码加密方式设置为：Legacy Password Encryption，切记不要设置为 Strong Password Encryption）
+1. 容器必须安装有 `MySQL 5.7`、`Node` V14 以上（推荐v14.21.0）（备注，如果安装的是 MySQL8.x，注意密码加密方式设置为：Legacy Password Encryption，切记不要设置为 Strong Password Encryption）
 
 ## 开始安装
 ### Linux
