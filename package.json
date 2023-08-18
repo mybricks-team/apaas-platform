@@ -7,7 +7,7 @@
     "zip:server": "npm run build && node ./server/zip.js",
     "zip:server-runtime": "node ./server-runtime/zip.js",
     "zip:update": "npm run build && node ./zip.js",
-    "deploy:install:hainiu": "npm run build && node ./zip.js hainiu",
+    "zip:deploy": "npm run build && node ./zip_deploy.js",
     "deploy:fangzhou": "sh deploy_fangzhou.sh",
     "publishToNpm": "npm run zip:update && npm publish --registry=https://registry.npmjs.org && node sync.js --origin=https://my.mybricks.world"
   },
