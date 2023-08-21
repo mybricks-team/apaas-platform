@@ -131,7 +131,7 @@ export default function Group(props) {
             label='协作组所有者'
             value={info.creatorName || info.creatorId}
           />
-          {(manageable && isFounder) && <GroupOperate {...info}/>}
+          {<GroupOperate {...info} manageable={manageable} isFounder={isFounder} />}
         </>
       )}
     </div>
@@ -139,6 +139,8 @@ export default function Group(props) {
 }
 
 function GroupOperate(props) {
+  console.log('111', props)
+  const { manageable, isFounder } = props
   const appCtx = observe(AppCtx, {from: 'parents'})
   const [open, setOpen] = useState<number | boolean>(0)
   const [showSetting, setShowSetting] = useState(false);
@@ -190,16 +192,41 @@ function GroupOperate(props) {
     return !!appCtx.InstalledAPPS.filter(app => app?.groupSetting).length;
   }, []);
 
+  const _renderContent = () => {
+    if(manageable) {
+      if(isFounder) {
+        // 可管理，是创建者
+        return (
+          <>
+            <Divider />
+            <div className={css.btnGroup}>
+              {showSettingButton ? <button className={css.primaryButton} onClick={openSetting}>设置</button> : null}
+              <button className={css.dangerButton} onClick={deleteClick}>删除协作组</button>
+            </div>
+            {RenderDeleteGroupModal}
+            <GroupSetting visible={showSetting} onClose={() => setShowSetting(false)} />
+          </>
+        )
+      } else {
+        // 可管理，不是创建者
+        return (
+          <>
+            <Divider />
+            <div className={css.btnGroup}>
+              {showSettingButton ? <button className={css.primaryButton} onClick={openSetting}>设置</button> : null}
+            </div>
+            <GroupSetting visible={showSetting} onClose={() => setShowSetting(false)} />
+          </>
+        )
+      }
+    } else {
+      return null
+    }
+  }
 
   return (
     <>
-      <Divider />
-      <div className={css.btnGroup}>
-        {showSettingButton ? <button className={css.primaryButton} onClick={openSetting}>设置</button> : null}
-        <button className={css.dangerButton} onClick={deleteClick}>删除协作组</button>
-      </div>
-      {RenderDeleteGroupModal}
-      <GroupSetting visible={showSetting} onClose={() => setShowSetting(false)} />
+    {_renderContent()}
     </>
   )
 }
