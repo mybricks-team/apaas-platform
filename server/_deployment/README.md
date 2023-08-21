@@ -29,17 +29,21 @@
   },
   "installApps": [
     {
-      "type": "npm",
-      "path": "mybricks-app-pcspa-for-manatee@1.0.20"
+      "type": "oss",
+      "version": "1.0.82",
+      "namespace": "mybricks-app-pcspa"
     },
     {
       "type": "npm",
-      "path": "mybricks-hainiu-login@0.0.3"
+      "path": "mybricks-hainiu-login@0.0.4"
     }
   ],
   "platformDomain": "这里是部署后的平台域名"
 }
 ```
+目录如下：
+![](./assets/install_path.png)
+
 3. 将其 `解压` 到文件夹，并`进入 server 文件夹`(确保服务器 `unzip` 命令可用，如果不可用，可提前安装好)
 4. `使用管理权限` 执行如下安装命令即可，至此`服务器端的操作结束`，安装完毕后会`自动退出安装服务并拉起搭建服务`
 
