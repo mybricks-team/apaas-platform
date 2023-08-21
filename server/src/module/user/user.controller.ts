@@ -269,7 +269,7 @@ export default class UserController {
           // 单点
           if(userCookie?.fingerprint) {
             const sess = await this.userSessionDao.queryByUserId({ userId: userCookie.id })
-            if(sess.fingerprint !== userCookie.fingerprint) {
+            if(sess?.fingerprint !== userCookie.fingerprint) {
               return {
                 code: -1,
                 msg: '当前账号已在其他设备登录，请重新登录'
