@@ -18,6 +18,7 @@ export class FileContentDO {
   @Column('creator_name')
   creatorName: string;
 
+  // 只是for版本插件的虚拟字段，数据库不存在
   @Column('creator_email')
   creatorEmail: string;
 
