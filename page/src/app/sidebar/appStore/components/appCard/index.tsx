@@ -144,13 +144,6 @@ const AppCard: FC<AppCardProps> = props => {
 				  <div className={styles.icon} style={{ backgroundImage: `url(${app.icon})` }} />
 				  <div className={styles.info}>
 					  <div className={styles.title}>
-							{/* {
-								app.isRemote ? (
-									<span style={{padding: '4px 10px', borderRadius: 4, marginRight: 8, border: '1px solid #b7eb8f', fontSize: 12,  color: '#389e0d',background: '#f6ffed'}}>公共</span>
-								) : (
-									<span style={{padding: '4px 10px', borderRadius: 4, marginRight: 8, border: '1px solid #ffd591', fontSize: 12,  color: '#d46b08',background: '#fff7e6'}}>私有</span>
-								)
-							} */}
 							{app.title}
 						</div>
 					  <div className={styles.version}>

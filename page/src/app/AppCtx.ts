@@ -51,8 +51,6 @@ export interface T_App {
   isInlineApp?: boolean;
   /** 前端使用，inlineApp 渲染 */
   Element?: FC;
-
-  isRemote: boolean
 }
 
 /** 只有管理员才能看见的模块namespaces */

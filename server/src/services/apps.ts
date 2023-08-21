@@ -162,7 +162,7 @@ export default class AppsService {
           }
           // 远端app地址增加标记位
           remoteAppList?.forEach(i => {
-            i.isRemote = true
+            i.isFromCentral = true
           })
         }
         let tempList = localAppList.concat(remoteAppList)
@@ -193,7 +193,7 @@ export default class AppsService {
 
   @Post("/update")
   async appUpdate(@Body() body, @Req() req) {
-    const { namespace, version, isRemote } = body;
+    const { namespace, version, isFromCentral } = body;
     const applications = require(path.join(
       process.cwd(),
       "./application.json"
@@ -201,7 +201,7 @@ export default class AppsService {
 
     let remoteApps = [];
     try {
-      if(isRemote) {
+      if(isFromCentral) {
         const temp = (await (axios as any).post(
           // "http://localhost:4100/central/api/channel/gateway", 
           "https://my.mybricks.world/central/api/channel/gateway", 
