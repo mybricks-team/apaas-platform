@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import DomainService from './domain.service';
 import UploadService from '../upload/upload.service';
+import {decrypt, encrypt} from "../../utils/crypto";
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
@@ -97,7 +98,10 @@ export default class FlowController {
         }
       }, {
         dbConnection: con,
-        snowFlake: this.snowFlake
+        snowFlake: this.snowFlake,
+        /** 加密函数 */
+        encrypt,
+        decrypt,
       })
       console.log('运行容器：运行完毕')
       return {
