@@ -44,7 +44,7 @@ export default function ItemList ({id, child, menuCtx, canDrag}: Props): JSX.Ele
       const isGroup = !!!extName && !!id
       // TODO,目前只有文件夹和协作组
       // const icon = item.extName ? 'https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png' : 'https://assets.mybricks.world/icon/144257.png'
-      const app = !isGroup ? APPSMap[item.extName] : {icon: item.icon || UserGroup}
+      const app = !isGroup ? APPSMap[item.extName] : {icon: item?.icon || UserGroup}
 
       if (!child[id]) {
         child[id] = {open: false, child: {}}
@@ -58,7 +58,7 @@ export default function ItemList ({id, child, menuCtx, canDrag}: Props): JSX.Ele
           namespace={`?appId=files${isGroup ? `&groupId=${id}` : `${groupId ? `&groupId=${groupId}` : ''}${id ? `&parentId=${id}` : ''}`}`}
           name={name}
           child={child[id]}
-          icon={app.icon}
+          icon={app?.icon}
           getFiles={menuCtx.getFiles}
           onClick={menuCtx.onClick}
           canDrag={canDrag}
