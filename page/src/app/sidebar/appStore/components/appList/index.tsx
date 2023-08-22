@@ -57,7 +57,7 @@ const AppList: FC<AppListProps> = props => {
 		if (type === 'installed') {
 			apps = apps.filter(app => installedApps.find(a => a.namespace === app.namespace))
 		}
-		
+
 		return apps as T_App[]
 	}, [installedApps, allApps, type])
 	

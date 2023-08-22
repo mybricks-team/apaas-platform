@@ -51,6 +51,9 @@ export interface T_App {
   isInlineApp?: boolean;
   /** 前端使用，inlineApp 渲染 */
   Element?: FC;
+
+  // 往前指定版本数量的版本信息
+  previousList?: T_App[]
 }
 
 /** 只有管理员才能看见的模块namespaces */
