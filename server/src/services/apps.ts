@@ -306,6 +306,7 @@ export default class AppsService {
     try {
       const logStr = childProcess.execSync("node installApplication.js", {
         cwd: path.join(process.cwd()),
+        stdio: 'inherit'
       });
       Logger.info(`安装应用日志是: ${logStr}`)
       if (logStr.indexOf("npm ERR") !== -1) {
