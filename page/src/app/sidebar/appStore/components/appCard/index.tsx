@@ -2,11 +2,12 @@ import React, {
 	FC,
 	useMemo,
 	useState,
-	useCallback
+	useCallback,
+	useEffect
 } from 'react'
 
 import axios from 'axios'
-import { Button, message, Typography } from 'antd'
+import { Button, message, Typography, Popover } from 'antd'
 
 import {T_App} from '../../../../AppCtx'
 
@@ -31,6 +32,7 @@ const safeParse = (content = '', defaultValue = {}) => {
 const AppCard: FC<AppCardProps> = props => {
 	const { app, setCurrentUpgrade, disabled, style } = props
 	const [loading, setLoading] = useState(false)
+	const [popoverOpen, setPopoverOpen] = useState(false);
 	
 	const operateText = useMemo(() => {
 		if (app.operateType === 'install') {
@@ -52,9 +54,9 @@ const AppCard: FC<AppCardProps> = props => {
 	}, [])
 	
 	/** 轮询判断应用安装状态 */
-	const checkUpgradeStatus = useCallback((immediate = false) => {
+	const checkUpgradeStatus = useCallback((appInfo, immediate = false) => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { icon, description, ...otherInfo } = app
+		const { icon, description, ...otherInfo } = appInfo
 		
 		setTimeout(() => {
 			axios({
@@ -82,17 +84,23 @@ const AppCard: FC<AppCardProps> = props => {
 						duration: 3,
 					})
 				} else {
-					checkUpgradeStatus()
+					checkUpgradeStatus(appInfo, false)
 				}
 			}).catch(() => {
-				checkUpgradeStatus()
+				checkUpgradeStatus(appInfo, false)
 			});
 		}, immediate ? 0 : 5000)
 	}, [app, setCurrentUpgrade])
 	
-	const upgrade = useCallback(() => {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { icon, description, ...otherInfo } = app
+	const upgrade = useCallback((_param) => {
+		let appInfo = null
+		if(_param) {
+			appInfo = _param
+		} else {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { icon, description, ...otherInfo } = app
+			appInfo = otherInfo
+		}
 		setLoading(true)
 		setCurrentUpgrade(app.namespace)
 		message.open({
@@ -105,11 +113,11 @@ const AppCard: FC<AppCardProps> = props => {
 		axios({
 			method: 'post',
 			url: '/paas/api/apps/update',
-			data: otherInfo,
+			data: appInfo,
 			// timeout: 30000,
 		}).then(res => {
 			if (res.data.code === 1) {
-				checkUpgradeStatus(false)
+				checkUpgradeStatus(appInfo, false)
 			} else {
 				reset()
 				
@@ -124,7 +132,7 @@ const AppCard: FC<AppCardProps> = props => {
 			console.log(error)
 			reset()
 			if(error?.code === "ERR_BAD_RESPONSE") {
-				checkUpgradeStatus(false)
+				checkUpgradeStatus(appInfo, false)
 				return
 			}
 			
@@ -136,6 +144,26 @@ const AppCard: FC<AppCardProps> = props => {
 			})
 		})
 	}, [app, setCurrentUpgrade])
+
+	const _renderRollbackContent = useCallback(() => {
+		return (
+			<div
+			style={{display: 'flex', flexDirection: 'column'}} 
+			onClick={(e) => {
+				e.stopPropagation()
+				const currentApp = app?.previousList?.[e.target?.dataset?.index];
+				upgrade(currentApp)
+			}}>
+				{
+					app?.previousList?.map((item, index) => {
+						return (
+							<p data-index={index} style={{marginTop: 8, color: '#ff4d4f', borderColor: '#ff4d4f', background: '#fff', cursor: 'pointer'}}>回滚到：{item.version} 版本</p>
+						)
+					})
+				}
+			</div>
+		)
+	}, [popoverOpen])
 	
 	return (
 	  <div className={styles.appCard} style={style}>
@@ -147,7 +175,7 @@ const AppCard: FC<AppCardProps> = props => {
 							{app.title}
 						</div>
 					  <div className={styles.version}>
-						  Version {app.operateType === 'update' ? `由 ${app.preVersion} 升级到 ${app.version}` : app.version}
+						  {app.operateType === 'update' ? <p>Version 由 <span style={{color: '#1677ff'}}>{app.preVersion}</span> 升级到 <span style={{color: '#ff4d4f'}}>{app.version}</span></p> : `Version ${app.version}`}
 						</div>
 				  </div>
 			  </div>
@@ -164,6 +192,27 @@ const AppCard: FC<AppCardProps> = props => {
 							  {operateText}
 						</Button>
 					 ) : null}
+					{ app?.previousList?.length ?	(<Popover 
+						content={_renderRollbackContent()} 
+						title="历史版本" 
+						trigger="click"
+						open={popoverOpen}
+						onOpenChange={(newOpen) => {
+							setPopoverOpen(newOpen)
+						}}
+					>
+						<Button
+								disabled={disabled}
+								type="text"
+								size="small"
+								loading={loading}
+								className={styles.button}
+								style={{ marginLeft: 10 }}
+								onClick={() => { console.log('回滚') } }
+							>
+								回滚
+						</Button>
+					</Popover>) : null }
 			  </div>
 		  </div>
 		  <div className={styles.description}>

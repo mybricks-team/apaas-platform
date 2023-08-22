@@ -141,8 +141,17 @@ export default class AppsService {
       let remoteAppList = []
       let mergedList = []
       try {
+        const currentInstallList = (await this.getAllInstalledList({ filterSystemApp: true }))?.map(i => {
+          return {
+            namespace: i.namespace,
+            version: i.version,
+            extName: i.extName,
+            title: i.title,
+          }
+        })
         if(env.isPlatform_Fangzhou()) {
           remoteAppList = await this.appDao.queryLatestApp(); 
+
           // const temp = JSON.parse(require('child_process').execSync(`
           //   curl -x 10.28.121.13:11080  --location --request POST 'https://my.mybricks.world/central/api/channel/gateway' --header 'Content-Type: application/json' --data '{"action": "app_getAllLatestList"}'
           // `).toString())
@@ -154,7 +163,8 @@ export default class AppsService {
             // "http://localhost:4100/central/api/channel/gateway", 
             "https://my.mybricks.world/central/api/channel/gateway", 
             {
-              action: 'app_getAllLatestList'
+              action: 'app_getAllLatestList',
+              payload: JSON.stringify(currentInstallList)
             }
           )).data;
           if(temp.code === 1) {
@@ -166,7 +176,7 @@ export default class AppsService {
           })
         }
         let tempList = localAppList.concat(remoteAppList)
-        // 去重
+        // 去重: 本地优先级更高
         let nsMap = {}
         tempList?.forEach(i => {
           if(!nsMap[i.namespace]) {
