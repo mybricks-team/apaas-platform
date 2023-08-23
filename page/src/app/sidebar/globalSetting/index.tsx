@@ -11,11 +11,13 @@ import {
   Button,
   message,
   Switch,
-  Select
+  Select,
+  Popover,
 } from 'antd'
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
 import Icon, {SettingOutlined, LeftOutlined, InfoCircleOutlined} from '@ant-design/icons'
+import { APaaS } from '../../noaccess/Icons'
 
 import compareVersion from 'compare-version'
 import {getApiUrl} from '../../../utils'
@@ -314,59 +316,102 @@ const AboutForm = ({ currentPlatformVersion }) => {
   const [checkLoading, setCheckLoading] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   let upgradeContainer = null;
+
+  const upgrade = useCallback((version) => {
+    setIsDownloading(true)
+      message.info('正在执行下载操作, 此过程大约15s', 15)
+      axios.post(getApiUrl('/paas/api/system/channel'), {
+        type: 'downloadPlatform',
+        version: version
+      }).then((res) => {
+        if(res?.data?.code === 1) {
+          message.info('安装包下载完毕，即将执行升级操作，请稍后', 5)
+          axios.post(getApiUrl('/paas/api/system/channel'), {
+            type: 'reloadPlatform',
+            version: version
+          }).then((res) => {
+            setTimeout(() => {
+              message.info('升级中，请稍后，此过程大约15s', 15, () => {
+                message.success('升级成功, 3秒后将自动刷新页面', 3, () => {
+                  location.reload()
+                  setIsDownloading(false)
+                })
+              })
+            }, 3000)
+          }).catch(e => {
+            setIsDownloading(false)
+            console.log(e)
+          })
+        }
+      }).catch(e => {
+        setIsDownloading(false)
+        console.log(e)
+      })
+  }, [])
+  
   if(showUpgrade) {
     upgradeContainer = (
       <div style={{display: 'flex', justifyContent: 'space-around', alignItems:'center', marginTop: 8}}>
-        <span>最新版本是: {upgradeInfo.version}</span>
-        <Button 
-          type="primary" 
-          loading={isDownloading}
-          onClick={() => {
-            setIsDownloading(true)
-            message.info('正在执行下载操作, 此过程大约15s', 15)
-              axios.post(getApiUrl('/paas/api/system/channel'), {
-                type: 'downloadPlatform',
-                version: upgradeInfo.version
-              }).then((res) => {
-                if(res?.data?.code === 1) {
-                  message.info('安装包下载完毕，即将执行升级操作，请稍后', 5)
-                  axios.post(getApiUrl('/paas/api/system/channel'), {
-                    type: 'reloadPlatform',
-                    version: upgradeInfo.version
-                  }).then((res) => {
-                    setTimeout(() => {
-                      message.info('升级中，请稍后，此过程大约15s', 15, () => {
-                        message.success('升级成功, 3秒后将自动刷新页面', 3, () => {
-                          location.reload()
-                          setIsDownloading(false)
-                        })
+        <div style={{display: 'flex', justifyContent: 'space-around', alignItems:'center', width: 300}}>
+          <span>最新版本是: <span style={{ color: 'rgb(255, 77, 79)' }}>{upgradeInfo.version}</span></span>
+          <Button 
+            loading={isDownloading}
+            onClick={() => {
+              upgrade(upgradeInfo.version)
+            }}
+          >
+            立即升级?
+          </Button>
+        </div>
+        {
+          upgradeInfo?.previousList?.length > 0 ? (
+            <Popover 
+              content={(
+                <div
+                  style={{display: 'flex', flexDirection: 'column'}} 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const currentApp = upgradeInfo?.previousList?.[e.target?.dataset?.index];
+                    upgrade(currentApp.version)
+                  }}>
+                    {
+                      upgradeInfo?.previousList?.map((item, index) => {
+                        return (
+                          <p data-index={index} style={ isDownloading ? {marginTop: 8, color: 'gray', cursor: 'not-allowed'} : {marginTop: 8, color: '#ff4d4f', cursor: 'pointer'}}>回滚到：{item.version} 版本</p>
+                        )
                       })
-                    }, 3000)
-                  }).catch(e => {
-                    setIsDownloading(false)
-                    console.log(e)
-                  })
-                }
-              }).catch(e => {
-                setIsDownloading(false)
-                console.log(e)
-              })
-          }}
-        >
-          立即升级?
-        </Button>
+                    }
+                  </div>
+              )} 
+              title="历史版本" 
+              trigger="click"
+            >
+              <Button
+                type={"link"}
+                loading={isDownloading}
+                className={styles.button}
+                style={{ marginLeft: 10 }}
+              >
+                历史版本
+              </Button>
+            </Popover>
+          ) : null
+        }
       </div>
     )
   }
   return (
     <div>
-      <p style={{textAlign: 'center', fontSize: 22, fontWeight: 700}}>MyBricks aPaaS Platform</p>
-      <p style={{textAlign: 'center'}}>当前版本是 {currentPlatformVersion}</p>
-      <div style={{display: 'flex', justifyContent: 'center'}}>
+      <p style={{textAlign: 'center', fontSize: 32, fontWeight: 700, display: 'flex', alignItems:'center', justifyContent: 'center'}}> 
+      <span style={{ marginRight: 8 }}>
+        { APaaS }
+      </span>
+       Platform</p>
+      <p style={{textAlign: 'center'}}>当前版本是: <span style={{color: 'rgb(22, 119, 255)'}}>{currentPlatformVersion}</span></p>
+      <div style={{display: 'flex', justifyContent: 'center', marginTop: 8}}>
         <Button
           loading={checkLoading}
           onClick={() => {
-            // console.log('点击检查更新')
             setCheckLoading(true)
             axios.post(getApiUrl('/paas/api/system/channel'), {
               type: "checkLatestPlatformVersion",
