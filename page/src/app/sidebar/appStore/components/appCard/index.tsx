@@ -33,7 +33,7 @@ const AppCard: FC<AppCardProps> = props => {
 	const { app, setCurrentUpgrade, disabled, style } = props
 	const [loading, setLoading] = useState(false)
 	const [popoverOpen, setPopoverOpen] = useState(false);
-	
+
 	const operateText = useMemo(() => {
 		if (app.operateType === 'install') {
 			return '获取'
@@ -92,7 +92,7 @@ const AppCard: FC<AppCardProps> = props => {
 		}, immediate ? 0 : 5000)
 	}, [app, setCurrentUpgrade])
 	
-	const upgrade = useCallback((_param) => {
+	const upgrade = useCallback((_param?: any) => {
 		let appInfo = null
 		if(_param) {
 			appInfo = _param
@@ -188,7 +188,9 @@ const AppCard: FC<AppCardProps> = props => {
 							  size="small"
 							  loading={loading}
 							  className={styles.button}
-							  onClick={upgrade}
+							  onClick={() => {
+									upgrade()
+								}}
 						  >
 							  {operateText}
 						</Button>
