@@ -206,14 +206,12 @@ const AppCard: FC<AppCardProps> = props => {
 					>
 						<Button
 								disabled={disabled}
-								type="text"
+								type="link"
 								size="small"
 								loading={loading}
-								className={styles.button}
 								style={{ marginLeft: 10 }}
-								onClick={() => { console.log('回滚') } }
 							>
-								回滚
+								历史版本
 						</Button>
 					</Popover>) : null }
 			  </div>

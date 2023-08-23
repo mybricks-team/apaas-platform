@@ -2,6 +2,12 @@
   "installApps": [
     {
       "type": "oss",
+      "version": "0.0.13",
+      "namespace": "mybricks-app-theme",
+      "path": "asset-center/asset/app/mybricks-app-theme/0.0.14/mybricks-app-theme.zip"
+    },
+    {
+      "type": "oss",
       "version": "0.3.78",
       "namespace": "mybricks-pc-page",
       "path": "asset-center/asset/app/mybricks-pc-page/0.3.78/mybricks-pc-page.zip"
