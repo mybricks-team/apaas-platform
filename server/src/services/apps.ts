@@ -173,6 +173,12 @@ export default class AppsService {
           // 远端app地址增加标记位
           remoteAppList?.forEach(i => {
             i.isFromCentral = true
+            // 回滚版本也加上标记位
+            if(i.previousList) {
+              i.previousList?.forEach(j => {
+                j.isFromCentral = true
+              })
+            }
           })
         }
         let tempList = localAppList.concat(remoteAppList)
