@@ -157,13 +157,14 @@ const AppCard: FC<AppCardProps> = props => {
 				{
 					app?.previousList?.map((item, index) => {
 						return (
-							<p data-index={index} style={{marginTop: 8, color: '#ff4d4f', borderColor: '#ff4d4f', background: '#fff', cursor: 'pointer'}}>回滚到：{item.version} 版本</p>
+
+							<p data-index={index} style={ loading ? {marginTop: 8, color: 'gray', cursor: 'not-allowed'} : {marginTop: 8, color: '#ff4d4f', cursor: 'pointer'}}>回滚到：{item.version} 版本</p>
 						)
 					})
 				}
 			</div>
 		)
-	}, [popoverOpen])
+	}, [popoverOpen, loading])
 	
 	return (
 	  <div className={styles.appCard} style={style}>
