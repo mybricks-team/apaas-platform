@@ -312,6 +312,7 @@ const OssForm = ({ initialValues, onSubmit, style }) => {
 
 const AboutForm = ({ currentPlatformVersion }) => {
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [versionCompareResult, setVersionCompareResult] = useState(null);
   const [upgradeInfo, setUpgradeInfo] = useState(null)
   const [checkLoading, setCheckLoading] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
@@ -350,19 +351,24 @@ const AboutForm = ({ currentPlatformVersion }) => {
   }, [])
   
   if(showUpgrade) {
+    console.log(111, versionCompareResult)
     upgradeContainer = (
       <div style={{display: 'flex', justifyContent: 'space-around', alignItems:'center', marginTop: 8}}>
-        <div style={{display: 'flex', justifyContent: 'space-around', alignItems:'center', width: 300}}>
-          <span>最新版本是: <span style={{ color: 'rgb(255, 77, 79)' }}>{upgradeInfo.version}</span></span>
-          <Button 
-            loading={isDownloading}
-            onClick={() => {
-              upgrade(upgradeInfo.version)
-            }}
-          >
-            立即升级?
-          </Button>
-        </div>
+        {
+          versionCompareResult > 0 ? (
+            <div style={{display: 'flex', justifyContent: 'space-around', alignItems:'center', width: 300}}>
+              <span>最新版本是: <span style={{ color: 'rgb(255, 77, 79)' }}>{upgradeInfo.version}</span></span>
+              <Button 
+                loading={isDownloading}
+                onClick={() => {
+                  upgrade(upgradeInfo.version)
+                }}
+              >
+                立即升级?
+              </Button>
+            </div>
+          ) : null
+        }
         {
           upgradeInfo?.previousList?.length > 0 ? (
             <Popover 
@@ -419,6 +425,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
               console.log('最新版本', data)
               if(data.code === 1) {
                 const temp = compareVersion(data.data.version, currentPlatformVersion)
+                setVersionCompareResult(temp)
                 switch(temp) {
                   case -1: {
                     message.info('远程系统版本异常，请联系管理员')
@@ -426,6 +433,8 @@ const AboutForm = ({ currentPlatformVersion }) => {
                   }
                   case 0: {
                     message.info('当前版本已是最新版本')
+                    setUpgradeInfo(data.data)
+                    setShowUpgrade(true)
                     break;
                   }
                   case 1: {
