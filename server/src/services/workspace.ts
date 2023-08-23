@@ -150,11 +150,8 @@ export default class WorkspaceService {
     try {
       const rtn = await this.fileDao.queryById(fileId);
       const res = await this.fileContentDao.getLatestContentId({ fileId: fileId });
-<<<<<<< Updated upstream
       /** fileDao.queryById 引用处比较多，就不修改其连表当时，使用单独查一次 user 的方式 */
       const user = await this.userDao.queryById({ id: rtn.updatorId });
-=======
->>>>>>> Stashed changes
       let content = null
       if(res?.id) {
         const temp = await this.fileContentDao.queryById({ id: res?.id })
