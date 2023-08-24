@@ -351,7 +351,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
   }, [])
   
   if(showUpgrade) {
-    console.log(111, versionCompareResult)
+    // console.log(111, versionCompareResult)
     upgradeContainer = (
       <div style={{display: 'flex', justifyContent: 'space-around', alignItems:'center', marginTop: 8}}>
         {
