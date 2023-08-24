@@ -17,6 +17,7 @@ interface AppCardProps {
 	app: T_App & { installInfo?: string; operateType?: string; preVersion?: string };
 	setCurrentUpgrade(namespace: string): void;
 	disabled: boolean;
+	userId?: number;
 	style: any,
 }
 
@@ -30,7 +31,7 @@ const safeParse = (content = '', defaultValue = {}) => {
 	}
 }
 const AppCard: FC<AppCardProps> = props => {
-	const { app, setCurrentUpgrade, disabled, style } = props
+	const { app, setCurrentUpgrade, disabled, style, userId } = props
 	const [loading, setLoading] = useState(false)
 	const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -108,8 +109,9 @@ const AppCard: FC<AppCardProps> = props => {
 			content: '系统升级中...',
 			duration: 0,
 			key: LOADING_KEY,
-		})
-		
+		});
+		appInfo.userId = userId;
+
 		axios({
 			method: 'post',
 			url: '/paas/api/apps/update',
@@ -143,17 +145,18 @@ const AppCard: FC<AppCardProps> = props => {
 				duration: 3,
 			})
 		})
-	}, [app, setCurrentUpgrade])
+	}, [app, setCurrentUpgrade, userId])
 
 	const _renderRollbackContent = useCallback(() => {
 		return (
 			<div
-			style={{display: 'flex', flexDirection: 'column'}} 
-			onClick={(e) => {
-				e.stopPropagation()
-				const currentApp = app?.previousList?.[e.target?.dataset?.index];
-				upgrade(currentApp)
-			}}>
+				style={{display: 'flex', flexDirection: 'column'}}
+				onClick={(e) => {
+					e.stopPropagation()
+					const currentApp = app?.previousList?.[(e.target as HTMLDivElement)?.dataset?.index];
+					upgrade(currentApp)
+				}}
+			>
 				{
 					app?.previousList?.map((item, index) => {
 						return (

@@ -18,7 +18,6 @@ export function runtimeLogger(option: Option = {}) {
 
     res.on('close', () => {
       Logger.info(`[application: ${application}] [timestamp: ${new Date().toISOString()}] [code: ${res.statusCode}] [method: ${req.method}] [refer: ${req.headers.referer}] [userAgent: ${req.headers['user-agent']}] [params: ${params}] [path: ${req.path}] [ip: ${req.ip}]`);
-      console.log(`[application: ${application}] [timestamp: ${new Date().toISOString()}] [code: ${res.statusCode}] [method: ${req.method}] [refer: ${req.headers.referer}] [userAgent: ${req.headers['user-agent']}] [params: ${params}] [path: ${req.path}] [ip: ${req.ip}]`);
     });
     next();
   };

@@ -368,6 +368,7 @@ export default class AppsService {
     } catch (e) {
       if (logInfo) {
         await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
+        logInfo = null;
       }
       Logger.info(e.message);
     }
