@@ -692,11 +692,11 @@ export default class SystemService {
   }
 
   @Post('/system/doUpdate')
-  async doUpdate(@Body('version') version) {
-    if(!version) {
+  async doUpdate(@Body('version') version, @Body('userId') userId) {
+    if(!version || !userId) {
       return {
         code: -1,
-        msg: '缺少必要参数'
+        msg: '缺少必要参数 version、userId'
       }
     }
     const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
@@ -706,6 +706,7 @@ export default class SystemService {
     });
     await this.userLogDao.insertLog({
       type: 10,
+      userId,
       logContent: JSON.stringify({
         type: 'platform',
         action: 'install',

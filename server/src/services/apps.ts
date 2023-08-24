@@ -211,7 +211,7 @@ export default class AppsService {
 
   @Post("/update")
   async appUpdate(@Body() body, @Req() req) {
-    const { namespace, version, isFromCentral } = body;
+    const { namespace, version, isFromCentral, userId } = body;
     const applications = require(path.join(process.cwd(), './application.json'));
 
     let remoteApps = [];
@@ -361,19 +361,19 @@ export default class AppsService {
           cwd: path.join(process.cwd()),
         });
         if (logInfo) {
-          await this.userLogDao.insertLog({ type: 9, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
+          await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
         }
         return { code: -1, message: logStr.toString() };
       }
     } catch (e) {
       if (logInfo) {
-        await this.userLogDao.insertLog({ type: 9, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
+        await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
       }
       Logger.info(e.message);
     }
 
     if (logInfo) {
-      await this.userLogDao.insertLog({ type: 9, logContent: JSON.stringify({ ...logInfo, status: 'success' }) });
+      await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'success' }) });
     }
     try {
       const serverModulePath = path.join(
@@ -455,6 +455,7 @@ export default class AppsService {
       description,
       install_info,
       version,
+      user_id,
       creator_name,
     } = body;
     const install_type = body.install_type || "npm";
@@ -466,12 +467,12 @@ export default class AppsService {
       !description ||
       !install_info ||
       !version ||
-      !creator_name
+      !user_id
     ) {
       return {
         code: 0,
         message:
-          "参数 name, namespace, icon, description, install_type, type, install_info, version, creator_name 不能为空",
+          "参数 name, namespace, icon, description, install_type, type, install_info, version, user_id 不能为空",
       };
     }
 
@@ -488,6 +489,7 @@ export default class AppsService {
     await this.userLogDao.insertLog({
       type: 9,
       userEmail: creator_name,
+      userId: user_id,
       logContent: JSON.stringify({
         type: 'application',
         action: 'register',
