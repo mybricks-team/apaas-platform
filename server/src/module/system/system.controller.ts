@@ -16,6 +16,7 @@ const fs = require('fs')
 const env = require('../../../env')
 import platformEnvUtils from '../../utils/env'
 import RefreshDao from "../../dao/RefreshDao";
+import UserLogDao from "../../dao/UserLogDao";
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -29,6 +30,7 @@ export default class SystemService {
   refreshDao: RefreshDao;
 
   fileService: FileService
+  userLogDao: UserLogDao;
 
   conn: any;
 
@@ -40,6 +42,7 @@ export default class SystemService {
     this.servicePubDao = new ServicePubDao();
     this.appDao = new AppDao()
     this.refreshDao = new RefreshDao()
+    this.userLogDao = new UserLogDao()
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
@@ -700,7 +703,16 @@ export default class SystemService {
     Logger.info(shellPath)
     const res = await childProcess.execSync(`sh ${shellPath} ${version}`, {
       cwd: path.join(process.cwd(), '../'),
-    })
+    });
+    await this.userLogDao.insertLog({
+      type: 10,
+      logContent: JSON.stringify({
+        type: 'platform',
+        action: 'install',
+        version,
+        content: `升级平台，版本号：${version}`,
+      })
+    });
     return {
       code: 1,
       msg: res.toString(),

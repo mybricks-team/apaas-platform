@@ -15,7 +15,7 @@ import { loadModule } from "./module-loader";
 import { enhanceApp } from "./enhance";
 import init from "./init";
 import ValidationPipe from "./pipe/validationPipe";
-import { runtimeLogger } from "./middleware/log.middleware";
+import { runtimeLogger } from './middleware/log.middleware';
 
 const env = require('../env.js')
 

@@ -27,6 +27,7 @@ import UserModule from "./module/user/user.module";
 import UserFileModule from "./module/userFile/userFile.module";
 import UserGroupModule from "./module/userGroup/userGroup.module";
 import OssModule from './module/oss/oss.module'
+import UserLogDao from './dao/UserLogDao';
 
 @Module({
   imports: [
@@ -60,7 +61,8 @@ import OssModule from './module/oss/oss.module'
     FileDao,
     FileTaskDao,
     FilePubDao,
-    ConfigDao
+    ConfigDao,
+    UserLogDao
   ],
 })
 export default class AppManageModule {

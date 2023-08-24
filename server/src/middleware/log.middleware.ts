@@ -7,7 +7,7 @@ interface Option {
 
 export function runtimeLogger(option: Option = {}) {
   const { appNamespaceList = [] } = option;
-  console.log(appNamespaceList);
+
   return async (req: Request, res, next: NextFunction) => {
     let params = JSON.stringify(req.query || null);
     const application = appNamespaceList.find(namespace => req.path?.startsWith?.(`/${namespace}`)) || 'platform';

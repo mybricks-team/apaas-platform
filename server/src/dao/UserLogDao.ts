@@ -56,6 +56,19 @@ export default class UserLogDao extends DOBase {
     return result.insertId
   }
 
+  public async insertLog(params: { type: number, logContent: string; userEmail?: string }): Promise<number> {
+    const result = await this.exe<any>('apaas_user_log:insert', {
+        ...params,
+        userId: '',
+        userEmail: params.userEmail || '',
+        id: genMainIndexOfDB(),
+        createTime: Date.now()
+      }
+    );
+
+    return result.insertId;
+  }
+
   public async createUpgradeLog(params: {
     userId: string,
     userEmail: string
