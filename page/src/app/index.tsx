@@ -54,7 +54,8 @@ export default function App() {
             method: "post",
             url: getApiUrl('/paas/api/system/channel'),
             data: {
-              type: 'connect'
+              type: 'connect',
+              userId: user?.id
             }
           }));
         }

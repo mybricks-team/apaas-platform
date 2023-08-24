@@ -311,6 +311,7 @@ const OssForm = ({ initialValues, onSubmit, style }) => {
 }
 
 const AboutForm = ({ currentPlatformVersion }) => {
+  const appCtx = observe(AppCtx, {from: 'parents'})
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [versionCompareResult, setVersionCompareResult] = useState(null);
   const [upgradeInfo, setUpgradeInfo] = useState(null)
@@ -323,13 +324,15 @@ const AboutForm = ({ currentPlatformVersion }) => {
       message.info('正在执行下载操作, 此过程大约15s', 15)
       axios.post(getApiUrl('/paas/api/system/channel'), {
         type: 'downloadPlatform',
-        version: version
+        version: version,
+        userId: appCtx.user?.id,
       }).then((res) => {
         if(res?.data?.code === 1) {
           message.info('安装包下载完毕，即将执行升级操作，请稍后', 5)
           axios.post(getApiUrl('/paas/api/system/channel'), {
             type: 'reloadPlatform',
-            version: version
+            version: version,
+            userId: appCtx.user?.id,
           }).then((res) => {
             setTimeout(() => {
               message.info('升级中，请稍后，此过程大约15s', 15, () => {
@@ -421,6 +424,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
             setCheckLoading(true)
             axios.post(getApiUrl('/paas/api/system/channel'), {
               type: "checkLatestPlatformVersion",
+              userId: appCtx.user?.id,
             }).then(({ data }) => {
               console.log('最新版本', data)
               if(data.code === 1) {
@@ -460,7 +464,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
 
 const OssIcon = (props) => {
   return (
-    <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7999" width="200" height="200"><path d="M901 459.4c-38.7-35.8-87.6-47.2-120.6-50.6-1.8-68.6-23.1-126.2-63.5-171.6-78.4-88.1-199.9-95.6-208-95.9-176.9 6.1-250.8 138-270.5 226C102.9 387.1 64.3 499.5 63.3 560.2 63.3 722 188.8 772 256.7 775.9c91.2-0.3 160.7-23.5 207.3-73.5 39.8-42.6 52.8-93.7 56.9-128.1l75.3 68.1 45.2-49.9L492 457.4 338.3 574.1l40.7 53.6 74.4-56.5c-3.4 23.9-12.9 57.8-38.6 85.3-33.2 35.6-86.1 52.4-155.6 52.2-13.2-0.9-128.6-12.8-128.6-147.9 0.1-5 3.6-122 138.3-128.8l28.7-1.5 3.1-28.5c0.8-7.6 22.6-186.9 207.4-193.4 1 0.1 99.4 6.6 158.8 73.7 34.4 38.9 49.7 91.6 45.5 156.9l-2.3 38.4 38.4-2.7c0.8 0 65.7-4.2 107 34.2C879.2 531 891.4 564 892 607c-3.5 15.8-24.7 94.7-99.5 101.6H532V776l263.4-0.2C904.5 766 950 667 958.9 616l0.5-5.7c-0.1-64.5-19.7-115.2-58.4-150.9z" fill="#555555" p-id="8000"></path></svg>
+    <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200"><path d="M901 459.4c-38.7-35.8-87.6-47.2-120.6-50.6-1.8-68.6-23.1-126.2-63.5-171.6-78.4-88.1-199.9-95.6-208-95.9-176.9 6.1-250.8 138-270.5 226C102.9 387.1 64.3 499.5 63.3 560.2 63.3 722 188.8 772 256.7 775.9c91.2-0.3 160.7-23.5 207.3-73.5 39.8-42.6 52.8-93.7 56.9-128.1l75.3 68.1 45.2-49.9L492 457.4 338.3 574.1l40.7 53.6 74.4-56.5c-3.4 23.9-12.9 57.8-38.6 85.3-33.2 35.6-86.1 52.4-155.6 52.2-13.2-0.9-128.6-12.8-128.6-147.9 0.1-5 3.6-122 138.3-128.8l28.7-1.5 3.1-28.5c0.8-7.6 22.6-186.9 207.4-193.4 1 0.1 99.4 6.6 158.8 73.7 34.4 38.9 49.7 91.6 45.5 156.9l-2.3 38.4 38.4-2.7c0.8 0 65.7-4.2 107 34.2C879.2 531 891.4 564 892 607c-3.5 15.8-24.7 94.7-99.5 101.6H532V776l263.4-0.2C904.5 766 950 667 958.9 616l0.5-5.7c-0.1-64.5-19.7-115.2-58.4-150.9z" fill="#555555" p-id="8000"></path></svg>
   )
 }
 
@@ -546,6 +550,7 @@ export default () => {
   useEffect(() => {
     axios.post(getApiUrl('/paas/api/system/channel'), {
       type: "getCurrentPlatformVersion",
+      userId: appCtx.user?.id,
     }).then(({ data }) => {
       if(data.code === 1) {
         setCurrentPlatformVersion(data.data)

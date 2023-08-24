@@ -119,6 +119,7 @@ function SystemMenus() {
     if (isAdministrator) {
       // 检查消息通道
       axios.post(getApiUrl('/paas/api/system/channel'),  {
+        userId: appCtx.user?.id,
         type: "getLatestNoticeList", 
         isAdministrator: true
       }).then(({ data }) => {
