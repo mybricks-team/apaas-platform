@@ -43,8 +43,8 @@
     {
       "type": "oss",
       "namespace": "mybricks-app-mpsite",
-      "version": "0.0.98",
-      "path": "asset-center/asset/app/mybricks-app-mpsite/0.0.98/mybricks-app-mpsite.zip"
+      "version": "0.1.5",
+      "path": "asset-center/asset/app/mybricks-app-mpsite/0.1.5/mybricks-app-mpsite.zip"
     }
   ],
   "platformVersion": "0.0.71"
