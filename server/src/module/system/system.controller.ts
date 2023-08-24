@@ -552,7 +552,7 @@ export default class SystemService {
 
   @Post('/system/channel')
   async channel(@Body() body: any) {
-    const { type, version, isAdministrator, payload } = body;
+    const { type, version, isAdministrator, payload, userId } = body;
     if(platformEnvUtils.isPlatform_Fangzhou()) {
       return {
         code: -1,
@@ -560,6 +560,15 @@ export default class SystemService {
       }
     }
     try {
+      await this.userLogDao.insertLog({
+        type: 10,
+        userId,
+        logContent: JSON.stringify({
+          type: 'platform',
+          action: type,
+          // content: `升级平台，版本号：${version}`,
+        })
+      });
       switch (type) {
         case 'checkLatestPlatformVersion': {
           const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
