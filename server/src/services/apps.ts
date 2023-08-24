@@ -325,7 +325,7 @@ export default class AppsService {
         stdio: 'inherit'
       });
       Logger.info(`安装应用日志是: ${logStr}`)
-      if (logStr.indexOf("npm ERR") !== -1) {
+      if (logStr?.indexOf("npm ERR") !== -1) {
         fs.writeFileSync(
           path.join(process.cwd(), "./application.json"),
           rawApplicationStr
