@@ -15,6 +15,7 @@ import { loadModule } from "./module-loader";
 import { enhanceApp } from "./enhance";
 import init from "./init";
 import ValidationPipe from "./pipe/validationPipe";
+import { runtimeLogger } from "./middleware/log.middleware";
 
 const env = require('../env.js')
 
@@ -38,6 +39,9 @@ async function bootstrap() {
     }
   });
   app.use(bodyParser.json({ limit: "100mb" }));
+  app.use(runtimeLogger({
+    appNamespaceList: loadedModule.namespace,
+  }));
 
   enhanceApp(app, {
     appNamespaceList: loadedModule.namespace,
