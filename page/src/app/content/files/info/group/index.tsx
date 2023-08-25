@@ -139,7 +139,6 @@ export default function Group(props) {
 }
 
 function GroupOperate(props) {
-  console.log('111', props)
   const { manageable, isFounder } = props
   const appCtx = observe(AppCtx, {from: 'parents'})
   const [open, setOpen] = useState<number | boolean>(0)

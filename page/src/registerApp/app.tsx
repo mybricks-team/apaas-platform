@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Form, Input, Select, Radio, Steps, Button, message } from 'antd';
 import axios from 'axios';
 
@@ -10,9 +10,14 @@ const App = () => {
   const [isExistApp, setIsExistApp] = useState(true);
   const [stepOneInfo, setStepOneInfo] = useState<any>({});
   const [existAppList, setExistAppList] = useState([]);
-
+  const userRef = useRef({ id: '' });
 
   useEffect(() => {
+    axios.post('/paas/api/user/signed').then(({ data }) => {
+      if (data.code === 1) {
+        userRef.current = data.data;
+      }
+    });
     axios.get('/paas/api/apps/getLatestAll').then(({ data }) => {
       if(data.code === 1) {
         let list = data?.data?.map((i) => {
@@ -112,6 +117,7 @@ const App = () => {
         }),
         version: allValues.appVersion,
         creator_name: allValues.appPublishEmail,
+        user_id: userRef.current?.id,
       }
     } else {
       // 新应用
@@ -126,9 +132,11 @@ const App = () => {
         }),
         version: allValues.appVersion,
         creator_name: allValues.appPublishEmail,
-        status: -2 // 待审核
+        status: -2, // 待审核
+        user_id: userRef.current?.id,
       }
     }
+
     axios.post('/paas/api/apps/register', info).then(({ data }) => {
       if(data.code === 1) {
         message.info(data?.msg || '注册成功')

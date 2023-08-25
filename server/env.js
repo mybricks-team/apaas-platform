@@ -2,6 +2,8 @@ const path = require('path')
 
 const ENV = process.env.NODE_ENV;
 
+const LOGS_BASE_FOLDER = path.join(__dirname, '../logs');
+
 const APPS_BASE_FOLDER = (ENV === 'staging' || ENV === 'production') ? '/kwaishop-fangzhou-apaas-platform-service/apaas/_apps' : path.join(process.cwd(), `../_apps`);
 const FILE_LOCAL_STORAGE_FOLDER = (ENV === 'staging' || ENV === 'production') ? '/kwaishop-fangzhou-apaas-platform-service/apaas/_localstorage' : path.join(process.cwd(), `../_localstorage`);
 const FILE_LOCAL_STORAGE_PREFIX = 'mfs'
@@ -13,5 +15,6 @@ module.exports = {
   FILE_LOCAL_STORAGE_PREFIX_RUNTIME,
   FILE_LOCAL_STORAGE_FOLDER,
   APPS_BASE_FOLDER,
+  LOGS_BASE_FOLDER,
   NPM_REGISTRY
 }

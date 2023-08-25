@@ -1,5 +1,5 @@
 import ServicePubDao from './../../dao/ServicePubDao';
-import { Body, Controller, Get, Inject, Post, Req } from '@nestjs/common';
+import {Body, Controller, Get, Inject, Post, Query, Req} from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
 import AppDao from '../../dao/AppDao';
@@ -16,6 +16,7 @@ const fs = require('fs')
 const env = require('../../../env')
 import platformEnvUtils from '../../utils/env'
 import RefreshDao from "../../dao/RefreshDao";
+import UserLogDao from "../../dao/UserLogDao";
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -29,6 +30,7 @@ export default class SystemService {
   refreshDao: RefreshDao;
 
   fileService: FileService
+  userLogDao: UserLogDao;
 
   conn: any;
 
@@ -40,6 +42,7 @@ export default class SystemService {
     this.servicePubDao = new ServicePubDao();
     this.appDao = new AppDao()
     this.refreshDao = new RefreshDao()
+    this.userLogDao = new UserLogDao()
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
@@ -549,7 +552,7 @@ export default class SystemService {
 
   @Post('/system/channel')
   async channel(@Body() body: any) {
-    const { type, version, isAdministrator, payload } = body;
+    const { type, version, isAdministrator, payload, userId } = body;
     if(platformEnvUtils.isPlatform_Fangzhou()) {
       return {
         code: -1,
@@ -594,6 +597,8 @@ export default class SystemService {
           }
         }
         case 'downloadPlatform': {
+          const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
+          const { platformVersion: prePlatformVersion } = JSON.parse(appJSON)
           const res = (await (axios as any).post(
             `https://my.mybricks.world/central/api/channel/gateway`, 
             // `http://localhost:4100/central/api/channel/gateway`, 
@@ -611,7 +616,20 @@ export default class SystemService {
             Logger.info(shellPath)
             const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
               cwd: path.join(process.cwd(), '../'),
-            })
+            });
+
+            await this.userLogDao.insertLog({
+              type: 10,
+              userId,
+              logContent: JSON.stringify({
+                type: 'platform',
+                action: 'install',
+                installType: 'oss',
+                preVersion: prePlatformVersion,
+                version,
+                content: `更新平台，版本从 ${prePlatformVersion} 到 ${version}`,
+              })
+            });
             return {
               code: 1,
               msg: log.toString() || '升级成功'
@@ -689,18 +707,28 @@ export default class SystemService {
   }
 
   @Post('/system/doUpdate')
-  async doUpdate(@Body('version') version) {
-    if(!version) {
+  async doUpdate(@Body('version') version, @Body('userId') userId) {
+    if(!version || !userId) {
       return {
         code: -1,
-        msg: '缺少必要参数'
+        msg: '缺少必要参数 version、userId'
       }
     }
     const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
     Logger.info(shellPath)
     const res = await childProcess.execSync(`sh ${shellPath} ${version}`, {
       cwd: path.join(process.cwd(), '../'),
-    })
+    });
+    await this.userLogDao.insertLog({
+      type: 10,
+      userId,
+      logContent: JSON.stringify({
+        type: 'platform',
+        action: 'install',
+        version,
+        content: `升级平台，版本号：${version}`,
+      })
+    });
     return {
       code: 1,
       msg: res.toString(),

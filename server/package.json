@@ -20,7 +20,7 @@
     "@mybricks/file-parser": "1.0.8",
     "@mybricks/render-com-node": "^1.0.0",
     "@mybricks/rocker-commons": "0.0.2",
-    "@mybricks/rocker-dao": "0.0.15",
+    "@mybricks/rocker-dao": "0.0.16",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",

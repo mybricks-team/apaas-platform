@@ -1,16 +1,17 @@
-import { Body, Controller, Get, Post, Query, Req, Headers } from "@nestjs/common";
-import * as fs from "fs";
-import * as path from "path";
-import * as childProcess from "child_process";
-import { safeParse, versionGreaterThan } from "../utils";
+import { Body, Controller, Get, Post, Query, Req, Headers } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as childProcess from 'child_process';
 import { Logger } from '@mybricks/rocker-commons'
-import AppDao from "../dao/AppDao";
-import * as axios from "axios";
+import AppDao from '../dao/AppDao';
+import * as axios from 'axios';
 import env from '../utils/env'
+import UserLogDao from '../dao/UserLogDao';
 
 @Controller("/paas/api/apps")
 export default class AppsService {
   appDao: AppDao;
+  userLogDao: UserLogDao;
   // 控制是否重启
   shouldReload: boolean;
   // 是否正在重启
@@ -20,6 +21,7 @@ export default class AppsService {
 
   constructor() {
     this.appDao = new AppDao();
+    this.userLogDao = new UserLogDao();
     this.isReloading = false;
     this.isSuccessUpgrade = false;
     this.shouldReload = false;
@@ -209,11 +211,8 @@ export default class AppsService {
 
   @Post("/update")
   async appUpdate(@Body() body, @Req() req) {
-    const { namespace, version, isFromCentral } = body;
-    const applications = require(path.join(
-      process.cwd(),
-      "./application.json"
-    ));
+    const { namespace, version, isFromCentral, userId } = body;
+    const applications = require(path.join(process.cwd(), './application.json'));
 
     let remoteApps = [];
     try {
@@ -251,6 +250,7 @@ export default class AppsService {
     let installedApp = null;
     let installedIndex = null;
     let installPkgName = "";
+    let logInfo = null;
     applications.installApps.forEach((app, index) => {
       if(app.type === 'npm') {
         if (app.path?.indexOf(namespace) !== -1) {
@@ -290,9 +290,22 @@ export default class AppsService {
           path: `${installPkgName}@${version}`,
         });
       }
+
+      logInfo = {
+        action: 'install',
+        type: 'application',
+        installType: remoteApp.installType || 'npm',
+        preVersion: '',
+        version,
+        namespace: installPkgName,
+        name: remoteApp.name || installPkgName,
+        content: '安装新应用：' + (remoteApp.name || installPkgName) + '，版本号：' + version,
+      };
     } else {
+      let preVersion = installedApp.version;
       // 升级版本
       if(installedApp.type === 'npm') {
+        preVersion = installedApp.path.split('@')[1];
         installPkgName = installedApp.path.substr(0, installedApp.path.lastIndexOf('@'))
         installedApp.path = `${installPkgName}@${version}`;
         applications.installApps.splice(installedIndex, 1, installedApp);
@@ -305,6 +318,19 @@ export default class AppsService {
         installPkgName = installedApp.namespace
         installedApp.version = version
         applications.installApps.splice(installedIndex, 1, installedApp);
+      }
+
+      if (['npm', 'oss', 'local'].includes(installedApp.type)) {
+        logInfo = {
+          action: 'install',
+          type: 'application',
+          installType: remoteApp.installType,
+          preVersion,
+          version,
+          namespace: installPkgName,
+          name: remoteApp.name || installPkgName,
+          content: `更新应用：${remoteApp.name || installPkgName}，版本从 ${preVersion} 到 ${version}`,
+        };
       }
 
       console.log('更新版本', installedApp)
@@ -334,10 +360,21 @@ export default class AppsService {
         childProcess.execSync("node installApplication.js", {
           cwd: path.join(process.cwd()),
         });
+        if (logInfo) {
+          await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
+        }
         return { code: -1, message: logStr.toString() };
       }
     } catch (e) {
+      if (logInfo) {
+        await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
+        logInfo = null;
+      }
       Logger.info(e.message);
+    }
+
+    if (logInfo) {
+      await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'success' }) });
     }
     try {
       const serverModulePath = path.join(
@@ -419,6 +456,7 @@ export default class AppsService {
       description,
       install_info,
       version,
+      user_id,
       creator_name,
     } = body;
     const install_type = body.install_type || "npm";
@@ -430,12 +468,12 @@ export default class AppsService {
       !description ||
       !install_info ||
       !version ||
-      !creator_name
+      !user_id
     ) {
       return {
         code: 0,
         message:
-          "参数 name, namespace, icon, description, install_type, type, install_info, version, creator_name 不能为空",
+          "参数 name, namespace, icon, description, install_type, type, install_info, version, user_id 不能为空",
       };
     }
 
@@ -449,6 +487,19 @@ export default class AppsService {
     }
 
     await this.appDao.insertApp({ ...body, install_type, type, create_time: Date.now() });
+    await this.userLogDao.insertLog({
+      type: 9,
+      userEmail: creator_name,
+      userId: user_id,
+      logContent: JSON.stringify({
+        type: 'application',
+        action: 'register',
+        namespace,
+        name,
+        version,
+        content: `注册应用：${name || namespace} 版本号：${version}`,
+      })
+    });
 
     return {
       code: 1,

@@ -195,6 +195,15 @@
         and ${query}
     </select>
 
+    <select id="getMaterialPubInfoByIds">
+        select
+        *
+        from
+        material_pub_info
+        where
+        id = 471481803456581
+    </select>
+
     <update id="update">
         update material_info
         set
@@ -232,6 +241,7 @@
         <if test="needContent">
             material_pub_info.content,
         </if>
+        material_pub_info.id as material_pub_id,
         material_pub_info.material_id
         from
         material_info, material_pub_info

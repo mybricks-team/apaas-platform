@@ -2,7 +2,7 @@ import { init } from '@mybricks/rocker-commons';
 
 import { MidLog } from 'mybricks-midlog';
 const path = require('path');
-const logDir = path.join(__dirname, '../../../logs');
+const env = require('../../env.js')
 
 export function initLogger() {
   MidLog.config({
@@ -13,37 +13,37 @@ export function initLogger() {
       {
         type: 'TRACE',
         rollingFile: true,
-        logdir: logDir,
+        logdir: env.LOGS_BASE_FOLDER,
         name: 'info.log',
       },
       {
         type: 'DEBUG',
         rollingFile: true,
-        logdir: logDir,
+        logdir: env.LOGS_BASE_FOLDER,
         name: 'info.log',
       },
       {
         type: 'INFO',
         rollingFile: true,
-        logdir: logDir,
+        logdir: env.LOGS_BASE_FOLDER,
         name: 'info.log',
       },
       {
         type: 'WARN',
         rollingFile: true,
-        logdir: logDir,
+        logdir: env.LOGS_BASE_FOLDER,
         name: 'info.log',
       },
       {
         type: 'ERROR',
         rollingFile: true,
-        logdir: logDir,
+        logdir: env.LOGS_BASE_FOLDER,
         name: 'info.log',
       },
       {
         type: 'FATAL',
         rollingFile: true,
-        logdir: logDir,
+        logdir: env.LOGS_BASE_FOLDER,
         name: 'info.log',
       },
     ],
