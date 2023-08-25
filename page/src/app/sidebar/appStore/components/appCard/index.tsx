@@ -208,10 +208,9 @@ const AppCard: FC<AppCardProps> = props => {
 						}}
 					>
 						<Button
-								disabled={disabled}
+								disabled={disabled || loading}
 								type="link"
 								size="small"
-								loading={loading}
 								style={{ marginLeft: 10 }}
 							>
 								历史版本

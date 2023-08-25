@@ -27,11 +27,8 @@ import UserModule from "./module/user/user.module";
 import UserFileModule from "./module/userFile/userFile.module";
 import UserGroupModule from "./module/userGroup/userGroup.module";
 import OssModule from './module/oss/oss.module'
-<<<<<<< Updated upstream
 import UserLogDao from './dao/UserLogDao';
-=======
 import LogModule from './module/log/log.module'
->>>>>>> Stashed changes
 
 @Module({
   imports: [

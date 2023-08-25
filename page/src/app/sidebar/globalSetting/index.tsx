@@ -377,7 +377,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
             >
               <Button
                 type={"link"}
-                loading={isDownloading}
+                disabled={isDownloading}
                 className={styles.button}
                 style={{ marginLeft: 10 }}
               >
