@@ -1,5 +1,5 @@
 import ServicePubDao from './../../dao/ServicePubDao';
-import { Body, Controller, Get, Inject, Post, Req } from '@nestjs/common';
+import {Body, Controller, Get, Inject, Post, Query, Req} from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
 import AppDao from '../../dao/AppDao';
@@ -560,15 +560,6 @@ export default class SystemService {
       }
     }
     try {
-      await this.userLogDao.insertLog({
-        type: 10,
-        userId,
-        logContent: JSON.stringify({
-          type: 'platform',
-          action: type,
-          // content: `升级平台，版本号：${version}`,
-        })
-      });
       switch (type) {
         case 'checkLatestPlatformVersion': {
           const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
@@ -606,6 +597,8 @@ export default class SystemService {
           }
         }
         case 'downloadPlatform': {
+          const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
+          const { platformVersion: prePlatformVersion } = JSON.parse(appJSON)
           const res = (await (axios as any).post(
             `https://my.mybricks.world/central/api/channel/gateway`, 
             // `http://localhost:4100/central/api/channel/gateway`, 
@@ -623,7 +616,20 @@ export default class SystemService {
             Logger.info(shellPath)
             const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
               cwd: path.join(process.cwd(), '../'),
-            })
+            });
+
+            await this.userLogDao.insertLog({
+              type: 10,
+              userId,
+              logContent: JSON.stringify({
+                type: 'platform',
+                action: 'install',
+                installType: 'oss',
+                preVersion: prePlatformVersion,
+                version,
+                content: `更新平台，版本从 ${prePlatformVersion} 到 ${version}`,
+              })
+            });
             return {
               code: 1,
               msg: log.toString() || '升级成功'
@@ -856,5 +862,24 @@ export default class SystemService {
       code: 1,
       data: '刷新完成',
     };
+  }
+
+  @Get('/system/operateLog')
+  async getOperateLog(
+    @Query('pageNum') pageNum: number,
+    @Query('pageSize') pageSize: number
+  ) {
+    const curPageNum = pageNum ? Number(pageNum) : 1;
+    const curPageSize = pageSize ? Number(pageSize) : 20;
+
+    return {
+      code: 1,
+      data: {
+        pageNum: curPageNum,
+        pageSize: curPageSize,
+        dataSource: await this.userLogDao.queryByTypes({ types: [9, 10], limit: curPageSize, offset: curPageSize * (curPageNum - 1) }),
+        total: await this.userLogDao.queryTotalByTypes([9, 10]),
+      }
+    }
   }
 }
