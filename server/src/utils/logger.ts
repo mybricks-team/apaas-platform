@@ -6,7 +6,7 @@ const env = require('../../env.js')
 
 export function initLogger() {
   MidLog.config({
-    env: process.env.NODE_ENV || 'dev',
+    env: process.env.NODE_ENV || 'production',
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     vtrace: () => {},
     appender: [

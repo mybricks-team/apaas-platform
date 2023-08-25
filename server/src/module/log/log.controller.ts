@@ -11,6 +11,7 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import LogService from './log.service';
+import { Logger } from '@mybricks/rocker-commons';
 const cp = require('child_process')
 const path = require('path')
 const env = require('../../../env.js')
@@ -26,14 +27,22 @@ export default class LogsController {
 
   @Post('/runtimeLog/search')
   search(@Body('searchValue') searchValue: string, @Body('line') line: number) {
-    const LINES = line || 100
-    const fileName = path.join(env.LOGS_BASE_FOLDER, './application/application.log')
-    const logStr = cp.execSync(`tail -n ${LINES} ${fileName}`).toString()
-
-    return {
-      code: 1,
-      data: {
-        content: logStr
+    try {
+      const LINES = line || 100
+      const fileName = path.join(env.LOGS_BASE_FOLDER, './application/application.log')
+      const logStr = cp.execSync(`tail -n ${LINES} ${fileName}`).toString()
+  
+      return {
+        code: 1,
+        data: {
+          content: logStr
+        }
+      }
+    } catch(e) {
+      Logger.warn('获取运行日志失败')
+      return {
+        code: -1,
+        msg: e.message || '更新失败'
       }
     }
   }
