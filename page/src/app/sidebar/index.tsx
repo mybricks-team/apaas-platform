@@ -181,7 +181,7 @@ function SystemMenus() {
           <Item
             icon={<OperateLogIcon width={20} height={20}/>}
             title="操作日志"
-            modal={{ width: 700, title: '操作日志', content: <OperateLog /> }}
+            modal={{ title: '操作日志', content: <OperateLog /> }}
           />
           <Item
             icon={<PlatformUserManage width={20} height={20}/>}

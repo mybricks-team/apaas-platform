@@ -45,7 +45,7 @@ export default function Term() {
 
   const getLogStr = async () => {
     return new Promise((resolve, reject) => {
-      axios.post(getApiUrl('/paas/api/log/search')).then(({ data }) => {
+      axios.post(getApiUrl('/paas/api/log/runtimeLog/search')).then(({ data }) => {
         if(data.code === 1) {
           resolve(data.data)
         }

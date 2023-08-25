@@ -1,11 +1,15 @@
-import React, {FC, useEffect, useMemo} from 'react';
-import { Table } from 'antd';
+import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
+import { Table, message } from 'antd';
 import moment from 'moment';
 import axios from 'axios';
 
 import style from './index.less';
 
 const OperateLog: FC = () => {
+  const PAGE_SIZE = 2;
+  const [pageNum, setPageNum] = useState(1);
+  const [total, setTotal] = useState(null);
+  const [dataSource, setDataSource] = useState([]);
   const columns = useMemo(() => {
     return [
       {
@@ -50,20 +54,62 @@ const OperateLog: FC = () => {
       },
       {
         title: '操作者',
-        dataIndex: 'createName',
-        render(createName) {
-          return createName || '-';
+        dataIndex: 'userName',
+        render(userName) {
+          return userName || '-';
         },
       },
     ];
   }, []);
 
+  const _getData = useCallback((params: { pageNum: number }) => {
+    axios
+      .post(
+        '/paas/api/log/operateLog/search', 
+        { pageNum: params.pageNum, pageSize: PAGE_SIZE } )
+      .then(({ data }) => {
+        if(data.code === 1) {
+          const formatData = data.data?.list?.map((i) => {
+            const logContent = JSON.parse(i.log_content || '{}')
+            return {
+              type: i.type,
+              logContent: logContent,
+              createTime: i.create_time,
+              userName: i.userName
+            }
+          })
+          setPageNum(params.pageNum);
+          setDataSource(formatData);
+          setTotal(data.data.total);
+        } else {
+          message.warning(data.msg || '获取失败')
+        }
+      }).catch((e) => {
+        console.log(e)
+        message.error(e.message || '获取失败')
+      })
+  }, []);
+
   useEffect(() => {
-    axios.get('/paas/api/system/operateLog', { params: { pageNum: 1, pageSize: 2 } });
+    _getData({ pageNum: 1 })
   }, []);
   return (
     <div className={style.operateLogModal}>
-      <Table columns={columns} dataSource={[{ type: 9, createTime: Date.now() }]} pagination={false} />
+      <Table 
+        columns={columns} 
+        dataSource={dataSource}
+        onChange={(_pagination) => {
+          _getData({
+            pageNum: _pagination.current
+          })
+        }}
+        pagination={{
+          position: ['bottomRight'],
+          total: total, 
+          current: pageNum, 
+          pageSize: PAGE_SIZE
+        }}
+      />
     </div>
   );
 };

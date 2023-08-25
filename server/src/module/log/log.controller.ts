@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
+import LogService from './log.service';
 const cp = require('child_process')
 const path = require('path')
 const env = require('../../../env.js')
@@ -17,8 +18,13 @@ const env = require('../../../env.js')
 
 @Controller('/paas/api/log')
 export default class LogsController {
+  logService: LogService;
 
-  @Post('/search')
+  constructor() {
+    this.logService = new LogService()
+  }
+
+  @Post('/runtimeLog/search')
   search(@Body('searchValue') searchValue: string, @Body('line') line: number) {
     const LINES = line || 100
     const fileName = path.join(env.LOGS_BASE_FOLDER, './application/application.log')
@@ -28,6 +34,25 @@ export default class LogsController {
       code: 1,
       data: {
         content: logStr
+      }
+    }
+  }
+
+
+  @Post('/operateLog/search')
+  async getOperateLog(
+    @Body('pageNum') pageNum: number,
+    @Body('pageSize') pageSize: number
+  ) {
+    const curPageNum = pageNum ? Number(pageNum) : 1;
+    const curPageSize = pageSize ? Number(pageSize) : 20;
+    const result = await this.logService.getOperateLog({ limit: curPageSize, offset: curPageSize * (curPageNum - 1) })
+    return {
+      code: 1,
+      data: {
+        pageNum: curPageNum,
+        pageSize: curPageSize,
+        ...result
       }
     }
   }

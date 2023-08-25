@@ -863,23 +863,4 @@ export default class SystemService {
       data: '刷新完成',
     };
   }
-
-  @Get('/system/operateLog')
-  async getOperateLog(
-    @Query('pageNum') pageNum: number,
-    @Query('pageSize') pageSize: number
-  ) {
-    const curPageNum = pageNum ? Number(pageNum) : 1;
-    const curPageSize = pageSize ? Number(pageSize) : 20;
-
-    return {
-      code: 1,
-      data: {
-        pageNum: curPageNum,
-        pageSize: curPageSize,
-        dataSource: await this.userLogDao.queryByTypes({ types: [9, 10], limit: curPageSize, offset: curPageSize * (curPageNum - 1) }),
-        total: await this.userLogDao.queryTotalByTypes([9, 10]),
-      }
-    }
-  }
 }

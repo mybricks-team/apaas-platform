@@ -9,25 +9,18 @@
         where type = #{type}
     </select>
 
-    <select id="queryByTypes">
+    <select id="queryDetailOfAll">
         SELECT *
         FROM apaas_user_log
             LEFT JOIN (SELECT id AS userId, name AS userName, email AS userEmail from apaas_user)apaasUser ON apaasUser.userId = apaas_user_log.user_id
-        WHERE type IN
-        <foreach collection="types" open="(" close=")" separator="," item="type" index="i">
-            #{type}
-        </foreach>
-        OFFSET ${offset} LIMIT ${limit}
+        order by apaas_user_log.id desc
+        LIMIT ${offset},${limit}
     </select>
 
-    <select id="queryTotalByTypes">
-        SELECT COUNT(*)
+    <select id="queryTotalOfAll">
+        SELECT COUNT(*) as total
         FROM apaas_user_log
             LEFT JOIN (SELECT id AS userId, name AS userName, email AS userEmail from apaas_user)apaasUser ON apaasUser.userId = apaas_user_log.user_id
-        WHERE type IN
-        <foreach collection="types" open="(" close=")" separator="," item="type" index="i">
-            #{type}
-        </foreach>
     </select>
 
     <insert id="insert">

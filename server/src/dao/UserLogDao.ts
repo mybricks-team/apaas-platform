@@ -91,12 +91,12 @@ export default class UserLogDao extends DOBase {
     return result.insertId
   }
 
-  @Mapping(UserLogDO)
-  async queryByTypes(params: { types: number[]; limit: number; offset: number }) {
-    return await this.exe('apaas_user_log:queryByTypes', params);
+  async queryDetailOfAll(params: { limit: number; offset: number }) {
+    return await this.exe('apaas_user_log:queryDetailOfAll', params);
   }
 
-  async queryTotalByTypes(types: number[]) {
-    return await this.exe<Array<{ total: number }>>('apaas_user_log:queryTotalByTypes', { types });
+  async queryTotalOfAll() {
+    const res = await this.exe<Array<{ total: number }>>('apaas_user_log:queryTotalOfAll');
+    return res ? res[0].total : 0;
   }
 }
