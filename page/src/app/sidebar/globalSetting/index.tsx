@@ -30,7 +30,7 @@ interface MenuItem extends T_App {
 }
 
 import styles from './index.less'
-import { values } from 'lodash-es'
+import Term from './term'
 
 interface TabsProps {
   onClick: (e: any) => void
@@ -62,7 +62,7 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
           <div className={styles.label}>{item?.title}</div>
       </div>
     );
-    if(index <= 2) {
+    if(index <= 3) {
       group1.push(temp)
     } else {
       group2.push(temp)
@@ -100,26 +100,6 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         labelAlign="left"
         autoComplete="off"
       >
-        {/* <Form.Item
-          initialValue="login.html"
-          label="首页"
-          name="platformHome"
-          required
-          rules={[{ required: true, type: 'string', message: '请设置首页' }]}
-        >
-          <Select
-            options={[
-              // {
-              //   value: 'about.html',
-              //   label: 'Mybricks介绍页',
-              // },
-              {
-                value: 'login.html',
-                label: '登录页',
-              },
-            ]}
-          ></Select>
-        </Form.Item> */}
         <Form.Item
           initialValue=""
           label="站点Logo"
@@ -468,6 +448,12 @@ const OssIcon = (props) => {
   )
 }
 
+const LogIcon = (props) => {
+  return (
+    <svg t="1692865352242" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4055" width="200" height="200"><path d="M819.9 472.9L675 723.9l1.7 99.4 86.9-48.3 144.9-251-88.6-51.1zM871.1 384.3L837 443.4l88.6 51.1 34.1-59.1-88.6-51.1zM544.3 703h-288c-17.7 0-32 14.3-32 32s14.3 32 32 32h288c17.7 0 32-14.3 32-32s-14.3-32-32-32zM256.3 511c-17.7 0-32 14.3-32 32s14.3 32 32 32h384c17.7 0 32-14.3 32-32s-14.3-32-32-32h-384zM256.3 319c-17.7 0-32 14.3-32 32s14.3 32 32 32h384c17.7 0 32-14.3 32-32s-14.3-32-32-32h-384zM288 64h64v160h-64zM384 128h128v64H384zM544 64h64v160h-64z" p-id="4056"></path><path d="M768 864c0 17.7-14.3 32-32 32H160c-17.7 0-32-14.3-32-32V224c0-17.7 14.3-32 32-32h96v-64h-96c-53 0-96 43-96 96v640c0 53 43 96 96 96h576c53 0 96-43 96-96V686.7L768 798v66zM832 224c0-53-43-96-96-96h-96v64h96c17.7 0 32 14.3 32 32v311l64-111.3V224z" p-id="4057"></path></svg>
+  )
+}
+
 export default () => {
   const appCtx = observe(AppCtx, {from: 'parents'})
   const user = appCtx.user
@@ -481,6 +467,7 @@ export default () => {
     let defaultItems = [
       { title: '全局设置', namespace: 'system', icon: <SettingOutlined /> },
       { title: '存储设置', namespace: 'mybricks-oss-config', icon: <OssIcon />},
+      { title: '运行日志', namespace: 'mybricks-log', icon: <LogIcon />},
       { title: '关于', namespace: 'about', icon: <InfoCircleOutlined /> }
     ]
     if (!Array.isArray(appCtx.InstalledAPPS)) {
@@ -587,6 +574,11 @@ export default () => {
               submitConfig(activeKey, values)
             }}
           />
+        )
+      }
+      case activeKey === 'mybricks-log': {
+        return (
+          <Term />
         )
       }
       case activeKey === 'about': {

@@ -192,7 +192,7 @@ function SystemMenus() {
             icon={<PlatformSetting width={20} height={20}/>}
             title="设置"
             modal={{
-              width: 700,
+              // width: 700,
               content: <GlobalSetting/>
             }}
           />
