@@ -359,6 +359,7 @@ export default class AppsService {
         // 往回回退安装
         childProcess.execSync("node installApplication.js", {
           cwd: path.join(process.cwd()),
+          stdio: 'inherit'
         });
         if (logInfo) {
           await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });

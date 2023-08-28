@@ -662,8 +662,9 @@ export default class SystemService {
             Logger.info(shellPath)
             const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
               cwd: path.join(process.cwd(), '../'),
+              stdio: 'inherit'
             });
-
+            Logger.info('平台更新成功，准备写入操作日志')
             await this.userLogDao.insertLog({
               type: 10,
               userId,
@@ -678,7 +679,7 @@ export default class SystemService {
             });
             return {
               code: 1,
-              msg: log.toString() || '升级成功'
+              msg: log?.toString() || '升级成功'
             }
           } else {
             return {
@@ -764,6 +765,7 @@ export default class SystemService {
     Logger.info(shellPath)
     const res = await childProcess.execSync(`sh ${shellPath} ${version}`, {
       cwd: path.join(process.cwd(), '../'),
+      stdio: 'inherit'
     });
     await this.userLogDao.insertLog({
       type: 10,

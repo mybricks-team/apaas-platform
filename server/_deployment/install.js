@@ -185,7 +185,8 @@ function installApplication() {
   childProcess.execSync(`
     node installApplication.js
   `, {
-    cwd: path.join(__dirname, '../')
+    cwd: path.join(__dirname, '../'),
+    stdio: 'inherit'
   })
   console.log(`【install】: 应用安装成功`)
 }
@@ -200,7 +201,8 @@ function startService() {
     childProcess.execSync(`
       npx pm2 start ecosystem.config.js
     `, {
-      cwd: path.join(__dirname, '../')
+      cwd: path.join(__dirname, '../'),
+      stdio: 'inherit'
     })
   })
 }
