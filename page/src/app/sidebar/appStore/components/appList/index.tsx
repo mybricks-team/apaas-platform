@@ -44,7 +44,8 @@ const AppList: FC<AppListProps> = props => {
 						operateType = 'update'
 						preVersion = curApp.version
 					} else {
-						operateType = ''
+						operateType = '';
+						app.version = curApp.version;
 					}
 				} else {
 					operateType = 'install'
