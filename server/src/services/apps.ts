@@ -118,7 +118,7 @@ export default class AppsService {
     return {
       code: 1,
       data: apps,
-      msg: 'succeed'
+      msg: '成功'
     };
   }
 
