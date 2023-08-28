@@ -293,7 +293,7 @@ async function installApplication() {
               })).data
             const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
             fs.writeFileSync(tempPathZipFile, Buffer.from(res.data.data));
-            cp.execSync(`cd ${tempFolder} && unzip ${tempPathZipFile} -d ${destAppDir}`)
+            cp.execSync(`cd ${tempFolder} && unzip -o ${tempPathZipFile} -d ${destAppDir}`)
           } catch(e) {
             console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)
             console.log(`【install】: 错误是: ${e.toString()}`)
@@ -404,7 +404,7 @@ async function installApplication() {
             }
             const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
             fs.copyFileSync(path.join(FILE_LOCAL_STORAGE_FOLDER, `./asset/app/${pkgName}/${pkgVersion}/${pkgName}.zip`), tempPathZipFile)
-            cp.execSync(`cd ${tempFolder} && unzip ${tempPathZipFile} -d ${destAppDir}`)
+            cp.execSync(`cd ${tempFolder} && unzip -o ${tempPathZipFile} -d ${destAppDir}`)
           } catch(e) {
             console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)
             console.log(`【install】: 错误是: ${e.toString()}`)

@@ -3,7 +3,7 @@ tmpFolderBase="$PWD/_temp_"
 echo "开始执行安装操作..."
 cd $tmpFolderBase
 echo "开始解压"
-unzip mybricks-apaas.zip -d ./
+unzip -o mybricks-apaas.zip -d ./
 cd ./mybricks-apaas
 echo "开始执行覆盖操作"
 if [[ -d "./server" ]];
