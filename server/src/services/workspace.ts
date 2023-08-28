@@ -322,6 +322,116 @@ export default class WorkspaceService {
     }
   }
 
+  @Get("/workspace/getFileContents")
+  async getFileContents(@Query() query) {
+    try {
+      const { ids } = query;
+
+      if (!Array.isArray(ids)) {
+        return {
+          code: -1,
+          message: 'invalid params ids',
+        };
+      }
+
+      const data = await this.fileContentDao.queryBy({ ids: ids })
+      return {
+        code: 1,
+        data,
+      };
+    } catch (ex) {
+      return {
+        code: -1,
+        message: ex.message,
+      };
+    }
+  }
+
+  @Post("/workspace/saveScenesToMutiFiles")
+  async saveScenes2MutiFiles(@Body() body) {
+    try {
+      let { userId: originUserId, updatePages } = body;
+      const userId = await this.userService.getCurrentUserId(originUserId);
+
+      if (!userId) {
+        return {
+          code: -1,
+          message: "invalid params userId",
+        };
+      }
+
+      if (!Array.isArray(updatePages) || updatePages.length === 0) {
+        return {
+          code: -1,
+          message: "invalid params updatePages",
+        }
+      }
+
+      const shouldCreateFilePages = updatePages.filter(page => {
+        return !page || !page.fileId
+      })
+
+      const createMap = {};
+      const updateMap = {};
+
+      if (shouldCreateFilePages.length > 0) {
+        await Promise.all(shouldCreateFilePages.map(page => {
+          return this.fileDao.createFile({
+            name: `分页数据${page.id}`,
+            creatorId: userId,
+            creatorName: userId,
+            extName: page.extName,
+            parentId: page.parentId,
+          }).then(({ id: fileId }) => { createMap[page.id] = fileId })
+        }))
+      }
+
+      await Promise.all(updatePages.map(async page => {
+        let fileContentVersion = '1.0.0'
+
+        if (page.fileContentId) {
+          const [fileContent] = await this.fileContentDao.queryById({
+            id: page.fileContentId,
+          });
+          fileContentVersion = fileContent?.version as any as string
+        }
+
+        return this.fileContentDao.create({
+          fileId: page?.fileId ?? createMap[page.id],
+          content: JSON.stringify(page),
+          version: getNextVersion(fileContentVersion || "1.0.0"),
+          creatorId: userId,
+          creatorName: userId,
+        }).then(({ id: fileContentId }) => {
+          updateMap[page.id] = {
+            fileId: page?.fileId ?? createMap[page.id],
+            fileContentId
+          }
+        })
+      }))
+
+      return {
+        code: 1,
+        data: {
+          updatePagesResult: updatePages.map(t => {
+            return {
+              id: t.id,
+              ...(updateMap?.[t.id] ?? {})
+            }
+          })
+        }
+      }
+      
+    } catch (ex) {
+      return {
+        code: -1,
+        message: ex.message,
+      };
+    }
+  }
+
+
+
   @Post("/workspace/publish")
   async publish(@Body() body, @Req() request: RequestType) {
     try {
