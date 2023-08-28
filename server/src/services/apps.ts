@@ -347,8 +347,7 @@ export default class AppsService {
     Logger.info("准备应用成功, 开始安装应用");
     try {
       const logStr = childProcess.execSync("node installApplication.js", {
-        cwd: path.join(process.cwd()),
-        stdio: 'inherit'
+        cwd: path.join(process.cwd())
       });
       Logger.info(`安装应用日志是: ${logStr}`)
       if (logStr?.indexOf("npm ERR") !== -1) {
@@ -358,8 +357,7 @@ export default class AppsService {
         );
         // 往回回退安装
         childProcess.execSync("node installApplication.js", {
-          cwd: path.join(process.cwd()),
-          stdio: 'inherit'
+          cwd: path.join(process.cwd())
         });
         if (logInfo) {
           await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });

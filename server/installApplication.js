@@ -336,7 +336,6 @@ async function installApplication() {
             if(fs.existsSync(fePath)) { // 存在前端
               if(pkg?.mybricks?.type !== 'system') { // 非系统任务
                 const feDirs = fs.readdirSync(fePath)
-                console.log('非系统任务', fePath, feDirs)
                 feDirs?.forEach(name => {
                   if(name.indexOf('.html') !== -1 && name !== 'preview.html') {
                     // 默认注入所有的资源
@@ -447,7 +446,6 @@ async function installApplication() {
             if(fs.existsSync(fePath)) { // 存在前端
               if(pkg?.mybricks?.type !== 'system') { // 非系统任务
                 const feDirs = fs.readdirSync(fePath)
-                console.log('非系统任务', fePath, feDirs)
                 feDirs?.forEach(name => {
                   if(name.indexOf('.html') !== -1 && name !== 'preview.html') {
                     // 默认注入所有的资源
