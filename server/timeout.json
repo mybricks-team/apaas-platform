@@ -11,6 +11,9 @@
     },
     "/api/compile/wx/publish:POST": {
       "ignore": true
+    },
+    "/paas/api/system/refactorUser:GET": {
+      "ignore": true
     }
   }
 }

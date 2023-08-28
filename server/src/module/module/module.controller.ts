@@ -43,11 +43,11 @@ export default class ModuleController {
 
   @Post('/publish')
   async publish(@Request() request, @Body() body) {
-    const { email, fileId, commitInfo } = body;
+    const { userId, fileId, commitInfo } = body;
 
     try {
       const [user, file, { projectId }] = await Promise.all([
-        await this.userDao.queryByEmail({ email }),
+        await this.userDao.queryById({ id: userId }),
         await this.fileDao.queryById(fileId),
         await this.fileService._getParentModuleAndProjectInfo(fileId)
       ])
@@ -101,7 +101,7 @@ export default class ModuleController {
                   fileId: file.id,
                   // projectId: projectId,
                   projectId: '--slot-project-id--',
-                  userId: email,
+                  userId: userId,
                   json: JSON.parse(latestSave?.content ?? '{}').toJSON
                 }
               ).then(res => {
@@ -126,7 +126,7 @@ export default class ModuleController {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
             publishTask.push((axios as any).post(`${domainName}/api/pcpage/generateHTML`, {
               fileId: file.id,
-              userId: email,
+              userId: userId,
               json: JSON.parse(latestSave?.content ?? '{}').toJSON,
             }).then(res => {
               if (res?.data?.code === 1 && res?.data?.data) {
@@ -149,7 +149,7 @@ export default class ModuleController {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
             publishTask.push((axios as any).post(`${domainName}/api/mppage/compile`, {
               fileId: file.id,
-              userId: email,
+              userId: userId,
               json: JSON.parse(latestSave?.content ?? '{}'),
             }).then(res => {
               if (res?.data?.code === 1 && res?.data?.data) {
@@ -172,7 +172,7 @@ export default class ModuleController {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
             publishTask.push((axios as any).post(`${domainName}/api/mpcloudcom/compile`, {
               fileId: file.id,
-              userId: email,
+              userId: userId,
               json: JSON.parse(latestSave.content).toJSON || {},
             }).then(res => {
               if (res?.data?.code === 1 && res?.data?.data) {
@@ -195,7 +195,7 @@ export default class ModuleController {
             const latestSave = await this.fileContentDao.queryLatestSave({ fileId: file.id })
             publishTask.push((axios as any).post(`${domainName}/api/cloudcom/generateComponentCode`, {
               fileId: file.id,
-              userId: email,
+              userId: userId,
               json: JSON.parse(latestSave.content).toJSON,
             }).then(res => {
               if (res?.data?.code === 1 && res?.data?.data) {
@@ -238,8 +238,8 @@ export default class ModuleController {
         description: file?.description,
         version,
         originFileId: fileId,
-        creatorId: user.email,
-        creatorName: user.name || user.email,
+        creatorId: user.id,
+        creatorName: user.name,
       });
 
       /** 插入module_pub_info记录 */
@@ -258,8 +258,8 @@ export default class ModuleController {
         }),
         commitInfo: commitInfo ?? '',
         version,
-        creatorId: user.email,
-        creatorName: user.name || user.email,
+        creatorId: user + '',
+        creatorName: user.name,
       })
 
       return {

@@ -101,9 +101,9 @@ function mergeToApplication() {
       "installApps": [
         {
           "type": "oss",
-          "version": "0.1.22",
+          "version": "0.1.30",
           "namespace": "mybricks-material",
-          "path": "asset-center/asset/app/mybricks-material/0.1.22/mybricks-material.zip"
+          "path": "asset-center/asset/app/mybricks-material/0.1.30/mybricks-material.zip"
         }
       ],
       "platformVersion": require(path.join(__dirname, '../package.json')).version
@@ -185,7 +185,8 @@ function installApplication() {
   childProcess.execSync(`
     node installApplication.js
   `, {
-    cwd: path.join(__dirname, '../')
+    cwd: path.join(__dirname, '../'),
+    stdio: 'inherit'
   })
   console.log(`【install】: 应用安装成功`)
 }
@@ -200,7 +201,8 @@ function startService() {
     childProcess.execSync(`
       npx pm2 start ecosystem.config.js
     `, {
-      cwd: path.join(__dirname, '../')
+      cwd: path.join(__dirname, '../'),
+      stdio: 'inherit'
     })
   })
 }

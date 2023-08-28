@@ -1,10 +1,10 @@
 {
   "database": {
-    "host": "47.111.7.45",
-    "user": "apaas-staging",
-    "password": "mBcLYBXTyJM8CERc",
+    "host": "127.0.0.1",
+    "user": "root",
+    "password": "123456",
     "port": 3306,
-    "databaseName": "apaas-staging"
+    "databaseName": "123456"
   },
   "platformConfig": {
     "logo": "https://f2.eckwai.com/kos/nlav12333/chrome-plugin-upload/2023-07-10/1688984026717.0849c8283f24ed53.svg",
@@ -18,12 +18,12 @@
   "installApps": [
     {
       "type": "oss",
-      "version": "1.0.38",
+      "version": "1.0.82",
       "namespace": "mybricks-app-pcspa"
     },
     {
       "type": "npm",
-      "path": "mybricks-app-login@0.0.5"
+      "path": "mybricks-hainiu-login@0.0.4"
     }
   ],
   "platformDomain": "http://testweb.manateeai.com/"

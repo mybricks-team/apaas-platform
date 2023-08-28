@@ -197,7 +197,9 @@
         parent_id,
         name,
         creator_id,
-        creator_name,
+        <if test="creatorName != null">
+            creator_name,
+        </if>
         ext_name,
         status,
         namespace,
@@ -215,7 +217,9 @@
         #{parentId},
         #{name},
         #{creatorId},
-        #{creatorName},
+        <if test="creatorName != null">
+            #{creatorName},
+        </if>
         #{extName},
         1,
         #{namespace},
@@ -273,8 +277,10 @@
         set
         status = -1,
         update_time = #{update_time},
-        updator_id = #{updatorId},
-        updator_name = #{updatorName} 
+        <if test="updatorName != null">
+            updator_name = #{updatorName},
+        </if>
+        updator_id = #{updatorId}
         <if test="id">
             where id = #{id}
         </if>
@@ -392,7 +398,9 @@
         set
         share_type = #{shareType},
         updator_id = #{updatorId},
-        updator_name = #{updatorName},
+        <if test="updatorName != null">
+            updator_name = #{updatorName},
+        </if>
         update_time = #{updateTime} 
         where id = #{id}
     </update>
@@ -530,7 +538,9 @@
         set 
         update_time = #{updateTime}, 
         updator_id = #{updatorId}, 
-        updator_name = #{updatorName},
+        <if test="updatorName != null">
+            updator_name = #{updatorName},
+        </if>
         status = 1 
         where id = ${id}
     </update>

@@ -1,6 +1,5 @@
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { Module } from "@nestjs/common";
-import ProductServices from "./services/product";
 
 import WorkspaceService from "./services/workspace";
 import TaskController from "./services/task.controller";
@@ -28,6 +27,8 @@ import UserModule from "./module/user/user.module";
 import UserFileModule from "./module/userFile/userFile.module";
 import UserGroupModule from "./module/userGroup/userGroup.module";
 import OssModule from './module/oss/oss.module'
+import UserLogDao from './dao/UserLogDao';
+import LogModule from './module/log/log.module'
 
 @Module({
   imports: [
@@ -42,12 +43,12 @@ import OssModule from './module/oss/oss.module'
     UserFileModule,
     UserGroupModule,
     OssModule,
+    LogModule,
     ...loadModule().modules,
   ],
   controllers: [
     AppsService,
     proxy,
-    ProductServices,
     WorkspaceService,
     UserGroupService,
     TaskController,
@@ -62,7 +63,8 @@ import OssModule from './module/oss/oss.module'
     FileDao,
     FileTaskDao,
     FilePubDao,
-    ConfigDao
+    ConfigDao,
+    UserLogDao
   ],
 })
 export default class AppManageModule {

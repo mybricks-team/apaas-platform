@@ -1,28 +1,21 @@
-import {
-  Get,
-  Controller,
-  Body,
-  Post,
-  Param,
-  Headers,
-  Query,
-  Request,
-} from '@nestjs/common';
-import { Logs } from '../utils';
+import { Get, Controller, Body, Post, Query } from '@nestjs/common';
 import UserDao from '../dao/UserDao'
 import UserGroupDao from '../dao/UserGroupDao'
 import UserGroupRelation from '../dao/UserGroupRelationDao'
+import UserService from '../module/user/user.service';
 
 @Controller('/paas/api')
 export default class UserGroupService {
   userDao: UserDao;
   userGroupDao: UserGroupDao;
   userGroupRelation: UserGroupRelation;
+  userService: UserService;
 
   constructor() {
     this.userDao = new UserDao();
     this.userGroupDao = new UserGroupDao();
     this.userGroupRelation = new UserGroupRelation();
+    this.userService = new UserService();
   }
 
   @Post('/userGroup/create')
@@ -36,7 +29,7 @@ export default class UserGroupService {
     }
 
     try {
-      const user = await this.userDao.queryByEmail({email: userId})
+      const user = await this.userDao.queryById({id: userId})
       if (!user) {
         return {
           code: -1,
@@ -47,14 +40,12 @@ export default class UserGroupService {
         name,
         icon,
         creatorId: userId,
-        creatorName: user.name || userId
+        creatorName: user.name || user.email || userId
       })
-
       const userGroupId = rtn.insertId
 
       await this.userGroupRelation.create({
         creatorId: userId,
-        creatorName: user.name || userId,
         userId,
         roleDescription: 1,
         userGroupId
@@ -65,6 +56,7 @@ export default class UserGroupService {
         data: { id: rtn.insertId },
       };
     } catch (ex) {
+      console.log(ex)
       return {
         code: -1,
         message: ex.message,
@@ -121,7 +113,7 @@ export default class UserGroupService {
     }
 
     try {
-      const user = await this.userDao.queryByEmail({email: userId})
+      const user = await this.userDao.queryById ({id: userId})
       if (!user) {
         return {
           code: -1,
@@ -151,9 +143,10 @@ export default class UserGroupService {
 
   @Get('/userGroup/getVisibleGroups')
   async getVisibleGroups(@Query() query) {
-    const { userId } = query
+    const { userId: originUserId } = query;
+    const userId = await this.userService.getCurrentUserId(originUserId);
     const userGroupRelations = await this.userGroupRelation.queryByUserId({userId})
-    let data = []
+    let data = [];
 
     if (userGroupRelations.length) {
       data = await this.userGroupDao.queryByIds({ids: userGroupRelations.map((item) => item.userGroupId)})
@@ -178,8 +171,8 @@ export default class UserGroupService {
   async delete(@Body() body) {
     const { id, userId } = body
 
-    const user = await this.userDao.queryByEmail({email: userId})
-    const result = await this.userGroupDao.delete({id, updatorId: user.email, updatorName: user.name || user.email })
+    const user = await this.userDao.queryById({id: userId})
+    const result = await this.userGroupDao.delete({id, updatorId: user.id, updatorName: user.name })
 
     if (result.changedRows !== 0) {
       return {
@@ -207,43 +200,47 @@ export default class UserGroupService {
   @Post('/userGroup/addUserGroupRelation')
   async addUserGroupRelation(@Body() body) {
     const { userId, userIds, roleDescription = 2, groupId } = body
+    if(!Array.isArray(userIds)) {
+      return {
+        code: -1,
+        msg: 'userIds必须为数组'
+      }
+    }
 
     const result = []
 
     const [user, users] = await Promise.all([
-      await this.userDao.queryByEmail({email: userId}),
-      await this.userDao.queryByEmails({emails: userIds})
+      await this.userDao.queryById({id: userId}),
+      await this.userDao.queryByIds({ids: userIds})
     ]) as any
 
     userIds.forEach((userId) => {
-      if (!users.find((user) => user.email === userId)) {
+      if (!users?.find((user) => user.id == userId)) {
         result.push({userId, status: -1})
       }
     })
 
     await Promise.all((users as any).map(async (item) => {
-      if (item.email === userId) {
+      if (item.id == userId) {
         return
       }
-      const hasUser = await this.userGroupRelation.queryByUserIdAndUserGroupId({userId: item.email, userGroupId: groupId})
+      const hasUser = await this.userGroupRelation.queryByUserIdAndUserGroupId({userId: item.id, userGroupId: groupId})
       if (hasUser) {
         if (hasUser.status === -1) {
-          result.push({userId: item.email, status: 1})
+          result.push({userId: item.id, status: 1})
           await this.userGroupRelation.update({
             updatorId: userId,
-            updatorName: user.name || userId,
             userGroupId: groupId,
-            userId: item.email,
+            userId: item.id,
             roleDescription
           })
         }
       } else {
-        result.push({userId: item.email, status: 1})
+        result.push({userId: item.id, status: 1})
         await this.userGroupRelation.create({
           creatorId: userId,
-          creatorName: user.name || userId,
           userGroupId: groupId,
-          userId: item.email,
+          userId: item.id,
           roleDescription
         })
       }
@@ -286,7 +283,6 @@ export default class UserGroupService {
       await this.userGroupRelation.queryByUserGroupId({userGroupId: id, limit: Number(pageSize), offset: Number(pageSize) * (Number(pageIndex) - 1)}),
       await this.userGroupRelation.queryUserTotalByUserGroupId({userGroupId: id})
     ])
-
     return {
       code: 1,
       data: {
@@ -304,14 +300,13 @@ export default class UserGroupService {
     const { id, userId, operatedUserId } = body
     const roleDescription = Number(body.roleDescription)
     const [user, userGroupRelation] = await Promise.all([
-      await this.userDao.queryByEmail({email: userId}),
+      await this.userDao.queryById({ id: userId }),
       await this.userGroupRelation.queryByUserIdAndUserGroupId({userId, userGroupId: id})
     ])
 
     if (userGroupRelation?.roleDescription === 1) {
       const params: any = {
         updatorId: userId,
-        updatorName: user.name || userId,
         userGroupId: id,
         userId: operatedUserId,
       }
@@ -336,7 +331,7 @@ export default class UserGroupService {
     } else {
       return {
         code: -1,
-        message: '无权操作'
+        msg: '无权操作'
       }
     }
   }

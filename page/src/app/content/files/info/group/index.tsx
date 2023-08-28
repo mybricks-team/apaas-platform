@@ -43,6 +43,7 @@ const {TextArea} = Input
 const {Dragger} = Upload
 
 import css from './index.less'
+import CustomDebounceSelect from './debounceSelect'
 
 /** 协作用户信息 */
 interface GroupUser {
@@ -95,14 +96,14 @@ export default function Group(props) {
       return new Promise((resolve) => {
         axios({
           method: "get",
-          url: getApiUrl(`/paas/api/userGroup/getGroupInfoByGroupId?id=${id}&userId=${appCtx.user.email}&pageIndex=1&pageSize=5`)
+          url: getApiUrl(`/paas/api/userGroup/getGroupInfoByGroupId?id=${id}&userId=${appCtx.user.id}&pageIndex=1&pageSize=5`)
         }).then(({data: {data}}) => {
           ctx.info = data
           const { userGroupRelation } = data
           const roleDescription = userGroupRelation?.roleDescription
           ctx.manageable = roleDescription === 1
           ctx.editable = roleDescription === 2
-          ctx.isFounder = data.creatorId === appCtx.user.email
+          ctx.isFounder = +data.creatorId === +appCtx.user.id
           resolve(true)
         })
       })
@@ -130,7 +131,7 @@ export default function Group(props) {
             label='协作组所有者'
             value={info.creatorName || info.creatorId}
           />
-          {(manageable && isFounder) && <GroupOperate {...info}/>}
+          {<GroupOperate {...info} manageable={manageable} isFounder={isFounder} />}
         </>
       )}
     </div>
@@ -138,6 +139,7 @@ export default function Group(props) {
 }
 
 function GroupOperate(props) {
+  const { manageable, isFounder } = props
   const appCtx = observe(AppCtx, {from: 'parents'})
   const [open, setOpen] = useState<number | boolean>(0)
   const [showSetting, setShowSetting] = useState(false);
@@ -151,7 +153,7 @@ function GroupOperate(props) {
         method: 'post',
         url: getApiUrl('/paas/api/userGroup/delete'),
         data: {
-          userId: appCtx.user.email,
+          userId: appCtx.user.id,
           id: props.id
         }
       }).then(({data}) => {
@@ -185,17 +187,45 @@ function GroupOperate(props) {
       />
     )
   }, [open])
+  const showSettingButton = useMemo(() => {
+    return !!appCtx.InstalledAPPS.filter(app => app?.groupSetting).length;
+  }, []);
 
+  const _renderContent = () => {
+    if(manageable) {
+      if(isFounder) {
+        // 可管理，是创建者
+        return (
+          <>
+            <Divider />
+            <div className={css.btnGroup}>
+              {showSettingButton ? <button className={css.primaryButton} onClick={openSetting}>设置</button> : null}
+              <button className={css.dangerButton} onClick={deleteClick}>删除协作组</button>
+            </div>
+            {RenderDeleteGroupModal}
+            <GroupSetting visible={showSetting} onClose={() => setShowSetting(false)} />
+          </>
+        )
+      } else {
+        // 可管理，不是创建者
+        return (
+          <>
+            <Divider />
+            <div className={css.btnGroup}>
+              {showSettingButton ? <button className={css.primaryButton} onClick={openSetting}>设置</button> : null}
+            </div>
+            <GroupSetting visible={showSetting} onClose={() => setShowSetting(false)} />
+          </>
+        )
+      }
+    } else {
+      return null
+    }
+  }
 
   return (
     <>
-      <Divider />
-      <div className={css.btnGroup}>
-        <button className={css.primaryButton} onClick={openSetting}>设置</button>
-        <button className={css.dangerButton} onClick={deleteClick}>删除协作组</button>
-      </div>
-      {RenderDeleteGroupModal}
-      <GroupSetting visible={showSetting} onClose={() => setShowSetting(false)} />
+    {_renderContent()}
     </>
   )
 }
@@ -261,7 +291,7 @@ function GroupTitleConfig () {
     return new Promise(async (resolve, reject) => {
       const { name, icon } = values
       const data: any = {
-        userId: appCtx.user.email,
+        userId: appCtx.user.id,
         id: ctx.info.id,
         name
       }
@@ -525,18 +555,19 @@ function UserList ({ data = [], total = 0 }: UserListProps) {
         return (
           <DefaultAvatar
             avatar={user.avatar}
+            /** 当头像不存在，使用名词或者 email 首字母做头像 */
             content={user.name || user.email}
           />
         )
       })}
       {total > 5 && (
-        <DefaultAvatar content={total}/>
+        <DefaultAvatar title={String(total)} content={`共 ${total} 个协作者`}/>
       )}
     </div>
   )
 }
 
-function DefaultAvatar({avatar = '', content}) {
+function DefaultAvatar({avatar = '', content, title = ''}) {
   return (
     <div className={css.avatarWrapper}>
       <Tooltip title={content}>
@@ -552,7 +583,7 @@ function DefaultAvatar({avatar = '', content}) {
               size={32}
               style={{backgroundColor: '#ebedf0', fontSize: 14, fontWeight: 600, color: '#95999e'}}
             >
-              {typeof content === 'string' ? content[0].toUpperCase() : content}
+              {title || (typeof content === 'string' ? content[0].toUpperCase() : content)}
             </Avatar>
           )}
         </div>
@@ -597,14 +628,14 @@ function ConfigFormModal({
     form.resetFields()
   }, [])
 
-  useEffect(() => {
-    if (open && ref.current) {
-      form.setFieldsValue(defaultValues)
-      setTimeout(() => {
-        (ref.current as any).focus()
-      }, 100)
-    }
-  }, [open])
+  // useEffect(() => {
+  //   if (open && ref.current) {
+  //     form.setFieldsValue(defaultValues)
+  //     setTimeout(() => {
+  //       (ref.current as any).focus()
+  //     }, 100)
+  //   }
+  // }, [open])
 
   const RenderForm = useMemo(() => {
     return <Form form={form} editRef={ref} ok={ok}/>
@@ -653,22 +684,28 @@ function NewUserConfigModal({open, onCancel}) {
       url: getApiUrl('/paas/api/userGroup/updateUserGroupRelation'),
       data: {
         id: ctx.info.id,
-        userId: appCtx.user.email,
-        operatedUserId: user.email,
+        userId: appCtx.user.id,
+        operatedUserId: user.id,
         roleDescription: value
       }
-    }).then(() => {
-      message.success('设置成功')
-      if (value === -1) {
-        ctx.getInfo(ctx.info.id)
-        getUsers({
-          ...tableInfo,
-          pageIndex: tableInfo.users.length === 1 ? tableInfo.pageIndex - 1 : tableInfo.pageIndex
-        })
+    }).then(({ data }) => {
+      if(data.code === 1) {
+        if (value === -1) {
+          message.success('设置成功')
+          ctx.getInfo(ctx.info.id)
+          getUsers({
+            ...tableInfo,
+            pageIndex: tableInfo.users.length === 1 ? tableInfo.pageIndex - 1 : tableInfo.pageIndex
+          })
+        } else {
+          user.roleDescription = value
+          setTableLoading(false)
+        }
       } else {
-        user.roleDescription = value
+        message.warn(data.msg || '设置失败')
         setTableLoading(false)
       }
+      
     }).catch((e) => {
       message.error('设置失败')
       console.error(e)
@@ -684,6 +721,14 @@ function NewUserConfigModal({open, onCancel}) {
     const {email} = appCtx.user
     return [
       {
+        title: 'ID',
+        dataIndex: 'id',
+        key: 'id',
+        render: (id) => {
+          return <span className={css.copy} onClick={() => copy(id)}>{id}</span>
+        }
+      },
+      {
         title: '名称',
         dataIndex: 'name',
         key: 'name',
@@ -694,7 +739,7 @@ function NewUserConfigModal({open, onCancel}) {
         }
       },
       {
-        title: 'ID',
+        title: 'account',
         dataIndex: 'email',
         key: 'email',
         render: (email) => {
@@ -707,7 +752,7 @@ function NewUserConfigModal({open, onCancel}) {
         key: 'roleDescription',
         width: 80,
         render: (roleDescription, record) => {
-          if (record.email === creatorId) {
+          if (record.id == creatorId) {
             return <div className={css.tagOwner}>所有者</div>
           } else if (roleDescription === 1) {
             return <div className={css.tagManageable}>可管理</div>
@@ -728,7 +773,7 @@ function NewUserConfigModal({open, onCancel}) {
           return (
             <TableUserOperation
               /** 禁用所有者和当前用户的操作 */
-              disabled={[creatorId, email].includes(record.email)}
+              disabled={record.id == creatorId}
               record={record}
               update={(value, user) => update(value, user, tableInfo)}
             />
@@ -789,8 +834,10 @@ function NewUserConfigModal({open, onCancel}) {
         method: 'post',
         url: getApiUrl('/paas/api/userGroup/addUserGroupRelation'),
         data: {
-          userId: appCtx.user.email,
-          userIds: userIds.split(','),
+          userId: appCtx.user.id,
+          userIds: userIds?.map(i => {
+            return i.value
+          }),
           roleDescription,
           groupId: ctx.info.id
         }
@@ -820,7 +867,7 @@ function NewUserConfigModal({open, onCancel}) {
           reject(data.message)
         }
       }).catch((e) => {
-        reject('添加协作用户失败' + e?.message || '')
+        reject('添加协作用户失败' + e?.msg || '')
       })
     })
   }, [])
@@ -932,30 +979,11 @@ function AddUserForm({open, onOk, onCancel}) {
           </Select>
         </AntdForm.Item>
         <AntdForm.Item
-          label='用户邮箱'
+          label='账号'
           name='userIds'
-          rules={[{ required: true, message: '协作用户邮箱不允许为空！', validator(rule, value) {
-            return new Promise((resolve, reject) => {
-              if (!value.trim()) {
-                reject(rule.message)
-              } else [
-                resolve(true)
-              ]
-            })
-          }}]}
+          rules={[{ required: true, message: '账号不允许为空！' }]}
         >
-          <TextArea
-            onCompositionStart={() => {
-              context.submittable = false
-            }}
-            onCompositionEnd={() => {
-              context.submittable = true
-            }}
-            ref={ref}
-            autoFocus
-            placeholder={`请正确填写协作用户账号，以英文逗号隔开`}
-            onPressEnter={() => context.submittable && ok()}
-          />
+          <CustomDebounceSelect />
         </AntdForm.Item>
         <AntdForm.Item wrapperCol={{offset: 4, span: 20}} style={{marginBottom: 0}}>
           <Button

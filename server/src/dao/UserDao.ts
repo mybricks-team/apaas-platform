@@ -53,10 +53,6 @@ export class UserDO {
   @Column
   avatar: string
 
-  get isAdmin() {
-    return this.email === 'chemingjun@126.com'
-  }
-
   verifyPassword(psd: string) {
     return this.password === psd
   }
@@ -74,16 +70,10 @@ export default class UserDao extends DOBase {
 
   @Mapping(UserDO)
   public async queryByRoleAndName(param): Promise<UserDO[]> {
-    let newParam: any = {
-      limit: param.pageSize || 10,
-      offset: ((param.page || 1) - 1) * (param.pageSize || 10)
-    }
-    if(param.role) {
-      newParam.role = param.role
-    }
-    if(param.email) {
-      newParam.email = param.email
-    }
+    let newParam: any = { ...param }
+    newParam['limit'] = param.pageSize || 10;
+    newParam['offset'] = ((param.page || 1) - 1) * (param.pageSize || 10)
+    
     const result = await this.exe<any>(
       'apaas_user:queryByRoleAndName',
       newParam
@@ -99,7 +89,7 @@ export default class UserDao extends DOBase {
     return result?.[0] ? result?.[0]?.total : null
   }
 
-  public async setUserRole(param: { role, email }): Promise<any> {
+  public async setUserRole(param: { role, userId }): Promise<any> {
     let newParam = {
       ...param,
       updateTime: Date.now()
@@ -126,6 +116,49 @@ export default class UserDao extends DOBase {
   }
 
   @Mapping(UserDO)
+  public async queryByEmailWithPwd(params: {
+    email: string
+  }): Promise<UserDO> {
+    params = Object.assign({status: 1}, params)
+
+    const result = await this.exe<any>(
+      'apaas_user:queryByEmailWithPwd',
+      params
+    )
+
+    return result && result.length > 0 ? result[0] : void 0
+  }
+
+  @Mapping(UserDO)
+  public async searchByKeyword(params: {
+    keyword: string
+  }): Promise<UserDO> {
+    const result = await this.exe<any>(
+      'apaas_user:searchByKeyword',
+      {
+        ...params,
+        status: 1
+      }
+    )
+
+    return result;
+  }
+
+  @Mapping(UserDO)
+  public async queryById(params: {
+    id: string
+  }): Promise<UserDO> {
+    params = Object.assign({status: 1}, params)
+
+    const result = await this.exe<any>(
+      'apaas_user:queryById',
+      params
+    )
+
+    return result && result.length > 0 ? result[0] : void 0
+  }
+
+  @Mapping(UserDO)
   public async queryByEmails(params: {
     emails: string[]
   }): Promise<UserDO> {
@@ -133,6 +166,18 @@ export default class UserDao extends DOBase {
 
     const result = await this.exe<any>(
       'apaas_user:queryByEmails',
+      params
+    )
+
+    return result
+  }
+
+  @Mapping(UserDO)
+  public async queryByIds(params: { ids: number[] }): Promise<UserDO> {
+    params = Object.assign({status: 1}, params)
+
+    const result = await this.exe<any>(
+      'apaas_user:queryByIds',
       params
     )
 

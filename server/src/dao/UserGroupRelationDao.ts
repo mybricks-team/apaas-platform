@@ -58,11 +58,11 @@ export class UserGroupRelationDO {
 export default class UserGroupRelationDao extends DOBase {
 
   public async create(params: {
-    creatorId: string;
-    creatorName: string;
+    creatorId: string | number;
+    creatorName?: string;
     roleDescription: number;
     userGroupId: number;
-    userId: string;
+    userId: string | number;
   }) {
     const time = new Date().getTime()
     return await this.exe<any>(
@@ -74,15 +74,15 @@ export default class UserGroupRelationDao extends DOBase {
         createTime: time,
         updateTime: time,
         updatorId: params.creatorId,
-        creatorName: params.creatorName,
-        updatorName: params.creatorName,
+        creatorName: '', // 后面数据库中删除这个字段
+        updatorName: '' // 后面数据库中删除这个字段
       }
     )
   }
 
   public async update(params: {
     updatorId: string;
-    updatorName: string;
+    updatorName?: string;
     roleDescription: number;
     userGroupId: number;
     userId: string;

@@ -11,7 +11,7 @@ import { ExclamationCircleFilled } from '@ant-design/icons'
 
 import AppCtx from '../AppCtx'
 import AppStore from './appStore'
-import {Icon, PlatformUserManage} from '../components'
+import {Icon, OperateLogIcon, PlatformUserManage} from '../components'
 import PlatformMenu from './platformMenu'
 import MessageModal from './MessageModal'
 import UserManageModal from './userManageModal'
@@ -20,6 +20,7 @@ import {getApiUrl, removeCookie} from '../../utils'
 import {PlatformSetting, PlatformMessage} from '../components'
 import {usePanelItem} from '../hooks/usePanelItem'
 import { ItemProps, ModalProps } from './type'
+import OperateLog from './operateLog';
 
 import css from './index.less'
 
@@ -119,6 +120,7 @@ function SystemMenus() {
     if (isAdministrator) {
       // 检查消息通道
       axios.post(getApiUrl('/paas/api/system/channel'),  {
+        userId: appCtx.user?.id,
         type: "getLatestNoticeList", 
         isAdministrator: true
       }).then(({ data }) => {
@@ -159,24 +161,27 @@ function SystemMenus() {
           <Item
             icon="https://assets.mybricks.world/icon/liuleidashuaige.png"
             title="我的应用"
-            modal={{
-              content: <AppStore/>
-            }}
+            modal={{ content: <AppStore/> }}
           />
           <Item
             icon={<PlatformMessage width={20} height={20}/>}
-            title={messages.length ? 
-               (
+            title={
+              messages.length ? (
                 <Badge count={messages.length} overflowCount={9} size='small' style={{ position: 'absolute', left: 38, top: -2, width: 30 }} >
                   消息通知
                 </Badge>
-              )
-            : '消息通知'}
+              ) : '消息通知'
+            }
             modal={{
               title: '消息通知',
               // @ts-ignore
               content: <MessageModal messages={messages} appsMap={appCtx.APPSMap} onDelete={onDeleteMessage} />
             }}
+          />
+          <Item
+            icon={<OperateLogIcon width={20} height={20}/>}
+            title="操作日志"
+            modal={{ title: '操作日志', content: <OperateLog /> }}
           />
           <Item
             icon={<PlatformUserManage width={20} height={20}/>}
@@ -191,7 +196,7 @@ function SystemMenus() {
             icon={<PlatformSetting width={20} height={20}/>}
             title="设置"
             modal={{
-              width: 700,
+              // width: 700,
               content: <GlobalSetting/>
             }}
           />

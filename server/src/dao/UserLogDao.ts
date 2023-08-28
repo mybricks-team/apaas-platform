@@ -56,6 +56,19 @@ export default class UserLogDao extends DOBase {
     return result.insertId
   }
 
+  public async insertLog(params: { type: number, logContent: string; userEmail?: string; userId?: string }): Promise<number> {
+    const result = await this.exe<any>('apaas_user_log:insert', {
+        ...params,
+        userId: String(params.userId || ''),
+        userEmail: params.userEmail || '',
+        id: genMainIndexOfDB(),
+        createTime: Date.now()
+      }
+    );
+
+    return result.insertId;
+  }
+
   public async createUpgradeLog(params: {
     userId: string,
     userEmail: string
@@ -76,5 +89,14 @@ export default class UserLogDao extends DOBase {
     )
 
     return result.insertId
+  }
+
+  async queryDetailOfAll(params: { limit: number; offset: number }) {
+    return await this.exe('apaas_user_log:queryDetailOfAll', params);
+  }
+
+  async queryTotalOfAll() {
+    const res = await this.exe<Array<{ total: number }>>('apaas_user_log:queryTotalOfAll');
+    return res ? res[0].total : 0;
   }
 }

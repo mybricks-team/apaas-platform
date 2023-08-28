@@ -24,8 +24,8 @@ const Trash: FC = () => {
 	const fetchTrashes = useCallback(() => {
 		axios({
 			method: 'get',
-			url: '/api/workspace/trashes',
-			params: { userId: user.email }
+			url: '/paas/api/workspace/trashes',
+			params: { userId: user.id }
 		}).then(({data}) => {
 			if (data.code === 1) {
 				setFileList(data.data);
@@ -63,8 +63,8 @@ const ProjectItem = ({ item, user, refresh }) => {
 		
 		axios({
 			method: 'post',
-			url: '/api/workspace/recoverFile',
-			data: { userId: user.email, id: item.id }
+			url: '/paas/api/workspace/recoverFile',
+			data: { userId: user.id, id: item.id }
 		}).then(({data}) => {
 			if (data.code === 1) {
 				message.success('文件恢复成功')
@@ -85,7 +85,9 @@ const ProjectItem = ({ item, user, refresh }) => {
 				<Icon icon={item.icon || appReg?.icon} width={bigIcon ? 140 : 32} height={bigIcon ? '100%' : 32}/>
 			</div>
 			<div className={styles.tt}>
-				<Icon icon={appReg?.icon} width={18} height={18}/>
+				<div className={styles.typeIcon}>
+					<Icon icon={appReg?.icon} width={18} height={18}/>
+				</div>
 				<div className={styles.detail}>
 					<div className={styles.name}>
 						{item.name}

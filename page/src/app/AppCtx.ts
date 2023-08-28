@@ -52,7 +52,8 @@ export interface T_App {
   /** 前端使用，inlineApp 渲染 */
   Element?: FC;
 
-  isRemote: boolean
+  // 往前指定版本数量的版本信息
+  previousList?: T_App[]
 }
 
 /** 只有管理员才能看见的模块namespaces */
@@ -130,22 +131,22 @@ export default class AppCtx {
       namespace: 'mybricks-folder',
       icon: 'https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png',
     },
-    {
-      title: '项目文件夹',
-      description: '通过项目的方式管理文件',
-      type: 'user',
-      extName: 'folder-project',
-      namespace: 'mybricks-folder-project',
-      icon: FolderProject
-    },
-    {
-      title: '模块文件夹',
-      description: '通过模块的方式管理文件',
-      type: 'user',
-      extName: 'folder-module',
-      namespace: 'mybricks-folder-module',
-      icon: FolderModule
-    },
+    // {
+    //   title: '项目文件夹',
+    //   description: '通过项目的方式管理文件',
+    //   type: 'user',
+    //   extName: 'folder-project',
+    //   namespace: 'mybricks-folder-project',
+    //   icon: FolderProject
+    // },
+    // {
+    //   title: '模块文件夹',
+    //   description: '通过模块的方式管理文件',
+    //   type: 'user',
+    //   extName: 'folder-module',
+    //   namespace: 'mybricks-folder-module',
+    //   icon: FolderModule
+    // },
   ];
   /** 侧边栏应用列表 */
   DockerAPPS: Array<T_App> = [];

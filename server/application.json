@@ -2,29 +2,39 @@
   "installApps": [
     {
       "type": "oss",
-      "version": "0.3.68",
+      "version": "0.0.12",
+      "namespace": "mybricks-app-theme",
+      "path": "asset-center/asset/app/mybricks-app-theme/0.0.14/mybricks-app-theme.zip"
+    },
+    {
+      "type": "oss",
+      "version": "0.3.78",
       "namespace": "mybricks-pc-page",
-      "path": "asset-center/asset/app/mybricks-pc-page/0.3.68/mybricks-pc-page.zip"
+      "path": "asset-center/asset/app/mybricks-pc-page/0.3.78/mybricks-pc-page.zip"
     },
     {
       "type": "oss",
-      "version": "0.2.47",
+      "version": "0.1.32",
       "namespace": "mybricks-material",
-      "path": "asset-center/asset/app/mybricks-material/0.1.23/mybricks-material.zip"
-    },
-    {
-      "type": "npm",
-      "path": "mybricks-cloud-com@0.0.92"
+      "path": "asset-center/asset/app/mybricks-material/0.1.32/mybricks-material.zip"
     },
     {
       "type": "oss",
-      "version": "0.2.52",
-      "namespace": "mybricks-domain",
-      "path": "asset-center/asset/app/mybricks-domain/0.2.52/mybricks-domain.zip"
+      "version": "0.0.94",
+      "namespace": "mybricks-cloud-com",
+      "path": "asset-center/asset/app/mybricks-cloud-com/0.0.94/mybricks-cloud-com.zip"
     },
     {
-      "type": "npm",
-      "path": "mybricks-app-website@0.1.21"
+      "type": "oss",
+      "version": "0.2.55",
+      "namespace": "mybricks-domain",
+      "path": "asset-center/asset/app/mybricks-domain/0.2.55/mybricks-domain.zip"
+    },
+    {
+      "type": "oss",
+      "version": "0.1.23",
+      "namespace": "mybricks-app-website",
+      "path": "asset-center/asset/app/mybricks-app-website/0.1.23/mybricks-app-website.zip"
     },
     {
       "type": "npm",
@@ -33,8 +43,9 @@
     {
       "type": "oss",
       "namespace": "mybricks-app-mpsite",
-      "version": "0.0.73"
+      "version": "0.1.5",
+      "path": "asset-center/asset/app/mybricks-app-mpsite/0.1.5/mybricks-app-mpsite.zip"
     }
   ],
-  "platformVersion": "0.0.45"
+  "platformVersion": "0.0.71"
 }

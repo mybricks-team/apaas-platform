@@ -13,6 +13,7 @@ import ConfigService from './config'
 import { getRealDomain } from "../utils";
 import UserGroupDao from "../dao/UserGroupDao"
 import UploadService from '../module/upload/upload.service';
+import UserService from '../module/user/user.service';
 import { getAdminInfoByProjectId } from '../utils/index'
 import { Logger } from '@mybricks/rocker-commons';
 
@@ -29,6 +30,7 @@ export default class WorkspaceService {
   filePubDao: FilePubDao;
   fileService: FileService;
   configService: ConfigService;
+  userService: UserService;
   userDao: UserDao;
   userGroupDao: UserGroupDao;
   uploadService: UploadService;
@@ -39,6 +41,7 @@ export default class WorkspaceService {
     this.filePubDao = new FilePubDao();
     this.configDao = new ConfigDao();
     this.fileService = new FileService();
+    this.userService = new UserService();
     this.configService = new ConfigService()
     this.userDao = new UserDao();
     this.userGroupDao = new UserGroupDao();
@@ -47,19 +50,15 @@ export default class WorkspaceService {
 
   @Get("/workspace/getAll")
   async getAll(@Query() query) {
-    const { userId, parentId, groupId } = query;
+    const { userId: originUserId, parentId, groupId } = query;
+    const userId = await this.userService.getCurrentUserId(originUserId);
+
     if (!userId) {
-      return {
-        code: -1,
-        message: "error",
-      };
+      return { code: -1, message: "error" };
     }
 
     try {
-      const params = {
-        parentId,
-        groupId
-      }
+      const params: Record<string, unknown> = { parentId, groupId };
       if (!groupId) {
         params.creatorId = userId
       }
@@ -80,10 +79,7 @@ export default class WorkspaceService {
         }),
       };
     } catch (ex) {
-      return {
-        code: -1,
-        message: ex.message,
-      };
+      return { code: -1, message: ex.message };
     }
   }
 
@@ -153,16 +149,18 @@ export default class WorkspaceService {
 
     try {
       const rtn = await this.fileDao.queryById(fileId);
-      const content = (await this.fileContentDao.queryBy({
-        fileId: fileId,
-        sortType: "desc",
-        limit: 1,
-        orderBy: "update_time",
-      })) as any;
+      const res = await this.fileContentDao.getLatestContentId({ fileId: fileId });
+      /** fileDao.queryById 引用处比较多，就不修改其连表当时，使用单独查一次 user 的方式 */
+      const user = await this.userDao.queryById({ id: rtn.updatorId });
+      let content = null
+      if(res?.id) {
+        const temp = await this.fileContentDao.queryById({ id: res?.id })
+        content = temp ? temp[0] : null
+      }
 
       return {
         code: 1,
-        data: Object.assign({}, rtn, { content: content?.content, version: content?.version || null }),
+        data: Object.assign({}, rtn, { updatorName: user?.name || user?.email || rtn.updatorName, content: content?.content, version: content?.version || null }),
       };
     } catch (ex) {
       return {
@@ -174,7 +172,7 @@ export default class WorkspaceService {
 
   @Post("/workspace/createFile")
   async createFile(@Body() body) {
-    const { userId, name, extName, namespace, type, parentId, groupId } = body;
+    const { userId, userName, name, extName, namespace, type, parentId, groupId } = body;
     if (!userId) {
       return {
         code: -1,
@@ -188,7 +186,7 @@ export default class WorkspaceService {
         name,
         namespace,
         creatorId: userId,
-        creatorName: userId,
+        creatorName: userName,
         extName: extName,
         groupId,
         parentId,
@@ -234,8 +232,9 @@ export default class WorkspaceService {
   @Post("/workspace/saveFile")
   async updateFile(@Body() body) {
     try {
-      let { userId, fileId, shareType, name, content, icon, namespace, type } =
-        body;
+      let { userId: originUserId, fileId, shareType, name, content, icon, namespace, type } = body;
+      const userId = await this.userService.getCurrentUserId(originUserId);
+
       if (!userId) {
         return {
           code: -1,
@@ -259,7 +258,7 @@ export default class WorkspaceService {
             id: fileId,
             namespace,
             updatorId: userId,
-            updatorName: userId,
+            updatorName: originUserId,
           });
         }
       }
@@ -269,7 +268,7 @@ export default class WorkspaceService {
           id: fileId,
           type,
           updatorId: userId,
-          updatorName: userId,
+          updatorName: originUserId,
         });
       }
 
@@ -287,7 +286,7 @@ export default class WorkspaceService {
           id: fileId,
           icon,
           updatorId: userId,
-          updatorName: userId,
+          updatorName: originUserId,
         });
       }
 
@@ -296,7 +295,7 @@ export default class WorkspaceService {
           id: fileId,
           shareType,
           updatorId: userId,
-          updatorName: userId,
+          updatorName: originUserId,
         });
       }
 
@@ -305,11 +304,9 @@ export default class WorkspaceService {
         await this.fileContentDao.create({
           fileId,
           content,
-          version: contentItem?.version
-            ? getNextVersion(contentItem?.version)
-            : "1.0.0",
+          version: contentItem?.version ? getNextVersion(contentItem?.version) : "1.0.0",
           creatorId: userId,
-          creatorName: userId,
+          creatorName: originUserId,
         });
       }
 
@@ -330,7 +327,7 @@ export default class WorkspaceService {
     try {
       let {
         extName,
-        userId,
+        userId: originUserId,
         fileId,
         content,
         commitInfo,
@@ -339,6 +336,7 @@ export default class WorkspaceService {
         fileContentId
       } = body;
 
+      const userId = await this.userService.getCurrentUserId(originUserId);
       /** 不存在 fileContentId 则取最新一条记录 */
       if (!fileContentId) {
         const fileContent = (await this.fileContentDao.queryLatestByFileId<FileContentDO>(fileId)) as any;
@@ -351,7 +349,7 @@ export default class WorkspaceService {
           id: fileId,
           uri: uri,
           updatorId: userId,
-          updatorName: userId,
+          updatorName: originUserId,
         })
       }
 
@@ -375,20 +373,14 @@ export default class WorkspaceService {
         type,
         commitInfo,
         creatorId: userId,
-        creatorName: userId,
+        creatorName: originUserId,
         fileContentId
       });
       data.pib_id = id;
 
-      return {
-        code: 1,
-        data: data,
-      };
+      return { code: 1, data: data };
     } catch (ex) {
-      return {
-        code: -1,
-        message: ex.message,
-      };
+      return { code: -1, message: ex.message };
     }
   }
 
@@ -490,8 +482,8 @@ export default class WorkspaceService {
         }),
         type: 'prod',
         // commitInfo,
-        creatorId: user.email,
-        creatorName: user.name || user.email,
+        creatorId: user.id + '',
+        creatorName: user.name,
         // fileContentId
       });
 			
@@ -517,7 +509,7 @@ export default class WorkspaceService {
     });
     const total = await this.fileContentDao.getContentVersionsCount({fileId})
 
-    return { code: 1, data, total };
+    return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total };
   }
 
   @Get("/workspace/publish/versions")
@@ -564,7 +556,7 @@ export default class WorkspaceService {
     //   }
     // }
 
-    return { code: 1, data: filePubs, total};
+    return { code: 1, data: filePubs.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total};
   }
 
   @Get("/workspace/publish/content")
@@ -577,10 +569,13 @@ export default class WorkspaceService {
 
   @Post("/workspace/file/revert")
   async revertFile(@Body() body) {
-    const { fileContentId, filePubId, userId } = body;
+    const { fileContentId, filePubId, userId: originUserId } = body;
     if (!filePubId && !fileContentId) {
       return { code: 0, message: "filePubId 或 fileContentId 不能为空" };
     }
+
+    const userId = await this.userService.getCurrentUserId(originUserId);
+    const user = await this.userService.queryById({ id: userId });
 
     if (fileContentId) {
       const [fileContent] = await this.fileContentDao.queryById({
@@ -590,12 +585,13 @@ export default class WorkspaceService {
       if (!fileContent) {
         return { code: 0, message: "保存记录不存在" };
       }
+
       await this.fileContentDao.create({
         fileId: fileContent.fileId,
         content: fileContent.content,
         version: getNextVersion(fileContent?.version || "1.0.0"),
         creatorId: userId,
-        creatorName: userId,
+        creatorName: user?.name || user?.email || userId,
       });
     } else if (filePubId) {
       const [filePub] = await this.filePubDao.getPublishByFileId(filePubId);
@@ -620,7 +616,7 @@ export default class WorkspaceService {
         content: fileContent.content,
         version: getNextVersion(fileContent?.version || "1.0.0"),
         creatorId: userId,
-        creatorName: userId,
+        creatorName: user?.name || user?.email || userId,
       });
     }
 
@@ -641,8 +637,7 @@ export default class WorkspaceService {
 	    const file = await this.fileDao.queryById(id);
       const rtn = await this.fileDao.deleteFile({
         id,
-        updatorId: userId,
-        updatorName: userId,
+        updatorId: userId
       });
 			
 			try {
@@ -678,8 +673,7 @@ export default class WorkspaceService {
     try {
       await this.fileDao.recoverFile({
         id,
-        updatorId: userId,
-        updatorName: userId,
+        updatorId: userId
       });
 
       return { code: 1, data: null };

@@ -44,7 +44,7 @@ const FolderModule: FC = () => {
 				url: '/paas/api/module/publish',
 				data: {
 					fileId: latestPath.id,
-					email: ctx.user.email
+					userId: ctx.user.id
 				}
 			})).data
 			

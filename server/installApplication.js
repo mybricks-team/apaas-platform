@@ -178,9 +178,9 @@ async function installApplication() {
               fs.writeFileSync(tempFolder + '/package.json', JSON.stringify({}), 'utf-8')
             }
             if(isYarnExist()) {
-              cp.execSync(`cd ${tempFolder} && yarn add ${npmPkg} --registry ${NPM_REGISTRY}  --production`)
+              cp.execSync(`cd ${tempFolder} && yarn add ${npmPkg} --registry=${NPM_REGISTRY}  --production`, { stdio: 'inherit' })
             } else {
-              cp.execSync(`cd ${tempFolder} && npm i --registry=${NPM_REGISTRY} ${npmPkg} --production`)
+              cp.execSync(`cd ${tempFolder} && npm i --registry=${NPM_REGISTRY} ${npmPkg} --production`, { stdio: 'inherit' })
             }
           } catch(e) {
             console.log(`【install】: 应用 ${npmPkg} 安装失败，跳过...`)
@@ -293,7 +293,7 @@ async function installApplication() {
               })).data
             const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
             fs.writeFileSync(tempPathZipFile, Buffer.from(res.data.data));
-            cp.execSync(`cd ${tempFolder} && unzip ${tempPathZipFile} -d ${destAppDir}`)
+            cp.execSync(`cd ${tempFolder} && unzip -o ${tempPathZipFile} -d ${destAppDir}`)
           } catch(e) {
             console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)
             console.log(`【install】: 错误是: ${e.toString()}`)
@@ -312,9 +312,9 @@ async function installApplication() {
             if(fs.existsSync(bePath)) {
               try{
                 if(isYarnExist()) {
-                  cp.execSync(`cd ${srcAppDir} && yarn --registry ${NPM_REGISTRY}  --production`)
+                  cp.execSync(`cd ${srcAppDir} && yarn install --prod --registry=${NPM_REGISTRY}`, { stdio: 'inherit' })
                 } else {
-                  cp.execSync(`cd ${srcAppDir} && npm i --registry=${NPM_REGISTRY} --production`)
+                  cp.execSync(`cd ${srcAppDir} && npm i --registry=${NPM_REGISTRY} --production`, { stdio: 'inherit' })
                 }
                 // 移动依赖
                 fs.moveSync(path.join(srcAppDir, `./node_modules`), path.join(destAppDir, `./node_modules`), {overwrite: true})
@@ -404,7 +404,7 @@ async function installApplication() {
             }
             const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
             fs.copyFileSync(path.join(FILE_LOCAL_STORAGE_FOLDER, `./asset/app/${pkgName}/${pkgVersion}/${pkgName}.zip`), tempPathZipFile)
-            cp.execSync(`cd ${tempFolder} && unzip ${tempPathZipFile} -d ${destAppDir}`)
+            cp.execSync(`cd ${tempFolder} && unzip -o ${tempPathZipFile} -d ${destAppDir}`)
           } catch(e) {
             console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)
             console.log(`【install】: 错误是: ${e.toString()}`)
@@ -423,9 +423,9 @@ async function installApplication() {
             if(fs.existsSync(bePath)) {
               try{
                 if(isYarnExist()) {
-                  cp.execSync(`cd ${srcAppDir} && yarn --registry ${NPM_REGISTRY}  --production`)
+                  cp.execSync(`cd ${srcAppDir} && yarn --registry ${NPM_REGISTRY}  --production`, { stdio: 'inherit' })
                 } else {
-                  cp.execSync(`cd ${srcAppDir} && npm i --registry=${NPM_REGISTRY} --production`)
+                  cp.execSync(`cd ${srcAppDir} && npm i --registry=${NPM_REGISTRY} --production`, { stdio: 'inherit' })
                 }
                 // 移动依赖
                 fs.moveSync(path.join(srcAppDir, `./node_modules`), path.join(destAppDir, `./node_modules`), {overwrite: true})

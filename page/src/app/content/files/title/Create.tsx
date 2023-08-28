@@ -40,7 +40,7 @@ export function Create(): JSX.Element {
         const rtn = (await axios({
           method: 'post',
           url: getApiUrl('/paas/api/file/getCountOfUserAndExt'),
-          data: { userId: appCtx.user.email, extName: app.extName }
+          data: { userId: appCtx.user.id, extName: app.extName }
         })).data;
         if(rtn.code === 1) {
           if(appMaxCreateFleCount <= rtn.data) {
@@ -135,7 +135,8 @@ export function Create(): JSX.Element {
       const { extName, isSystem } = app
       const params: any = {
         extName,
-        userId: appCtx.user.email
+        userId: appCtx.user.id,
+        userName: appCtx.user.name || appCtx.user.email,
       }
 
       if (isGroup) {

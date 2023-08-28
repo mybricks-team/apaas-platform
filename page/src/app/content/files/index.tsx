@@ -63,7 +63,7 @@ export default function Files() {
           if (groupId !== ctx.groupId) {
             axios({
               method: 'get',
-              url: getApiUrl(`/paas/api/userGroup/getUserGroupRelation?id=${groupId}&userId=${appCtx.user.email}`)
+              url: getApiUrl(`/paas/api/userGroup/getUserGroupRelation?id=${groupId}&userId=${appCtx.user.id}`)
             }).then(({data: {data}}) => {
               ctx.roleDescription = data?.roleDescription || 3
             })
@@ -77,7 +77,7 @@ export default function Files() {
         axios({
           method: "get",
           url: getApiUrl('/paas/api/file/getFilePath'),
-          params: {userId: appCtx.user.email, fileId: parentId, groupId}
+          params: {fileId: parentId, groupId}
         }).then(({data: {data}}) => {
           if (data.length) {
             if (data[0]) {
@@ -99,7 +99,7 @@ export default function Files() {
             method: 'get',
             url: getApiUrl('/paas/api/file/getMyFiles'),
             params: {
-              userId: appCtx.user.email,
+              userId: appCtx.user.id,
               parentId
             }
           }).then(({data}) => {
@@ -115,7 +115,7 @@ export default function Files() {
             method: 'get',
             url: getApiUrl('/api/file/getGroupFiles'),
             params: {
-              userId: appCtx.user.email,
+              userId: appCtx.user.id,
               parentId,
               groupId
             }
@@ -191,8 +191,8 @@ function Projects() {
             return new Promise((resolve) => {
               axios({
                 method: "post",
-                url: getApiUrl('/api/workspace/deleteFile'),
-                data: {id: item.id, userId: appCtx.user.email}
+                url: getApiUrl('/paas/api/workspace/deleteFile'),
+                data: {id: item.id, userId: appCtx.user.id}
               }).then(async ({data}) => {
                 if (data.code === 1) {
                   ctx.getAll(getUrlQuery());
@@ -226,7 +226,7 @@ function Projects() {
               axios({
                 method: "post",
                 url: clickShare ? getApiUrl('/paas/api/file/share/mark') : getApiUrl('/paas/api/file/share/unmark'),
-                data: {id: item.id, userId: appCtx.user.email}
+                data: {id: item.id, userId: appCtx.user.id}
               }).then(async ({data}) => {
                 if (data.code === 1) {
                   ctx.getAll(getUrlQuery());
@@ -263,7 +263,7 @@ function Projects() {
   /** 渲染项目列表 */
   const Render: JSX.Element | JSX.Element[] = useComputed(() => {
     let JSX: JSX.Element | JSX.Element[] = <></>;
-    const userId = appCtx.user.email
+    const userId = appCtx.user.id
     if (Array.isArray(ctx.projectList)) {
       if (ctx.projectList.length) {
         const {APPSMap} = appCtx;
@@ -274,7 +274,7 @@ function Projects() {
           const {icon} = appReg;
           const bigIcon = folderExtnames.includes(extName) || project.icon
           /** 创建人和拥有管理、编辑权限的用户可见操作按钮 */
-          const showOperate = (project.creatorId === userId) || [1, 2].includes(roleDescription)
+          const showOperate = (project.creatorId == userId) || [1, 2].includes(roleDescription)
           const alreadyShared = project.shareType === 1
 
           return (
@@ -332,7 +332,7 @@ function Projects() {
   const columns = useCallback(() => {
     const {APPSMap} = appCtx
     const {roleDescription} = ctx
-    const userId = appCtx.user.email
+    const userId = appCtx.user.id
     return [
       {
         title: '名称',
@@ -343,7 +343,7 @@ function Projects() {
         },
         render: (name, record) => {
           return (
-            <DragFile item={record} canDrag={(record.creatorId === userId) || [1, 2].includes(roleDescription)} drag={moveModalOk}>
+            <DragFile item={record} canDrag={(record.creatorId == userId) || [1, 2].includes(roleDescription)} drag={moveModalOk}>
               <div className={css.tableName} onClick={() => operate('open', record)}>
                 <div className={css.tableNameIcon}>
                   <Icon
@@ -380,7 +380,7 @@ function Projects() {
         key: 'action',
         width: 60,
         render: (_, record) => {
-          const showOperate = (record.creatorId === userId) || [1, 2].includes(roleDescription)
+          const showOperate = (record.creatorId == userId) || [1, 2].includes(roleDescription)
           return showOperate && <RenderOperate project={record} operate={operate} size={24} iconSize={14}/>
         }
       }
@@ -404,79 +404,6 @@ function Projects() {
     )
   })
 
-  // const moveModalOk = useCallback((values, app) => {
-  //   return new Promise(async (resolve, reject) => {
-  //     if (!values) {
-  //       reject('请选择要移入的协作组或文件夹')
-  //       return
-  //     }
-
-  //     const { id, groupId } = values
-
-  //     if (app.id === id) {
-  //       reject(`目标文件夹${app.name}已被选中，无法移动`)
-  //       return
-  //     }
-
-  //     const isGroup = typeof groupId === 'undefined'
-
-  //     const data: any = {
-  //       fileId: app.id,
-  //     }
-
-  //     if (isGroup) {
-  //       data.toGroupId = id
-  //     } else {
-  //       data.toFileId = id
-  //     }
-
-  //     axios({
-  //       method: 'post',
-  //       url: getApiUrl('/api/file/moveFile'),
-  //       data
-  //     }).then(async ({data: {data: message}}) => {
-  //       if (typeof message === 'string') {
-  //         reject(message)
-  //       } else {
-  //         const refreshSiderAry = []
-  //         if (folderExtnames.includes(app.extName)) {
-  //           // 如果是文件夹
-  //           // 移动位置
-  //           if (data.toGroupId) {
-  //             const sideMenu = appCtx.sidebarInfo[`?appId=files&groupId=${id}`]
-  //             if (sideMenu?.open) {
-  //               refreshSiderAry.push(sideMenu)
-  //             }
-  //           } else {
-  //             const sideMenu = appCtx.sidebarInfo[`?appId=files&groupId=${groupId}&parentId=${id}`]
-  //             if (sideMenu?.open) {
-  //               refreshSiderAry.push(sideMenu)
-  //             }
-  //           }
-  //           // 移出位置
-  //           const sideMenu = appCtx.sidebarInfo[`?appId=files${app.groupId ? `&groupId=${app.groupId}` : ''}${app.parentId ? `&parentId=${app.parentId}` : ''}`]
-  //           if (sideMenu?.open) {
-  //             refreshSiderAry.push(sideMenu)
-  //           }
-  //         }
-
-  //         await Promise.all([
-  //           await ctx.getAll(getUrlQuery()),
-  //           ...refreshSiderAry.map((sideMenu) => {
-  //             return new Promise(async (resolve) => {
-  //               const items = await sideMenu.getFiles(sideMenu.id)
-  //               sideMenu.items = items
-  //               resolve(true)
-  //             })
-  //           })
-  //         ])
-
-  //         resolve('移动成功')
-  //       }
-  //     })
-  //   })
-  // }, [])
-
   const moveModalCancel = useCallback(() => {
     setMoveApp(null)
   }, [])
@@ -489,7 +416,7 @@ function Projects() {
       const { extName, isSystem } = app
       const params: any = {
         extName,
-        userId: appCtx.user.email
+        userId: appCtx.user.id
       }
 
       if (isGroup) {
@@ -499,14 +426,16 @@ function Projects() {
         params.groupId = item.groupId
       }
       
-      const check = await axios({
-        method: 'get',
-        url: getApiUrl('/paas/api/file/checkFileCanCreate'),
-        params: {
-          ...params,
-          fileName: name
-        }
-      })
+      // const check = await axios({
+      //   method: 'get',
+      //   url: getApiUrl('/paas/api/file/checkFileCanCreate'),
+      //   params: {
+      //     ...params,
+      //     fileName: name
+      //   }
+      // })
+      // 暂时放开同名文件检测
+      const check = { data: { data: {next: true} } }
 
       if (check.data?.data?.next) {
         if (isSystem) {
@@ -519,7 +448,7 @@ function Projects() {
           data: {
             id: app.id,
             name,
-            userId: appCtx.user.email
+            userId: appCtx.user.id
           }
         }).then(async ({data}) => {
           if (data.code === 1) {
@@ -915,7 +844,7 @@ function MoveFileModal({app, onOk, onCancel}) {
         method: 'get',
         url: getApiUrl('/paas/api/userGroup/getVisibleGroups'),
         params: {
-          userId: appCtx.user.email
+          userId: appCtx.user.id
         }
       }).then(({ data: { data } }) => {
         ctx.dataSource = data.filter((item) => item.roleDescription && item.roleDescription < 3)
@@ -949,7 +878,7 @@ function MoveFileModal({app, onOk, onCancel}) {
               item.loading = true
 
               const params: any = {
-                userId: appCtx.user.email,
+                userId: appCtx.user.id,
                 extNames: 'folder,folder-project,folder-module',
               }
 
@@ -963,7 +892,7 @@ function MoveFileModal({app, onOk, onCancel}) {
 
               axios({
                 method: 'get',
-                url: getApiUrl('/api/file/getGroupFiles'),
+                url: getApiUrl('/paas/api/file/getGroupFiles'),
                 params
               }).then(({ data: { data } }) => {
                 item.dataSource = fileSort(data.filter((item) => item.id !== app.id))
@@ -979,7 +908,7 @@ function MoveFileModal({app, onOk, onCancel}) {
               item.loading = true
 
               const params: any = {
-                userId: appCtx.user.email,
+                userId: appCtx.user.id,
                 extNames: 'folder,folder-project,folder-module',
               }
 

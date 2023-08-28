@@ -10,7 +10,8 @@ import {
   Req
 } from '@nestjs/common';
 import AuthService from './auth.service';
-import { genMainIndexOfDB } from "../../utils";
+import { genMainIndexOfDB } from '../../utils';
+import { decrypt, encrypt } from '../../utils/crypto';
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
@@ -142,12 +143,7 @@ export default class AuthController {
       console.log('运行容器：获取连接成功')
       const pool = getPool()
       console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`)
-      let res = await startExe({
-        userId,
-        projectId
-      }, {
-        dbConnection: con
-      })
+      let res = await startExe({ userId, projectId }, { dbConnection: con, encrypt, decrypt });
       console.log('运行容器：运行完毕')
       return {
         code: 1,
@@ -191,7 +187,7 @@ export default class AuthController {
       console.log('运行容器：获取连接成功');
       const pool = getPool();
       console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`);
-      let res = await startExe(body, { dbConnection: con });
+      let res = await startExe(body, { dbConnection: con, encrypt, decrypt });
       console.log('运行容器：运行完毕');
 			
       return res ? { code: 1, data: res } : { code: -1, msg: '用户不存在' };
@@ -237,7 +233,7 @@ export default class AuthController {
       console.log('运行容器：获取连接成功');
       const pool = getPool();
       console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`);
-      let res = await startExe(body, { dbConnection: con, genUniqueId: genMainIndexOfDB, entity });
+      let res = await startExe(body, { dbConnection: con, genUniqueId: genMainIndexOfDB, entity, encrypt, decrypt });
       console.log('运行容器：运行完毕');
 			
       return res ? { code: 1, data: res } : { code: -1, msg: '注册失败' };

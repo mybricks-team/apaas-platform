@@ -24,7 +24,7 @@ fi
 tmpPlatformFolder=$tmpFolderBase/node_modules/mybricks-apaas-platform
 cd "./node_modules/mybricks-apaas-platform"
 echo "开始解压"
-unzip mybricks-apaas.zip -d ../../
+unzip -o mybricks-apaas.zip -d ../../
 rm -rf ./node_modules
 cd $tmpFolderBase/mybricks-apaas
 echo "开始执行覆盖操作"

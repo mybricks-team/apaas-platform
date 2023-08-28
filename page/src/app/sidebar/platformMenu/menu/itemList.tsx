@@ -3,7 +3,7 @@ import React, {useCallback} from 'react'
 import {observe, useComputed} from '@mybricks/rxui'
 
 import AppCtx from '../../../AppCtx'
-import {UserGroup} from '../../../components'
+import {FolderModule, FolderProject, UserGroup} from '../../../components'
 import NavMenu, {Child, MenuCtx} from './navMenu'
 
 interface Props {
@@ -38,13 +38,35 @@ export default function ItemList ({id, child, menuCtx, canDrag}: Props): JSX.Ele
   const List: JSX.Element[] = useComputed(() => {
     // const parentId: string = getParentId();
     const {APPSMap} = appCtx
+    const curAppsMap = { ...APPSMap };
+    [
+      {
+        title: '项目文件夹',
+        description: '通过项目的方式管理文件',
+        type: 'user',
+        extName: 'folder-project',
+        namespace: 'mybricks-folder-project',
+        icon: FolderProject
+      },
+      {
+        title: '模块文件夹',
+        description: '通过模块的方式管理文件',
+        type: 'user',
+        extName: 'folder-module',
+        namespace: 'mybricks-folder-module',
+        icon: FolderModule
+      },
+    ].forEach(app => {
+      curAppsMap[app.namespace] = app;
+      curAppsMap[app.extName] = app;
+    })
 
     return menuCtx.items.map(item => {
       const { id, name, extName, parentId, groupId } = item;
       const isGroup = !!!extName && !!id
       // TODO,目前只有文件夹和协作组
       // const icon = item.extName ? 'https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png' : 'https://assets.mybricks.world/icon/144257.png'
-      const app = !isGroup ? APPSMap[item.extName] : {icon: item.icon || UserGroup}
+      const app = !isGroup ? curAppsMap[item.extName] : {icon: item?.icon || UserGroup}
 
       if (!child[id]) {
         child[id] = {open: false, child: {}}
@@ -58,7 +80,7 @@ export default function ItemList ({id, child, menuCtx, canDrag}: Props): JSX.Ele
           namespace={`?appId=files${isGroup ? `&groupId=${id}` : `${groupId ? `&groupId=${groupId}` : ''}${id ? `&parentId=${id}` : ''}`}`}
           name={name}
           child={child[id]}
-          icon={app.icon}
+          icon={app?.icon}
           getFiles={menuCtx.getFiles}
           onClick={menuCtx.onClick}
           canDrag={canDrag}

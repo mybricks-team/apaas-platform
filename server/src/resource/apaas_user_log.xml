@@ -9,6 +9,20 @@
         where type = #{type}
     </select>
 
+    <select id="queryDetailOfAll">
+        SELECT *
+        FROM apaas_user_log
+            LEFT JOIN (SELECT id AS userId, name AS userName, email AS userEmail from apaas_user)apaasUser ON apaasUser.userId = apaas_user_log.user_id
+        order by apaas_user_log.id desc
+        LIMIT ${offset},${limit}
+    </select>
+
+    <select id="queryTotalOfAll">
+        SELECT COUNT(*) as total
+        FROM apaas_user_log
+            LEFT JOIN (SELECT id AS userId, name AS userName, email AS userEmail from apaas_user)apaasUser ON apaasUser.userId = apaas_user_log.user_id
+    </select>
+
     <insert id="insert">
         insert into apaas_user_log
         (

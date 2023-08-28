@@ -12,6 +12,7 @@ import { isNumber, getAdminInfoByProjectId } from '../../utils'
 import ModuleDao from "../../dao/ModuleDao";
 import FileService from "./file.service";
 import UserFileRelationDao from "../../dao/UserFileRelationDao";
+import UserService from '../user/user.service';
 const path = require('path');
 import {Logger} from '@mybricks/rocker-commons'
 
@@ -29,6 +30,7 @@ export default class FileController {
   modulePubDao: ModulePubDao
 
   fileService: FileService
+  userService: UserService
   userFileRelationDao: UserFileRelationDao
 
   constructor() {
@@ -43,6 +45,7 @@ export default class FileController {
     this.moduleDao = new ModuleDao()
     this.modulePubDao = new ModulePubDao()
     this.fileService = new FileService()
+    this.userService = new UserService()
     this.userFileRelationDao = new UserFileRelationDao()
   }
 
@@ -97,8 +100,9 @@ export default class FileController {
   @Post('/delete')
   async deleteFile(
     @Body("fileId") fileId: number,
-    @Body("updatorId") updatorId: string,
+    @Body("updatorId") originUpdatorId: string,
   ) {
+    const updatorId = await this.userService.getCurrentUserId(originUpdatorId);
     if(!fileId || !updatorId) {
       return {
         code: -1,
@@ -114,7 +118,7 @@ export default class FileController {
           msg: '删除失败，您没有此文件权限'
         }
       }
-      const res = await this.fileDao.deleteFile({ id: fileId, updatorId: updatorId, updatorName: updatorId })
+      const res = await this.fileDao.deleteFile({ id: fileId, updatorId, updatorName: originUpdatorId })
       return {
         code: 1,
         data: res
@@ -130,7 +134,7 @@ export default class FileController {
   @Post("/create")
   async create(
     @Body("name") name: string,
-    @Body("creatorId") creatorId: string,
+    @Body("creatorId") originCreatorId: string,
     @Body("creatorName") creatorName: string,
     @Body("extName") extName: string,
     @Body("groupId") groupId: number,
@@ -138,22 +142,13 @@ export default class FileController {
     @Body("parentId") parentId: number,
     @Body("icon") icon: string,
   ) {
+    const creatorId = await this.userService.getCurrentUserId(originCreatorId);
+
     if(!name || !creatorId || !extName) {
-      return {
-        code: -1,
-        msg: '参数不合法'
-      }
+      return { code: -1, msg: '参数不合法' };
     }
-    const param = {
-      parentId,
-      groupId,
-      name,
-      extName,
-      icon,
-      creatorId,
-      creatorName,
-      description
-    }
+    const param = { parentId, groupId, name, extName, icon, creatorId, creatorName, description };
+
     try {
       const result = await this.fileDao.createFile(param)
       return {
@@ -170,12 +165,11 @@ export default class FileController {
 
   @Post("/createFileBaseTemplate")
   async createFile(@Body() body) {
-    const { userId, name, extName, namespace, type, parentId, groupId, templateId } = body;
+    const { userId: originUserId, name, extName, namespace, type, parentId, groupId, templateId } = body;
+    const userId = await this.userService.getCurrentUserId(originUserId);
+
     if (!userId) {
-      return {
-        code: -1,
-        msg: "缺少userId参数",
-      };
+      return { code: -1, msg: "缺少userId参数" };
     }
     try {
       const rtn = await this.fileDao.createFile({
@@ -183,7 +177,7 @@ export default class FileController {
         name,
         namespace,
         creatorId: userId,
-        creatorName: userId,
+        creatorName: originUserId,
         extName: extName,
         groupId,
         parentId,
@@ -196,13 +190,10 @@ export default class FileController {
           content: latestSave?.content,
           version: '1.0.0',
           creatorId: userId,
-          creatorName: userId,
+          creatorName: originUserId,
         });
 			} else {
-        return {
-          code: -1,
-          msg: '新建失败，请重试'
-        }
+        return { code: -1, msg: '新建失败，请重试' };
       }
 
       return {
@@ -210,10 +201,7 @@ export default class FileController {
         data: { id: rtn.id },
       };
     } catch (ex) {
-      return {
-        code: -1,
-        msg: ex.message,
-      };
+      return { code: -1, msg: ex.message };
     }
   }
 
@@ -223,8 +211,8 @@ export default class FileController {
     @Body("name") name: string,
     @Body("userId") userId: string,
   ) {
-    const user = await this.userDao.queryByEmail({ email: userId })
-    const result = await this.fileDao.update({ id, name, updatorId: user.email, updatorName: user.name || user.email })
+    const user = await this.userDao.queryById({ id: userId })
+    const result = await this.fileDao.update({ id, name, updatorId: user.id, updatorName: user.name })
 
     return {
       code: 1,
@@ -279,7 +267,8 @@ export default class FileController {
 
   @Get("/getCooperationUsers")
   async getCooperationUsers(@Query() query) {
-    const { userId, timeInterval } = query;
+    const { email, userId: originUserId, timeInterval } = query;
+    const userId = await this.userService.getCurrentUserId(originUserId || email);
     const fileId = Number(query.fileId);
 
     if (!isNumber(fileId) || !userId) {
@@ -309,7 +298,7 @@ export default class FileController {
         const { creatorId, groupId } = file
 
         // 创建人、最高权限
-        if (creatorId === userId) {
+        if (creatorId == userId) {
           resolve(1)
         } else {
           const [fileDescription, groupDescription] = await Promise.all([
@@ -353,13 +342,13 @@ export default class FileController {
     }
 
     const cooperationUsers = await this.fileCooperationDao.queryOnlineUsers({ fileId })
-    const curUserIndex = cooperationUsers.findIndex((cooperationUser) => cooperationUser.userId === userId)
+    const curUserIndex = cooperationUsers.findIndex((cooperationUser) => cooperationUser.userId == userId)
     /** 把当前用户提前 */
     cooperationUsers[0] = cooperationUsers.splice(curUserIndex, 1, cooperationUsers[0])[0]
 
     const userIds = cooperationUsers.map((cooperationUser) => cooperationUser.userId)
     /** 查询用户信息 */
-    const users = await this.userDao.queryByEmails({ emails: userIds })
+    const users = await this.userDao.queryByIds({ ids: userIds })
 
     Reflect.deleteProperty(file, 'icon');
     if (versions?.[0]?.version) {
@@ -374,8 +363,10 @@ export default class FileController {
         }).map((cooperationUser, index) => {
           const user = users[index]
           return {
+            id: user.id,
             name: user.name,
             userId: user.email,
+            email: user.email,
             avatar: user.avatar,
             status: cooperationUser.status,
             updateTime: cooperationUser.updateTime
@@ -401,7 +392,8 @@ export default class FileController {
             return {
               ...user,
               userGroupId: user.user_group_id,
-              userId: user.user_id,
+              userId: user.email,
+              originUserId: user.user_id,
               creatorId: user.creator_id,
               creatorName: user.creator_name,
               createTime: user.create_time,
@@ -417,10 +409,10 @@ export default class FileController {
         if (fileId) {
           const file = await this.fileDao.queryById(fileId);
           if (file) {
-            const user = await this.userDao.queryByEmail({
-              email: file.creatorId,
+            const user = await this.userDao.queryById({
+              id: file.creatorId,
             });
-            resolve({name: user.name, email: user.email, avatar: user.avatar});
+            resolve({ originUserId: user.id, userId: user.email, name: user.name, email: user.email, avatar: user.avatar});
           }
         } else {
           resolve(null);
@@ -444,9 +436,7 @@ export default class FileController {
     }
 
     if (groupOwner) {
-      const index = groupAdminUsers.findIndex(
-        (user) => user.email === groupOwner.email
-      );
+      const index = groupAdminUsers.findIndex((user) => user.email === groupOwner.email);
 
       if (index !== -1) {
         const owner = groupAdminUsers[index];
@@ -463,7 +453,8 @@ export default class FileController {
 
   @Post("/toggleFileCooperationStatus")
   async toggleFileCooperationStatus(@Body() body) {
-    const { userId, status } = body
+    const { userId: originUserId, status } = body
+    const userId = await this.userService.getCurrentUserId(originUserId);
     const fileId = Number(body.fileId)
 
     if (!isNumber(fileId) || !userId) {
@@ -490,16 +481,15 @@ export default class FileController {
       }
 
       let roleDescription = 3
-
       const { groupId, creatorId } = file
 
-      if (creatorId === userId) {
+      if (creatorId == userId) {
         roleDescription = 1
       } else {
         const [fileDescription, groupDescription] = await Promise.all([
           new Promise(async (resolve) => {
-            const userFileFelation = await this.userFileRelationDao.query({userId, fileId})
-            resolve(userFileFelation?.roleDescription)
+            const userFileRelation = await this.userFileRelationDao.query({userId, fileId})
+            resolve(userFileRelation?.roleDescription)
           }),
           new Promise(async (resolve) => {
             if (!groupId) {
@@ -541,8 +531,10 @@ export default class FileController {
 
   @Post("/createCooperationUser")
   async createCooperationUser(@Body() body) {
-    const { email, creatorId, groupId, fileId, roleDescription } = body
-    const user = await this.userDao.queryByEmail({email: creatorId})
+    const { userId: originUserId, email, creatorId: originCreatorId, groupId, fileId, roleDescription } = body;
+    const userId = await this.userService.getCurrentUserId(originUserId || email);
+    const creatorId = await this.userService.getCurrentUserId(originCreatorId);
+    const user = await this.userDao.queryById({id: creatorId});
 
     if (groupId) {
       const data = await this.userGroupRelationDao.create({
@@ -550,7 +542,7 @@ export default class FileController {
         creatorName: user.name,
         roleDescription,
         userGroupId: groupId,
-        userId: email
+        userId
       })
 
       return {
@@ -559,7 +551,7 @@ export default class FileController {
       }
     } else {
       const data = await this.userFileRelationDao.create({
-        userId: email,
+        userId,
         fileId,
         creatorId,
         roleDescription
@@ -574,8 +566,10 @@ export default class FileController {
 
   @Post("/updateCooperationUser")
   async updateCooperationUser(@Body() body) {
-    const { email, updatorId, groupId, fileId, roleDescription, status } = body
-    const user = await this.userDao.queryByEmail({email: updatorId})
+    const { userId: originUserId, email, updatorId: originUpdatorId, groupId, fileId, roleDescription, status } = body
+    const userId = await this.userService.getCurrentUserId(originUserId || email);
+    const updatorId = await this.userService.getCurrentUserId(originUpdatorId);
+    const user = await this.userDao.queryById({id: updatorId});
 
     if (groupId) {
       const data = this.userGroupRelationDao.update({
@@ -583,7 +577,7 @@ export default class FileController {
         updatorName: user.name,
         roleDescription: roleDescription,
         userGroupId: groupId,
-        userId: email,
+        userId,
         status
       })
 
@@ -593,7 +587,7 @@ export default class FileController {
       }
     } else {
       const data = await this.userFileRelationDao.create({
-        userId: email,
+        userId,
         fileId,
         creatorId: updatorId,
         roleDescription
@@ -751,7 +745,8 @@ export default class FileController {
 
   @Get('/getFileRoot')
   async getFileList(@Query() query) {
-    const { parentId, creatorId, fileId, checkModule } = query;
+    const { parentId, creatorId: originCreatorId, fileId, checkModule } = query;
+    const creatorId = await this.userService.getCurrentUserId(originCreatorId);
 
     if (!parentId) {
       const file = await this.fileDao.queryById(fileId);
@@ -906,7 +901,8 @@ export default class FileController {
 
   @Get("/getMyFiles")
   async getMyFiles(@Query() query) {
-    const { userId, parentId, extNames, status } = query
+    const { userId: originUserId, parentId, extNames, status } = query
+    const userId = await this.userService.getCurrentUserId(originUserId);
     const params: any = {
       userId,
       parentId,
@@ -917,16 +913,19 @@ export default class FileController {
     }
 
     const files = await this.fileDao.getMyFiles(params)
+    // const userInfo = await this.userDao.queryById({ id: userId })
 
     return {
       code: 1,
       data: files.filter((item) => {
         const { hasIcon } = item
         if (hasIcon === "1") {
-          item.icon = `/api/workspace/getFileIcon?fileId=${item.id}`;
+          item.icon = `/paas/api/workspace/getFileIcon?fileId=${item.id}`;
         } else if (hasIcon.startsWith('http')) {
           item.icon = hasIcon
         }
+        // 我的文件可以直接重写creatorName
+        // item.creatorName = userInfo.name || userInfo.email
 
         return item.extName !== "component";
       }),
@@ -935,9 +934,8 @@ export default class FileController {
 
   @Get("/getGroupFiles")
   async getGroupFiles(@Query() query) {
-    const { userId, parentId, extNames, status, groupId } = query
+    const { parentId, extNames, status, groupId } = query
     const params: any = {
-      userId,
       parentId,
       status,
       groupId
@@ -1002,7 +1000,7 @@ export default class FileController {
 
   @Get("/getFilePath")
   async getFilePath(@Query() query) {
-    const { fileId, userId, groupId } = query;
+    const { fileId, groupId } = query;
     const path = [];
 
     if (fileId) {
@@ -1166,7 +1164,7 @@ export default class FileController {
 
   @Post('/getFolderProjectInfoByProjectId')
   async getFolderProjectInfoByProjectId(@Body() body) {
-    const { id, userName } = body
+    const { id, userId } = body
     const folder = await this.fileDao.queryById(id);
     const [[projectModuleInfo], files] = await Promise.all([
       await this.moduleDao.getProjectModuleInfo(id),
@@ -1178,7 +1176,7 @@ export default class FileController {
       apps: files,
       moduleList: JSON.parse(projectModuleInfo?.module_info || '{}')?.moduleList || []
     };
-    if (folder.creatorName === userName) {
+    if (folder.creatorId == userId) {
       data.adminInfo = {
         ...getAdminInfoByProjectId(id)
       }
@@ -1480,8 +1478,7 @@ export default class FileController {
     const rtn = await this.fileDao.updateShare({
       id: id,
       shareType: 1,
-      updatorId: userId,
-      updatorName: userId
+      updatorId: userId
     })
     return {
       code: rtn.affectedRows > 0 ? 1 : -1,

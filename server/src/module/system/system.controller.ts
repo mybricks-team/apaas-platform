@@ -1,5 +1,5 @@
 import ServicePubDao from './../../dao/ServicePubDao';
-import { Body, Controller, Get, Inject, Post, Req } from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Query, Req} from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
 import AppDao from '../../dao/AppDao';
@@ -10,11 +10,14 @@ import { Logger } from '@mybricks/rocker-commons';
 import { createVM } from 'vm-node';
 import FileService from '../file/file.controller'
 import * as axios from "axios";
+import platformEnvUtils from '../../utils/env'
+import RefreshDao from "../../dao/RefreshDao";
+import UserLogDao from "../../dao/UserLogDao";
+
 const childProcess = require('child_process');
 const path = require('path')
 const fs = require('fs')
 const env = require('../../../env')
-import platformEnvUtils from '../../utils/env'
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -25,8 +28,10 @@ export default class SystemService {
   servicePubDao: ServicePubDao
 
   appDao: AppDao;
+  refreshDao: RefreshDao;
 
   fileService: FileService
+  userLogDao: UserLogDao;
 
   conn: any;
 
@@ -37,6 +42,8 @@ export default class SystemService {
     this.filePubDao = new FilePubDao();
     this.servicePubDao = new ServicePubDao();
     this.appDao = new AppDao()
+    this.refreshDao = new RefreshDao()
+    this.userLogDao = new UserLogDao()
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
@@ -434,6 +441,51 @@ export default class SystemService {
     return res
   }
 
+  // 领域建模运行时
+  @Post('/system/domain/run/:fileId/:serviceId')
+  async systemDomainRunById_Post(
+    // 通用参数
+    @Body() params: any,
+    @Query() query: any,
+    @Req() req: any,
+    @Param('fileId') fileId: number,
+    @Param('serviceId') serviceId: string,
+  ) {
+    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+      fileId,
+      env: 'prod',
+      serviceId,
+    })
+    return await this._execServicePub(pubInfo, {
+      fileId,
+      serviceId,
+      params: { ...(query || {}), ...(params || {}) },
+      headers: req.headers
+    })
+  }
+
+  // 领域建模运行时
+  @Get('/system/domain/run/:fileId/:serviceId')
+  async systemDomainRunById_Get(
+    // 通用参数
+    @Query() params: any,
+    @Req() req: any,
+    @Param('fileId') fileId: number,
+    @Param('serviceId') serviceId: string,
+  ) {
+    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+      fileId,
+      env: 'prod',
+      serviceId,
+    })
+    return await this._execServicePub(pubInfo, {
+      fileId,
+      serviceId,
+      params,
+      headers: req.headers
+    })
+  }
+
   @Post('/system/domain/execSql')
   async execSql(
     @Body('sql') sql: string,
@@ -546,7 +598,7 @@ export default class SystemService {
 
   @Post('/system/channel')
   async channel(@Body() body: any) {
-    const { type, version, isAdministrator, payload } = body;
+    const { type, version, isAdministrator, payload, userId } = body;
     if(platformEnvUtils.isPlatform_Fangzhou()) {
       return {
         code: -1,
@@ -556,16 +608,19 @@ export default class SystemService {
     try {
       switch (type) {
         case 'checkLatestPlatformVersion': {
+          const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
+          const { platformVersion } = JSON.parse(appJSON)
           const res = (await (axios as any).post(
             'https://my.mybricks.world/central/api/channel/gateway', 
             // 'http://localhost:4100/central/api/channel/gateway', 
             {
-            action: 'platform_checkLatestVersion'
-          })).data
+              action: 'platform_checkLatestVersion',
+              payload: JSON.stringify({ version: platformVersion })
+            })).data
           if(res.code === 1) {
             return {
               code: 1,
-              data: { version: res.data.version }
+              data: { version: res.data.version, previousList: res.data.previousList }
             }
           } else {
             return res
@@ -588,6 +643,8 @@ export default class SystemService {
           }
         }
         case 'downloadPlatform': {
+          const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
+          const { platformVersion: prePlatformVersion } = JSON.parse(appJSON)
           const res = (await (axios as any).post(
             `https://my.mybricks.world/central/api/channel/gateway`, 
             // `http://localhost:4100/central/api/channel/gateway`, 
@@ -605,10 +662,24 @@ export default class SystemService {
             Logger.info(shellPath)
             const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
               cwd: path.join(process.cwd(), '../'),
-            })
+              stdio: 'inherit'
+            });
+            Logger.info('平台更新成功，准备写入操作日志')
+            await this.userLogDao.insertLog({
+              type: 10,
+              userId,
+              logContent: JSON.stringify({
+                type: 'platform',
+                action: 'install',
+                installType: 'oss',
+                preVersion: prePlatformVersion,
+                version,
+                content: `更新平台，版本从 ${prePlatformVersion} 到 ${version}`,
+              })
+            });
             return {
               code: 1,
-              msg: log.toString() || '升级成功'
+              msg: log?.toString() || '升级成功'
             }
           } else {
             return {
@@ -682,158 +753,30 @@ export default class SystemService {
     }
   }
 
-
-  async checkUpdate_back(@Body() body: any) {
-    const { type, version } = body;
-    console.log('111', process.env.MYBRICKS_NODE_MODE)
-    if(process.env.MYBRICKS_NODE_MODE === 'master') {
-      switch (type) {
-        case 'checkLatestPlatformVersion': {
-          const res = (await (axios as any).post(
-            'https://my.mybricks.world/central/api/channel/gateway', 
-            // 'http://localhost:4100/central/api/channel/gateway', 
-          {
-            action: 'platform_checkLatestVersion'
-          })).data
-          if(res.code === 1) {
-            return {
-              code: 1,
-              data: { version: res.data.version }
-            }
-          } else {
-            return res
-          }
-        }
-        case 'getCurrentPlatformVersion': {
-          try {
-            const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
-            const { platformVersion } = JSON.parse(appJSON)
-            return {
-              code: 1,
-              data: platformVersion
-            }
-          } catch (e) {
-            console.log(e)
-            return {
-              code: -1,
-              msg: e.message
-            }
-          }
-        }
-        case 'downloadPlatform': {
-          if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
-            fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
-          }
-          // @ts-ignore
-          fs.copyFileSync(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `./platform/${version}/mybricks-apaas.zip`), path.join(process.cwd(), '../_temp_/mybricks-apaas.zip'))
-
-          const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
-          Logger.info(shellPath)
-          const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
-            cwd: path.join(process.cwd(), '../'),
-          })
-          return {
-            code: 1,
-            msg: log.toString() || '升级成功'
-          }
-        }
-        case 'reloadPlatform': {
-          try {
-            const appJSONStr = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
-            let appJSON = JSON.parse(appJSONStr)
-            appJSON.platformVersion = version
-            fs.writeFileSync(path.join(__dirname, '../../../application.json'), JSON.stringify(appJSON, null, 2))
-            childProcess.exec(`npx pm2 reload all`)
-            return {
-              code: 1,
-            };
-          } catch(e) {
-            return {
-              code: -1,
-              msg: e.message || '升级失败'
-            }
-          }
-        }
-      }
-      return {
-        code: -1,
-        msg: '未知指令'
-      }
-    } else {
-      switch (type) {
-        case 'getCurrentPlatformVersion': {
-          try {
-            const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
-            const { platformVersion } = JSON.parse(appJSON)
-            return {
-              code: 1,
-              data: platformVersion
-            }
-          } catch (e) {
-            console.log(e)
-            return {
-              code: -1,
-              msg: e.message
-            }
-          }
-        }
-        case 'checkLatestPlatformVersion': {
-          const res = await (axios as any).post('https://my.mybricks.world/paas/api/system/channel', body)
-          return res.data
-        }
-        case 'downloadPlatform': {
-          const res = await (axios as any).get(`https://my.mybricks.world/runtime/mfs/platform/${version}/mybricks-apaas.zip`, {
-            responseType: "arraybuffer",
-          })
-          if(!fs.existsSync(path.join(process.cwd(), '../_temp_'))) {
-            fs.mkdirSync(path.join(process.cwd(), '../_temp_'))
-          }
-          fs.writeFileSync(path.join(process.cwd(), '../_temp_/mybricks-apaas.zip'), res.data);
-          
-          const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
-          Logger.info(shellPath)
-          const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
-            cwd: path.join(process.cwd(), '../'),
-          })
-          return {
-            code: 1,
-            msg: log.toString() || '升级成功'
-          }
-        }
-        case 'reloadPlatform': {
-          try {
-            const appJSONStr = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
-            let appJSON = JSON.parse(appJSONStr)
-            appJSON.platformVersion = version
-            fs.writeFileSync(path.join(__dirname, '../../../application.json'), JSON.stringify(appJSON, null, 2))
-            childProcess.exec(`npx pm2 reload all`)
-            return {
-              code: 1,
-            };
-          } catch(e) {
-            return {
-              code: -1,
-              msg: e.message || '升级失败'
-            }
-          }
-        }
-      }
-    }
-  }
-
   @Post('/system/doUpdate')
-  async doUpdate(@Body('version') version) {
-    if(!version) {
+  async doUpdate(@Body('version') version, @Body('userId') userId) {
+    if(!version || !userId) {
       return {
         code: -1,
-        msg: '缺少必要参数'
+        msg: '缺少必要参数 version、userId'
       }
     }
     const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
     Logger.info(shellPath)
     const res = await childProcess.execSync(`sh ${shellPath} ${version}`, {
       cwd: path.join(process.cwd(), '../'),
-    })
+      stdio: 'inherit'
+    });
+    await this.userLogDao.insertLog({
+      type: 10,
+      userId,
+      logContent: JSON.stringify({
+        type: 'platform',
+        action: 'install',
+        version,
+        content: `升级平台，版本号：${version}`,
+      })
+    });
     return {
       code: 1,
       msg: res.toString(),
@@ -846,6 +789,126 @@ export default class SystemService {
     childProcess.exec(`npx pm2 reload all`)
     return {
       code: 1,
+    };
+  }
+
+  @Get('/system/refactorUser')
+  async refactorUser() {
+    const tables = [
+      {
+        name: 'apaas_config',
+        fieldName: ['creator_id', 'updator_id'],
+      },
+      {
+        name: 'apaas_file',
+        fieldName: ['creator_id', 'updator_id'],
+      },
+      {
+        name: 'apaas_file_content',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'apaas_file_cooperation',
+        fieldName: ['user_id'],
+      },
+      {
+        name: 'apaas_file_pub',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'apaas_module_info',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'apaas_module_pub_info',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'apaas_project_info',
+        fieldName: [],
+      },
+      {
+        name: 'apaas_service_pub',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'apaas_user',
+        fieldName: [],
+      },
+      {
+        name: 'apaas_user_file_relation',
+        fieldName: ['creator_id', 'updator_id'],
+      },
+      {
+        name: 'apaas_user_group',
+        fieldName: ['creator_id', 'updator_id'],
+      },
+      {
+        name: 'apaas_user_group_relation',
+        fieldName: ['creator_id', 'updator_id', 'user_id'],
+      },
+      {
+        name: 'apaas_user_log',
+        fieldName: ['user_id'],
+      },
+      {
+        name: 'apaas_user_session',
+        fieldName: ['user_id'],
+      },
+      {
+        name: 'domain_table_action',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'domain_table_meta',
+        fieldName: ['creator_id'],
+      },
+      {
+        name: 'material_info',
+        fieldName: ['creator_id', 'updator_id'],
+      },
+      {
+        name: 'material_pub_info',
+        fieldName: ['creator_id', 'updator_id'],
+      }
+    ];
+    const allUser = await this.refreshDao.queryAll('apaas_user', ['email']);
+    const userMap = allUser.reduce((pre, user) => ({ ...pre, [user.email]: user.id }), {});
+    const ignoreList = [];
+
+    for (const table of tables) {
+      if (table && table.fieldName.length) {
+        const ignoreTable = { name: table.name, fields: table.fieldName, ignoreList: [] };
+        const tableInfo = await this.refreshDao.queryAll(table.name, table.fieldName);
+
+        for (const item of tableInfo) {
+          for (const field of table.fieldName) {
+            if (typeof item[field] !== 'string' || Number(item[field]) == item[field]) {
+              continue;
+            }
+            const userId = userMap[item[field]];
+
+            if (userId) {
+              await this.refreshDao.update({ table: table.name, id: item.id, value: userId, field });
+            } else {
+              ignoreTable.ignoreList.push(item.id);
+            }
+          }
+        }
+
+        if (ignoreTable.ignoreList.length) {
+          ignoreList.push(ignoreTable);
+        }
+      }
+    }
+
+    if (ignoreList.length) {
+      fs.writeFileSync(path.join(__dirname, './refreshIgnoreList.json'), JSON.stringify(ignoreList), 'utf-8');
+    }
+
+    return {
+      code: 1,
+      data: '刷新完成',
     };
   }
 }

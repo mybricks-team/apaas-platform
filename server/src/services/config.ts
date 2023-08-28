@@ -1,12 +1,15 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import ConfigDao from "../dao/config.dao";
+import UserService from '../module/user/user.service';
 
 @Controller("/paas/api")
 export default class ConfigService {
   configDao: ConfigDao;
+  userService: UserService;
 
   constructor() {
     this.configDao = new ConfigDao();
+    this.userService = new UserService()
   }
 
   @Post("/config/get")
@@ -42,26 +45,32 @@ export default class ConfigService {
 
   @Post("/config/update")
   async updateConfig(
-    @Body("userId") userId: string,
+    @Body("userId") originUserId: string,
     @Body("config") config: any,
     @Body("namespace") namespace: string,
     @Body('type') type: string,
     @Body('id') id: number,
   ) {
+    const userId = await this.userService.getCurrentUserId(originUserId);
+    const user = await this.userService.queryById({ id: userId });
     const curNamespace = type ? `${namespace}@${type}[${id}]` : namespace;
     const [curConfig] = await this.configDao.getConfig({ namespace: [curNamespace] });
+
+    if (!user) {
+      return { code: -1, msg: '用户不存在' };
+    }
 
     if (curConfig) {
       await this.configDao.update({
         config: JSON.stringify(config),
         updatorId: userId,
-        updatorName: userId,
+        updatorName: user.name || user.email || userId,
         namespace: curNamespace,
       });
     } else {
       await this.configDao.create({
         creatorId: userId,
-        creatorName: userId,
+        creatorName: user.name || user.email || userId,
         config: JSON.stringify(config),
         namespace: curNamespace,
       });

@@ -22,13 +22,14 @@ import {T_App} from '../../../../AppCtx'
 import styles from './index.less'
 
 interface AppListProps {
-	loading: boolean
-	installedApps: T_App[]
-	allApps: T_App[]
+	loading: boolean;
+	userId?: number;
+	installedApps: T_App[];
+	allApps: T_App[];
 }
 
 const AppList: FC<AppListProps> = props => {
-	const { loading, installedApps, allApps } = props
+	const { loading, installedApps, allApps, userId } = props
 	const [type, setType] = useState<'installed' | 'all'>('installed')
 	const [currentUpgrade, setCurrentUpgrade] = useState('')
 	const appList = useMemo(() => {
@@ -43,7 +44,8 @@ const AppList: FC<AppListProps> = props => {
 						operateType = 'update'
 						preVersion = curApp.version
 					} else {
-						operateType = ''
+						operateType = '';
+						app.version = curApp.version;
 					}
 				} else {
 					operateType = 'install'
@@ -57,7 +59,7 @@ const AppList: FC<AppListProps> = props => {
 		if (type === 'installed') {
 			apps = apps.filter(app => installedApps.find(a => a.namespace === app.namespace))
 		}
-		
+
 		return apps as T_App[]
 	}, [installedApps, allApps, type])
 	
@@ -104,18 +106,22 @@ const AppList: FC<AppListProps> = props => {
 									<Row key={app1.namespace} className={styles.rows} gutter={0}>
 										<Col span={12}>
 											<AppCard
+												userId={userId}
 												disabled={currentUpgrade ? currentUpgrade !== app1.namespace : false}
 												setCurrentUpgrade={setCurrentUpgrade}
 												style={index === chunk(appList, 2).length -1 ? { borderBottomWidth: 0 } : {}}
-												app={app1} />
+												app={app1}
+											/>
 										</Col>
 										<Col span={12}>
 											{app2 ? (
 												<AppCard
+													userId={userId}
 													disabled={currentUpgrade ? currentUpgrade !== app2.namespace : false}
 													setCurrentUpgrade={setCurrentUpgrade}
 													style={index === chunk(appList, 2).length -1 ? { borderBottomWidth: 0 } : {}}
-													app={app2} />
+													app={app2}
+												/>
 											) : null}
 										</Col>
 									</Row>

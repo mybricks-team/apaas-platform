@@ -74,6 +74,35 @@ export default class UserController {
     }
   }
 
+  @Post('/searchByKeyword')
+  async searchByKeyword(@Body('keyword') keyword: string) {
+    if (keyword) {
+      const list: any = await this.userDao.searchByKeyword({ keyword })
+      if (list) {
+        return {
+          code: 1,
+          data: list?.map((user) => {
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+            }
+          }),
+        };
+      } else {
+        return {
+          code: 1,
+          data: null,
+        };
+      }
+    } else {
+      return {
+        code: -1,
+        msg: `email is null`,
+      };
+    }
+  }
+
   @Get('/queryBy')
   async queryBy(@Query() query) {
     if (query.email) {
@@ -188,7 +217,7 @@ export default class UserController {
 
     Logs.info(`用户${email} 申请登录.`);
 
-    const user = await this.userDao.queryByEmail({ email });
+    const user = await this.userDao.queryByEmailWithPwd({ email })
     if (user) {
       if (user.verifyPassword(psd)) {
         Logs.info(`用户${email} 登录成功.`);
@@ -199,7 +228,7 @@ export default class UserController {
 
         return {
           code: 1,
-          data: Object.assign(user.isAdmin ? { isAdmin: 1 } : {}, {
+          data: Object.assign({}, {
             id: user.id,
             email: user.email
           }),
@@ -240,7 +269,7 @@ export default class UserController {
           // 单点
           if(userCookie?.fingerprint) {
             const sess = await this.userSessionDao.queryByUserId({ userId: userCookie.id })
-            if(sess.fingerprint !== userCookie.fingerprint) {
+            if(sess?.fingerprint !== userCookie.fingerprint) {
               return {
                 code: -1,
                 msg: '当前账号已在其他设备登录，请重新登录'
@@ -251,7 +280,7 @@ export default class UserController {
           const userCookie = JSON.parse(HAINIU_UserInfo)
           userEmail = userCookie?.email
           try {
-            userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.name
+            userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.nick
           } catch(e) {
             console.log(e)
           }
@@ -271,8 +300,10 @@ export default class UserController {
           ...userInfo,
           isAdmin: userInfo.role === 10,
         }
+        delete data.password;
+        delete data.mobilePhone;
         if (fileId) {
-          const roleDescription = await this.fileDao.getRoleDescription({userId: userEmail, fileId})
+          const roleDescription = await this.fileDao.getRoleDescription({userId: userInfo.id, fileId})
           data.roleDescription = roleDescription
         }
         
@@ -327,19 +358,19 @@ export default class UserController {
 
   @Post('/setUserRole')
   async setUserRole(
-    @Body('email') email: string,
+    @Body('userId') userId: string,
     @Body('role') role: number,
-    @Body('updator') updator: string
+    @Body('updatorId') updatorId: string
   ) {
-    if(!email || !role || !updator) {
+    if(!userId || !role || !updatorId) {
       return {
         code: -1,
         msg: '参数缺失'
       }
     }
-    const user = await this.userService.queryByEmail({ email: updator })
+    const user = await this.userDao.queryById({ id: updatorId })
     if(user.role === 10) {
-      await this.userService.setUserRole({email,role})
+      await this.userService.setUserRole({userId: userId, role})
       return {
         code: 1,
         msg: '设置成功'

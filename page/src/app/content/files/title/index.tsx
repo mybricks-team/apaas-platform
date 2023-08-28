@@ -204,9 +204,9 @@ function SearchModal({open, onCancel}) {
 
     await axios({
       method: 'get',
-      url: getApiUrl(`/api/workspace/globalSearch`),
+      url: getApiUrl(`/paas/api/workspace/globalSearch`),
       params: {
-        userId: appCtx.user.email,
+        userId: appCtx.user.id,
         name: value,
         limit: 20,
         offset: 0

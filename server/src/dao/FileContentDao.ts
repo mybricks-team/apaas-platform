@@ -18,6 +18,10 @@ export class FileContentDO {
   @Column('creator_name')
   creatorName: string;
 
+  // 只是for版本插件的虚拟字段，数据库不存在
+  @Column('creator_email')
+  creatorEmail: string;
+
   @Column('create_time')
   createTime(a) {
     return moment(a).format("YYYY-MM-DD HH:mm:ss")
@@ -86,6 +90,18 @@ export default class FileContentDao extends DOBase {
     ) as any
 
     return fileContents;
+  }
+
+  @Mapping(FileContentDO)
+  public async getLatestContentId(params: {
+    fileId: number
+  }): Promise<FileContentDO> {
+    const fileContents = await this.exe<FileContentDO[]>(
+      'apaas_file_content:getLatestContentId',
+      params
+    ) as any
+
+    return fileContents ? fileContents[0] : null;
   }
 
   @Mapping(FileContentDO)

@@ -57,8 +57,8 @@ export default function UserManageModal({ user }) {
               let role = e.target?.parentElement?.dataset?.role
               axios.post(getApiUrl('/paas/api/user/setUserRole'), {
                 role,
-                email: record.email,
-                updator: user.email
+                userId: record.id,
+                updatorId: user.id
               }).then(({data}) => {
                 if(data.code === 1) {
                   message.success('设置成功')

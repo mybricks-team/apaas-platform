@@ -14,15 +14,75 @@
         </if>
     </select>
 
+    <select id="queryByEmailWithPwd">
+        select * from apaas_user
+        where email = #{email}
+        and status = #{status}
+    </select>
+
     <select id="queryByEmail">
-        select *
+        select
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
         from apaas_user
         where email = #{email}
         and status = #{status}
     </select>
 
+    <select id="searchByKeyword">
+        select 
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
+        from apaas_user
+        where status = 1 and email like '%${keyword}%' or name like '%${keyword}%'
+    </select>
+
+    <select id="queryById">
+        select
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
+        from apaas_user
+        where id = #{id}
+        and status = #{status}
+    </select>
+
     <select id="queryByRoleAndName">
-        select * from apaas_user where status = 1
+        select 
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
+        from apaas_user where status = 1
         <if test="role">
             and role = #{role}
         </if>
@@ -34,7 +94,7 @@
     </select>
 
     <select id="queryByEmails">
-        select name, email, avatar  
+        select id, name, email, avatar
         from apaas_user
         where status = #{status}
         and email in 
@@ -44,6 +104,21 @@
         order by field (email, 
             <foreach collection="emails" open="" close="" separator="," item="email" index="i">
                 #{email}
+            </foreach>
+        )
+    </select>
+
+    <select id="queryByIds">
+        select id, name, email, avatar
+        from apaas_user
+        where status = #{status}
+        and id in
+            <foreach collection="ids" open="(" close=")" separator="," item="id" index="i">
+                #{id}
+            </foreach>
+        order by field (id,
+            <foreach collection="ids" open="" close="" separator="," item="id" index="i">
+                #{id}
             </foreach>
         )
     </select>
@@ -91,7 +166,18 @@
     </insert>
 
     <select id="queryAll">
-        select * from apaas_user
+        select
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
+        from apaas_user
         where
         status = 1
     </select>
@@ -128,11 +214,22 @@
             role = #{role},
             update_time = #{updateTime}
         where
-            email = #{email} and
+            id = #{userId} and
             status = 1
     </update>
 
     <select id="getGroupOwnerInfo">
-        select * from apaas_user where email in (select creator_id from apaas_user_group where id = #{groupId})
+        select 
+            id,
+            name,
+            email,
+            mobile_phone,
+            license_code,
+            role,
+            avatar,
+            create_time,
+            status,
+            update_time 
+        from apaas_user where id in (select creator_id from apaas_user_group where id = #{groupId})
     </select>
 </mapper>
