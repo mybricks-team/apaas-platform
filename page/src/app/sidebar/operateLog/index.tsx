@@ -15,6 +15,8 @@ const OperateLog: FC = () => {
       {
         title: '操作端',
         dataIndex: 'type',
+        width: 120,
+        fixed: 'left',
         render(_, item) {
           if (item.type === 10) {
             return '平台';
@@ -28,6 +30,7 @@ const OperateLog: FC = () => {
       {
         title: '操作类型',
         dataIndex: 'logContent.action',
+        width: 120,
         render(_, item) {
           if (item.type === 10) {
             return '更新平台';
@@ -41,6 +44,7 @@ const OperateLog: FC = () => {
       {
         title: '更新内容',
         dataIndex: 'logContent.content',
+        width: 300,
         render(_, item) {
           return item.logContent?.content || '-';
         },
@@ -48,6 +52,7 @@ const OperateLog: FC = () => {
       {
         title: '操作时间',
         dataIndex: 'createTime',
+        width: 180,
         render(createTime) {
           return createTime ? moment(createTime).format('YYYY-MM-DD HH:mm:ss') : '-';
         },
@@ -55,6 +60,8 @@ const OperateLog: FC = () => {
       {
         title: '操作者',
         dataIndex: 'userName',
+        width: 120,
+        fixed: 'right',
         render(userName) {
           return userName || '-';
         },
@@ -97,6 +104,7 @@ const OperateLog: FC = () => {
     <div className={style.operateLogModal}>
       <Table 
         columns={columns} 
+        scroll={{ x: 1000 }}
         dataSource={dataSource}
         onChange={(_pagination) => {
           _getData({
