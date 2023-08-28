@@ -396,7 +396,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
         { APaaS }
       </span>
        Platform</p>
-      <p style={{textAlign: 'center'}}>当前平台版本是: <span style={{color: 'rgb(22, 119, 255)'}}>{currentPlatformVersion}</span></p>
+      <p style={{textAlign: 'center'}}>当前版本是： <span style={{color: 'rgb(22, 119, 255)'}}>{currentPlatformVersion}</span></p>
       <div style={{display: 'flex', justifyContent: 'center', marginTop: 8}}>
         <Button
           loading={checkLoading}
