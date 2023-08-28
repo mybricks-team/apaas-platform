@@ -17,6 +17,9 @@
     },
     "/paas/api/system/channel:POST": {
       "ignore": true
+    },
+    "/paas/api/apps/update:POST": {
+      "ignore": true
     }
   }
 }
