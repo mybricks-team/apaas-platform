@@ -4,6 +4,7 @@ import DomainModule from "./module/domain/domain.module";
 import ServerModule from "./module/server/server.module";
 import AuthModule from "./module/auth/auth.module";
 import StaticServeModule from "./module/staticServe/staticServe.module";
+import UniModule from "./module/universal/universal.module";
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import StaticServeModule from "./module/staticServe/staticServe.module";
     DomainModule,
     ServerModule,
     AuthModule,
-    StaticServeModule
+    StaticServeModule,
+    UniModule
   ],
   controllers: [
   ],
