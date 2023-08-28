@@ -1,5 +1,5 @@
 import ServicePubDao from './../../dao/ServicePubDao';
-import {Body, Controller, Get, Inject, Post, Query, Req} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Query, Req} from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
 import AppDao from '../../dao/AppDao';
@@ -10,13 +10,14 @@ import { Logger } from '@mybricks/rocker-commons';
 import { createVM } from 'vm-node';
 import FileService from '../file/file.controller'
 import * as axios from "axios";
+import platformEnvUtils from '../../utils/env'
+import RefreshDao from "../../dao/RefreshDao";
+import UserLogDao from "../../dao/UserLogDao";
+
 const childProcess = require('child_process');
 const path = require('path')
 const fs = require('fs')
 const env = require('../../../env')
-import platformEnvUtils from '../../utils/env'
-import RefreshDao from "../../dao/RefreshDao";
-import UserLogDao from "../../dao/UserLogDao";
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -438,6 +439,51 @@ export default class SystemService {
       headers: req.headers
     })
     return res
+  }
+
+  // 领域建模运行时
+  @Post('/system/domain/run/:fileId/:serviceId')
+  async systemDomainRunById_Post(
+    // 通用参数
+    @Body() params: any,
+    @Query() query: any,
+    @Req() req: any,
+    @Param('fileId') fileId: number,
+    @Param('serviceId') serviceId: string,
+  ) {
+    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+      fileId,
+      env: 'prod',
+      serviceId,
+    })
+    return await this._execServicePub(pubInfo, {
+      fileId,
+      serviceId,
+      params: { ...(query || {}), ...(params || {}) },
+      headers: req.headers
+    })
+  }
+
+  // 领域建模运行时
+  @Get('/system/domain/run/:fileId/:serviceId')
+  async systemDomainRunById_Get(
+    // 通用参数
+    @Query() params: any,
+    @Req() req: any,
+    @Param('fileId') fileId: number,
+    @Param('serviceId') serviceId: string,
+  ) {
+    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+      fileId,
+      env: 'prod',
+      serviceId,
+    })
+    return await this._execServicePub(pubInfo, {
+      fileId,
+      serviceId,
+      params,
+      headers: req.headers
+    })
   }
 
   @Post('/system/domain/execSql')

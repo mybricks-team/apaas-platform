@@ -117,4 +117,112 @@ export default class FlowController {
     }
   }
 
+  // 领域建模运行时(运行时)
+  @Post('/service/run/:projectId/:fileId/:serviceId')
+  async systemDomainRunById_Post(
+    @Body() params: any,
+    @Query() query: any,
+    @Param('projectId') projectId: number,
+    @Param('fileId') fileId: number,
+    @Param('serviceId') serviceId: string,
+    @Req() req: any
+  ) {
+    if (!serviceId) {
+      return {
+        code: -1,
+        msg: '缺少 serviceId',
+      };
+    }
+    let readyExePath;
+    try {
+      const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
+      readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
+      console.log('运行容器：readyExePath', readyExePath)
+      const { startExe } = require(readyExePath)
+      console.log('运行容器：获取可执行方法成功')
+      const con = new DOBase();
+      const pool = getPool()
+      console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`)
+      console.log('运行容器：获取连接成功')
+      let res = await startExe({
+        ...(query || {}),
+        ...(params || {}),
+        _options: {
+          _headers: req.headers,
+          axios: require('axios')
+        }
+      }, {
+        dbConnection: con,
+        snowFlake: this.snowFlake,
+        /** 加密函数 */
+        encrypt,
+        decrypt,
+      })
+      console.log('运行容器：运行完毕')
+      return {
+        code: 1,
+        data: res
+      }
+    } catch (e) {
+      console.log('运行容器：运行出错了', e.message)
+      return {
+        code: -1,
+        msg: `${typeof e === 'string' ? e : e.message}`
+      }
+    }
+  }
+
+  // 领域建模运行时(运行时)
+  @Post('/service/run/:projectId/:fileId/:serviceId')
+  async systemDomainRunById_Get(
+    @Query() params: any,
+    @Param('projectId') projectId: number,
+    @Param('fileId') fileId: number,
+    @Param('serviceId') serviceId: string,
+    @Req() req: any
+  ) {
+    if (!serviceId) {
+      return {
+        code: -1,
+        msg: '缺少 serviceId',
+      };
+    }
+    let readyExePath;
+    try {
+      const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
+      readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
+      console.log('运行容器：readyExePath', readyExePath)
+      const { startExe } = require(readyExePath)
+      console.log('运行容器：获取可执行方法成功')
+      const con = new DOBase();
+      const pool = getPool()
+      console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`)
+      console.log('运行容器：获取连接成功')
+      let res = await startExe({
+        ...(params || {}),
+        _options: {
+          _headers: req.headers,
+          axios: require('axios')
+        }
+      }, {
+        dbConnection: con,
+        snowFlake: this.snowFlake,
+        /** 加密函数 */
+        encrypt,
+        decrypt,
+      })
+      console.log('运行容器：运行完毕')
+      return {
+        code: 1,
+        data: res
+      }
+    } catch (e) {
+      console.log('运行容器：运行出错了', e.message)
+      return {
+        code: -1,
+        msg: `${typeof e === 'string' ? e : e.message}`
+      }
+    }
+  }
+
 }
