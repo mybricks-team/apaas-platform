@@ -486,6 +486,55 @@ export default class SystemService {
     })
   }
 
+  // 领域建模运行时
+  @Post('/system/domain/run/:fileId/:serviceId/:action')
+  async systemDomainRunById_Action_Post(
+    // 通用参数
+    @Body() params: any,
+    @Query() query: any,
+    @Req() req: any,
+    @Param('fileId') fileId: number,
+    @Param('action') action: string,
+    @Param('serviceId') serviceId: string,
+  ) {
+    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+      fileId,
+      env: 'prod',
+      serviceId,
+    });
+
+    return await this._execServicePub(pubInfo, {
+      fileId,
+      serviceId,
+      params: { ...(query || {}), ...(params || {}), action },
+      headers: req.headers
+    })
+  }
+
+  // 领域建模运行时
+  @Get('/system/domain/run/:fileId/:serviceId/:action')
+  async systemDomainRunById_Action_Get(
+    // 通用参数
+    @Query() params: any,
+    @Req() req: any,
+    @Param('fileId') fileId: number,
+    @Param('serviceId') serviceId: string,
+    @Param('action') action: string,
+  ) {
+    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+      fileId,
+      env: 'prod',
+      serviceId,
+    });
+
+    return await this._execServicePub(pubInfo, {
+      fileId,
+      serviceId,
+      params: { ...(params || {}), action },
+      headers: req.headers
+    })
+  }
+
   @Post('/system/domain/execSql')
   async execSql(
     @Body('sql') sql: string,
