@@ -1,6 +1,6 @@
 {
   "name": "mybricks-apaas-platform",
-  "version": "0.0.82",
+  "version": "0.0.83",
   "description": "",
   "scripts": {
     "build": "cd page && npm install && npm run build",
@@ -8,7 +8,7 @@
     "zip:server-runtime": "node ./server-runtime/zip.js",
     "zip:update": "npm run build && node ./zip.js",
     "zip:deploy": "npm run build && node ./zip_deploy.js",
-    "deploy:fangzhou": "sh deploy_fangzhou.sh",
+    "deploy:fangzhou": "bash deploy_fangzhou.sh",
     "publishToNpm": "npm run zip:update && npm publish --registry=https://registry.npmjs.org && node sync.js --origin=https://my.mybricks.world"
   },
   "files": [

@@ -660,7 +660,7 @@ export default class SystemService {
             
             const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
             Logger.info(shellPath)
-            const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
+            const log = await childProcess.execSync(`bash ${shellPath} ${version}`, {
               cwd: path.join(process.cwd(), '../'),
               stdio: 'inherit'
             });
