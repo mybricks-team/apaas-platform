@@ -204,7 +204,7 @@ const OssForm = ({ initialValues, onSubmit, style }) => {
           initialValue=""
           label="开启OSS上传"
           name="openOss"
-          extra="开启后搭建应用内的资源（比如图片）将会上传到OSS系统中"
+          extra={<p style={{ fontSize: 13 }}>开启后<span style={{ color: '#222222', fontWeight: 500 }}> 搭建时的静态资源（比如图片、文件等）</span>将会上传到OSS系统中，<span style={{ color: '#faad14', fontWeight: 500 }}>请务必保证配置正确！</span></p>}
         >
           <Switch checked={openOss} />
         </Form.Item>
@@ -466,7 +466,7 @@ export default () => {
   const menuItems = useMemo((): MenuItem[] => {
     let defaultItems = [
       { title: '全局设置', namespace: 'system', icon: <SettingOutlined /> },
-      { title: '存储设置', namespace: 'mybricks-oss-config', icon: <OssIcon />},
+      { title: '资源存储', namespace: 'mybricks-oss-config', icon: <OssIcon />},
       { title: '运行日志', namespace: 'mybricks-log', icon: <LogIcon />},
       { title: '关于', namespace: 'about', icon: <InfoCircleOutlined /> }
     ]
