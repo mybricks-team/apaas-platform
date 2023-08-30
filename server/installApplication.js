@@ -292,6 +292,7 @@ async function installApplication() {
               })
               })).data
             const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
+            console.log(`[install]: 资源包下载成功 ${tempPathZipFile}}`)
             fs.writeFileSync(tempPathZipFile, Buffer.from(res.data.data));
             cp.execSync(`cd ${tempFolder} && unzip -o ${tempPathZipFile} -d ${destAppDir}`)
           } catch(e) {
@@ -311,6 +312,7 @@ async function installApplication() {
             fePath = path.join(srcAppDir, './assets')
             if(fs.existsSync(bePath)) {
               try{
+                console.log(`开始安装依赖,请稍后 ${pkgName} ${NPM_REGISTRY}`)
                 if(isYarnExist()) {
                   cp.execSync(`cd ${srcAppDir} && yarn install --prod --registry=${NPM_REGISTRY}`, { stdio: 'inherit' })
                 } else {

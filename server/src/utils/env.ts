@@ -17,8 +17,7 @@ export default {
     return process.env.PLATFORM_HOSTNAME === 'FANGZHOU';
   },
   getAppInstallFolder() {
-    const ENV = process.env.NODE_ENV;
-    const APPS_BASE_FOLDER = (ENV === 'staging' || ENV === 'production') ? '/kwaishop-fangzhou-apaas-platform-service/apaas/_apps' : path.join(process.cwd(), "../_apps");
+    const APPS_BASE_FOLDER = process.env.PLATFORM_HOSTNAME === 'FANGZHOU' ? '/kwaishop-fangzhou-apaas-platform-service/apaas/_apps' : path.join(process.cwd(), "../_apps");
     return APPS_BASE_FOLDER
   }
 };
