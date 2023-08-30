@@ -660,7 +660,7 @@ export default class SystemService {
             
             const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
             Logger.info(shellPath)
-            const log = await childProcess.execSync(`sh ${shellPath} ${version}`, {
+            const log = await childProcess.execSync(`bash ${shellPath} ${version}`, {
               cwd: path.join(process.cwd(), '../'),
               stdio: 'inherit'
             });
@@ -752,37 +752,6 @@ export default class SystemService {
       }
     }
   }
-
-  @Post('/system/doUpdate')
-  async doUpdate(@Body('version') version, @Body('userId') userId) {
-    if(!version || !userId) {
-      return {
-        code: -1,
-        msg: '缺少必要参数 version、userId'
-      }
-    }
-    const shellPath = path.join(process.cwd(), '../upgrade_platform.sh')
-    Logger.info(shellPath)
-    const res = await childProcess.execSync(`sh ${shellPath} ${version}`, {
-      cwd: path.join(process.cwd(), '../'),
-      stdio: 'inherit'
-    });
-    await this.userLogDao.insertLog({
-      type: 10,
-      userId,
-      logContent: JSON.stringify({
-        type: 'platform',
-        action: 'install',
-        version,
-        content: `升级平台，版本号：${version}`,
-      })
-    });
-    return {
-      code: 1,
-      msg: res.toString(),
-    };
-  }
-
 
   @Post('/system/reloadAll')
   async reloadAll() {

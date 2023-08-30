@@ -49,7 +49,7 @@
 
 ```shell
 cd server
-sudo sh ./deploy.sh
+sudo bash ./deploy.sh
 ```
 
 4. 安装过程中查看服务器端的输出日志，出现如下字样了，即可打开浏览器，输入反向代理后的地址,例如：https://mybricks.world
