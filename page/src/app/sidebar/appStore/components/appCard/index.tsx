@@ -56,14 +56,13 @@ const AppCard: FC<AppCardProps> = props => {
 	
 	/** 轮询判断应用安装状态 */
 	const checkUpgradeStatus = useCallback((appInfo, immediate = false) => {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { icon, description, ...otherInfo } = appInfo
+		const { namespace, version } = appInfo
 		
 		setTimeout(() => {
 			axios({
 				method: 'get',
 				url: '/paas/api/apps/update/status',
-				params: otherInfo,
+				params: { namespace, version },
 				// timeout: 3000,
 			}).then(res => {
 				if (res.data.code === 1) {
