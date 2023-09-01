@@ -12,7 +12,6 @@ import AppsService from "./services/apps";
 import FilePubDao from "./dao/filePub.dao";
 import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
-import PublicService from "./services/public";
 import UserGroupService from "./services/group";
 import proxy from './services/proxy'
 
@@ -54,8 +53,7 @@ import LogModule from './module/log/log.module'
     TaskController,
     ConfigService,
     AppsService,
-    HomeService,
-    PublicService
+    HomeService
   ],
   providers: [
     TaskService,
