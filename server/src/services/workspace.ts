@@ -160,7 +160,11 @@ export default class WorkspaceService {
 
       return {
         code: 1,
-        data: Object.assign({}, rtn, { updatorName: user?.name || user?.email || rtn.updatorName, content: content?.content, version: content?.version || null }),
+        data: Object.assign({}, rtn, { 
+          updatorName: user?.name || user?.email || rtn.updatorName, 
+          content: content?.content, 
+          version: content?.version || null 
+        }),
       };
     } catch (ex) {
       return {

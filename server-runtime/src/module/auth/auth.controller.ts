@@ -190,7 +190,7 @@ export default class AuthController {
       console.log('运行容器：获取连接成功');
       const pool = getPool();
       console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`);
-      let res = await startExe(body, { dbConnection: con, encrypt, decrypt });
+      let res = await startExe(body, { dbConnection: con, genUniqueId: genMainIndexOfDB, encrypt, decrypt });
       console.log('运行容器：运行完毕', res?.凭证);
       if(res?.凭证) {
         response.cookie('token', res?.凭证)
