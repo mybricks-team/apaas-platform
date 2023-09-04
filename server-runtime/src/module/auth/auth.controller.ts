@@ -7,8 +7,10 @@ import {
   Query,
   Param,
   Request,
-  Req
+  Req,
+  Res
 } from '@nestjs/common';
+import { Response } from 'express';
 import AuthService from './auth.service';
 import { genMainIndexOfDB } from '../../utils';
 import { decrypt, encrypt } from '../../utils/crypto';
@@ -165,7 +167,8 @@ export default class AuthController {
   @Post('/login')
   async login(
     @Body() body: Record<string, unknown>,
-    @Req() req: any
+    @Req() req: any,
+    @Res({ passthrough: true }) response: Response
   ) {
     let readyExePath;
     if(!body.projectId) {
@@ -188,7 +191,10 @@ export default class AuthController {
       const pool = getPool();
       console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`);
       let res = await startExe(body, { dbConnection: con, encrypt, decrypt });
-      console.log('运行容器：运行完毕');
+      console.log('运行容器：运行完毕', res?.凭证);
+      if(res?.凭证) {
+        response.cookie('token', res?.凭证)
+      }
 			
       return res ? { code: 1, data: res } : { code: -1, msg: '用户不存在' };
     } catch (e) {
@@ -201,7 +207,8 @@ export default class AuthController {
   @Post('/register')
   async register(
     @Body() body: Record<string, unknown>,
-    @Req() req: any
+    @Req() req: any,
+    @Res({ passthrough: true }) response: Response
   ) {
     let readyExePath;
     if(!body.projectId) {
@@ -235,7 +242,9 @@ export default class AuthController {
       console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`);
       let res = await startExe(body, { dbConnection: con, genUniqueId: genMainIndexOfDB, entity, encrypt, decrypt });
       console.log('运行容器：运行完毕');
-			
+      if(res?.凭证) {
+        response.cookie('token', res?.凭证)
+      }
       return res ? { code: 1, data: res } : { code: -1, msg: '注册失败' };
     } catch (e) {
       console.log('运行容器：运行出错了', e.message);
