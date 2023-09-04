@@ -198,8 +198,11 @@ export default class AuthController {
       console.log('运行容器：运行完毕', res?.凭证);
       if(res?.凭证) {
         response.cookie('token', res?.凭证, {
-          path: '/runtime/mfs/project/' + body.projectId,
-          httpOnly: true
+          path: '/runtime/api',
+          httpOnly: true,
+          maxAge: 1000 * 24 * 60 * 60 * 1000,
+          secure: true,
+          sameSite: 'Lax'
         })
       }
 			
@@ -251,8 +254,11 @@ export default class AuthController {
       console.log('运行容器：运行完毕');
       if(res?.凭证) {
         response.cookie('token', res?.凭证, {
-          path: '/runtime/mfs/project/' + body.projectId,
-          httpOnly: true
+          path: '/runtime/api',
+          httpOnly: true,
+          maxAge: 1000 * 24 * 60 * 60 * 1000,
+          secure: true,
+          sameSite: 'Lax'
         })
       }
       return res ? { code: 1, data: res } : { code: -1, msg: '注册失败' };
