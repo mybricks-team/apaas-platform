@@ -14,6 +14,7 @@ import { Response } from 'express';
 import AuthService from './auth.service';
 import { genMainIndexOfDB } from '../../utils';
 import { decrypt, encrypt } from '../../utils/crypto';
+import SessionService from "../session/session.service";
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
@@ -23,6 +24,8 @@ const { getConnection, DOBase, getPool } = require("@mybricks/rocker-dao");
 export default class AuthController {
   @Inject()
   authService: AuthService;
+  @Inject()
+  sessionService: SessionService;
 
   // 老代码，逐步废弃，暂时不删
   _getSysAuthInfo_old(projectId: number) {
@@ -111,6 +114,7 @@ export default class AuthController {
       }
     }
     try {
+      await this.sessionService.checkUserSession(projectId, req);
       const sysAdminConfig = await this._getSysAdminConfig(projectId);
       if(sysAdminConfig) {
         // 判断是不是超管登陆
@@ -263,6 +267,7 @@ export default class AuthController {
     return json
   }
 
+  // TODO: 生成 token
   @Post('/admin/login')
   async adminLogin(
     @Body('userName') userName: number,
