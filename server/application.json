@@ -26,15 +26,15 @@
     },
     {
       "type": "oss",
-      "version": "0.2.55",
+      "version": "0.2.64",
       "namespace": "mybricks-domain",
-      "path": "asset-center/asset/app/mybricks-domain/0.2.55/mybricks-domain.zip"
+      "path": "asset-center/asset/app/mybricks-domain/0.2.64/mybricks-domain.zip"
     },
     {
       "type": "oss",
-      "version": "0.1.23",
+      "version": "0.1.24",
       "namespace": "mybricks-app-website",
-      "path": "asset-center/asset/app/mybricks-app-website/0.1.23/mybricks-app-website.zip"
+      "path": "asset-center/asset/app/mybricks-app-website/0.1.24/mybricks-app-website.zip"
     },
     {
       "type": "npm",

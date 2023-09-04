@@ -14,7 +14,7 @@ export default class SessionService {
 
 		const token = req.cookies?.token;
 
-		if (token) {
+		if (!token) {
 			throw new Error('登录信息失效，请重新登录');
 		} else {
 			const dbConnection = new DOBase();
