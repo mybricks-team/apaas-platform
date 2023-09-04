@@ -7,6 +7,7 @@ import AppDao from '../dao/AppDao';
 import * as axios from 'axios';
 import env from '../utils/env'
 import UserLogDao from '../dao/UserLogDao';
+import { lockUpgrade } from '../utils/lock';
 
 @Controller("/paas/api/apps")
 export default class AppsService {
@@ -211,6 +212,16 @@ export default class AppsService {
 
   @Post("/update")
   async appUpdate(@Body() body, @Req() req) {
+    try {
+      await lockUpgrade()
+    } catch(e) {
+      Logger.info(e)
+      return {
+        code: -1,
+        msg: '当前已有升级任务，请稍后重试'
+      }
+    }
+
     const { namespace, version, isFromCentral, userId } = body;
     const applications = require(path.join(process.cwd(), './application.json'));
 

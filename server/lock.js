@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const lockFile = 'lock.lock';
+const lockFile = '/Users/andyzou/Work/registry/mybricks-team/apaas-platform/_localstorage/_lock_.lock';
 
 function lock(callback) {
   // 打开文件
