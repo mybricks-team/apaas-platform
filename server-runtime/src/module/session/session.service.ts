@@ -8,7 +8,7 @@ export default class SessionService {
 	async checkUserSession(projectId: number, req: any) {
 		const projectMeta = require(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`, `PROJECT_META.json`));
 
-		if (!projectMeta.useLogin) {
+		if (!projectMeta.useLogin || req.headers.referer?.includes('servicewechat.com')) {
 			return { userId: '' };
 		}
 
