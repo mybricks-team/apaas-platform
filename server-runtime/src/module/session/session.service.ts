@@ -6,10 +6,15 @@ const env = require('../../../env.js')
 @Injectable()
 export default class SessionService {
 	async checkUserSession(projectId: number, req: any) {
+		// 优先判断小程序，等小程序上线改造后，再和后面的逻辑合并
+		if (req.headers.referer?.includes('servicewechat.com') || req.headers?.['super'] === 'll') {
+			console.log('小程序端不需要登录态')
+			return { userId: '' };
+		}
 		const projectMeta = require(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`, `PROJECT_META.json`));
 
-		if (!projectMeta.useLogin || req.headers.referer?.includes('servicewechat.com') || req.headers?.['super'] === 'll') {
-			console.log('小程序端不需要登录态')
+		if (!projectMeta.useLogin) {
+			console.log('聚合页未开启登录态校验')
 			return { userId: '' };
 		}
 
