@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 const { DOBase } = require("@mybricks/rocker-dao");
 const path = require('path');
 const env = require('../../../env.js')
+import { STATUS_CODE } from '../../const';
 
 @Injectable()
 export default class SessionService {
@@ -21,7 +22,10 @@ export default class SessionService {
 		const token = req.cookies?.token;
 
 		if (!token) {
-			throw new Error('登录信息失效，请重新登录');
+			return {
+				code: STATUS_CODE.LOGIN_OUT_OF_DATE,
+				msg: '登录信息失效，请重新登录'
+			}
 		} else {
 			const dbConnection = new DOBase();
 			const _execSQL = async (sql, { args }) => {
@@ -35,7 +39,10 @@ export default class SessionService {
 			const [session] = await _execSQL(`SELECT id, 系统用户, 凭证 FROM D_${projectId}_用户登录态_VIEW WHERE _STATUS_DELETED = 0 AND 凭证 = '${token}' ORDER BY id DESC LIMIT 1;`, { args: {} });
 
 			if (!session) {
-				throw new Error('登录信息失效，请重新登录');
+				return {
+					code: STATUS_CODE.LOGIN_OUT_OF_DATE,
+					msg: '登录信息失效，请重新登录'
+				}
 			} else {
 				return { userId: session.系统用户 };
 			}

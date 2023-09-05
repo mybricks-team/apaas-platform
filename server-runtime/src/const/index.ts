@@ -1,0 +1,8 @@
+const STATUS_CODE = {
+  SUCCESS: 1,
+  LOGIN_OUT_OF_DATE: 100001, 
+}
+
+export {
+  STATUS_CODE
+}

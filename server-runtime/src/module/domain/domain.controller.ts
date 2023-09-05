@@ -19,6 +19,7 @@ const env = require('../../../env.js')
 const fs = require('fs');
 const { getConnection, DOBase, getPool } = require("@mybricks/rocker-dao");
 const { SnowFlake } = require('gen-uniqueid');
+import { STATUS_CODE } from '../../const';
 
 @Controller('/runtime/api/domain')
 export default class FlowController {
@@ -84,7 +85,11 @@ export default class FlowController {
     }
     let readyExePath;
     try {
-      const { userId } = await this.sessionService.checkUserSession(projectId, req);
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+        return sessionRes
+      }
+      const { userId } = sessionRes;
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       console.log('运行容器：readyExePath', readyExePath)
@@ -140,7 +145,11 @@ export default class FlowController {
     }
     let readyExePath;
     try {
-      const { userId } = await this.sessionService.checkUserSession(projectId, req);
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+        return sessionRes
+      }
+      const { userId } = sessionRes;
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       console.log('运行容器：readyExePath', readyExePath)
@@ -196,7 +205,12 @@ export default class FlowController {
     }
     let readyExePath;
     try {
-      const { userId } = await this.sessionService.checkUserSession(projectId, req);
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+        return sessionRes
+      }
+      const { userId } = sessionRes;
+      
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       console.log('运行容器：readyExePath', readyExePath)
@@ -253,7 +267,12 @@ export default class FlowController {
     }
     let readyExePath;
     try {
-      const { userId } = await this.sessionService.checkUserSession(projectId, req);
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+        return sessionRes
+      }
+      const { userId } = sessionRes;
+
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       console.log('运行容器：readyExePath', readyExePath)
@@ -311,7 +330,12 @@ export default class FlowController {
     }
     let readyExePath;
     try {
-      const { userId } = await this.sessionService.checkUserSession(projectId, req);
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+        return sessionRes
+      }
+      const { userId } = sessionRes;
+
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       console.log('运行容器：readyExePath', readyExePath)

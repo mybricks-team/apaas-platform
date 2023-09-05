@@ -114,7 +114,10 @@ export default class AuthController {
       }
     }
     try {
-      await this.sessionService.checkUserSession(projectId, req);
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === 100001) {
+        return sessionRes
+      }
       const sysAdminConfig = await this._getSysAdminConfig(projectId);
       if(sysAdminConfig) {
         // 判断是不是超管登陆
