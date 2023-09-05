@@ -207,6 +207,7 @@ export default class AuthController {
           secure: true,
           sameSite: 'Lax'
         })
+        delete res?.凭证
       }
 			
       return res ? { code: 1, data: res } : { code: -1, msg: '用户不存在' };
@@ -263,6 +264,7 @@ export default class AuthController {
           secure: true,
           sameSite: 'Lax'
         })
+        delete res?.凭证
       }
       return res ? { code: 1, data: res } : { code: -1, msg: '注册失败' };
     } catch (e) {
