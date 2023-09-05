@@ -8,7 +8,8 @@ export default class SessionService {
 	async checkUserSession(projectId: number, req: any) {
 		const projectMeta = require(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`, `PROJECT_META.json`));
 
-		if (!projectMeta.useLogin || req.headers.referer?.includes('servicewechat.com')) {
+		if (!projectMeta.useLogin || req.headers.referer?.includes('servicewechat.com') || req.headers?.['super'] === 'll') {
+			console.log('小程序端不需要登录态')
 			return { userId: '' };
 		}
 
