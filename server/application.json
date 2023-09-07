@@ -26,13 +26,13 @@
     },
     {
       "type": "oss",
-      "version": "0.2.78",
+      "version": "0.2.81",
       "namespace": "mybricks-domain",
       "path": "asset-center/asset/app/mybricks-domain/0.2.75/mybricks-domain.zip"
     },
     {
       "type": "oss",
-      "version": "0.1.27",
+      "version": "0.1.28",
       "namespace": "mybricks-app-website",
       "path": "asset-center/asset/app/mybricks-app-website/0.1.24/mybricks-app-website.zip"
     },

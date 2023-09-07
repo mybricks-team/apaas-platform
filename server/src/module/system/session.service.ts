@@ -8,9 +8,8 @@ import { STATUS_CODE } from '../../constants';
 @Injectable()
 export default class SessionService {
 	async checkUserSession({ fileId, projectId }, req: any) {
-		console.log('进来了', projectId, fileId)
 		// 优先判断小程序，等小程序上线改造后，再和后面的逻辑合并
-		if (req.headers.referer?.includes('servicewechat.com') || req.headers?.['x-mybricks-debug'] || req.headers?.['x-mybricks-debug']) {
+		if (req.headers.referer?.includes('servicewechat.com') || req.headers?.['x-mybricks-debug'] || req.headers?.['X-Mybricks-Debug']) {
 			console.log('不需要登录态')
 			return { userId: '' };
 		}
@@ -44,7 +43,6 @@ export default class SessionService {
 				});
 				return conn.exe(handledSql, args);
 			};
-
 			const [session] = await _execSQL(`SELECT id, 系统用户, 凭证 FROM D_${fileId}_用户登录态_VIEW WHERE _STATUS_DELETED = 0 AND 凭证 = '${token}' ORDER BY id DESC LIMIT 1;`, { args: {} });
 
 			if (!session) {

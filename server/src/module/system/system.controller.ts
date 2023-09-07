@@ -1,5 +1,6 @@
 import ServicePubDao from './../../dao/ServicePubDao';
-import {Body, Controller, Get, Param, Post, Query, Req} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Query, Req, Res} from '@nestjs/common';
+import { Response } from 'express';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
 import AppDao from '../../dao/AppDao';
@@ -351,11 +352,12 @@ export default class SystemService {
     @Body('params') params: any,
     @Body('fileId') fileId: number,
     @Body('projectId') projectId: number,
-    @Req() req: any
+    @Req() req: any,
+    @Res({ passthrough: true }) response: Response
   ) {
-    let sessionRes = {};
+    let sessionRes: any = {};
     // 如果是项目下，需要检测登录态，否则不需要
-    if(projectId) {
+    if(serviceId !== 'login' && serviceId !== 'register') {
       sessionRes = await this.sessionService.checkUserSession({ fileId, projectId }, req);
     }
     if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
@@ -381,6 +383,25 @@ export default class SystemService {
       userId,
       headers: req.headers
     })
+    if(( serviceId === 'login' || serviceId === 'register' ) && res?.data?.凭证) {
+      // 因为存量接口所有这里兼容，种两种cookie
+      response.cookie('token', res?.data?.凭证, {
+        path: '/paas/api/system',
+        httpOnly: true,
+        maxAge: 1000 * 24 * 60 * 60 * 1000,
+        secure: true,
+        sameSite: 'Lax'
+      })
+      response.cookie('token', res?.data?.凭证, {
+        path: '/api/system',
+        httpOnly: true,
+        maxAge: 1000 * 24 * 60 * 60 * 1000,
+        secure: true,
+        sameSite: 'Lax'
+      })
+      delete res?.data?.凭证
+    }
+    
     return res
   }
 
