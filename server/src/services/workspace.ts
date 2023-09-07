@@ -218,6 +218,11 @@ export default class WorkspaceService {
             filename: 'admin_login.html',
             folderPath: `/project/${rtn.id}`,
           })
+          await this.uploadService.saveFile({
+            str: fs.readFileSync(path.join(__dirname, './SYS_ADMIN_LOGIN.html'), "utf-8"),
+            filename: 'admin_login.html',
+            folderPath: `/staging/project/${rtn.id}`,
+          })
         }
 			}
 
