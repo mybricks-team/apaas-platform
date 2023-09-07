@@ -15,9 +15,7 @@ export default class SessionService {
 		}
 		const metaPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`, `PROJECT_META.json`);
 
-		try {
-			fs.accessSync(metaPath, fs.constants.F_OK);
-		} catch (err) {
+		if (!fs.existsSync(metaPath)) {
 			/** 文件不存在 */
 			console.log('PROJECT_META.json 文件不存在');
 			return { userId: '' };
