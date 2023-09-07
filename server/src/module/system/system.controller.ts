@@ -13,6 +13,8 @@ import * as axios from "axios";
 import platformEnvUtils from '../../utils/env'
 import RefreshDao from "../../dao/RefreshDao";
 import UserLogDao from "../../dao/UserLogDao";
+import SessionService from './session.service';
+import { STATUS_CODE } from '../../constants'
 
 const childProcess = require('child_process');
 const path = require('path')
@@ -37,6 +39,8 @@ export default class SystemService {
 
   nodeVMIns: any;
 
+  sessionService: SessionService;
+
   constructor() {
     this.fileDao = new FileDao();
     this.filePubDao = new FilePubDao();
@@ -47,6 +51,7 @@ export default class SystemService {
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
+    this.sessionService = new SessionService()
   }
 
   checkSqlValid(sql) {
@@ -124,96 +129,6 @@ export default class SystemService {
         }
       });
     });
-  }
-
-  // 流水线应用运行时：用于页面发布流程定制
-  @Post('/system/task/run')
-  async systemTaskRun(
-    @Body('fileId') fileId: string,
-    @Body('version') version: string,
-    @Body('injectParam') injectParam: any,
-  ) {
-    const pubInfo = await this.filePubDao.getPublishByFileIdAndVersion({
-      fileId,
-      version,
-    });
-    // @ts-ignore
-    const codeStr = pubInfo.content;
-    const workFlowInfo = {
-      fileId,
-      pubVersion: version,
-    };
-    const str = `;const WORK_FLOW_INFO = ${JSON.stringify(workFlowInfo)};`+ codeStr;
-    let res = {
-      code: 1,
-      data: null,
-      msg: '',
-    };
-    try {
-      const { success, data, msg } = await this.nodeVMIns.run(str, {
-        injectParam: injectParam
-      });
-      res = {
-        code: success ? 1 : -1,
-        data,
-        msg,
-      };
-    } catch (e) {
-      Logger.info(`[/system/task/run]: 出错 ${JSON.stringify(e)}`);
-      res.code = -1;
-      res.msg = JSON.stringify(e.msg);
-    }
-    return res;
-  }
-
-  // 接口搭建workflow使用
-  @Post('/system/workflow/run')
-  async systemWorkflowRun(
-    @Body('fileId') fileId: string,
-    @Body('version') version: string,
-    @Body('params') params: any,
-  ) {
-    if (!fileId) {
-      return {
-        code: -1,
-        msg: '缺少 fileId',
-      };
-    }
-    let pubInfo = null;
-    if (!version) {
-      pubInfo = (
-        await this.filePubDao.getLatestPubByFileId(+fileId, 'prod')
-      )[0];
-    } else {
-      pubInfo = await this.filePubDao.getPublishByFileIdAndVersion({
-        fileId,
-        version,
-      });
-    }
-
-    // @ts-ignore
-    const codeStr = pubInfo.content;
-    const str = codeStr;
-    let res = {
-      code: 1,
-      data: null,
-      msg: '',
-    };
-    try {
-      const { success, data, msg } = await this.nodeVMIns.run(str, {
-        injectParam: params
-      });
-      res = {
-        code: success ? 1 : -1,
-        data,
-        msg,
-      };
-    } catch (e) {
-      Logger.info(`[/system/workflow/run]: 出错 ${JSON.stringify(e)}`);
-      res.code = -1;
-      res.msg = JSON.stringify(e.msg);
-    }
-    return res;
   }
 
   @Post('/system/domain/list')
@@ -371,7 +286,8 @@ export default class SystemService {
     params,
     serviceId,
     fileId,
-    headers
+    headers,
+    userId
   }) {
     try {
       if(!pubInfo) {
@@ -383,10 +299,16 @@ export default class SystemService {
       const codeStr = decodeURIComponent(pubInfo?.content);
       let res:any = {};
       try {
-        const { success, data, msg, logStack } = await this.nodeVMIns.run(codeStr, {
-          injectParam: { ...params, _options: {
-            _headers: headers,
-          }, collectLog: params?.showToplLog || false }
+        const { success, data, msg, logStack } = await this.nodeVMIns.run(codeStr, 
+          {
+            injectParam: { 
+              ...params, 
+              _options: {
+                _headers: headers,
+                userId
+              }, 
+            collectLog: params?.showToplLog || false 
+          }
         });
         res = {
           code: success ? 1 : -1,
@@ -418,14 +340,24 @@ export default class SystemService {
     @Body('serviceId') serviceId: string,
     @Body('params') params: any,
     @Body('fileId') fileId: number,
+    @Body('projectId') projectId: number,
     @Req() req: any
   ) {
+    let sessionRes;
+    // 如果是项目下，需要检测登录态，否则不需要
+    if(projectId) {
+      sessionRes = await this.sessionService.checkUserSession({ fileId, projectId }, req);
+    }
+    if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+      return sessionRes
+    }
     if (!serviceId || !fileId) {
       return {
         code: -1,
         msg: '缺少 serviceId 或 fileId',
       };
     }
+    const { userId } = sessionRes;
 
     const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
       fileId,
@@ -436,6 +368,7 @@ export default class SystemService {
       fileId,
       serviceId,
       params,
+      userId,
       headers: req.headers
     })
     return res
@@ -562,57 +495,6 @@ export default class SystemService {
         msg: JSON.stringify(e),
       };
     }
-  }
-
-  @Post('/system/sandbox/testRun')
-  async testRun(@Body('code') code: string, @Body('params') params: any) {
-    if (!code) {
-      return {
-        code: -1,
-        msg: '缺少 code',
-      };
-    }
-    const taskId = uuid(10);
-    const str = `
-      ;const _EXEC_ID_ = '${taskId}';
-      ;const hooks = Hooks(_EXEC_ID_);
-      ;const WORK_FLOW_INFO = ${JSON.stringify({})};
-      ;const logger = Logger(_EXEC_ID_);
-      ;const PARAMS = ${JSON.stringify(params || {})};
-      ;const Util = UTIL(_EXEC_ID_);
-      ;${code};
-    `;
-    let res: any = {
-      code: 1,
-      data: null,
-      msg: '',
-    };
-    try {
-      const { success, data, msg } = await this.nodeVMIns.run(str);
-      res = {
-        code: success ? 1 : -1,
-        data,
-        msg,
-      };
-    } catch (e) {
-      Logger.info(`[/system/domain/run]: 出错 ${JSON.stringify(e)}`);
-      res = {
-        code: -1,
-        msg: JSON.stringify(e),
-      };
-    }
-    return res;
-  }
-
-  @Post('/system/test')
-  async test(@Body('code') code: string, @Body('params') params: any) {
-    const { success, data, msg } = await this.nodeVMIns.run(code, {
-      injectParam: params,
-    });
-    return {
-      code: success ? 1 : -1,
-      data: data,
-    };
   }
 
   @Post('/system/checkUpdateFromNpm')
