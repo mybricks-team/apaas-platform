@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 const { DOBase } = require("@mybricks/rocker-dao");
 const path = require('path');
+const fs = require('fs');
 const env = require('../../../env.js')
 import { STATUS_CODE } from '../../const';
 
@@ -12,7 +13,16 @@ export default class SessionService {
 			console.log('小程序端不需要登录态')
 			return { userId: '' };
 		}
-		const projectMeta = require(path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`, `PROJECT_META.json`));
+		const metaPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}`, `PROJECT_META.json`);
+
+		try {
+			fs.accessSync(metaPath, fs.constants.F_OK);
+		} catch (err) {
+			/** 文件不存在 */
+			console.log('PROJECT_META.json 文件不存在');
+			return { userId: '' };
+		}
+		const projectMeta = require(metaPath);
 
 		if (!projectMeta.useLogin) {
 			console.log('聚合页未开启登录态校验')
