@@ -343,7 +343,7 @@ export default class SystemService {
     @Body('projectId') projectId: number,
     @Req() req: any
   ) {
-    let sessionRes;
+    let sessionRes = {};
     // 如果是项目下，需要检测登录态，否则不需要
     if(projectId) {
       sessionRes = await this.sessionService.checkUserSession({ fileId, projectId }, req);
