@@ -114,7 +114,8 @@ export default class FlowController {
         decrypt,
       })
       console.log('运行容器：运行完毕')
-      return {
+      /** _CUSTOM_=true 自定义返回值 */
+      return res._CUSTOM_ ? res.data : {
         code: 1,
         data: res
       }
@@ -175,7 +176,8 @@ export default class FlowController {
         decrypt,
       })
       console.log('运行容器：运行完毕')
-      return {
+      /** _CUSTOM_=true 自定义返回值 */
+      return res._CUSTOM_ ? res.data : {
         code: 1,
         data: res
       }
@@ -235,7 +237,8 @@ export default class FlowController {
         decrypt,
       })
       console.log('运行容器：运行完毕')
-      return {
+      /** _CUSTOM_=true 自定义返回值 */
+      return res._CUSTOM_ ? res.data : {
         code: 1,
         data: res
       }
@@ -299,7 +302,8 @@ export default class FlowController {
         decrypt,
       })
       console.log('运行容器：运行完毕')
-      return {
+      /** _CUSTOM_=true 自定义返回值 */
+      return res._CUSTOM_ ? res.data : {
         code: 1,
         data: res
       }
@@ -361,7 +365,8 @@ export default class FlowController {
         decrypt,
       })
       console.log('运行容器：运行完毕')
-      return {
+      /** _CUSTOM_=true 自定义返回值 */
+      return res._CUSTOM_ ? res.data : {
         code: 1,
         data: res
       }
