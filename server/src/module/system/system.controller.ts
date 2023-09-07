@@ -310,11 +310,21 @@ export default class SystemService {
             collectLog: params?.showToplLog || false 
           }
         });
-        res = {
-          code: success ? 1 : -1,
-          data,
-          msg,
-        };
+
+        if (success) {
+          console.log('data', data);
+          res = data._CUSTOM_ ? data.data : {
+            code: 1,
+            data,
+            msg,
+          };
+        } else {
+          res = {
+            code: -1,
+            data,
+            msg,
+          };
+        }
         if(params?.showToplLog) {
           // @ts-ignore
           res.logStack = logStack

@@ -284,7 +284,7 @@ export default class AuthController {
     return json
   }
 
-  // TODO: 生成 token
+  // 存量保留，新增的走表中数据，逐步废弃
   @Post('/admin/login')
   async adminLogin(
     @Body('userName') userName: number,
