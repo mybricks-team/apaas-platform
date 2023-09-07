@@ -131,22 +131,6 @@ export default class AppCtx {
       namespace: 'mybricks-folder',
       icon: 'https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png',
     },
-    // {
-    //   title: '项目文件夹',
-    //   description: '通过项目的方式管理文件',
-    //   type: 'user',
-    //   extName: 'folder-project',
-    //   namespace: 'mybricks-folder-project',
-    //   icon: FolderProject
-    // },
-    // {
-    //   title: '模块文件夹',
-    //   description: '通过模块的方式管理文件',
-    //   type: 'user',
-    //   extName: 'folder-module',
-    //   namespace: 'mybricks-folder-module',
-    //   icon: FolderModule
-    // },
   ];
   /** 侧边栏应用列表 */
   DockerAPPS: Array<T_App> = [];
@@ -161,12 +145,10 @@ export default class AppCtx {
     /** 平台默认,搭建应用 */
     const DesignAPPS: Array<T_App> = [
       // 平台特殊应用特殊处理
-      
     ];
 
     /** 平台默认,侧边栏应用 */
     const DockerAPPS: Array<any> = [
-      /** TODO:暂时隐藏，目前应用也没有分享按钮 */
       {
         title: '大家的分享',
         description: '大家的分享',
@@ -179,6 +161,27 @@ export default class AppCtx {
 
     const APPSMap: { [key: string]: T_App } = {};
 
+    [
+      {
+        title: '项目文件夹',
+        description: '通过项目的方式管理文件',
+        type: 'user',
+        extName: 'folder-project',
+        namespace: 'mybricks-folder-project',
+        icon: FolderProject
+      },
+      {
+        title: '模块文件夹',
+        description: '通过模块的方式管理文件',
+        type: 'user',
+        extName: 'folder-module',
+        namespace: 'mybricks-folder-module',
+        icon: FolderModule
+      },
+    ].forEach(app => {
+      APPSMap[app.namespace] = app;
+      APPSMap[app.extName] = app;
+    })
     DesignAPPS.concat(this.FolderAPPS).forEach((app: T_App) => {
       APPSMap[app.namespace] = app;
       APPSMap[app.extName] = app;
@@ -232,6 +235,7 @@ export default class AppCtx {
       this.FolderAPPS = this.FolderAPPS.filter((app) => {
         return SHOW_FOLDERS_MAP[app.extName]
       })
+      // console.log('111', this.user)
       if(this.user?.role >= 3) {
         // @ts-ignore
         this.FolderAPPS.push({

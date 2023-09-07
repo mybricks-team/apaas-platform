@@ -150,11 +150,22 @@ export function getRealDomain(request) {
 export { isNumber } from './type'
 
 
-export function getAdminInfoByProjectId(projectId) {
-  return {
-    userName: crypto.createHash('md5').update(`${projectId}:userName`).digest('hex'),
-    password: crypto.createHash('md5').update(`${projectId}:password`).digest('hex')
+export function getAdminInfoByProjectId({ projectId, fileId }: any) {
+  // 模型id为staging、项目id为production
+  let obj = {}
+  if(projectId) {
+    obj['production'] = {
+      userName: crypto.createHash('md5').update(`${projectId}:userName`).digest('hex'),
+      password: crypto.createHash('md5').update(`${projectId}:password`).digest('hex')
+    }
   }
+  if(fileId) {
+    obj['staging'] = {
+      userName: crypto.createHash('md5').update(`${fileId}:userName`).digest('hex'),
+      password: crypto.createHash('md5').update(`${fileId}:password`).digest('hex')
+    }
+  }
+  return obj
 }
 
 export function genMainIndexOfDB() {

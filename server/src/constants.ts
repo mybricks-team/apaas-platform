@@ -49,3 +49,8 @@ export const RunningStatusMap = {
   RUNNING_WITH_ERROR: 11,
   STOPPED: -1,
 };
+
+export const STATUS_CODE = {
+  SUCCESS: 1,
+  LOGIN_OUT_OF_DATE: 100001, 
+}

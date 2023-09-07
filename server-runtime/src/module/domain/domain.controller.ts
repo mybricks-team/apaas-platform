@@ -13,11 +13,13 @@ import {
 import DomainService from './domain.service';
 import UploadService from '../upload/upload.service';
 import {decrypt, encrypt} from "../../utils/crypto";
+import SessionService from '../session/session.service';
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
 const { getConnection, DOBase, getPool } = require("@mybricks/rocker-dao");
 const { SnowFlake } = require('gen-uniqueid');
+import { STATUS_CODE } from '../../const';
 
 @Controller('/runtime/api/domain')
 export default class FlowController {
@@ -26,6 +28,8 @@ export default class FlowController {
   
   @Inject()
   uploadService: UploadService;
+  @Inject()
+  sessionService: SessionService;
   
   // runtime env
   snowFlake: any
@@ -81,6 +85,11 @@ export default class FlowController {
     }
     let readyExePath;
     try {
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+        return sessionRes
+      }
+      const { userId } = sessionRes;
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       console.log('运行容器：readyExePath', readyExePath)
@@ -93,6 +102,7 @@ export default class FlowController {
       let res = await startExe({
         ...(params || {}),
         _options: {
+          userId,
           _headers: req.headers,
           axios: require('axios')
         }
@@ -104,7 +114,8 @@ export default class FlowController {
         decrypt,
       })
       console.log('运行容器：运行完毕')
-      return {
+      /** _CUSTOM_=true 自定义返回值 */
+      return res._CUSTOM_ ? res.data : {
         code: 1,
         data: res
       }
@@ -135,6 +146,11 @@ export default class FlowController {
     }
     let readyExePath;
     try {
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+        return sessionRes
+      }
+      const { userId } = sessionRes;
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       console.log('运行容器：readyExePath', readyExePath)
@@ -148,6 +164,7 @@ export default class FlowController {
         ...(query || {}),
         ...(params || {}),
         _options: {
+          userId,
           _headers: req.headers,
           axios: require('axios')
         }
@@ -159,7 +176,8 @@ export default class FlowController {
         decrypt,
       })
       console.log('运行容器：运行完毕')
-      return {
+      /** _CUSTOM_=true 自定义返回值 */
+      return res._CUSTOM_ ? res.data : {
         code: 1,
         data: res
       }
@@ -189,6 +207,12 @@ export default class FlowController {
     }
     let readyExePath;
     try {
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+        return sessionRes
+      }
+      const { userId } = sessionRes;
+      
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       console.log('运行容器：readyExePath', readyExePath)
@@ -201,6 +225,7 @@ export default class FlowController {
       let res = await startExe({
         ...(params || {}),
         _options: {
+          userId,
           _headers: req.headers,
           axios: require('axios')
         }
@@ -212,7 +237,8 @@ export default class FlowController {
         decrypt,
       })
       console.log('运行容器：运行完毕')
-      return {
+      /** _CUSTOM_=true 自定义返回值 */
+      return res._CUSTOM_ ? res.data : {
         code: 1,
         data: res
       }
@@ -244,6 +270,12 @@ export default class FlowController {
     }
     let readyExePath;
     try {
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+        return sessionRes
+      }
+      const { userId } = sessionRes;
+
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       console.log('运行容器：readyExePath', readyExePath)
@@ -258,6 +290,7 @@ export default class FlowController {
         ...(params || {}),
         action,
         _options: {
+          userId,
           _headers: req.headers,
           axios: require('axios')
         }
@@ -269,7 +302,8 @@ export default class FlowController {
         decrypt,
       })
       console.log('运行容器：运行完毕')
-      return {
+      /** _CUSTOM_=true 自定义返回值 */
+      return res._CUSTOM_ ? res.data : {
         code: 1,
         data: res
       }
@@ -300,6 +334,12 @@ export default class FlowController {
     }
     let readyExePath;
     try {
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === STATUS_CODE.LOGIN_OUT_OF_DATE) {
+        return sessionRes
+      }
+      const { userId } = sessionRes;
+
       const readyExeTemplateFolderPath = projectId ? path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${projectId}/${fileId}`) : path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/project/${fileId}`);
       readyExePath = path.join(readyExeTemplateFolderPath, `${serviceId}.js`);
       console.log('运行容器：readyExePath', readyExePath)
@@ -313,6 +353,7 @@ export default class FlowController {
         ...(params || {}),
         action,
         _options: {
+          userId,
           _headers: req.headers,
           axios: require('axios')
         }
@@ -324,7 +365,8 @@ export default class FlowController {
         decrypt,
       })
       console.log('运行容器：运行完毕')
-      return {
+      /** _CUSTOM_=true 自定义返回值 */
+      return res._CUSTOM_ ? res.data : {
         code: 1,
         data: res
       }
@@ -336,5 +378,4 @@ export default class FlowController {
       }
     }
   }
-
 }

@@ -197,11 +197,19 @@
 
     <select id="getMaterialPubInfoByIds">
         select
-        *
+        material_pub_info.*
         from
-        material_pub_info
+            material_pub_info
         where
-        id = 471481803456581
+        material_pub_info.id in
+        <foreach collection="ids" item="item" open="( " separator="," close=" )" index="index">
+            #{item}
+        </foreach>
+        order by FIELD(id,
+        <foreach collection="ids" item="item" open="" separator="," close="" index="index">
+            #{item}
+        </foreach>
+        )
     </select>
 
     <update id="update">

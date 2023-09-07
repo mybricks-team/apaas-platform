@@ -44,6 +44,8 @@ const filterFileName = [
   'install_back.js',
   'index.html',
   'PlatformConfig_demo.json',
+  'PlatformConfig_hainiu.json',
+  'PlatformConfig_mybricks.json',
   'zip.js',
   'zip_deploy.js'
 ];

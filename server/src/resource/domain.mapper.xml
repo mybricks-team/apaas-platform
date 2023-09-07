@@ -43,6 +43,9 @@
             </choose>
         </foreach>
         PRIMARY KEY (${primaryKey})
+        <foreach collection="indexFields" item="item" open=", " separator=", " close="" index="index">
+            INDEX idx_${item.id} (${item.id})
+        </foreach>
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT #{comment};
     </insert>
 
@@ -102,6 +105,12 @@
             </if>
             <if test="item.action === 'modify_table_name'">
                 RENAME TO #{item.name}
+            </if>
+            <if test="item.action === 'insert_index'">
+                ADD INDEX idx_${item.name} (${item.name})
+            </if>
+            <if test="item.action === 'delete_index'">
+                DROP INDEX idx_${item.name}
             </if>
         </foreach>
     </update>

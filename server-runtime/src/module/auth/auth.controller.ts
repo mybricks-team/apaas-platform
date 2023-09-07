@@ -7,11 +7,14 @@ import {
   Query,
   Param,
   Request,
-  Req
+  Req,
+  Res
 } from '@nestjs/common';
+import { Response } from 'express';
 import AuthService from './auth.service';
 import { genMainIndexOfDB } from '../../utils';
 import { decrypt, encrypt } from '../../utils/crypto';
+import SessionService from "../session/session.service";
 const path = require('path');
 const env = require('../../../env.js')
 const fs = require('fs');
@@ -21,6 +24,8 @@ const { getConnection, DOBase, getPool } = require("@mybricks/rocker-dao");
 export default class AuthController {
   @Inject()
   authService: AuthService;
+  @Inject()
+  sessionService: SessionService;
 
   // 老代码，逐步废弃，暂时不删
   _getSysAuthInfo_old(projectId: number) {
@@ -109,6 +114,10 @@ export default class AuthController {
       }
     }
     try {
+      const sessionRes = await this.sessionService.checkUserSession(projectId, req);
+      if(sessionRes?.code === 100001) {
+        return sessionRes
+      }
       const sysAdminConfig = await this._getSysAdminConfig(projectId);
       if(sysAdminConfig) {
         // 判断是不是超管登陆
@@ -165,7 +174,8 @@ export default class AuthController {
   @Post('/login')
   async login(
     @Body() body: Record<string, unknown>,
-    @Req() req: any
+    @Req() req: any,
+    @Res({ passthrough: true }) response: Response
   ) {
     let readyExePath;
     if(!body.projectId) {
@@ -187,8 +197,18 @@ export default class AuthController {
       console.log('运行容器：获取连接成功');
       const pool = getPool();
       console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`);
-      let res = await startExe(body, { dbConnection: con, encrypt, decrypt });
-      console.log('运行容器：运行完毕');
+      let res = await startExe(body, { dbConnection: con, genUniqueId: genMainIndexOfDB, encrypt, decrypt });
+      console.log('运行容器：运行完毕', res?.凭证);
+      if(res?.凭证) {
+        response.cookie('token', res?.凭证, {
+          path: '/runtime/api',
+          httpOnly: true,
+          maxAge: 1000 * 24 * 60 * 60 * 1000,
+          secure: true,
+          sameSite: 'Lax'
+        })
+        delete res?.凭证
+      }
 			
       return res ? { code: 1, data: res } : { code: -1, msg: '用户不存在' };
     } catch (e) {
@@ -201,7 +221,8 @@ export default class AuthController {
   @Post('/register')
   async register(
     @Body() body: Record<string, unknown>,
-    @Req() req: any
+    @Req() req: any,
+    @Res({ passthrough: true }) response: Response
   ) {
     let readyExePath;
     if(!body.projectId) {
@@ -235,7 +256,16 @@ export default class AuthController {
       console.log(`连接池总共：${pool.config.connectionLimit}, 已用：${pool._allConnections.length}`);
       let res = await startExe(body, { dbConnection: con, genUniqueId: genMainIndexOfDB, entity, encrypt, decrypt });
       console.log('运行容器：运行完毕');
-			
+      if(res?.凭证) {
+        response.cookie('token', res?.凭证, {
+          path: '/runtime/api',
+          httpOnly: true,
+          maxAge: 1000 * 24 * 60 * 60 * 1000,
+          secure: true,
+          sameSite: 'Lax'
+        })
+        delete res?.凭证
+      }
       return res ? { code: 1, data: res } : { code: -1, msg: '注册失败' };
     } catch (e) {
       console.log('运行容器：运行出错了', e.message);
@@ -254,6 +284,7 @@ export default class AuthController {
     return json
   }
 
+  // 存量保留，新增的走表中数据，逐步废弃
   @Post('/admin/login')
   async adminLogin(
     @Body('userName') userName: number,

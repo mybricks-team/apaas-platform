@@ -269,15 +269,30 @@ function SuperAdminInfoArea({ ctx }) {
               <span style={{marginLeft: 4}}>站点超级管理员信息</span>
             </span>
           </div>
-          <div style={{cursor: 'text', userSelect: 'text'}}>
+          <div>
+            <p>测试环境</p>
             <p className={css.statusContent}>账号</p>
-            <p className={css.statusContent}>{ctx?.info?.adminInfo?.userName}</p>
+            <p className={css.statusContent}>{ctx?.info?.adminInfo?.staging?.userName || '-'}</p>
             <p className={css.statusContent}>密码</p>
-            <p className={css.statusContent}>{ctx?.info?.adminInfo?.password}</p>
+            <p className={css.statusContent}>{ctx?.info?.adminInfo?.staging?.password || '-'}</p>
             <p>超管登陆地址</p>
             {
               ctx.info?.apps?.map(app => {
-                return <a href={`${location.origin}${app.adminLoginBasePath}`}>{app.name}</a>
+                return <a href={`${location.origin}${app.adminLoginBasePath?.staging}`}>{app.name}</a>
+              })
+            }
+          </div>
+          <br />
+          <div style={{cursor: 'text', userSelect: 'text'}}>
+            <p>线上环境</p>
+            <p className={css.statusContent}>账号</p>
+            <p className={css.statusContent}>{ctx?.info?.adminInfo?.production?.userName}</p>
+            <p className={css.statusContent}>密码</p>
+            <p className={css.statusContent}>{ctx?.info?.adminInfo?.production?.password}</p>
+            <p>超管登陆地址</p>
+            {
+              ctx.info?.apps?.map(app => {
+                return <a href={`${location.origin}${app.adminLoginBasePath?.prod}`}>{app.name}</a>
               })
             }
           </div>

@@ -160,7 +160,11 @@ export default class WorkspaceService {
 
       return {
         code: 1,
-        data: Object.assign({}, rtn, { updatorName: user?.name || user?.email || rtn.updatorName, content: content?.content, version: content?.version || null }),
+        data: Object.assign({}, rtn, { 
+          updatorName: user?.name || user?.email || rtn.updatorName, 
+          content: content?.content, 
+          version: content?.version || null 
+        }),
       };
     } catch (ex) {
       return {
@@ -204,7 +208,7 @@ export default class WorkspaceService {
         } else if(['folder-project'].includes(extName)) {
           // 初始化系统超级管理员
           await this.uploadService.saveFile({
-            str: JSON.stringify(getAdminInfoByProjectId(rtn.id)),
+            str: JSON.stringify(getAdminInfoByProjectId({ projectId: rtn.id })),
             filename: 'SYS_ADMIN_CONFIG.json',
             folderPath: `/project/${rtn.id}`,
           })
@@ -213,6 +217,11 @@ export default class WorkspaceService {
             str: fs.readFileSync(path.join(__dirname, './SYS_ADMIN_LOGIN.html'), "utf-8"),
             filename: 'admin_login.html',
             folderPath: `/project/${rtn.id}`,
+          })
+          await this.uploadService.saveFile({
+            str: fs.readFileSync(path.join(__dirname, './SYS_ADMIN_LOGIN.html'), "utf-8"),
+            filename: 'admin_login.html',
+            folderPath: `/staging/project/${rtn.id}`,
           })
         }
 			}
