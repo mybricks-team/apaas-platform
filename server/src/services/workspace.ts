@@ -208,7 +208,7 @@ export default class WorkspaceService {
         } else if(['folder-project'].includes(extName)) {
           // 初始化系统超级管理员
           await this.uploadService.saveFile({
-            str: JSON.stringify(getAdminInfoByProjectId(rtn.id)),
+            str: JSON.stringify(getAdminInfoByProjectId({ projectId: rtn.id })),
             filename: 'SYS_ADMIN_CONFIG.json',
             folderPath: `/project/${rtn.id}`,
           })

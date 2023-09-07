@@ -1134,51 +1134,65 @@ export default class FileController {
   }
 
   // TODO:写死查询的应用
-  async getFolderProjectAppsByParentId({ id, extNames }, files = []) {
+  async getFolderProjectAppsByParentId({ id, extNames }, fileMap = {}) {
     const items = await this.fileDao.getFilesByParentId({ id, extNames })
     const promiseAry = []
 
     items.forEach(async (item) => {
-      if (item.extName === 'pc-website') {
-        files.push(item)
+      if (item.extName === 'pc-website' || item.extName === 'domain') {
+        if(!fileMap[item.extName]) {
+          fileMap[item.extName] = []
+        }
+        fileMap[item.extName].push(item)
       } else {
         promiseAry.push(item)
       }
     })
     await Promise.all(promiseAry.map(async (item) => {
-      await this.getFolderProjectAppsByParentId({ id: item.id, extNames }, files)
+      await this.getFolderProjectAppsByParentId({ id: item.id, extNames }, fileMap)
     }))
-
-    await Promise.all(files.map(async (file) => {
-      const [stagingPub] = await this.filePubDao.getLatestPubByFileId(file.id, 'staging')
-      const [prodPubInfo] = await this.filePubDao.getLatestPubByFileId(file.id, 'prod')
-      file.pubInfo = {
-        staging: stagingPub,
-        prod: prodPubInfo
+    for(let extName in fileMap) {
+      if(extName === 'pc-website') {
+        await Promise.all(fileMap[extName].map(async (file) => {
+          const [stagingPub] = await this.filePubDao.getLatestPubByFileId(file.id, 'staging')
+          const [prodPubInfo] = await this.filePubDao.getLatestPubByFileId(file.id, 'prod')
+          file.pubInfo = {
+            staging: stagingPub,
+            prod: prodPubInfo
+          }
+          file.adminLoginBasePath = {
+            staging: `/runtime/mfs/staging/project/${id}/admin_login.html?projectId=${id}&fileId=${file.id}`,
+            prod: `/runtime/mfs/project/${id}/admin_login.html?projectId=${id}&fileId=${file.id}`
+          }
+        }))
       }
-      file.adminLoginBasePath = `/runtime/mfs/project/${id}/admin_login.html?projectId=${id}&fileId=${file.id}`
-    }))
+    }
 
-    return files
+    return fileMap
   }
 
   @Post('/getFolderProjectInfoByProjectId')
   async getFolderProjectInfoByProjectId(@Body() body) {
     const { id, userId } = body
     const folder = await this.fileDao.queryById(id);
-    const [[projectModuleInfo], files] = await Promise.all([
+    const [[projectModuleInfo], fileMap] = await Promise.all([
       await this.moduleDao.getProjectModuleInfo(id),
-      await this.getFolderProjectAppsByParentId({ id, extNames: ['pc-website', 'folder', 'folder-project', 'folder-module'] })
+      await this.getFolderProjectAppsByParentId({ id, extNames: ['domain','pc-website', 'folder', 'folder-project', 'folder-module'] })
     ])
-
     let data: any = {
       ...folder,
-      apps: files,
+      apps: fileMap['pc-website'] || [],
       moduleList: JSON.parse(projectModuleInfo?.module_info || '{}')?.moduleList || []
     };
     if (folder.creatorId == userId) {
-      data.adminInfo = {
-        ...getAdminInfoByProjectId(id)
+      if(fileMap['domain']?.length > 0) {
+        data.adminInfo = {
+          ...getAdminInfoByProjectId({ projectId: id, fileId: fileMap['domain']?.[0]?.id })
+        }
+      } else {
+        data.adminInfo = {
+          ...getAdminInfoByProjectId({ projectId: id })
+        }
       }
     }
     return {
