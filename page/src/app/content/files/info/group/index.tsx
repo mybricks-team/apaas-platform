@@ -305,7 +305,7 @@ function GroupTitleConfig () {
       }).then(async ({data}) => {
         if (data.code === 1) {
           appCtx.refreshSidebar('group')
-          parentCtx.path.at(-1).name = name
+          parentCtx.path[parentCtx?.path?.length - 1].name = name
           ctx.info.name = name
           resolve('更改协作组信息成功')
         } else {

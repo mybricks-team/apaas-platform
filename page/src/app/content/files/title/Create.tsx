@@ -129,7 +129,7 @@ export function Create(): JSX.Element {
 
   const modalOk = useCallback((values, app) => {
     return new Promise(async (resolve, reject) => {
-      const item = ctx.path.at(-1)
+      const item = ctx.path[ctx.path.length - 1];
       const isGroup = !!!item.extName && !!item.id
       const { fileName, type } = values
       const { extName, isSystem } = app

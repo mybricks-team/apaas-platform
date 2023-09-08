@@ -145,7 +145,7 @@ export default function Files() {
   })
 
   const pathInfo = useComputed(() => {
-    const pathInfo = ctx.path.at(-1)
+    const pathInfo = ctx.path[ctx?.path?.length - 1]
     return pathInfo
   })
 
@@ -411,7 +411,7 @@ function Projects() {
   const modalOk = useCallback((values, app) => {
     return new Promise(async (resolve, reject) => {
       const { name } = values
-      const item = ctx.path.at(-1)
+      const item = ctx.path[ctx?.path?.length - 1]
       const isGroup = !!!item.extName && !!item.id
       const { extName, isSystem } = app
       const params: any = {
