@@ -386,7 +386,7 @@ export default class AppsService {
         } else {
           Logger.info("有service，即将重启服务");
           childProcess.exec(
-            "npx pm2 reload index",
+            `npx pm2 reload ${env.getAppThreadName()}`,
             {
               cwd: path.join(process.cwd()),
             },
