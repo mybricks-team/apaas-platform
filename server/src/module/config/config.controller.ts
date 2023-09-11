@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import ConfigDao from "../dao/config.dao";
-import UserService from '../module/user/user.service';
+import ConfigDao from "../../dao/config.dao";
+import UserService from '../user/user.service';
 
 @Controller("/paas/api")
 export default class ConfigService {

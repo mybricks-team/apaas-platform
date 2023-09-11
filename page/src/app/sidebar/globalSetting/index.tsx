@@ -83,6 +83,7 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
 const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [form] = Form.useForm()
   const [openSystemWhiteListSwitch, setOpenSystemWhiteListSwitch] = useState(initialValues?.openSystemWhiteList)
+  const [updateConflictDetectionSwitch, setUpdateConflictDetectionSwitch] = useState(initialValues?.updateConflictDetection)
 
   useEffect(() => {
     if (!initialValues) {
@@ -128,6 +129,15 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         >
           <Switch checked={openSystemWhiteListSwitch} onChange={() => {
             setOpenSystemWhiteListSwitch(!openSystemWhiteListSwitch)
+          }} />
+        </Form.Item>
+        <Form.Item
+          initialValue=''
+          label="开启升级冲突检测"
+          name="updateConflictDetection"
+        >
+          <Switch checked={updateConflictDetectionSwitch} onChange={() => {
+            setUpdateConflictDetectionSwitch(!updateConflictDetectionSwitch)
           }} />
         </Form.Item>
         <Form.Item

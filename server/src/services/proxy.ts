@@ -3,7 +3,7 @@ import { Response } from 'express';
 import * as axios from "axios";
 
 @Controller('/paas/api')
-export default class ConfigService {
+export default class ProxyService {
 
   @Post('/proxy')
   async proxy(@Req() req, @Res() res: Response) {
