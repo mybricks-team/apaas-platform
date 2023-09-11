@@ -116,6 +116,20 @@ export default class FileContentDao extends DOBase {
     return fileContents ? fileContents[0] : null;
   }
 
+  @Mapping(FileContentDO)
+  public async getContentByVersionAndFileId(params: {
+    fileId: number,
+    version: string
+  }): Promise<FileContentDO> {
+    const fileContents = await this.exe<FileContentDO[]>(
+      'apaas_file_content:getContentByVersionAndFileId',
+      params
+    ) as any
+
+    return fileContents ? fileContents[0] : null;
+  }
+
+
   public async queryLatestSaves(params: {
     fileIds: number[]
   }) {

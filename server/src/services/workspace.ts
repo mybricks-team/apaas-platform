@@ -145,11 +145,15 @@ export default class WorkspaceService {
 
   @Get("/workspace/getFullFile")
   async getFullFile(@Query() query) {
-    const { fileId } = query;
-
+    const { fileId, version } = query;
     try {
       const rtn = await this.fileDao.queryById(fileId);
-      const res = await this.fileContentDao.getLatestContentId({ fileId: fileId });
+      let res;
+      if(version) {
+        res = await this.fileContentDao.getContentByVersionAndFileId({ fileId: fileId, version: version });
+      } else {
+        res = await this.fileContentDao.getLatestContentId({ fileId: fileId });
+      }
       /** fileDao.queryById 引用处比较多，就不修改其连表当时，使用单独查一次 user 的方式 */
       const user = await this.userDao.queryById({ id: rtn.updatorId });
       let content = null

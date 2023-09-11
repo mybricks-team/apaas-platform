@@ -63,6 +63,14 @@
     ORDER BY id DESC LIMIT 1
   </select>
 
+  <select id="getContentByVersionAndFileId">
+    select *
+    from apaas_file_content
+    where
+    file_id = #{fileId} and version = #{version}
+    ORDER BY id DESC LIMIT 1
+  </select>
+
   <select id="queryLatestSaves">
     select * from
     apaas_file_content
