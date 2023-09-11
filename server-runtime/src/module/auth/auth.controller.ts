@@ -210,7 +210,7 @@ export default class AuthController {
         delete res?.凭证
       }
 			
-      return res ? { code: 1, data: res } : { code: -1, msg: '用户不存在' };
+      return res ? { code: 1, data: res } : { code: -1, msg: '用户名或密码不正确' };
     } catch (e) {
       console.log('运行容器：运行出错了', e.message);
       return { code: -1, msg: `${typeof e === 'string' ? e : e.message}` };
