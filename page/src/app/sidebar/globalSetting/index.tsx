@@ -122,13 +122,6 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
           <Input placeholder='页面html的favicon' />
         </Form.Item>
         <Form.Item
-          initialValue=""
-          label="ChatGpt凭证"
-          name="chatGptToken"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
           initialValue=''
           label="开启系统白名单"
           name="openSystemWhiteList"
