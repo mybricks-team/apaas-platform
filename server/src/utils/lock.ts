@@ -9,6 +9,7 @@ const lockUpgrade = async () => {
         if(Date.now() - birthtimeMs > 5 * 60 * 1000) {
           // 如果五分钟直接解锁
           fs.unlinkSync(env.FILE_UPGRADE_LOCK_FILE)
+          console.log('超过五分钟直接解锁')
           resolve(fd)
           return
         }
@@ -22,7 +23,7 @@ const lockUpgrade = async () => {
   })
 }
 
-const unLockUpgrade = async (param: { fd: any, force: boolean }) => {
+const unLockUpgrade = async (param: { fd?: any, force: boolean }) => {
   return new Promise((resolve, reject) => {
     const { fd, force = true } = param
     if(force) {

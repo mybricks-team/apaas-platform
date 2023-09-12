@@ -7,7 +7,8 @@ import AppDao from '../dao/AppDao';
 import * as axios from 'axios';
 import env from '../utils/env'
 import UserLogDao from '../dao/UserLogDao';
-import { lockUpgrade } from '../utils/lock';
+import { lockUpgrade, unLockUpgrade } from '../utils/lock';
+import ConfigService from '../module/config/config.service';
 
 @Controller("/paas/api/apps")
 export default class AppsService {
@@ -20,12 +21,15 @@ export default class AppsService {
   // 是否升级成功
   isSuccessUpgrade: boolean;
 
+  configService: ConfigService;
+
   constructor() {
     this.appDao = new AppDao();
     this.userLogDao = new UserLogDao();
     this.isReloading = false;
     this.isSuccessUpgrade = false;
     this.shouldReload = false;
+    this.configService = new ConfigService();
   }
 
   async getAllInstalledList({ filterSystemApp }: {filterSystemApp: boolean}) {
@@ -212,8 +216,13 @@ export default class AppsService {
 
   @Post("/update")
   async appUpdate(@Body() body, @Req() req) {
+    const systemConfig = await this.configService.getConfigByScope(['system'])
     try {
-      await lockUpgrade()
+      console.log(systemConfig)
+      if(systemConfig?.system?.config?.openConflictDetection) {
+        console.log('开启了冲突检测')
+        await lockUpgrade()
+      }
     } catch(e) {
       Logger.info(e)
       return {
@@ -417,6 +426,12 @@ export default class AppsService {
       }
     } catch (e) {
       Logger.info(e);
+    }
+
+    if(systemConfig?.system?.config?.openConflictDetection) {
+      Logger.info("解锁成功，可继续升级应用");
+      // 解锁
+      await unLockUpgrade({ force: true })
     }
     return { code: 1, data: null, message: "安装成功" };
   }
