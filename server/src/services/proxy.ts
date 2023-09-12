@@ -1,4 +1,4 @@
-import { Body, Controller, Req, Post, Query, Res } from "@nestjs/common";
+import { Controller, Post, Req, Res } from "@nestjs/common";
 import { Response } from 'express';
 import * as axios from "axios";
 

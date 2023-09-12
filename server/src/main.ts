@@ -8,6 +8,7 @@ import * as bodyParser from "body-parser";
 import * as xmlparser from 'express-xml-bodyparser';
 
 import { proxyMiddleWare } from "./middleware/proxy.middleware";
+import { apiProxy as apiProxyMiddleWare } from './middleware/api.proxy.middleware';
 import { timeout } from "./middleware/requestTimeout.middleware";
 import { checkHealthMiddleware } from './middleware/checkHealth.middleware';
 
@@ -38,6 +39,7 @@ async function bootstrap() {
       res.set('Access-Control-Allow-Origin', '*');
     }
   });
+  app.use(apiProxyMiddleWare());
   app.use(bodyParser.json({ limit: "100mb" }));
   app.use(runtimeLogger({
     appNamespaceList: loadedModule.namespace,
@@ -55,7 +57,7 @@ async function bootstrap() {
     allowedHeaders: "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
     methods: "GET,PUT,POST,DELETE,UPDATE,PATCH,OPTIONS",
     credentials: true,
-  })
+  });
 
   app.use(
     proxyMiddleWare({

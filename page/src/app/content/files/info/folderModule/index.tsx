@@ -21,7 +21,7 @@ const FolderModule: FC = () => {
 	const [list, setList] = useState(null)
 
 	const getList = useCallback(() => {
-		const { id } = ctx.path.at(-1)
+		const { id } = ctx.path[ctx?.path?.length - 1]
 		axios({
 			method: 'get',
 			url: `/paas/api/module/publish/getVersionsByFileId?id=${id}&pagtIndex=0&pageSize=20`
@@ -36,7 +36,7 @@ const FolderModule: FC = () => {
 	
 	const publish = useCallback(async () => {
 		setLoading(true)
-		const latestPath = ctx.path.at(-1)
+		const latestPath = ctx.path[ctx?.path?.length - 1]
 		console.log('latestPath', latestPath, ctx.user)
 		try {
 			const allFilesRes = (await axios({

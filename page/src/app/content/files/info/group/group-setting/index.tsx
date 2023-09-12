@@ -56,7 +56,7 @@ const GroupSetting: FC<{ onClose?(): void; visible: boolean }> = props => {
   const [configMap, setConfigMap] = useState({});
   const [isConfigMount, setIsConfigMount] = useState(false);
   const pathInfo = useComputed(() => {
-    return ctx.path.at(-1);
+    return ctx.path[ctx.path.length - 1];
   });
 
   const menuItems = useMemo((): MenuItem[] => {
