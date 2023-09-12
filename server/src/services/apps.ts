@@ -218,7 +218,6 @@ export default class AppsService {
   async appUpdate(@Body() body, @Req() req) {
     const systemConfig = await this.configService.getConfigByScope(['system'])
     try {
-      console.log(systemConfig)
       if(systemConfig?.system?.config?.openConflictDetection) {
         console.log('开启了冲突检测')
         await lockUpgrade()

@@ -16,6 +16,8 @@ import RefreshDao from "../../dao/RefreshDao";
 import UserLogDao from "../../dao/UserLogDao";
 import SessionService from './session.service';
 import { STATUS_CODE } from '../../constants'
+import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
+import ConfigService from '../config/config.service';
 
 const childProcess = require('child_process');
 const path = require('path')
@@ -41,6 +43,7 @@ export default class SystemService {
   nodeVMIns: any;
 
   sessionService: SessionService;
+  configService: ConfigService;
 
   constructor() {
     this.fileDao = new FileDao();
@@ -53,6 +56,7 @@ export default class SystemService {
     this.nodeVMIns = createVM({ openLog: true });
     this.fileService = new FileService()
     this.sessionService = new SessionService()
+    this.configService = new ConfigService();
   }
 
   checkSqlValid(sql) {
@@ -605,6 +609,19 @@ export default class SystemService {
           }
         }
         case 'downloadPlatform': {
+          const systemConfig = await this.configService.getConfigByScope(['system'])
+          try {
+            if(systemConfig?.system?.config?.openConflictDetection) {
+              Logger.info('开启了冲突检测')
+              await lockUpgrade()
+            }
+          } catch(e) {
+            Logger.info(e)
+            return {
+              code: -1,
+              msg: '当前已有升级任务，请稍后重试'
+            }
+          }
           const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
           const { platformVersion: prePlatformVersion } = JSON.parse(appJSON)
           const res = (await (axios as any).post(
@@ -639,11 +656,21 @@ export default class SystemService {
                 content: `更新平台，版本从 ${prePlatformVersion} 到 ${version}`,
               })
             });
+            if(systemConfig?.system?.config?.openConflictDetection) {
+              Logger.info("解锁成功，可继续升级应用");
+              // 解锁
+              await unLockUpgrade({ force: true })
+            }
             return {
               code: 1,
               msg: log?.toString() || '升级成功'
             }
           } else {
+            if(systemConfig?.system?.config?.openConflictDetection) {
+              Logger.info("解锁成功，可继续升级应用");
+              // 解锁
+              await unLockUpgrade({ force: true })
+            }
             return {
               code: -1,
               msg: '下载失败，请重试'
