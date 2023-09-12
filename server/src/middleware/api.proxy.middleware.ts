@@ -1,33 +1,31 @@
-var proxy = require('express-http-proxy');
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request } from "express";
+const proxy = require('express-http-proxy');
 
 interface Option {
   proxyTarget?: string;
 }
 
 export function apiProxy(option: Option = {}) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const url = req.url.replace('/paas/api/proxy', '');
-    req.state = {
-      proxy: false
+  return async (req: Request, res, next: NextFunction) => {
+    try {
+      const url = req.headers['X-Target-Url'] || req.headers['x-target-url'];
+      const regex = /(?:https?:\/\/)?(?:www\.)?([^\/]+)/;
+      const host = url?.match?.(regex)?.[1];
+
+      if (!/(?:\/[^\/]*)?\/paas\/api\/proxy/.test(req.path) || !url || !host) {
+        return next();
+      }
+      /** 防止代理到自身，造成死循环 */
+      if (host === req.hostname) return next();
+
+      const origin = url.match(/(https?:\/\/)?(?:www\.)?([^\/]+)/)?.[0];
+      req.url = url.replace(origin, '');
+      req.headers.origin = origin;
+      req.headers.host = host;
+
+      return proxy(url, { limit: '100mb' })(req, res, next);
+    } catch (e) {
+      return next();
     }
-
-    if (!req.headers['x-target-host']) return await next();
-
-    let { proxyTarget = req.headers['x-target-host'] } = option;
-    const host = proxyTarget.replace(/https?\:\/\//, '');
-
-    // 防止代理到自身，造成死循环
-    if (host === req.host) return next();
-
-    // 标识已经走代理，避免后续中间件继续执行，导致路由表找不到定义而抛出404异常
-    req.state.proxy = true;
-
-    req.headers.origin = req.headers['x-target-host'];
-    req.headers.host = host;
-
-    return proxy(proxyTarget, {
-      limit: '100mb',
-    });
   };
 }

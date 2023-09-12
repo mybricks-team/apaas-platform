@@ -85,6 +85,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [openSystemWhiteListSwitch, setOpenSystemWhiteListSwitch] = useState(initialValues?.openSystemWhiteList)
   const [openLogoutSwitch, setOpenLogoutSwitch] = useState(initialValues?.openLogout)
   const [openUserInfoSettingSwitch, setOpenUserInfoSettingSwitch] = useState(initialValues?.openUserInfoSetting)
+  const [openConflictDetectionSwitch, setOpenConflictDetectionSwitch] = useState(initialValues?.openConflictDetection)
 
   useEffect(() => {
     if (!initialValues) {
@@ -124,13 +125,6 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
           <Input placeholder='页面html的favicon' />
         </Form.Item>
         <Form.Item
-          initialValue=""
-          label="ChatGpt凭证"
-          name="chatGptToken"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
           initialValue=''
           label="开启系统白名单"
           name="openSystemWhiteList"
@@ -154,6 +148,11 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         >
           <Switch checked={openUserInfoSettingSwitch} onChange={() => {
             setOpenUserInfoSettingSwitch(!openUserInfoSettingSwitch)
+            label="开启升级冲突检测"
+            name="openConflictDetection"
+        >
+          <Switch checked={openConflictDetectionSwitch} onChange={() => {
+            setOpenConflictDetectionSwitch(!openConflictDetectionSwitch)
           }} />
         </Form.Item>
         <Form.Item
@@ -345,6 +344,9 @@ const AboutForm = ({ currentPlatformVersion }) => {
             setIsDownloading(false)
             console.log(e)
           })
+        } else {
+          setIsDownloading(false)
+          message.info(res?.data?.msg || '下载失败，请稍后重试')
         }
       }).catch(e => {
         setIsDownloading(false)

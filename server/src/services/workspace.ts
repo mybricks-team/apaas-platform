@@ -9,7 +9,6 @@ import ConfigDao from "../dao/config.dao";
 import UserDao from "../dao/UserDao";
 import * as axios from "axios";
 import FileService from '../module/file/file.controller'
-import ConfigService from './config'
 import { getRealDomain } from "../utils";
 import UserGroupDao from "../dao/UserGroupDao"
 import UploadService from '../module/upload/upload.service';
@@ -29,7 +28,6 @@ export default class WorkspaceService {
   fileContentDao: FileContentDao;
   filePubDao: FilePubDao;
   fileService: FileService;
-  configService: ConfigService;
   userService: UserService;
   userDao: UserDao;
   userGroupDao: UserGroupDao;
@@ -42,7 +40,6 @@ export default class WorkspaceService {
     this.configDao = new ConfigDao();
     this.fileService = new FileService();
     this.userService = new UserService();
-    this.configService = new ConfigService()
     this.userDao = new UserDao();
     this.userGroupDao = new UserGroupDao();
     this.uploadService = new UploadService()
@@ -145,11 +142,15 @@ export default class WorkspaceService {
 
   @Get("/workspace/getFullFile")
   async getFullFile(@Query() query) {
-    const { fileId } = query;
-
+    const { fileId, version } = query;
     try {
       const rtn = await this.fileDao.queryById(fileId);
-      const res = await this.fileContentDao.getLatestContentId({ fileId: fileId });
+      let res;
+      if(version) {
+        res = await this.fileContentDao.getContentByVersionAndFileId({ fileId: fileId, version: version });
+      } else {
+        res = await this.fileContentDao.getLatestContentId({ fileId: fileId });
+      }
       /** fileDao.queryById 引用处比较多，就不修改其连表当时，使用单独查一次 user 的方式 */
       const user = await this.userDao.queryById({ id: rtn.updatorId });
       let content = null

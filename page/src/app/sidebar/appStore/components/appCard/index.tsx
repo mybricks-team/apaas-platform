@@ -124,7 +124,7 @@ const AppCard: FC<AppCardProps> = props => {
 				
 				message.open({
 					type: 'error',
-					content: res.data.message || (app.operateType === 'install' ? '应用安装失败' : '应用升级失败'),
+					content: res.data.msg || (app.operateType === 'install' ? '应用安装失败' : '应用升级失败'),
 					key: LOADING_KEY,
 					duration: 3,
 				})
