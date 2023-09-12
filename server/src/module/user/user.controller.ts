@@ -13,6 +13,7 @@ import FileDao from '../../dao/FileDao';
 import UserDao from '../../dao/UserDao';
 import { Logs } from '../../utils';
 import UserService from './user.service';
+import { Logger } from '@mybricks/rocker-commons';
 
 @Controller('/paas/api/user')
 export default class UserController {
@@ -282,7 +283,7 @@ export default class UserController {
           try {
             userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.nick
           } catch(e) {
-            console.log(e)
+            Logger.info(e)
           }
         }
       }
@@ -318,7 +319,7 @@ export default class UserController {
         };
       }
     } catch(e) {
-      console.log(e)
+      Logger.info(e)
       return {
         code: -1,
         msg: e.message || '获取用户态失败'

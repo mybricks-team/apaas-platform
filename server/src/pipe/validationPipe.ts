@@ -1,6 +1,7 @@
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
+import { Logger } from '@mybricks/rocker-commons';
 
 @Injectable()
 export default class ValidationPipe implements PipeTransform<any> {
@@ -14,7 +15,7 @@ export default class ValidationPipe implements PipeTransform<any> {
       errors = await validate(object);
     } catch(e) {
       // 兼容 validate 导致的上下文路径丢失，例如：/node_modules/src/validation/ValidationExecutor.ts:62:14
-      console.log('[Validation Error]:' + e.message)
+      Logger.info('[Validation Error]:' + e.message)
     }
     if (errors?.length > 0) {
       throw new BadRequestException(Object.values(errors?.[0]?.constraints)?.[0] || '参数格式有误');

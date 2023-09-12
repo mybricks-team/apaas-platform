@@ -1,5 +1,6 @@
 const env = require('../../env.js')
 const fs = require('fs');
+import { Logger } from '@mybricks/rocker-commons'
 
 const lockUpgrade = async () => {
   return new Promise(async (resolve, reject) => {
@@ -9,7 +10,7 @@ const lockUpgrade = async () => {
         if(Date.now() - birthtimeMs > 5 * 60 * 1000) {
           // 如果五分钟直接解锁
           fs.unlinkSync(env.FILE_UPGRADE_LOCK_FILE)
-          console.log('超过五分钟直接解锁')
+          Logger.info('超过五分钟直接解锁')
           resolve(fd)
           return
         }

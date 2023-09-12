@@ -89,7 +89,7 @@ export default class FileController {
       };
 
     } catch(e) {
-      console.info(e)
+      Logger.info(e)
       return {
         code: -1,
         msg: e.message || '出错了'
@@ -1545,7 +1545,7 @@ export default class FileController {
     @Body('deliveryChannel') deliveryChannel: string
   ) {
     if (!id) {
-      console.info(`[updateDeliveryChannel]: 缺少参数`);
+      Logger.info(`[updateDeliveryChannel]: 缺少参数`);
       return {
         msg: '缺少参数',
         code: -1

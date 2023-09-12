@@ -317,7 +317,7 @@ export default class SystemService {
         });
 
         if (success) {
-          console.log('data', data);
+          Logger.info('data', data)
           res = data._CUSTOM_ ? data.data : {
             code: 1,
             data,
@@ -601,7 +601,7 @@ export default class SystemService {
               data: platformVersion
             }
           } catch (e) {
-            console.log(e)
+            Logger.info(e)
             return {
               code: -1,
               msg: e.message
@@ -734,7 +734,7 @@ export default class SystemService {
         msg: '未知指令'
       }
     } catch(err) {
-      console.log(err)
+      Logger.info(err)
       return {
         code: -1,
         msg: `[${type}]:` + err.message

@@ -4,26 +4,27 @@ const path = require('path');
 const fs = require('fs');
 const env = require('../../../env.js')
 import { STATUS_CODE } from '../../constants';
+import { Logger } from '@mybricks/rocker-commons'
 
 @Injectable()
 export default class SessionService {
 	async checkUserSession({ fileId, projectId }, req: any) {
 		// 优先判断小程序，等小程序上线改造后，再和后面的逻辑合并
 		if (req.headers.referer?.includes('servicewechat.com') || req.headers?.['x-mybricks-debug'] || req.headers?.['X-Mybricks-Debug']) {
-			console.log('不需要登录态')
+			Logger.info('不需要登录态')
 			return { userId: '' };
 		}
 		const metaPath = path.join(env.FILE_LOCAL_STORAGE_FOLDER, `/staging/project/${projectId}`, `PROJECT_META.json`);
 
 		if (!fs.existsSync(metaPath)) {
 			/** 文件不存在 */
-			console.log('PROJECT_META.json 文件不存在');
+			Logger.info('PROJECT_META.json 文件不存在');
 			return { userId: '' };
 		}
 		const projectMeta = require(metaPath);
 
 		if (!projectMeta.useLogin) {
-			console.log('聚合页未开启登录态校验')
+			Logger.info('聚合页未开启登录态校验')
 			return { userId: '' };
 		}
 

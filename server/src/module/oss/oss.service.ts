@@ -46,7 +46,7 @@ export default class OssService {
         throw new Error('上传 OSS 失败!')
       }
     } catch (e) {
-      console.log(e);
+      Logger.info(e);
       throw e;
     }
   }

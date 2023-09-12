@@ -198,7 +198,7 @@ export default class AppsService {
           }
         }) 
       } catch(e) {
-        console.log(e)
+        Logger.info(e)
       }
 
       return {
@@ -219,7 +219,7 @@ export default class AppsService {
     const systemConfig = await this.configService.getConfigByScope(['system'])
     try {
       if(systemConfig?.system?.config?.openConflictDetection) {
-        console.log('开启了冲突检测')
+        Logger.info('开启了冲突检测')
         await lockUpgrade()
       }
     } catch(e) {
@@ -352,7 +352,7 @@ export default class AppsService {
         };
       }
 
-      console.log('更新版本', installedApp)
+      Logger.info('更新版本', installedApp)
     }
     const rawApplicationStr = fs.readFileSync(
       path.join(process.cwd(), "./application.json"),

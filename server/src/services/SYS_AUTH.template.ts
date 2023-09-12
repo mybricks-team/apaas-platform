@@ -1,4 +1,3 @@
-
 function startExe(obj, { dbConnection }) {
   const _execSQL = async (sql, { args }) => {
     const conn = dbConnection;

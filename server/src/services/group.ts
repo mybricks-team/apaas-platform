@@ -3,6 +3,7 @@ import UserDao from '../dao/UserDao'
 import UserGroupDao from '../dao/UserGroupDao'
 import UserGroupRelation from '../dao/UserGroupRelationDao'
 import UserService from '../module/user/user.service';
+import { Logger } from '@mybricks/rocker-commons';
 
 @Controller('/paas/api')
 export default class UserGroupService {
@@ -56,7 +57,7 @@ export default class UserGroupService {
         data: { id: rtn.insertId },
       };
     } catch (ex) {
-      console.log(ex)
+      Logger.info(ex)
       return {
         code: -1,
         message: ex.message,

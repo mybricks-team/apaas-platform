@@ -1,3 +1,4 @@
+import { Logger } from "@mybricks/rocker-commons";
 import * as path from "path";
 
 export default {
@@ -22,7 +23,7 @@ export default {
       // @ts-ignore
       return ecosystemConfig?.apps?.[0]?.name ?? 'index'
     } catch(e) {
-      console.log(e)
+      Logger.info(e)
       return 'index'
     }
   },

@@ -641,7 +641,6 @@ export default class FileDao extends DOBase {
     updatorId: string
     updatorName?: string
   }) {
-    console.log(query)
     const result = await this.exe<any>('apaas_file:recoverFile', {
       ...query,
       updateTime: new Date().getTime()

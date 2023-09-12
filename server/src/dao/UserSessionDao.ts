@@ -77,7 +77,6 @@ export default class UserSessionDao extends DOBase {
     userId: number,
     fingerprint: string
   }): Promise<any> {
-    console.log(params)
     const result = await this.exe<any>(
       'apaas_user_session:updateFingerprintByUserId',
       {
