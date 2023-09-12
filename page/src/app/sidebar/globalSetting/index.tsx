@@ -83,6 +83,8 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
 const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [form] = Form.useForm()
   const [openSystemWhiteListSwitch, setOpenSystemWhiteListSwitch] = useState(initialValues?.openSystemWhiteList)
+  const [openLogoutSwitch, setOpenLogoutSwitch] = useState(initialValues?.openLogout)
+  const [openUserInfoSettingSwitch, setOpenUserInfoSettingSwitch] = useState(initialValues?.openUserInfoSetting)
 
   useEffect(() => {
     if (!initialValues) {
@@ -135,6 +137,23 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         >
           <Switch checked={openSystemWhiteListSwitch} onChange={() => {
             setOpenSystemWhiteListSwitch(!openSystemWhiteListSwitch)
+          }} />
+        </Form.Item>
+        <Form.Item
+          initialValue=''
+          label="开启退出登录"
+          name="openLogout"
+        >
+          <Switch checked={openLogoutSwitch} onChange={() => {
+            setOpenLogoutSwitch(!openLogoutSwitch)
+          }} />
+        </Form.Item><Form.Item
+          initialValue=''
+          label="开启个人资料设置"
+          name="openUserInfoSetting"
+        >
+          <Switch checked={openUserInfoSettingSwitch} onChange={() => {
+            setOpenUserInfoSettingSwitch(!openUserInfoSettingSwitch)
           }} />
         </Form.Item>
         <Form.Item

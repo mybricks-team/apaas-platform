@@ -101,6 +101,18 @@ export default class UserDao extends DOBase {
     return result?.[0] ? result?.[0]?.total : null
   }
 
+  public async setUserInfo(param: { userId, name }): Promise<any> {
+    let newParam = {
+      ...param,
+      updateTime: Date.now()
+    }
+    const result = await this.exe<any>(
+      'apaas_user:setUserInfo',
+      newParam
+    )
+    return result?.[0] ? result?.[0]?.total : null
+  }
+
   @Mapping(UserDO)
   public async queryByEmail(params: {
     email: string
