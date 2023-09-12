@@ -148,8 +148,12 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         >
           <Switch checked={openUserInfoSettingSwitch} onChange={() => {
             setOpenUserInfoSettingSwitch(!openUserInfoSettingSwitch)
-            label="开启升级冲突检测"
-            name="openConflictDetection"
+          }} />
+        </Form.Item>
+        <Form.Item
+          initialValue=''
+          label="开启升级冲突检测"
+          name="openConflictDetection"
         >
           <Switch checked={openConflictDetectionSwitch} onChange={() => {
             setOpenConflictDetectionSwitch(!openConflictDetectionSwitch)
