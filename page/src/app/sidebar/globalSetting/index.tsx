@@ -329,6 +329,9 @@ const AboutForm = ({ currentPlatformVersion }) => {
             setIsDownloading(false)
             console.log(e)
           })
+        } else {
+          setIsDownloading(false)
+          message.info(res?.data?.msg || '下载失败，请稍后重试')
         }
       }).catch(e => {
         setIsDownloading(false)
