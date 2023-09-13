@@ -193,13 +193,15 @@ function Projects() {
               axios({
                 method: "post",
                 url: getApiUrl('/paas/api/workspace/deleteFile'),
-                data: {id: item.id, userId: appCtx.user.id}
+                data: {id: project.id, userId: appCtx.user.id}
               }).then(async ({data}) => {
                 if (data.code === 1) {
                   ctx.getAll(getUrlQuery());
+                  console.log('进来了',folderExtnames, extName)
                   if (folderExtnames.includes(extName)) {
                     await appCtx.refreshSidebar();
                   }
+                  message.success('删除成功');
                   resolve(true);
                 } else {
                   message.error(`删除项目错误：${data.message}`);
@@ -372,7 +374,7 @@ function Projects() {
         render: (name, record) => {
           return (
             <DragFile item={record} canDrag={(record.creatorId == userId) || [1, 2].includes(roleDescription)} drag={moveModalOk}>
-              <div className={css.tableName} onClick={() => operate('open', {project: record})}>
+              <div className={css.tableName} onClick={() => operate('open', { project: record })}>
                 <div className={css.tableNameIcon}>
                   <Icon
                     icon={APPSMap[record.extName].icon}

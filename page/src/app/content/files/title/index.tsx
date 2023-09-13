@@ -163,9 +163,9 @@ export default function TitleBar(): JSX.Element {
         const currentPath = ctx.path?.[ctx.path.length - 1];
         // console.log('currentPath', currentPath)
         const { groupId, parentId } = getUrlQuery();
-        // console.log('groupId', groupId, parentId)
-        parentId ?? formData.append('parentId', parentId);
-        groupId ?? formData.append('groupId', groupId);
+        console.log(groupId, parentId)
+        parentId && formData.append('parentId', parentId);
+        groupId && formData.append('groupId', groupId);
 
         // // setUploading(true);
         fetch(`${getApiUrl(importApi)}`, {

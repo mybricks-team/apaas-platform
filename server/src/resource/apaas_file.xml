@@ -579,33 +579,63 @@
     </select>
 
     <select id="getMyFiles">
-        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon, share_type  from apaas_file 
-        where creator_id = #{userId}
-        and status = #{status} 
-        and group_id is null 
+        select 
+            apaas_file.id,
+            apaas_file.creator_id,
+            apaas_user.name as creator_name,
+            apaas_file.group_id,
+            apaas_file.parent_id,
+            apaas_file.name,
+            apaas_file.ext_name,
+            apaas_file.create_time,
+            apaas_file.update_time,
+            apaas_file.description,
+            apaas_file.status,
+            case WHEN apaas_file.icon = '' THEN '0' WHEN apaas_file.icon REGEXP '^https?://' THEN apaas_file.icon ELSE '0' end as has_icon, 
+            apaas_file.share_type  
+        from apaas_file 
+        left JOIN apaas_user ON apaas_file.creator_id = apaas_user.id
+        where apaas_file.creator_id = #{userId}
+        and apaas_file.status = #{status} 
+        and apaas_file.group_id is null 
          <choose>
             <when test="parentId">
-                and parent_id = #{parentId}
+                and apaas_file.parent_id = #{parentId}
             </when>
             <otherwise>
-                and parent_id is null
+                and apaas_file.parent_id is null
             </otherwise>
         </choose>
         <if test="extNames != null">
-            and ext_name in
+            and apaas_file.ext_name in
             <foreach collection="extNames" item="extName" open="(" close=")" separator="," index="index">
                 #{extName}
             </foreach>
         </if>
-        order by create_time desc
+        order by apaas_file.id desc
     </select>
 
     <select id="getGroupFiles">
-        select id,creator_id,creator_name,group_id,parent_id,name,ext_name,create_time,update_time,description,status,case WHEN icon = '' THEN '0' WHEN icon REGEXP '^https?://' THEN icon ELSE '0' end as has_icon, share_type  from apaas_file 
-        where status = #{status}
+        select 
+            apaas_file.id,
+            apaas_file.creator_id, 
+            apaas_user.name as creator_name,
+            apaas_file.group_id,
+            apaas_file.parent_id,
+            apaas_file.name,
+            apaas_file.ext_name,
+            apaas_file.create_time,
+            apaas_file.update_time,
+            apaas_file.description,
+            apaas_file.status,
+            case WHEN apaas_file.icon = '' THEN '0' WHEN apaas_file.icon REGEXP '^https?://' THEN apaas_file.icon ELSE '0' end as has_icon, 
+            apaas_file.share_type  
+        from apaas_file 
+        left JOIN apaas_user ON apaas_file.creator_id = apaas_user.id
+        where apaas_file.status = #{status}
         <choose>
             <when test="groupId">
-                and group_id = #{groupId}
+                and apaas_file.group_id = #{groupId}
             </when>
             <otherwise>
                 and 1
@@ -613,19 +643,19 @@
         </choose>
         <choose>
             <when test="parentId">
-                and parent_id = #{parentId}
+                and apaas_file.parent_id = #{parentId}
             </when>
             <otherwise>
-                and parent_id is null
+                and apaas_file.parent_id is null
             </otherwise>
         </choose>
         <if test="extNames != null">
-            and ext_name in
+            and apaas_file.ext_name in
             <foreach collection="extNames" item="extName" open="(" close=")" separator="," index="index">
                 #{extName}
             </foreach>
         </if>
-        order by create_time desc
+        order by apaas_file.id desc
     </select>
 
     <select id="exactQuery">
