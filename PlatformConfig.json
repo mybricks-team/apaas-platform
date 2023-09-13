@@ -1,0 +1,41 @@
+{
+  "database": {
+    "dbType": "MYSQL",
+    "host": "47.111.7.45",
+    "user": "apaas-staging",
+    "password": "mBcLYBXTyJM8CERc",
+    "port": 3306,
+    "databaseName": "apaas-staging",
+    "sqlPath": "./resource"
+  },
+  "platformConfig": {
+    "logo": "https://f2.eckwai.com/kos/nlav12333/chrome-plugin-upload/2023-07-10/1688984026717.0849c8283f24ed53.svg",
+    "title": "前端 | 工作台",
+    "favicon": "https://f2.eckwai.com/kos/nlav12333/chrome-plugin-upload/2023-07-10/1688985105204.c0703a1463af6ad6.ico"
+  },
+  "adminUser": {
+    "email": "admin@mybricks.com",
+    "password": "123456"
+  },
+  "installApps": [
+    {
+      "type": "oss",
+      "version": "0.4.10",
+      "namespace": "mybricks-pc-page",
+      "path": "asset-center/asset/app/mybricks-pc-page/0.4.10/mybricks-pc-page.zip"
+    },
+    {
+      "type": "oss",
+      "version": "0.1.45",
+      "namespace": "mybricks-material",
+      "path": "asset-center/asset/app/mybricks-material/0.1.45/mybricks-material.zip"
+    },
+    {
+      "type": "oss",
+      "version": "0.2.81",
+      "namespace": "mybricks-domain",
+      "path": "asset-center/asset/app/mybricks-domain/0.2.75/mybricks-domain.zip"
+    }
+  ],
+  "platformDomain": "http://localhost:3100/"
+}
