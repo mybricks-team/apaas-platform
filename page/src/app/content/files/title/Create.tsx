@@ -8,7 +8,7 @@ import React, {
 
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
-import {message, Modal, Form, Input, Radio} from 'antd'
+import {message, Modal, Form, Input, Radio, Select} from 'antd'
 
 import {Icon} from '../../../components'
 import Ctx, {folderExtnames} from '../Ctx'
@@ -131,7 +131,7 @@ export function Create(): JSX.Element {
     return new Promise(async (resolve, reject) => {
       const item = ctx.path[ctx.path.length - 1];
       const isGroup = !!!item.extName && !!item.id
-      const { fileName, type } = values
+      const { fileName, componentType } = values
       const { extName, isSystem } = app
       const params: any = {
         extName,
@@ -167,7 +167,7 @@ export function Create(): JSX.Element {
           axios({
             method: 'post',
             url: getApiUrl('/paas/api/file/createFileBaseTemplate'),
-            data: { ...params, name: fileName, type, templateId: chooseTemplate.fileId }
+            data: { ...params, name: fileName, templateId: chooseTemplate.fileId }
           }).then(async ({data}) => {
             if (data.code === 1) {
               const appReg = appCtx.APPSMap[extName]
@@ -194,7 +194,7 @@ export function Create(): JSX.Element {
           axios({
             method: 'post',
             url: getApiUrl('/paas/api/workspace/createFile'),
-            data: { ...params, name: fileName, type }
+            data: { ...params, name: fileName, componentType }
           }).then(async ({data}) => {
             if (data.code === 1) {
               const appReg = appCtx.APPSMap[extName]
@@ -367,7 +367,17 @@ function CreateFileModal({app, onOk, onCancel}) {
             onPressEnter={() => context.submittable && ok()}
           />
         </Form.Item>
-	      {['cloud-com', 'mp-cloudcom'].includes(app?.extName) ? (
+        {['cloud-com', 'theme'].includes(app?.extName) ? (
+          <Form.Item label='类型' name="componentType" initialValue="PC">
+            <Select
+              options={[
+                { value: 'PC', label: 'PC' },
+                { value: 'H5', label: 'H5' }
+              ]}
+            />
+          </Form.Item>
+        ) : null}
+	      {/* {['cloud-com', 'mp-cloudcom'].includes(app?.extName) ? (
 		      <Form.Item label='类型' name="type" initialValue="other">
 			      <Radio.Group
               options={[
@@ -378,7 +388,7 @@ function CreateFileModal({app, onOk, onCancel}) {
               ]}
             />
 		      </Form.Item>
-	      ) : null}
+	      ) : null} */}
 	
 	      {/*{['domain'].includes(app?.extName) ? (*/}
 		    {/*  <Form.Item label='类型' name="type" initialValue="normal">*/}

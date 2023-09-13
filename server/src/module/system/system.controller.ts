@@ -216,8 +216,8 @@ export default class SystemService {
   }
 	
 	
-	@Post('/system/domain/entity/list')
-	async getDomainEntityList(@Body('fileId') fileId: number) {
+  @Post('/system/domain/entity/list')
+  async getDomainEntityList(@Body('fileId') fileId: number) {
 		try {
 			const currentFileHierarchy = await this.fileService._getParentModuleAndProjectInfo(fileId)
 			let totalList = [];
@@ -318,7 +318,7 @@ export default class SystemService {
 
         if (success) {
           Logger.info('data', data)
-          res = data._CUSTOM_ ? data.data : {
+          res = data?._CUSTOM_ ? data.data : {
             code: 1,
             data,
             msg,
@@ -348,17 +348,7 @@ export default class SystemService {
     }
   }
 
-  // 领域建模运行时
-  @Post('/system/domain/run')
-  async systemDomainRun(
-    // 通用参数
-    @Body('serviceId') serviceId: string,
-    @Body('params') params: any,
-    @Body('fileId') fileId: number,
-    @Body('projectId') projectId: number,
-    @Req() req: any,
-    @Res({ passthrough: true }) response: Response
-  ) {
+  async _execDomainRun(req, response, { serviceId, fileId, params, projectId }) {
     let sessionRes: any = {};
     // 如果是项目下，需要检测登录态，否则不需要
     if(serviceId !== 'login' && serviceId !== 'register') {
@@ -405,102 +395,93 @@ export default class SystemService {
       })
       delete res?.data?.凭证
     }
-    
-    return res
+
+    return res;
+  }
+
+  // 领域建模运行时
+  @Post('/system/domain/run')
+  async systemDomainRun(
+    // 通用参数
+    @Body('serviceId') serviceId: string,
+    @Body('params') params: any,
+    @Body('fileId') fileId: number,
+    @Body('projectId') projectId: number,
+    @Req() req: any,
+    @Res({ passthrough: true }) response: Response
+  ) {
+    return await this._execDomainRun(req, response, { fileId, params, serviceId, projectId });
   }
 
   // 领域建模运行时
   @Post('/system/domain/run/:fileId/:serviceId')
   async systemDomainRunById_Post(
-    // 通用参数
     @Body() params: any,
+    @Body('projectId') projectId: number,
     @Query() query: any,
     @Req() req: any,
     @Param('fileId') fileId: number,
     @Param('serviceId') serviceId: string,
+    @Res({ passthrough: true }) response: Response
   ) {
-    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+    return await this._execDomainRun(req, response, {
       fileId,
-      env: 'prod',
-      serviceId,
-    })
-    return await this._execServicePub(pubInfo, {
-      fileId,
-      serviceId,
       params: { ...(query || {}), ...(params || {}) },
-      headers: req.headers
-    })
+      serviceId,
+      projectId
+    });
   }
 
   // 领域建模运行时
   @Get('/system/domain/run/:fileId/:serviceId')
   async systemDomainRunById_Get(
-    // 通用参数
     @Query() params: any,
+    @Query('projectId') projectId: number,
     @Req() req: any,
     @Param('fileId') fileId: number,
     @Param('serviceId') serviceId: string,
+    @Res({ passthrough: true }) response: Response
   ) {
-    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
-      fileId,
-      env: 'prod',
-      serviceId,
-    })
-    return await this._execServicePub(pubInfo, {
-      fileId,
-      serviceId,
-      params,
-      headers: req.headers
-    })
+    return await this._execDomainRun(req, response, { fileId, params, serviceId, projectId });
   }
 
   // 领域建模运行时
   @Post('/system/domain/run/:fileId/:serviceId/:action')
   async systemDomainRunById_Action_Post(
-    // 通用参数
     @Body() params: any,
+    @Body('projectId') projectId: number,
     @Query() query: any,
     @Req() req: any,
     @Param('fileId') fileId: number,
     @Param('action') action: string,
     @Param('serviceId') serviceId: string,
+    @Res({ passthrough: true }) response: Response
   ) {
-    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+    return await this._execDomainRun(req, response, {
       fileId,
-      env: 'prod',
-      serviceId,
-    });
-
-    return await this._execServicePub(pubInfo, {
-      fileId,
-      serviceId,
       params: { ...(query || {}), ...(params || {}), action },
-      headers: req.headers
-    })
+      serviceId,
+      projectId
+    });
   }
 
   // 领域建模运行时
   @Get('/system/domain/run/:fileId/:serviceId/:action')
   async systemDomainRunById_Action_Get(
-    // 通用参数
-    @Query() params: any,
-    @Req() req: any,
-    @Param('fileId') fileId: number,
-    @Param('serviceId') serviceId: string,
-    @Param('action') action: string,
+      @Query() params: any,
+      @Req() req: any,
+      @Query('projectId') projectId: number,
+      @Param('fileId') fileId: number,
+      @Param('serviceId') serviceId: string,
+      @Param('action') action: string,
+      @Res({ passthrough: true }) response: Response
   ) {
-    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+    return await this._execDomainRun(req, response, {
       fileId,
-      env: 'prod',
-      serviceId,
-    });
-
-    return await this._execServicePub(pubInfo, {
-      fileId,
-      serviceId,
       params: { ...(params || {}), action },
-      headers: req.headers
-    })
+      serviceId,
+      projectId
+    });
   }
 
   @Post('/system/domain/execSql')
@@ -747,126 +728,6 @@ export default class SystemService {
     childProcess.exec(`npx pm2 reload all`)
     return {
       code: 1,
-    };
-  }
-
-  @Get('/system/refactorUser')
-  async refactorUser() {
-    const tables = [
-      {
-        name: 'apaas_config',
-        fieldName: ['creator_id', 'updator_id'],
-      },
-      {
-        name: 'apaas_file',
-        fieldName: ['creator_id', 'updator_id'],
-      },
-      {
-        name: 'apaas_file_content',
-        fieldName: ['creator_id'],
-      },
-      {
-        name: 'apaas_file_cooperation',
-        fieldName: ['user_id'],
-      },
-      {
-        name: 'apaas_file_pub',
-        fieldName: ['creator_id'],
-      },
-      {
-        name: 'apaas_module_info',
-        fieldName: ['creator_id'],
-      },
-      {
-        name: 'apaas_module_pub_info',
-        fieldName: ['creator_id'],
-      },
-      {
-        name: 'apaas_project_info',
-        fieldName: [],
-      },
-      {
-        name: 'apaas_service_pub',
-        fieldName: ['creator_id'],
-      },
-      {
-        name: 'apaas_user',
-        fieldName: [],
-      },
-      {
-        name: 'apaas_user_file_relation',
-        fieldName: ['creator_id', 'updator_id'],
-      },
-      {
-        name: 'apaas_user_group',
-        fieldName: ['creator_id', 'updator_id'],
-      },
-      {
-        name: 'apaas_user_group_relation',
-        fieldName: ['creator_id', 'updator_id', 'user_id'],
-      },
-      {
-        name: 'apaas_user_log',
-        fieldName: ['user_id'],
-      },
-      {
-        name: 'apaas_user_session',
-        fieldName: ['user_id'],
-      },
-      {
-        name: 'domain_table_action',
-        fieldName: ['creator_id'],
-      },
-      {
-        name: 'domain_table_meta',
-        fieldName: ['creator_id'],
-      },
-      {
-        name: 'material_info',
-        fieldName: ['creator_id', 'updator_id'],
-      },
-      {
-        name: 'material_pub_info',
-        fieldName: ['creator_id', 'updator_id'],
-      }
-    ];
-    const allUser = await this.refreshDao.queryAll('apaas_user', ['email']);
-    const userMap = allUser.reduce((pre, user) => ({ ...pre, [user.email]: user.id }), {});
-    const ignoreList = [];
-
-    for (const table of tables) {
-      if (table && table.fieldName.length) {
-        const ignoreTable = { name: table.name, fields: table.fieldName, ignoreList: [] };
-        const tableInfo = await this.refreshDao.queryAll(table.name, table.fieldName);
-
-        for (const item of tableInfo) {
-          for (const field of table.fieldName) {
-            if (typeof item[field] !== 'string' || Number(item[field]) == item[field]) {
-              continue;
-            }
-            const userId = userMap[item[field]];
-
-            if (userId) {
-              await this.refreshDao.update({ table: table.name, id: item.id, value: userId, field });
-            } else {
-              ignoreTable.ignoreList.push(item.id);
-            }
-          }
-        }
-
-        if (ignoreTable.ignoreList.length) {
-          ignoreList.push(ignoreTable);
-        }
-      }
-    }
-
-    if (ignoreList.length) {
-      fs.writeFileSync(path.join(__dirname, './refreshIgnoreList.json'), JSON.stringify(ignoreList), 'utf-8');
-    }
-
-    return {
-      code: 1,
-      data: '刷新完成',
     };
   }
 }
