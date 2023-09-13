@@ -216,8 +216,8 @@ export default class SystemService {
   }
 	
 	
-	@Post('/system/domain/entity/list')
-	async getDomainEntityList(@Body('fileId') fileId: number) {
+  @Post('/system/domain/entity/list')
+  async getDomainEntityList(@Body('fileId') fileId: number) {
 		try {
 			const currentFileHierarchy = await this.fileService._getParentModuleAndProjectInfo(fileId)
 			let totalList = [];
@@ -317,8 +317,7 @@ export default class SystemService {
         });
 
         if (success) {
-          console.log('data', data);
-          res = data._CUSTOM_ ? data.data : {
+          res = data?._CUSTOM_ ? data.data : {
             code: 1,
             data,
             msg,
@@ -348,17 +347,7 @@ export default class SystemService {
     }
   }
 
-  // 领域建模运行时
-  @Post('/system/domain/run')
-  async systemDomainRun(
-    // 通用参数
-    @Body('serviceId') serviceId: string,
-    @Body('params') params: any,
-    @Body('fileId') fileId: number,
-    @Body('projectId') projectId: number,
-    @Req() req: any,
-    @Res({ passthrough: true }) response: Response
-  ) {
+  async _execDomainRun(req, response, { serviceId, fileId, params, projectId }) {
     let sessionRes: any = {};
     // 如果是项目下，需要检测登录态，否则不需要
     if(serviceId !== 'login' && serviceId !== 'register') {
@@ -405,102 +394,93 @@ export default class SystemService {
       })
       delete res?.data?.凭证
     }
-    
-    return res
+
+    return res;
+  }
+
+  // 领域建模运行时
+  @Post('/system/domain/run')
+  async systemDomainRun(
+    // 通用参数
+    @Body('serviceId') serviceId: string,
+    @Body('params') params: any,
+    @Body('fileId') fileId: number,
+    @Body('projectId') projectId: number,
+    @Req() req: any,
+    @Res({ passthrough: true }) response: Response
+  ) {
+    return await this._execDomainRun(req, response, { fileId, params, serviceId, projectId });
   }
 
   // 领域建模运行时
   @Post('/system/domain/run/:fileId/:serviceId')
   async systemDomainRunById_Post(
-    // 通用参数
     @Body() params: any,
+    @Body('projectId') projectId: number,
     @Query() query: any,
     @Req() req: any,
     @Param('fileId') fileId: number,
     @Param('serviceId') serviceId: string,
+    @Res({ passthrough: true }) response: Response
   ) {
-    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+    return await this._execDomainRun(req, response, {
       fileId,
-      env: 'prod',
-      serviceId,
-    })
-    return await this._execServicePub(pubInfo, {
-      fileId,
-      serviceId,
       params: { ...(query || {}), ...(params || {}) },
-      headers: req.headers
-    })
+      serviceId,
+      projectId
+    });
   }
 
   // 领域建模运行时
   @Get('/system/domain/run/:fileId/:serviceId')
   async systemDomainRunById_Get(
-    // 通用参数
     @Query() params: any,
+    @Query('projectId') projectId: number,
     @Req() req: any,
     @Param('fileId') fileId: number,
     @Param('serviceId') serviceId: string,
+    @Res({ passthrough: true }) response: Response
   ) {
-    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
-      fileId,
-      env: 'prod',
-      serviceId,
-    })
-    return await this._execServicePub(pubInfo, {
-      fileId,
-      serviceId,
-      params,
-      headers: req.headers
-    })
+    return await this._execDomainRun(req, response, { fileId, params, serviceId, projectId });
   }
 
   // 领域建模运行时
   @Post('/system/domain/run/:fileId/:serviceId/:action')
   async systemDomainRunById_Action_Post(
-    // 通用参数
     @Body() params: any,
+    @Body('projectId') projectId: number,
     @Query() query: any,
     @Req() req: any,
     @Param('fileId') fileId: number,
     @Param('action') action: string,
     @Param('serviceId') serviceId: string,
+    @Res({ passthrough: true }) response: Response
   ) {
-    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+    return await this._execDomainRun(req, response, {
       fileId,
-      env: 'prod',
-      serviceId,
-    });
-
-    return await this._execServicePub(pubInfo, {
-      fileId,
-      serviceId,
       params: { ...(query || {}), ...(params || {}), action },
-      headers: req.headers
-    })
+      serviceId,
+      projectId
+    });
   }
 
   // 领域建模运行时
   @Get('/system/domain/run/:fileId/:serviceId/:action')
   async systemDomainRunById_Action_Get(
-    // 通用参数
-    @Query() params: any,
-    @Req() req: any,
-    @Param('fileId') fileId: number,
-    @Param('serviceId') serviceId: string,
-    @Param('action') action: string,
+      @Query() params: any,
+      @Req() req: any,
+      @Query('projectId') projectId: number,
+      @Param('fileId') fileId: number,
+      @Param('serviceId') serviceId: string,
+      @Param('action') action: string,
+      @Res({ passthrough: true }) response: Response
   ) {
-    const pubInfo = await this.servicePubDao.getLatestPubByFileIdAndServiceId({
+    return await this._execDomainRun(req, response, {
       fileId,
-      env: 'prod',
-      serviceId,
-    });
-
-    return await this._execServicePub(pubInfo, {
-      fileId,
-      serviceId,
       params: { ...(params || {}), action },
-      headers: req.headers
-    })
+      serviceId,
+      projectId
+    });
   }
 
   @Post('/system/domain/execSql')
