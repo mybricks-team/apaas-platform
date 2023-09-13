@@ -6,9 +6,12 @@ _localstorage/
 logs/
 docs/
 page/
+server/config
 node_modules
 /*/**/node_modules/
 
+PlatformConfig_*.json
+application_*.json
 mybricks-apaas.zip
 package-lock.json
 yarn.lock

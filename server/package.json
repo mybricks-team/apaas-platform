@@ -42,6 +42,7 @@
     "parse5": "^7.1.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "url": "^0.11.2",
     "vm-node": "0.0.21"
   },
   "devDependencies": {
