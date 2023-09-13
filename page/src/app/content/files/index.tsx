@@ -26,6 +26,7 @@ import {
   EditOutlined,
   SelectOutlined,
   ShareAltOutlined,
+  ExportOutlined,
   ExclamationCircleFilled
 } from '@ant-design/icons'
 
@@ -170,8 +171,8 @@ function Projects() {
   const [moveApp, setMoveApp] = useState(null)
 
   /** 各种操作 */
-  const operate = useCallback((type, item) => {
-    const {id, name, extName, parentId, groupId, homepage} = item;
+  const operate = useCallback((type, {project, appMeta}) => {
+    const {id, name, extName, parentId, groupId, homepage} = project;
     switch (type) {
       case 'open':
         if (!folderExtnames.includes(extName)) {
@@ -210,7 +211,7 @@ function Projects() {
         })
         break;
       case 'rename':
-        setCreateApp(item)
+        setCreateApp(project)
         break;
       case 'share': 
       case 'unshare': {
@@ -226,7 +227,7 @@ function Projects() {
               axios({
                 method: "post",
                 url: clickShare ? getApiUrl('/paas/api/file/share/mark') : getApiUrl('/paas/api/file/share/unmark'),
-                data: {id: item.id, userId: appCtx.user.id}
+                data: {id: project.id, userId: appCtx.user.id}
               }).then(async ({data}) => {
                 if (data.code === 1) {
                   ctx.getAll(getUrlQuery());
@@ -246,8 +247,35 @@ function Projects() {
         break
       }
       case 'move': {
-        setMoveApp(item)
+        setMoveApp(project)
         break;
+      }
+      case 'exportSnapshot': {
+        axios.post(getApiUrl(appMeta.snapshot.export), {
+          fileId: id,
+          userId: appCtx.user.id
+        },
+        {responseType: 'blob'}
+        ).then((res) => {
+          // console.log(res)
+          const { data, headers } = res
+          const fileName = headers['content-disposition'].replace(/\w+;filename=(.*)/, '$1')
+          const blob = new Blob([data], {type: headers['content-type']})
+          let dom = document.createElement('a')
+          let url = window.URL.createObjectURL(blob)
+          dom.href = url
+          dom.download = decodeURIComponent(fileName)
+          dom.style.display = 'none'
+          document.body.appendChild(dom)
+          dom.click()
+          dom.parentNode.removeChild(dom)
+          window.URL.revokeObjectURL(url)
+        }).catch(e => {
+          console.log(e)
+          message.error(e.message || '导出失败')
+        }) 
+        console.log(111, appMeta)
+        break
       }
       default:
         break;
@@ -279,7 +307,7 @@ function Projects() {
 
           return (
             <DragFile key={project.id} item={project} canDrag={showOperate} drag={moveModalOk}>
-              <div className={css.file} onClick={() => operate('open', project)} onDragEnter={(e) => e.preventDefault()}>
+              <div className={css.file} onClick={() => operate('open', {project})} onDragEnter={(e) => e.preventDefault()}>
                 {
                   alreadyShared ? (
                     <div className={css.share}>
@@ -302,7 +330,7 @@ function Projects() {
                       {project.creatorName}
                     </div>
                   </div>
-                  {showOperate && <RenderOperate project={project} operate={operate}/>}
+                  {showOperate && <RenderOperate project={project} operate={operate} appMeta={appReg} />}
                 </div>
               </div>
             </DragFile>
@@ -344,7 +372,7 @@ function Projects() {
         render: (name, record) => {
           return (
             <DragFile item={record} canDrag={(record.creatorId == userId) || [1, 2].includes(roleDescription)} drag={moveModalOk}>
-              <div className={css.tableName} onClick={() => operate('open', record)}>
+              <div className={css.tableName} onClick={() => operate('open', {project: record})}>
                 <div className={css.tableNameIcon}>
                   <Icon
                     icon={APPSMap[record.extName].icon}
@@ -625,7 +653,7 @@ function DragFile ({item, drag, canDrag, children}) {
   )
 }
 
-function RenderOperate({project, operate, size = 28, iconSize = 18}) {
+function RenderOperate({project, operate, size = 28, iconSize = 18, appMeta}) {
   const {extName} = project
   /** 非文件夹，可分享 */
   const isFolder = folderExtnames.includes(extName)
@@ -638,9 +666,9 @@ function RenderOperate({project, operate, size = 28, iconSize = 18}) {
       label: (
         <div className={css.operateItem} onClick={() => {
           if(alreadyShared) {
-            operate('unshare', project)
+            operate('unshare', {project})
           } else {
-            operate('share', project)
+            operate('share', {project})
           }
         }}>
           <ShareAltOutlined width={16} height={16}/>
@@ -651,7 +679,7 @@ function RenderOperate({project, operate, size = 28, iconSize = 18}) {
     {
       key: 'rename',
       label: (
-        <div className={css.operateItem} onClick={() => operate('rename', project)}>
+        <div className={css.operateItem} onClick={() => operate('rename', {project})}>
           <EditOutlined width={16} height={16}/>
           <div className={css.label}>重命名</div>
         </div>
@@ -660,12 +688,21 @@ function RenderOperate({project, operate, size = 28, iconSize = 18}) {
     {
       key: 'move',
       label: (
-        <div className={css.operateItem} onClick={() => operate('move', project)}>
+        <div className={css.operateItem} onClick={() => operate('move', {project})}>
           <SelectOutlined width={16} height={16}/>
           <div className={css.label}>移动到</div>
         </div>
       )
     },
+    appMeta?.snapshot?.export ? {
+      key: 'exportSnapshot',
+      label: (
+        <div className={css.operateItem} onClick={() => operate('exportSnapshot', {project, appMeta})}>
+          <ExportOutlined width={16} height={16}/>
+          <div className={css.label}>导出</div>
+        </div>
+      )
+    } : undefined,
     {
       key: 'divider1',
       label: (
@@ -675,7 +712,7 @@ function RenderOperate({project, operate, size = 28, iconSize = 18}) {
     {
       key: 'delete',
       label: (
-        <div className={css.operateItem} onClick={() => operate('delete', project)}>
+        <div className={css.operateItem} onClick={() => operate('delete', {project})}>
           <Trash width={16} height={16}/>
           <div className={css.label}>删除</div>
         </div>

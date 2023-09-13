@@ -12,6 +12,9 @@ import {
   Modal,
   Tooltip,
   Divider,
+  Upload,
+  Button,
+  message,
   Breadcrumb
 } from 'antd'
 import {
@@ -21,12 +24,12 @@ import {
   useObservable
 } from '@mybricks/rxui'
 import axios from 'axios'
-import {SearchOutlined} from '@ant-design/icons'
+import {SearchOutlined, DownloadOutlined} from '@ant-design/icons'
 
 import {Create} from './Create'
 import AppCtx from '../../../AppCtx'
 import Ctx, {folderExtnames} from '../Ctx'
-import {getApiUrl} from '../../../../utils'
+import {getApiUrl, getUrlQuery} from '../../../../utils'
 import {useDebounceFn} from '../../../hooks'
 import {Icon, UserGroup} from '../../../components'
 import {FolderModule, FolderProject} from '../../../../app/components'
@@ -34,9 +37,11 @@ import {FolderModule, FolderProject} from '../../../../app/components'
 import css from './index.less'
 
 let ctx
+let appCtx
 
 export default function TitleBar(): JSX.Element {
   ctx = observe(Ctx, {from: "parents"})
+  appCtx = observe(AppCtx, {from: "parents"})
   const [open, setOpen] = useState<number | boolean>(0)
 
   useEffect(() => {
@@ -145,6 +150,67 @@ export default function TitleBar(): JSX.Element {
       </div>
     )
   })
+  
+  const importButton = useComputed(() => {
+    const handleUpload = (file) => {
+      let extName = file?.name?.split('.')?.[1]?.split('@')?.[0]
+      // console.log(1111111111, file, extName)
+      if(extName && appCtx.APPSMap?.[extName]?.snapshot?.import) {
+        const importApi = appCtx.APPSMap?.[extName]?.snapshot?.import
+        const formData = new FormData();
+        formData.append('files[]', file);
+        formData.append('userId', ctx.user.id);
+        const currentPath = ctx.path?.[ctx.path.length - 1];
+        // console.log('currentPath', currentPath)
+        const { groupId, parentId } = getUrlQuery();
+        // console.log('groupId', groupId, parentId)
+        parentId ?? formData.append('parentId', parentId);
+        groupId ?? formData.append('groupId', groupId);
+
+        // // setUploading(true);
+        fetch(`${getApiUrl(importApi)}`, {
+          method: 'POST',
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((res) => {
+            if(res.code === 1) {
+              message.success('导入成功');
+              location.reload();
+            } else {
+              message.warn(res.msg);
+            }
+            console.log('响应是', res)
+          })
+          .catch(() => {
+            message.error('upload failed.');
+          })
+          .finally(() => {
+            // setUploading(false);
+          });
+      } else {
+        message.warn('不支持的文件类型');
+      }
+    };
+    const props = {
+      maxCount: 1,
+      // accept: '.mybricks',
+      showUploadList: false,
+      beforeUpload(file) {
+        console.log(222, file)
+        handleUpload(file)
+        return false;
+      },
+    };
+    // 1 可管理 2 可编辑 3 可查看
+    return ctx.roleDescription && ctx.roleDescription < 3 && appCtx.hasImportAbility && (
+      <div>
+        <Upload {...props}>
+          <button style={{ height: 28 }}> <DownloadOutlined /> 导入</button>
+        </Upload>
+      </div>
+    )
+  })
 
   const RenderSearchModal = useMemo(() => {
     if (typeof open === 'number') {
@@ -166,6 +232,7 @@ export default function TitleBar(): JSX.Element {
           {viewToggleButton}
           {searchButton}
           {createButton}
+          {importButton}
         </div>
       </div>
       {RenderSearchModal}

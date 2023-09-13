@@ -93,7 +93,7 @@ const ProjectItem = ({ item, user, refresh }) => {
 						{item.name}
 					</div>
 					<div className={styles.path} data-content-start={item.path}>
-						将于 {moment(item.startTime).add(15, 'days').format('YYYY-MM-DD HH:mm')} 清理
+						将于 {moment(item.updateTime).add(15, 'days').format('YYYY-MM-DD HH:mm')} 清理
 					</div>
 				</div>
 				

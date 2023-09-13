@@ -54,6 +54,9 @@ export interface T_App {
 
   // 往前指定版本数量的版本信息
   previousList?: T_App[]
+
+  // 文件打快照接口
+  snapshot?: any
 }
 
 /** 只有管理员才能看见的模块namespaces */
@@ -99,6 +102,9 @@ export default class AppCtx {
 
   // 已经安装了物料中心
   hasInstalledMaterialCenter: boolean = false
+
+  // 安装的应用是否包含导入能力
+  hasImportAbility: boolean = false
 
   getCurrentUserSystemConfig() {
     let config = {}
@@ -188,6 +194,9 @@ export default class AppCtx {
     });
 
     apps.forEach((app: T_App) => {
+      if(app.snapshot?.import) {
+        this.hasImportAbility = true
+      }
       /** 根据某个字段去做判断 */
       if (app.namespace === 'mybricks-material') {
         DockerAPPS.push(app);

@@ -66,6 +66,7 @@ export default class AppsService {
             icon: pkgJson?.mybricks?.icon,
             type: pkgJson?.mybricks?.type,
             extName: pkgJson?.mybricks?.extName,
+            snapshot: pkgJson?.mybricks?.snapshot,
             exports: [],
           };
           // 应用设置页面
