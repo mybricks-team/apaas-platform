@@ -8,14 +8,16 @@ docs/
 page/
 server/config
 node_modules
-/*/**/node_modules/
+**/node_modules/
 
-PlatformConfig_*.json
-application_*.json
+**/PlatformConfig_*.json
+**/application_*.json
+**/PlatformConfig.json
+**/application.json
 mybricks-apaas.zip
-package-lock.json
-yarn.lock
-deploy_fangzhou.sh
+**/package-lock.json
+**/yarn.lock
+**/deploy_fangzhou.sh
 sync.js
 .gitignore
 README.md
