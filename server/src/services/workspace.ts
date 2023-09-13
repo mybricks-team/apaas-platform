@@ -177,7 +177,7 @@ export default class WorkspaceService {
 
   @Post("/workspace/createFile")
   async createFile(@Body() body) {
-    const { userId, userName, name, extName, namespace, type, parentId, groupId } = body;
+    const { userId, userName, name, extName, namespace, type, parentId, groupId, componentType } = body;
     if (!userId) {
       return {
         code: -1,
@@ -198,10 +198,10 @@ export default class WorkspaceService {
       });
 			
 			if (rtn.id) {
-        if(['cloud-com', 'mp-cloudcom'].includes(extName)) {
+        if(['cloud-com', 'mp-cloudcom', 'theme'].includes(extName)) {
           await this.fileContentDao.create({
             fileId: rtn.id,
-            content: JSON.stringify({ fileType: type }),
+            content: JSON.stringify({ fileType: type, componentType }),
             version: '1.0.0',
             creatorId: userId,
             creatorName: userId,
