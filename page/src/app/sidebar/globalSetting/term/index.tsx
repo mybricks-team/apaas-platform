@@ -52,9 +52,10 @@ export default function Term() {
 
   const [form] = Form.useForm();
 
-  const getLogStr = async () => {
+  const getLogStr = async (str?: string) => {
+    console.log('str', str)
     return new Promise((resolve, reject) => {
-      axios.post(getApiUrl('/paas/api/log/runtimeLog/search')).then(({ data }) => {
+      axios.post(getApiUrl('/paas/api/log/runtimeLog/search'), { searchValue: str }).then(({ data }) => {
         if(data.code === 1) {
           resolve(data.data)
         }
@@ -97,8 +98,8 @@ export default function Term() {
     }
   }, [realtimeRefresh])
 
-  const refresh = useCallback(() => {
-    getLogStr().then((res) => {
+  const refresh = (str?: string) => {
+    getLogStr(str).then((res) => {
       term.reset()
       term.write(res?.content || '', () => {
         console.log('设置最细内容了')
@@ -106,7 +107,7 @@ export default function Term() {
         term.scrollToBottom()
       });
     })
-  }, [])
+  }
 
   return (
     <div>
@@ -116,7 +117,8 @@ export default function Term() {
           form={form}
           onFinish={(values) => {
             if(values.searchValue) {
-              searchAddon.findNext(values.searchValue)
+              refresh(values.searchValue)
+              // searchAddon.findNext(values.searchValue)
             }
           }}
         >

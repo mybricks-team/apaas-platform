@@ -30,7 +30,13 @@ export default class LogsController {
     try {
       const LINES = line || 100
       const fileName = path.join(env.LOGS_BASE_FOLDER, './application/application.log')
-      const logStr = cp.execSync(`tail -n ${LINES} ${fileName}`).toString()
+      let logStr;
+
+      if(searchValue) {
+        logStr = cp.execSync(`tail -n ${LINES} ${fileName} | grep ${searchValue}`).toString()
+      } else {
+        logStr = cp.execSync(`tail -n ${LINES} ${fileName}`).toString()
+      }
   
       return {
         code: 1,
