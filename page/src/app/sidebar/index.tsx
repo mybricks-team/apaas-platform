@@ -210,7 +210,11 @@ function User() {
     <>
       {!openLogout && !openUserInfoSetting ?
         <div className={css.user}>{appCtx.user.name || appCtx.user.email}</div> :
-        <Dropdown className={css.user} menu={{ items, onClick: onUserMenuClick }}>
+        <Dropdown 
+          className={css.user} 
+          menu={{ items, onClick: onUserMenuClick }}
+          overlayStyle={{ minWidth: 160 }}
+        >
           <Space>
             {appCtx.user.name || appCtx.user.email}
             <DownOutlined />
