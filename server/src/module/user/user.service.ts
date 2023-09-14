@@ -26,6 +26,10 @@ export default class UserService {
     return await this.userDao.setUserRole({userId,role});
   }
 
+  async setUserInfo({userId, name}) {
+    return await this.userDao.setUserInfo({userId, name});
+  }
+
   async queryByEmail({ email }) {
     return await this.userDao.queryByEmail({email});
   }

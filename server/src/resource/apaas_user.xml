@@ -218,6 +218,18 @@
             status = 1
     </update>
 
+    <update id="setUserInfo">
+        update apaas_user
+        set
+        <if test="name != null">
+            name = #{name},
+        </if>
+        update_time = #{updateTime}
+        where
+            id = #{userId} and
+            status = 1
+    </update>
+
     <select id="getGroupOwnerInfo">
         select 
             id,
