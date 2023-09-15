@@ -309,20 +309,25 @@ export default class WorkspaceService {
         });
       }
 
+      const data: any = {}
+
       if (content) {
         const contentItem = (await this.fileContentDao.queryLatestByFileId<FileContentDO>(fileId)) as any;
+        const nextVersion = contentItem?.version ? getNextVersion(contentItem?.version) : "1.0.0"
         await this.fileContentDao.create({
           fileId,
           content,
-          version: contentItem?.version ? getNextVersion(contentItem?.version) : "1.0.0",
+          version: nextVersion,
           creatorId: userId,
           creatorName: originUserId,
         });
+
+        data.version = nextVersion
       }
 
       return {
         code: 1,
-        data: {},
+        data,
       };
     } catch (ex) {
       return {
