@@ -6,6 +6,12 @@ const mysql = require('mysql2');
 const axios = require('axios');
 const { APPS_BASE_FOLDER, NPM_REGISTRY, FILE_LOCAL_STORAGE_FOLDER } = require('./env');
 
+let npmRegistry = NPM_REGISTRY
+
+if(process.argv[2] && process.argv[2].indexOf('--registry') !== -1) {
+  npmRegistry = process.argv[2].split('=')[1]
+}
+
 let MYSQL_CONNECTION = null
 
 function injectAjaxScript({ namespace }) {
@@ -178,9 +184,9 @@ async function installApplication() {
               fs.writeFileSync(tempFolder + '/package.json', JSON.stringify({}), 'utf-8')
             }
             if(isYarnExist()) {
-              cp.execSync(`cd ${tempFolder} && yarn add ${npmPkg} --registry=${NPM_REGISTRY}  --production`, { stdio: 'inherit' })
+              cp.execSync(`cd ${tempFolder} && yarn add ${npmPkg} --registry=${npmRegistry}  --production`, { stdio: 'inherit' })
             } else {
-              cp.execSync(`cd ${tempFolder} && npm i --registry=${NPM_REGISTRY} ${npmPkg} --production`, { stdio: 'inherit' })
+              cp.execSync(`cd ${tempFolder} && npm i --registry=${npmRegistry} ${npmPkg} --production`, { stdio: 'inherit' })
             }
           } catch(e) {
             console.log(`【install】: 应用 ${npmPkg} 安装失败，跳过...`)
@@ -312,11 +318,11 @@ async function installApplication() {
             fePath = path.join(srcAppDir, './assets')
             if(fs.existsSync(bePath)) {
               try{
-                console.log(`开始安装依赖,请稍后 ${pkgName} ${NPM_REGISTRY}`)
+                console.log(`开始安装依赖,请稍后 ${pkgName} ${npmRegistry}`)
                 if(isYarnExist()) {
-                  cp.execSync(`cd ${srcAppDir} && yarn install --prod --registry=${NPM_REGISTRY}`, { stdio: 'inherit' })
+                  cp.execSync(`cd ${srcAppDir} && yarn install --prod --registry=${npmRegistry}`, { stdio: 'inherit' })
                 } else {
-                  cp.execSync(`cd ${srcAppDir} && npm i --registry=${NPM_REGISTRY} --production`, { stdio: 'inherit' })
+                  cp.execSync(`cd ${srcAppDir} && npm i --registry=${npmRegistry} --production`, { stdio: 'inherit' })
                 }
                 // 移动依赖
                 fs.moveSync(path.join(srcAppDir, `./node_modules`), path.join(destAppDir, `./node_modules`), {overwrite: true})
@@ -424,9 +430,9 @@ async function installApplication() {
             if(fs.existsSync(bePath)) {
               try{
                 if(isYarnExist()) {
-                  cp.execSync(`cd ${srcAppDir} && yarn --registry ${NPM_REGISTRY}  --production`, { stdio: 'inherit' })
+                  cp.execSync(`cd ${srcAppDir} && yarn --registry ${npmRegistry}  --production`, { stdio: 'inherit' })
                 } else {
-                  cp.execSync(`cd ${srcAppDir} && npm i --registry=${NPM_REGISTRY} --production`, { stdio: 'inherit' })
+                  cp.execSync(`cd ${srcAppDir} && npm i --registry=${npmRegistry} --production`, { stdio: 'inherit' })
                 }
                 // 移动依赖
                 fs.moveSync(path.join(srcAppDir, `./node_modules`), path.join(destAppDir, `./node_modules`), {overwrite: true})
