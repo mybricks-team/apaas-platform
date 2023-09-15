@@ -24,6 +24,7 @@
     "axios": "1.1.3",
     "compare-version": "^0.1.2",
     "lodash-es": "^4.17.21",
+    "qiankun": "^2.10.13",
     "xterm": "^5.2.1",
     "xterm-addon-fit": "^0.7.0",
     "xterm-addon-search": "^0.12.0",

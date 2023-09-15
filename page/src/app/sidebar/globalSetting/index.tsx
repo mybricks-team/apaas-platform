@@ -31,6 +31,7 @@ interface MenuItem extends T_App {
 
 import styles from './index.less'
 import Term from './term'
+import { MicroApp } from '@/app/components'
 
 interface TabsProps {
   onClick: (e: any) => void
@@ -617,25 +618,21 @@ export default () => {
           (item) => item.namespace === activeKey
         )
 
-        /** 如果是html走iframe渲染 */
+        /** 如果是html走微前端 */
         if (
           typeof activeItem?.setting === 'string' &&
           activeItem?.setting.includes('.html')
         ) {
           return (
-            <iframe
-              src={`/${activeItem.namespace}/${activeItem?.setting}`}
-              // @ts-ignore
-              frameborder="no"
-              border="0"
-              style={{
-                paddingTop: 20,
-                minHeight: '500px',
-                maxHeight: '90vh',
-                height: 600,
-                width: '100%',
-              }}
-            />
+            <div style={{
+              paddingTop: 20,
+              minHeight: '500px',
+              maxHeight: '90vh',
+              height: 600,
+              width: '100%',
+            }}>
+              <MicroApp entry={`/${activeItem.namespace}/${activeItem?.setting}`}/>
+            </div>
           )
         }
 
