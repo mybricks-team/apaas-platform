@@ -275,7 +275,7 @@ function SuperAdminInfoArea({ ctx }) {
             <p className={css.statusContent}>{ctx?.info?.adminInfo?.staging?.userName || '-'}</p>
             <p className={css.statusContent}>密码</p>
             <p className={css.statusContent}>{ctx?.info?.adminInfo?.staging?.password || '-'}</p>
-            <p>超管登陆地址</p>
+            <p>超管登录地址</p>
             {
               ctx.info?.apps?.map(app => {
                 return <a href={`${location.origin}${app.adminLoginBasePath?.staging}`}>{app.name}</a>
@@ -289,7 +289,7 @@ function SuperAdminInfoArea({ ctx }) {
             <p className={css.statusContent}>{ctx?.info?.adminInfo?.production?.userName}</p>
             <p className={css.statusContent}>密码</p>
             <p className={css.statusContent}>{ctx?.info?.adminInfo?.production?.password}</p>
-            <p>超管登陆地址</p>
+            <p>超管登录地址</p>
             {
               ctx.info?.apps?.map(app => {
                 return <a href={`${location.origin}${app.adminLoginBasePath?.prod}`}>{app.name}</a>
