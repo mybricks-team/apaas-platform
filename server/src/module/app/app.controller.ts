@@ -213,13 +213,6 @@ export default class AppController {
           namespace: remoteApp.namespace,
           version: version,
         });
-      } else if(remoteApp.installType === 'local') {
-        applications.installApps.push({
-          type: "local",
-          version: version,
-          namespace: installPkgName,
-          path: ''
-        });
       } else {
         applications.installApps.push({
           type: "npm",
@@ -252,13 +245,9 @@ export default class AppController {
         installedApp.version = version
         installedApp.path = remoteAppInstallInfo.ossPath
         applications.installApps.splice(installedIndex, 1, installedApp);
-      } else if(installedApp.type === 'local') {
-        installPkgName = installedApp.namespace
-        installedApp.version = version
-        applications.installApps.splice(installedIndex, 1, installedApp);
       }
 
-      if (['npm', 'oss', 'local'].includes(installedApp.type)) {
+      if (['npm', 'oss'].includes(installedApp.type)) {
         logInfo = {
           action: 'install',
           type: 'application',
