@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Post, Query, Req, Headers } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Headers, UseInterceptors, UploadedFile } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as childProcess from 'child_process';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Logger } from '@mybricks/rocker-commons'
 import AppDao from '../../dao/AppDao';
 import * as axios from 'axios';
@@ -10,6 +11,7 @@ import UserLogDao from '../../dao/UserLogDao';
 import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
 import AppService from './app.service';
+const fse = require('fs-extra');
 
 @Controller("/paas/api/apps")
 export default class AppController {
@@ -335,6 +337,108 @@ export default class AppController {
       Logger.info(e);
     }
 
+    if(systemConfig?.system?.config?.openConflictDetection) {
+      Logger.info("解锁成功，可继续升级应用");
+      // 解锁
+      await unLockUpgrade({ force: true })
+    }
+    return { code: 1, data: null, message: "安装成功" };
+  }
+
+  updateLocalAppVersion({ namespace, version, installType }) {
+    const application = require(path.join(process.cwd(), './application.json'));
+    console.log('111111111', application)
+    let installApp = null
+    application?.installApps?.forEach(app => {
+      if(app.namespace === namespace) {
+        app.version = version
+        app.installType = installType
+        installApp = app
+      }
+    })
+    if(!installApp) {
+      application?.installApps.push({
+        namespace,
+        version,
+        type: installType
+      })
+    }
+    fs.writeFileSync(path.join(process.cwd(), './application.json'), JSON.stringify(application, undefined, 2))
+  }
+
+
+  @Post("/offlineUpdate")
+  @UseInterceptors(FileInterceptor('file'))
+  async appOfflineUpdate(@Req() request, @Body() body, @UploadedFile() file) {
+    const systemConfig = await this.configService.getConfigByScope(['system'])
+    try {
+      if(systemConfig?.system?.config?.openConflictDetection) {
+        Logger.info('开启了冲突检测')
+        await lockUpgrade()
+      }
+    } catch(e) {
+      Logger.info(e)
+      return {
+        code: -1,
+        msg: '当前已有升级任务，请稍后重试'
+      }
+    }
+    const tempFolder = path.join(process.cwd(), '../_tempapp_')
+    try {
+    
+      console.log('1111', file)
+  
+      if(!fs.existsSync(tempFolder)) {
+        fs.mkdirSync(tempFolder)
+      }
+      const zipFilePath = path.join(tempFolder, `./${file.originalname}`)
+      fs.writeFileSync(zipFilePath, file.buffer);
+      childProcess.execSync(`which unzip`).toString()
+      childProcess.execSync(`unzip -o ${zipFilePath} -d ${tempFolder}`)
+      const subFolders = fs.readdirSync(tempFolder)
+      let unzipFolderSubpath = ''
+      console.log('subFolders', subFolders)
+      for(let name of subFolders) {
+        if(name.indexOf('.') === -1) {
+          unzipFolderSubpath = name
+          break
+        }
+      }
+      const unzipFolderPath = path.join(tempFolder, unzipFolderSubpath)
+      const pkg = require(path.join(unzipFolderPath, './package.json'))
+      console.log('pkg', pkg)
+      let appName = pkg.name;
+      // 包含scope，需要编码
+      if(pkg.name.indexOf('@') !== -1) {
+        // 需要加密
+        appName = encodeURIComponent(pkg.name)
+      }
+      const destAppDir = path.join(env.getAppInstallFolder(), `./${appName}`)
+      fse.copySync(unzipFolderPath, destAppDir)
+      fse.removeSync(tempFolder)
+      // 更新本地版本
+      this.updateLocalAppVersion({ namespace: pkg.name, version: pkg.version, installType: 'local' })
+      // 重启服务
+      childProcess.exec(
+        `npx pm2 reload ${env.getAppThreadName()}`,
+        {
+          cwd: path.join(process.cwd()),
+        },
+        (error, stdout, stderr) => {
+          if (error) {
+            Logger.info(`exec error: ${error}`);
+            return;
+          }
+          Logger.info(`stdout: ${stdout}`);
+          Logger.info(`stderr: ${stderr}`);
+        }
+      );
+    } catch(e) {
+      console.log(e)
+      Logger.info(`${e}`);
+      fse.removeSync(tempFolder)
+    }
+    
     if(systemConfig?.system?.config?.openConflictDetection) {
       Logger.info("解锁成功，可继续升级应用");
       // 解锁
