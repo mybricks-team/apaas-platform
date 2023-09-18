@@ -1,20 +1,20 @@
 import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-import AppsService from './apps';
+import AppService from '../module/app/app.service';
 const env = require('../../env.js')
 
 @Controller()
 export default class HomeService {
-  appsService: AppsService;
+  appService: AppService;
 
   constructor() {
-    this.appsService = new AppsService()
+    this.appService = new AppService()
   }
 
   @Get('/')
   async getInstalledList(@Req() req, @Res() res) {
-    const apps: any = await this.appsService.getAllInstalledList({ filterSystemApp: false })
+    const apps: any = await this.appService.getAllInstalledList({ filterSystemApp: false })
     let filePath =  path.join(process.cwd(), `./_assets/workspace.html`);
     apps?.forEach(app => {
       if(app.namespace === 'mybricks-app-login' || app.namespace === 'mybricks-hainiu-login') {

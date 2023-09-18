@@ -3,15 +3,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as childProcess from 'child_process';
 import { Logger } from '@mybricks/rocker-commons'
-import AppDao from '../dao/AppDao';
+import AppDao from '../../dao/AppDao';
 import * as axios from 'axios';
-import env from '../utils/env'
-import UserLogDao from '../dao/UserLogDao';
-import { lockUpgrade, unLockUpgrade } from '../utils/lock';
-import ConfigService from '../module/config/config.service';
+import env from '../../utils/env'
+import UserLogDao from '../../dao/UserLogDao';
+import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
+import ConfigService from '../config/config.service';
+import AppService from './app.service';
 
 @Controller("/paas/api/apps")
-export default class AppsService {
+export default class AppController {
   appDao: AppDao;
   userLogDao: UserLogDao;
   // 控制是否重启
@@ -23,6 +24,8 @@ export default class AppsService {
 
   configService: ConfigService;
 
+  appService: AppService;
+
   constructor() {
     this.appDao = new AppDao();
     this.userLogDao = new UserLogDao();
@@ -30,97 +33,12 @@ export default class AppsService {
     this.isSuccessUpgrade = false;
     this.shouldReload = false;
     this.configService = new ConfigService();
-  }
-
-  async getAllInstalledList({ filterSystemApp }: {filterSystemApp: boolean}) {
-    const appsFolder = env.getAppInstallFolder()
-    if (!fs.existsSync(appsFolder)) {
-      return []
-    }
-    const dirNames = fs.readdirSync(appsFolder);
-    const apps = [];
-    if (Array.isArray(dirNames)) {
-      for (let l = dirNames.length, i = 0; i < l; i++) {
-        const appName = dirNames[i];
-        let pkgJson: any = {};
-        const pkgFilePath = path.join(appsFolder, appName, "./package.json");
-        if (fs.existsSync(pkgFilePath)) {
-          pkgJson = JSON.parse(fs.readFileSync(pkgFilePath, "utf-8"));
-          // 处理安装失败导致的异常数据
-          if (Object.keys(pkgJson).length === 0) {
-            continue;
-          }
-          if(appName.indexOf('_temp') !== -1) {
-            continue
-          }
-          // 忽略平台型模块
-          if(filterSystemApp && pkgJson?.mybricks?.type === 'system') {
-            continue
-          }
-          const temp: any = {
-            version: pkgJson?.version,
-            homepage: `/${pkgJson.name}/index.html`, // 约定
-            title: pkgJson?.mybricks?.title,
-            namespace: pkgJson.name,
-            description: pkgJson.description,
-            icon: pkgJson?.mybricks?.icon,
-            type: pkgJson?.mybricks?.type,
-            extName: pkgJson?.mybricks?.extName,
-            snapshot: pkgJson?.mybricks?.snapshot,
-            exports: [],
-          };
-          // 应用设置页面
-          if (pkgJson?.mybricks?.setting) {
-            temp["setting"] = pkgJson?.mybricks?.setting;
-          } else if (
-            fs.existsSync(
-              path.join(appsFolder, appName, "./assets/setting.html")
-            )
-          ) {
-            // 约定的设置字段
-            temp["setting"] = `/${pkgJson.name}/setting.html`; // 约定
-          }
-          // 应用设置页面
-          if (pkgJson?.mybricks?.groupSetting) {
-            temp["groupSetting"] = pkgJson?.mybricks?.groupSetting;
-          } else if (
-            fs.existsSync(
-              path.join(appsFolder, appName, "./assets/groupSetting.html")
-            )
-          ) {
-            // 约定的设置字段
-            temp["groupSetting"] = `/${pkgJson.name}/groupSetting.html`; // 约定
-          }
-          if(
-            fs.existsSync(
-              path.join(appsFolder, appName, "./assets/index.html")
-            )
-          ) {
-            temp["_hasPage"] = true; // 约定
-          }
-          // 应用导出能力
-          if (pkgJson?.mybricks?.serviceProvider) {
-            for (let serviceName in pkgJson?.mybricks?.serviceProvider) {
-              const val = pkgJson?.mybricks?.serviceProvider[serviceName];
-              temp.exports.push({
-                name: serviceName,
-                path: `/${pkgJson.name}/${val}`,
-              });
-            }
-          }
-          if (pkgJson?.mybricks?.isSystem) {
-            temp["isSystem"] = pkgJson?.mybricks?.isSystem;
-          }
-          apps.push(temp);
-        }
-      }
-    }
-    return apps
+    this.appService = new AppService();
   }
 
   @Get("/getInstalledList")
   async getInstalledList() {
-    const apps = await this.getAllInstalledList({ filterSystemApp: true })
+    const apps = await this.appService.getAllInstalledList({ filterSystemApp: true })
     return {
       code: 1,
       data: apps,
@@ -149,7 +67,7 @@ export default class AppsService {
       let remoteAppList = []
       let mergedList = []
       try {
-        const currentInstallList = (await this.getAllInstalledList({ filterSystemApp: true }))?.map(i => {
+        const currentInstallList = (await this.appService.getAllInstalledList({ filterSystemApp: true }))?.map(i => {
           return {
             namespace: i.namespace,
             version: i.version,
