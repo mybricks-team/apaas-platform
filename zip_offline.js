@@ -7,6 +7,11 @@ const zip = new JSZip();
 const zipRootFolder = zip.folder('mybricks-apaas');
 const targetConfig = process.argv[2] ? process.argv[2] : null;
 
+// 更新版本号
+const latestVersion = require('./package.json').version;
+const serverPkg = require('./server/package.json');
+serverPkg.version = latestVersion;
+fs.writeFileSync(path.join(__dirname, './server/package.json'), JSON.stringify(serverPkg, null, 2), 'utf-8');
 
 /** 遍历文件 */
 function read (zipFolder, files, dirPath) {
@@ -69,6 +74,7 @@ zipRootFolder.file('upgrade_platform.sh', fs.readFileSync(path.join(__dirname, '
 // if(targetConfig) {
 //   zipRootFolder.folder('server').file('application.json', fs.readFileSync(path.join(__dirname, `./server/application_${targetConfig}.json`)));
 // }
+
 zip.generateAsync({
   type: 'nodebuffer',
   compression: 'DEFLATE',
