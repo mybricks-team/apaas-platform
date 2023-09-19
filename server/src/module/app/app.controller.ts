@@ -440,7 +440,7 @@ export default class AppController {
       );
     } catch(e) {
       Logger.info('错误信息是')
-      Logger.info(e)
+      Logger.info(e.message)
       fse.removeSync(tempFolder)
     }
     
