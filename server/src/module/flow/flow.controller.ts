@@ -8,15 +8,16 @@ import {
   Param,
   Request,
   UseInterceptors,
-  UploadedFile,
+  UploadedFile, UploadedFiles,
 } from '@nestjs/common';
 import { Logger } from '@mybricks/rocker-commons';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 const env = require('../../../env.js')
 import { getRealDomain } from '../../utils/index'
 import FlowService from './flow.service';
 import { uuid } from '../../utils/index';
 import * as path from 'path';
+import * as fs from 'fs';
 
 
 @Controller('/paas/api/flow')
@@ -149,8 +150,8 @@ export default class FlowController {
   }
 
   @Post('/saveFiles')
-  @UseInterceptors(FileInterceptor('files[]'))
-  async saveFiles(@Request() request, @Body() body, @UploadedFile() file) {
+  @UseInterceptors(FilesInterceptor('files[]'))
+  async saveFiles(@Request() request, @Body() body, @UploadedFiles() file) {
     try {
       const domainName = getRealDomain(request)
       Logger.info(`[API][/paas/api/flow/saveFiles]: saveFiles请求头是: ${domainName}`)
@@ -189,6 +190,118 @@ export default class FlowController {
     return {
       code: -1,
       msg: `上传失败`,
+    };
+  }
+
+  @Post('/uploadAsset')
+  @UseInterceptors(FilesInterceptor('files'))
+  async uploadAsset(@Request() request, @Body() body, @UploadedFiles() files) {
+    try {
+      const { hash, path: folderPath = './' } = body;
+      const domainName = getRealDomain(request);
+      if (!Array.isArray(files) || !files.length) {
+        return { code: -1, msg: '参数 files 必须为数组，且不能为空' };
+      }
+      const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, folderPath);
+
+      if (!rootFile.startsWith(env.FILE_LOCAL_STORAGE_FOLDER)) {
+        return { code: -1, msg: '无法访问非静态文件目录' };
+      }
+
+      const cdnList = await Promise.all(
+        files.map((file) => {
+          return this.flowService.saveFile({
+            str: file.buffer,
+            filename: hash && JSON.parse(hash) ? `${uuid()}-${new Date().getTime()}-${file.originalname}` : file.originalname,
+            folderPath
+          });
+        }),
+      );
+
+      if (Array.isArray(cdnList) && cdnList.length && !cdnList.some((url) => !url)) {
+        return {
+          data: cdnList?.map((subPath) => `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath.replace(/^\.\//, '/')}`),
+          code: 1,
+        };
+      }
+    } catch (err) {
+      return { code: -1, msg: `上传失败: ${err}` };
+    }
+
+    return { code: -1, msg: `上传失败` };
+  }
+
+  @Post('/createCategory')
+  async createCategory(@Request() request, @Body() body) {
+    const { path: filePath = './', name } = body;
+    const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
+
+    if (!rootFile.startsWith(env.FILE_LOCAL_STORAGE_FOLDER)) {
+      return { code: -1, msg: '无法访问非静态文件目录' };
+    }
+
+    if (fs.existsSync(path.join(rootFile, name))) {
+      return { code: -1, msg: '该目录下已存在同名目录' };
+    }
+
+    fs.mkdirSync(path.join(rootFile, name));
+
+    return { code: 1, msg: '创建成功' };
+  }
+
+  @Get('/getAsset')
+  async getFiles(@Request() request, @Query() query) {
+    const { path: filePath = './', pageNum = 1, pageSize = 20 } = query;
+    const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
+
+    if (!rootFile.startsWith(env.FILE_LOCAL_STORAGE_FOLDER)) {
+      return { code: -1, msg: '无法访问非静态文件目录' };
+    }
+
+    const files = fs.readdirSync(rootFile);
+    const fileInfos = files
+      .map(file => {
+        const info = fs.statSync(path.join(rootFile, file));
+        (info as any).name = file;
+
+        return info;
+      })
+      .sort((statA, statB) => {
+        if (statA.isDirectory() && !statB.isDirectory()) {
+          return -1;
+        }
+        if ((statA.isDirectory() && statB.isDirectory()) || (!statA.isDirectory() && !statB.isDirectory())) {
+          return statB.birthtimeMs * 1000 - statA.birthtimeMs * 1000;
+        }
+        if (!statA.isDirectory() && statB.isDirectory()) {
+          return 1;
+        }
+
+        return 0;
+      });
+
+    const startIndex = pageSize * (pageNum - 1);
+    const domainName = getRealDomain(request);
+    let prefix = `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${rootFile.replace(env.FILE_LOCAL_STORAGE_FOLDER, '')}`;
+    prefix += prefix.endsWith('/') ? '' : '/';
+
+    return {
+      code: 1,
+      data: {
+        pageNum,
+        pageSize,
+        dataSource: fileInfos.slice(startIndex, startIndex + pageSize).map(file => {
+          const name = (file as any).name;
+          return {
+            name: name,
+            type: file.isDirectory() ? 'folder' : 'file',
+            createTime: file.birthtime,
+            size: file.size,
+            url: prefix + name,
+          };
+        }),
+        total: files.length,
+      },
     };
   }
 }

@@ -1,7 +1,8 @@
 import React, {useMemo, useState} from 'react'
 
 import axios from 'axios'
-import {message} from 'antd'
+import {ConfigProvider, message} from 'antd'
+import zhCN from 'antd/es/locale/zh_CN';
 import {useObservable} from '@mybricks/rxui'
 
 import {
@@ -158,12 +159,14 @@ export default function App() {
       </div>
     ) : (
       access ? (
-        <div className={css.app}>
-          <Sideber logo={logo}/>
-          <div className={css.content}>
-            <Content />
+        <ConfigProvider locale={zhCN}>
+          <div className={css.app}>
+            <Sideber logo={logo}/>
+            <div className={css.content}>
+              <Content />
+            </div>
           </div>
-        </div>
+        </ConfigProvider>
       ) : (
         <Noaccess />
       )
