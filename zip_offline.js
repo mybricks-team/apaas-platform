@@ -27,8 +27,7 @@ function read (zipFolder, files, dirPath) {
 const filterFileName = [
   '.DS_Store', 
   '_apps', 
-  'config', 
-  'node_modules', 
+  'config',
   '.npmignore', 
   '.eslintrc.js', 
   '.prettierrc', 
@@ -46,7 +45,8 @@ const filterFileName = [
   'PlatformConfig_demo.json',
   'PlatformConfig_hainiu.json',
   'PlatformConfig_mybricks.json',
-  'zip.js',
+  'zip_update.js',
+  'zip_offline.js',
   'zip_deploy.js'
 ];
 const filesPlatform = [];
@@ -57,7 +57,7 @@ fs.readdirSync(path.join(__dirname, './server')).forEach(filename => {
   }
 });
 fs.readdirSync(path.join(__dirname, './server-runtime')).forEach(filename => {
-  if(!filterFileName.includes(filename)) {
+  if(!filterFileName.includes(filename) && filename !== 'node_modules') {
     filesRuntime.push(filename);
   }
 });
@@ -76,5 +76,5 @@ zip.generateAsync({
     level: 9
   }
 }).then((content) => {
-  fs.writeFileSync(path.join(__dirname, './mybricks-apaas-deploy.zip'), content, 'utf-8');
+  fs.writeFileSync(path.join(__dirname, './mybricks-apaas-offline.zip'), content, 'utf-8');
 });

@@ -4,10 +4,9 @@
   "description": "",
   "scripts": {
     "build:page": "cd page && npm install && npm run build",
-    "zip:server": "npm run build:page && node ./server/zip.js",
-    "zip:server-runtime": "node ./server-runtime/zip.js",
-    "zip:update": "npm run build:page && node ./zip.js",
+    "zip:update": "npm run build:page && node ./zip_update.js",
     "zip:deploy": "npm run build:page && node ./zip_deploy.js",
+    "zip:offline": "npm run build:page && cd server && rm -rf node_modules && npm i --production && cd ../ && node ./zip_offline.js",
     "deploy:fangzhou": "bash deploy_fangzhou.sh",
     "publishToNpm": "npm run zip:update && npm publish --registry=https://registry.npmjs.org && node sync.js --origin=https://my.mybricks.world"
   },
