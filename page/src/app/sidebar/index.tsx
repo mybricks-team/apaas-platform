@@ -275,7 +275,7 @@ function SystemMenus() {
       {isAdministrator ? (
         <>
           <Item
-            icon="https://assets.mybricks.world/icon/liuleidashuaige.png"
+            icon="./image/icon_myapp.png"
             title="我的应用"
             modal={{ content: <AppStore /> }}
           />

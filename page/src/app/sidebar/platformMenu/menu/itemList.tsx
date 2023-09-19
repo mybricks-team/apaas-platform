@@ -42,7 +42,7 @@ export default function ItemList ({id, child, menuCtx, canDrag}: Props): JSX.Ele
       const { id, name, extName, groupId } = item;
       const isGroup = !!!extName && !!id
       // TODO,目前只有文件夹和协作组
-      // const icon = item.extName ? 'https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png' : 'https://assets.mybricks.world/icon/144257.png'
+      // const icon = item.extName ? './image/icon_folder.png' : 'https://assets.mybricks.world/icon/144257.png'
       const app = !isGroup ? APPSMap[item.extName] : {icon: item?.icon || UserGroup}
 
       if (!child[id]) {
