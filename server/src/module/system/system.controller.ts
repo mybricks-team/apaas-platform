@@ -776,9 +776,9 @@ export default class SystemService {
       const unzipFolderPath = path.join(tempFolder, unzipFolderSubpath)
       const pkg = require(path.join(unzipFolderPath, './server/package.json'))
       Logger.info(`pkg: ${JSON.stringify(pkg)}`)
-      Logger.info('开始复制文件')
-      fse.copySync(path.join(unzipFolderPath, './server'), path.join(process.cwd()))
-      fse.copySync(path.join(unzipFolderPath, './server-runtime'), path.join(process.cwd(), '../server-runtime'))
+      Logger.info(`开始复制文件: 从${path.join(unzipFolderPath, './server')} 到 ${process.cwd()}`)
+      childProcess.execSync(`cp -rf ${path.join(unzipFolderPath, './server')} ${process.cwd()}`)
+      childProcess.execSync(`cp -rf ${path.join(unzipFolderPath, './server-runtime')} ${path.join(process.cwd(), '../server-runtime')}`)
       Logger.info('开始清除临时文件')
       fse.removeSync(tempFolder)
       Logger.info('版本信息开始持久化到本地')
@@ -803,7 +803,8 @@ export default class SystemService {
       );
     } catch(e) {
       Logger.info('错误信息是')
-      Logger.info(e)
+      Logger.info(e.message)
+      console.log(e)
       fse.removeSync(tempFolder)
     }
     

@@ -12,6 +12,7 @@ import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
 import AppService from './app.service';
 const fse = require('fs-extra');
+const { getAppThreadName } = require('../../env.js')
 
 @Controller("/paas/api/apps")
 export default class AppController {
@@ -315,7 +316,7 @@ export default class AppController {
         } else {
           Logger.info("有service，即将重启服务");
           childProcess.exec(
-            `npx pm2 reload ${env.getAppThreadName()}`,
+            `npx pm2 reload ${getAppThreadName()}`,
             {
               cwd: path.join(process.cwd()),
             },
@@ -425,7 +426,7 @@ export default class AppController {
       Logger.info('开始重启服务')
       // 重启服务
       childProcess.exec(
-        `npx pm2 reload ${env.getAppThreadName()}`,
+        `npx pm2 reload ${getAppThreadName()}`,
         {
           cwd: path.join(process.cwd()),
         },
