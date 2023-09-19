@@ -416,7 +416,8 @@ export default class AppController {
       }
       const destAppDir = path.join(env.getAppInstallFolder(), `./${appName}`)
       Logger.info('开始复制文件')
-      fse.copySync(unzipFolderPath, destAppDir)
+      // fse.copySync(unzipFolderPath, destAppDir)
+      childProcess.execSync(`cp -rf ${unzipFolderPath} ${destAppDir}`)
       Logger.info('开始清除临时文件')
       fse.removeSync(tempFolder)
       Logger.info('版本信息开始持久化到本地')
