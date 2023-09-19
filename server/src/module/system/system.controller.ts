@@ -28,7 +28,7 @@ const childProcess = require('child_process');
 const path = require('path')
 const fs = require('fs')
 const fse = require('fs-extra');
-const env = require('../../../env')
+const { getAppThreadName } = require('../../../env')
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -788,7 +788,7 @@ export default class SystemService {
       Logger.info('开始重启服务')
       // 重启服务
       childProcess.exec(
-        `npx pm2 reload ${env.getAppThreadName()}`,
+        `npx pm2 reload ${getAppThreadName()}`,
         {
           cwd: path.join(process.cwd()),
         },

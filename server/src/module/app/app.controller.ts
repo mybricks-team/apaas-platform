@@ -12,7 +12,7 @@ import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
 import AppService from './app.service';
 const fse = require('fs-extra');
-const { getAppThreadName } = require('../../env.js')
+const { getAppThreadName } = require('../../../env.js')
 
 @Controller("/paas/api/apps")
 export default class AppController {
