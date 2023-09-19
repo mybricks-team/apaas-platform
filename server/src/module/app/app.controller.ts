@@ -398,7 +398,7 @@ export default class AppController {
       })
       const subFolders = fs.readdirSync(tempFolder)
       let unzipFolderSubpath = ''
-      Logger.info('subFolders', subFolders)
+      Logger.info(`subFolders: ${JSON.stringify(subFolders)}}`)
       for(let name of subFolders) {
         if(name.indexOf('.') === -1) {
           unzipFolderSubpath = name
@@ -407,7 +407,7 @@ export default class AppController {
       }
       const unzipFolderPath = path.join(tempFolder, unzipFolderSubpath)
       const pkg = require(path.join(unzipFolderPath, './package.json'))
-      Logger.info('pkg', pkg)
+      Logger.info(`pkg: ${JSON.stringify(pkg)}`)
       let appName = pkg.name;
       // 包含scope，需要编码
       if(pkg.name.indexOf('@') !== -1) {
@@ -440,7 +440,8 @@ export default class AppController {
         }
       );
     } catch(e) {
-      Logger.info('错误信息是', e)
+      Logger.info('错误信息是')
+      Logger.info(e)
       fse.removeSync(tempFolder)
     }
     

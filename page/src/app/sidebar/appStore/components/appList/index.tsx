@@ -13,8 +13,9 @@ import {
 	Button,
 	message,
 	Upload,
+	Popover,
 } from 'antd'
-import { InboxOutlined } from '@ant-design/icons';
+import { InboxOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { chunk } from 'lodash-es'
 import compareVersion from 'compare-version'
 import { LeftOutlined } from '@ant-design/icons'
@@ -72,43 +73,11 @@ const AppList: FC<AppListProps> = props => {
 		setType(event.target.value)
 	}, [])
 
-	const handleUpload = (file) => {
-		// const importApi = ''
-		// const formData = new FormData();
-		// formData.append('files[]', file);
-		// formData.append('userId', ctx.user.id);
-
-		// // // setUploading(true);
-		// fetch(`${getApiUrl(importApi)}`, {
-		// 	method: 'POST',
-		// 	body: formData,
-		// })
-		// 	.then((res) => res.json())
-		// 	.then((res) => {
-		// 		if(res.code === 1) {
-		// 			message.success('导入成功');
-		// 			location.reload();
-		// 		} else {
-		// 			message.warn(res.msg);
-		// 		}
-		// 		console.log('响应是', res)
-		// 	})
-		// 	.catch(() => {
-		// 		message.error('upload failed.');
-		// 	})
-		// 	.finally(() => {
-		// 		// setUploading(false);
-		// 	});
-	};
 
   const uploadProps = {
 		multiple: false,
 		maxCount: 1,
-		// accept: '.mybricks',
-		showUploadList: false,
-		beforeUpload(file) {
-			
-		},
+		showUploadList: true,
 		action: getApiUrl('/paas/api/apps/offlineUpdate'),
 		onChange(info) {
 			const { status } = info.file;
@@ -116,11 +85,13 @@ const AppList: FC<AppListProps> = props => {
 			if (status === 'done') {
 				message.destroy()
 				message.success(`上传成功，正在安装中, 请稍后(大概10s)`, 10);
+				setTimeout(() => {
+					message.success(`安装成功`);
+					location.reload();
+				}, 10 * 1000)
 			} else if (status === 'error') {
 				message.destroy()
 				message.error(`上传失败`);
-			} else {
-				
 			}
 		},
 		onDrop(e) {
@@ -149,8 +120,16 @@ const AppList: FC<AppListProps> = props => {
 					}
 				</div> */}
 			</div>
+			<p style={{height: 32, fontSize: 16, fontWeight: 'bold'}}>
+				在线更新&nbsp;
+				<Popover
+					content={'需要能够访问公网环境，点击下面更新按钮，即可在线更新'}
+					trigger="hover"
+				>
+					<QuestionCircleOutlined />
+				</Popover>
+			</p>
 			<div className={`${styles.appList}`}>
-				
 				<Spin spinning={loading} className={styles.spin}>
 					{/* <div className={styles.filter}>
 						<Radio.Group onChange={onChangeType} value={type}>
@@ -195,7 +174,15 @@ const AppList: FC<AppListProps> = props => {
 				</Spin>
 			</div>
 			<div>
-				<p style={{height: 32, fontSize: 16, fontWeight: 'bold'}}>离线更新</p>
+				<p style={{height: 32, fontSize: 16, fontWeight: 'bold'}}>
+					离线更新&nbsp;
+					<Popover
+						content={'不需要能够访问公网环境，拖入应用安装包即可上传进行应用更新'}
+						trigger="hover"
+					>
+						<QuestionCircleOutlined />
+					</Popover>
+				</p>
 			<Dragger 
 				{...uploadProps}
 			>
