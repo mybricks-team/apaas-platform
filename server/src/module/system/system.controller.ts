@@ -1,5 +1,10 @@
 import ServicePubDao from './../../dao/ServicePubDao';
-import {Body, Controller, Get, Param, Post, Query, Req, Res} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Query, Req, 
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
@@ -22,6 +27,7 @@ import ConfigService from '../config/config.service';
 const childProcess = require('child_process');
 const path = require('path')
 const fs = require('fs')
+const fse = require('fs-extra');
 const env = require('../../../env')
 
 @Controller('/paas/api')
@@ -721,6 +727,92 @@ export default class SystemService {
         msg: `[${type}]:` + err.message
       }
     }
+  }
+
+  updateLocalPlatformVersion({ version }) {
+    const application = require(path.join(process.cwd(), './application.json'));
+    application.platformVersion = version;
+    fs.writeFileSync(path.join(process.cwd(), './application.json'), JSON.stringify(application, undefined, 2))
+  }
+
+  @Post("/system/offlineUpdate")
+  @UseInterceptors(FileInterceptor('file'))
+  async systemOfflineUpdate(@Req() request, @Body() body, @UploadedFile() file) {
+    const systemConfig = await this.configService.getConfigByScope(['system'])
+    try {
+      if(systemConfig?.system?.config?.openConflictDetection) {
+        Logger.info('开启了冲突检测')
+        await lockUpgrade()
+      }
+    } catch(e) {
+      Logger.info(e)
+      return {
+        code: -1,
+        msg: '当前已有升级任务，请稍后重试'
+      }
+    }
+    const tempFolder = path.join(process.cwd(), '../_temp_')
+    try {
+      if(!fs.existsSync(tempFolder)) {
+        fs.mkdirSync(tempFolder)
+      }
+      const zipFilePath = path.join(tempFolder, `./${file.originalname}`)
+      Logger.info('开始持久化压缩包')
+      fs.writeFileSync(zipFilePath, file.buffer);
+      childProcess.execSync(`which unzip`).toString()
+      Logger.info('开始解压文件')
+      childProcess.execSync(`unzip -o ${zipFilePath} -d ${tempFolder}`, {
+        stdio: 'inherit' // 不inherit输出会导致 error: [Circular *1]
+      })
+      const subFolders = fs.readdirSync(tempFolder)
+      let unzipFolderSubpath = ''
+      Logger.info(`subFolders: ${JSON.stringify(subFolders)}}`)
+      for(let name of subFolders) {
+        if(name.indexOf('.') === -1) {
+          unzipFolderSubpath = name
+          break
+        }
+      }
+      const unzipFolderPath = path.join(tempFolder, unzipFolderSubpath)
+      const pkg = require(path.join(unzipFolderPath, './server/package.json'))
+      Logger.info(`pkg: ${JSON.stringify(pkg)}`)
+      Logger.info('开始复制文件')
+      fse.copySync(path.join(unzipFolderPath, './server'), path.join(process.cwd()))
+      fse.copySync(path.join(unzipFolderPath, './server-runtime'), path.join(process.cwd(), '../server-runtime'))
+      Logger.info('开始清除临时文件')
+      fse.removeSync(tempFolder)
+      Logger.info('版本信息开始持久化到本地')
+      // 更新本地版本
+      this.updateLocalPlatformVersion({ version: pkg.version })
+
+      Logger.info('开始重启服务')
+      // 重启服务
+      childProcess.exec(
+        `npx pm2 reload ${env.getAppThreadName()}`,
+        {
+          cwd: path.join(process.cwd()),
+        },
+        (error, stdout, stderr) => {
+          if (error) {
+            Logger.info(`exec error: ${error}`);
+            return;
+          }
+          Logger.info(`stdout: ${stdout}`);
+          Logger.info(`stderr: ${stderr}`);
+        }
+      );
+    } catch(e) {
+      Logger.info('错误信息是')
+      Logger.info(e)
+      fse.removeSync(tempFolder)
+    }
+    
+    if(systemConfig?.system?.config?.openConflictDetection) {
+      Logger.info("解锁成功，可继续升级应用");
+      // 解锁
+      await unLockUpgrade({ force: true })
+    }
+    return { code: 1, message: "安装成功" };
   }
 
   @Post('/system/reloadAll')

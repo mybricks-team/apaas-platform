@@ -347,7 +347,6 @@ export default class AppController {
 
   updateLocalAppVersion({ namespace, version, installType }) {
     const application = require(path.join(process.cwd(), './application.json'));
-    console.log('111111111', application)
     let installApp = null
     application?.installApps?.forEach(app => {
       if(app.namespace === namespace) {
