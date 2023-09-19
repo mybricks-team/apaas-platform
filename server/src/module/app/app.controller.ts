@@ -385,19 +385,20 @@ export default class AppController {
     }
     const tempFolder = path.join(process.cwd(), '../_tempapp_')
     try {
-    
-      console.log('1111', file)
-  
       if(!fs.existsSync(tempFolder)) {
         fs.mkdirSync(tempFolder)
       }
       const zipFilePath = path.join(tempFolder, `./${file.originalname}`)
+      Logger.info('开始持久化压缩包')
       fs.writeFileSync(zipFilePath, file.buffer);
       childProcess.execSync(`which unzip`).toString()
-      childProcess.execSync(`unzip -o ${zipFilePath} -d ${tempFolder}`)
+      Logger.info('开始解压文件')
+      childProcess.execSync(`unzip -o ${zipFilePath} -d ${tempFolder}`, {
+        stdio: 'inherit' // 不inherit输出会导致 error: [Circular *1]
+      })
       const subFolders = fs.readdirSync(tempFolder)
       let unzipFolderSubpath = ''
-      console.log('subFolders', subFolders)
+      Logger.info('subFolders', subFolders)
       for(let name of subFolders) {
         if(name.indexOf('.') === -1) {
           unzipFolderSubpath = name
@@ -406,7 +407,7 @@ export default class AppController {
       }
       const unzipFolderPath = path.join(tempFolder, unzipFolderSubpath)
       const pkg = require(path.join(unzipFolderPath, './package.json'))
-      console.log('pkg', pkg)
+      Logger.info('pkg', pkg)
       let appName = pkg.name;
       // 包含scope，需要编码
       if(pkg.name.indexOf('@') !== -1) {
@@ -414,10 +415,15 @@ export default class AppController {
         appName = encodeURIComponent(pkg.name)
       }
       const destAppDir = path.join(env.getAppInstallFolder(), `./${appName}`)
+      Logger.info('开始复制文件')
       fse.copySync(unzipFolderPath, destAppDir)
+      Logger.info('开始清除临时文件')
       fse.removeSync(tempFolder)
+      Logger.info('版本信息开始持久化到本地')
       // 更新本地版本
       this.updateLocalAppVersion({ namespace: pkg.name, version: pkg.version, installType: 'local' })
+
+      Logger.info('开始重启服务')
       // 重启服务
       childProcess.exec(
         `npx pm2 reload ${env.getAppThreadName()}`,
@@ -434,8 +440,7 @@ export default class AppController {
         }
       );
     } catch(e) {
-      console.log(e)
-      Logger.info(`${e}`);
+      Logger.info('错误信息是', e)
       fse.removeSync(tempFolder)
     }
     
@@ -444,7 +449,7 @@ export default class AppController {
       // 解锁
       await unLockUpgrade({ force: true })
     }
-    return { code: 1, data: null, message: "安装成功" };
+    return { code: 1, message: "安装成功" };
   }
 
   @Get("/update/status")
