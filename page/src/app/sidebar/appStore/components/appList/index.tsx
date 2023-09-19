@@ -86,8 +86,10 @@ const AppList: FC<AppListProps> = props => {
 				message.destroy()
 				message.success(`上传成功，正在安装中, 请稍后(大概10s)`, 10);
 				setTimeout(() => {
-					message.success(`安装成功`);
-					location.reload();
+					message.success(`安装成功, 即将自动刷新`);
+					setTimeout(() => {
+						location.reload();
+					}, 1000)
 				}, 10 * 1000)
 			} else if (status === 'error') {
 				message.destroy()
