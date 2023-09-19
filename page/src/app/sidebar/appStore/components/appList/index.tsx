@@ -191,7 +191,7 @@ const AppList: FC<AppListProps> = props => {
 				<p className="ant-upload-drag-icon">
 					<InboxOutlined />
 				</p>
-				<p className="ant-upload-text">点击或拖拽 应用安装包至此</p>
+				<p className="ant-upload-text">拖拽 应用安装包 至此</p>
 				<p className="ant-upload-hint">
 				</p>
 			</Dragger>
