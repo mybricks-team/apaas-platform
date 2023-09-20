@@ -43,15 +43,6 @@ export default function () {
     [line]
   )
 
-  useEffect(() => {
-    if (isFullScreen) {
-      const toolbarStyle = window.getComputedStyle(toolbarRef.current)
-      const marginTop = parseFloat(toolbarStyle.getPropertyValue('margin-top'))
-      const marginBottom = parseFloat(toolbarStyle.getPropertyValue('margin-bottom'))
-      setFullScreenHeight(`${window.innerHeight - toolbarRef.current.clientHeight - marginTop - marginBottom}px`)
-    }
-  }, [isFullScreen, toolbarRef])
-
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
       codeMirrorRef.current.view.scrollDOM.scrollTo({
@@ -95,9 +86,29 @@ export default function () {
     })
   }, [])
 
+  const calcFullScreenHeight = useCallback(() => {
+    if (isFullScreen) {
+      const toolbarStyle = window.getComputedStyle(toolbarRef.current)
+      const marginTop = parseFloat(toolbarStyle.getPropertyValue('margin-top'))
+      const marginBottom = parseFloat(toolbarStyle.getPropertyValue('margin-bottom'))
+      setFullScreenHeight(`${window.innerHeight - toolbarRef.current.clientHeight - marginTop - marginBottom}px`)
+    }
+  }, [isFullScreen, toolbarRef])
+
+  useEffect(() => {
+    calcFullScreenHeight()
+  }, [calcFullScreenHeight])
+
   const handleUpdate = useCallback(() => {
     SetIsShowShortcatKeyTip(codeMirrorRef?.current?.view?.hasFocus)
   }, [codeMirrorRef])
+
+  useEffect(() => {
+    window.addEventListener('resize', calcFullScreenHeight)
+    return () => {
+      window.removeEventListener('resize', calcFullScreenHeight)
+    }
+  }, [calcFullScreenHeight])
 
   return (
     <div className={`${css.container} ${isFullScreen ? css.fullScreen : ''}`}>
