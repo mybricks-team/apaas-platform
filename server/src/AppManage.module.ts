@@ -7,7 +7,6 @@ import TaskService from "./services/task.service";
 import FileDao from "./dao/FileDao";
 import FileTaskDao from "./dao/FileTaskDao";
 import { loadModule } from "./module-loader";
-import AppsService from "./services/apps";
 import FilePubDao from "./dao/filePub.dao";
 import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
@@ -28,6 +27,7 @@ import OssModule from './module/oss/oss.module'
 import UserLogDao from './dao/UserLogDao';
 import LogModule from './module/log/log.module'
 import ConfigModule from "./module/config/config.module";
+import AppModule from "./module/app/app.module";
 
 @Module({
   imports: [
@@ -44,15 +44,14 @@ import ConfigModule from "./module/config/config.module";
     OssModule,
     LogModule,
     ConfigModule,
+    AppModule,
     ...loadModule().modules,
   ],
   controllers: [
-    AppsService,
     proxy,
     WorkspaceService,
     UserGroupService,
     TaskController,
-    AppsService,
     HomeService
   ],
   providers: [

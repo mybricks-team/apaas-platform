@@ -135,7 +135,7 @@ export default class AppCtx {
       type: 'user',
       extName: 'folder',
       namespace: 'mybricks-folder',
-      icon: 'https://assets.mybricks.world/icon/folder.5782d987cf098ea8.png',
+      icon: './image/icon_folder.png',
     },
   ];
   /** 侧边栏应用列表 */
@@ -161,7 +161,7 @@ export default class AppCtx {
         type: 'user',
         extName: 'share',
         namespace: 'share',
-        icon: 'https://assets.mybricks.world/icon/leileizi.png'
+        icon: './image/icon_share.png'
       },
     ];
 

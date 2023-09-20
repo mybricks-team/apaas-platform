@@ -5,6 +5,7 @@ import {observe} from '@mybricks/rxui'
 import Files from './files'
 import Trash from './trash'
 import Share from './share'
+import Asset from './asset';
 import AppCtx from '../AppCtx'
 import InlineApp from './inlineApp'
 
@@ -49,6 +50,9 @@ function Render(): JSX.Element {
         JSX = (
           <Files />
         )
+        break
+      case 'asset':
+        JSX = <Asset />;
         break
       default:
         break

@@ -7,6 +7,11 @@ const zip = new JSZip();
 const zipRootFolder = zip.folder('mybricks-apaas');
 const targetConfig = process.argv[2] ? process.argv[2] : null;
 
+// 更新版本号
+const latestVersion = require('./package.json').version;
+const serverPkg = require('./server/package.json');
+serverPkg.version = latestVersion;
+fs.writeFileSync(path.join(__dirname, './server/package.json'), JSON.stringify(serverPkg, null, 2), 'utf-8');
 
 /** 遍历文件 */
 function read (zipFolder, files, dirPath) {
@@ -27,8 +32,7 @@ function read (zipFolder, files, dirPath) {
 const filterFileName = [
   '.DS_Store', 
   '_apps', 
-  'config', 
-  'node_modules', 
+  'config',
   '.npmignore', 
   '.eslintrc.js', 
   '.prettierrc', 
@@ -46,7 +50,8 @@ const filterFileName = [
   'PlatformConfig_demo.json',
   'PlatformConfig_hainiu.json',
   'PlatformConfig_mybricks.json',
-  'zip.js',
+  'zip_update.js',
+  'zip_offline.js',
   'zip_deploy.js'
 ];
 const filesPlatform = [];
@@ -57,7 +62,7 @@ fs.readdirSync(path.join(__dirname, './server')).forEach(filename => {
   }
 });
 fs.readdirSync(path.join(__dirname, './server-runtime')).forEach(filename => {
-  if(!filterFileName.includes(filename)) {
+  if(!filterFileName.includes(filename) && filename !== 'node_modules') {
     filesRuntime.push(filename);
   }
 });
@@ -69,6 +74,7 @@ zipRootFolder.file('upgrade_platform.sh', fs.readFileSync(path.join(__dirname, '
 // if(targetConfig) {
 //   zipRootFolder.folder('server').file('application.json', fs.readFileSync(path.join(__dirname, `./server/application_${targetConfig}.json`)));
 // }
+
 zip.generateAsync({
   type: 'nodebuffer',
   compression: 'DEFLATE',
@@ -76,5 +82,5 @@ zip.generateAsync({
     level: 9
   }
 }).then((content) => {
-  fs.writeFileSync(path.join(__dirname, './mybricks-apaas-deploy.zip'), content, 'utf-8');
+  fs.writeFileSync(path.join(__dirname, './mybricks-apaas-offline.zip'), content, 'utf-8');
 });

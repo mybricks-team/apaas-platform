@@ -77,5 +77,5 @@ zip.generateAsync({
     level: 9
   }
 }).then((content) => {
-  fs.writeFileSync(path.join(__dirname, './mybricks-apaas.zip'), content, 'utf-8');
+  fs.writeFileSync(path.join(__dirname, './mybricks-apaas-update.zip'), content, 'utf-8');
 });

@@ -120,7 +120,7 @@ export default class AuthController {
       }
       const sysAdminConfig = await this._getSysAdminConfig(projectId);
       if(sysAdminConfig) {
-        // 判断是不是超管登陆
+        // 判断是不是超管登录
         if(sysAdminConfig.userName === userId) {
           // 只返回权限模块
           const res = this._getSysAuthInfo(projectId)
@@ -188,7 +188,7 @@ export default class AuthController {
       console.log('运行容器：readyExePath', readyExePath);
 			
       if (!fs.existsSync(readyExePath)) {
-        return { code: -1, msg: '登陆失败' };
+        return { code: -1, msg: '登录失败' };
       }
 			
       const { startExe } = require(readyExePath);

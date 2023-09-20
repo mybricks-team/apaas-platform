@@ -12,7 +12,7 @@ import { ExclamationCircleFilled, DownOutlined } from '@ant-design/icons'
 
 import AppCtx from '../AppCtx'
 import AppStore from './appStore'
-import { Icon, OperateLogIcon, PlatformUserManage } from '../components'
+import { FileManage, Icon, OperateLogIcon, PlatformUserManage } from '../components'
 import PlatformMenu from './platformMenu'
 import MessageModal from './MessageModal'
 import UserManageModal from './userManageModal'
@@ -275,7 +275,7 @@ function SystemMenus() {
       {isAdministrator ? (
         <>
           <Item
-            icon="https://assets.mybricks.world/icon/liuleidashuaige.png"
+            icon="./image/icon_myapp.png"
             title="我的应用"
             modal={{ content: <AppStore /> }}
           />
@@ -307,6 +307,11 @@ function SystemMenus() {
               // @ts-ignore
               content: <UserManageModal user={appCtx.user} />
             }}
+          />
+          <Item
+            icon={<FileManage width={20} height={20} />}
+            title="静态文件管理"
+            namespace="?appId=asset"
           />
           <Item
             icon={<PlatformSetting width={20} height={20} />}

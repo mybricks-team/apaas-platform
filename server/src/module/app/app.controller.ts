@@ -1,17 +1,21 @@
-import { Body, Controller, Get, Post, Query, Req, Headers } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Headers, UseInterceptors, UploadedFile } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as childProcess from 'child_process';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Logger } from '@mybricks/rocker-commons'
-import AppDao from '../dao/AppDao';
+import AppDao from '../../dao/AppDao';
 import * as axios from 'axios';
-import env from '../utils/env'
-import UserLogDao from '../dao/UserLogDao';
-import { lockUpgrade, unLockUpgrade } from '../utils/lock';
-import ConfigService from '../module/config/config.service';
+import env from '../../utils/env'
+import UserLogDao from '../../dao/UserLogDao';
+import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
+import ConfigService from '../config/config.service';
+import AppService from './app.service';
+const fse = require('fs-extra');
+const { getAppThreadName } = require('../../../env.js')
 
 @Controller("/paas/api/apps")
-export default class AppsService {
+export default class AppController {
   appDao: AppDao;
   userLogDao: UserLogDao;
   // 控制是否重启
@@ -23,6 +27,8 @@ export default class AppsService {
 
   configService: ConfigService;
 
+  appService: AppService;
+
   constructor() {
     this.appDao = new AppDao();
     this.userLogDao = new UserLogDao();
@@ -30,97 +36,12 @@ export default class AppsService {
     this.isSuccessUpgrade = false;
     this.shouldReload = false;
     this.configService = new ConfigService();
-  }
-
-  async getAllInstalledList({ filterSystemApp }: {filterSystemApp: boolean}) {
-    const appsFolder = env.getAppInstallFolder()
-    if (!fs.existsSync(appsFolder)) {
-      return []
-    }
-    const dirNames = fs.readdirSync(appsFolder);
-    const apps = [];
-    if (Array.isArray(dirNames)) {
-      for (let l = dirNames.length, i = 0; i < l; i++) {
-        const appName = dirNames[i];
-        let pkgJson: any = {};
-        const pkgFilePath = path.join(appsFolder, appName, "./package.json");
-        if (fs.existsSync(pkgFilePath)) {
-          pkgJson = JSON.parse(fs.readFileSync(pkgFilePath, "utf-8"));
-          // 处理安装失败导致的异常数据
-          if (Object.keys(pkgJson).length === 0) {
-            continue;
-          }
-          if(appName.indexOf('_temp') !== -1) {
-            continue
-          }
-          // 忽略平台型模块
-          if(filterSystemApp && pkgJson?.mybricks?.type === 'system') {
-            continue
-          }
-          const temp: any = {
-            version: pkgJson?.version,
-            homepage: `/${pkgJson.name}/index.html`, // 约定
-            title: pkgJson?.mybricks?.title,
-            namespace: pkgJson.name,
-            description: pkgJson.description,
-            icon: pkgJson?.mybricks?.icon,
-            type: pkgJson?.mybricks?.type,
-            extName: pkgJson?.mybricks?.extName,
-            snapshot: pkgJson?.mybricks?.snapshot,
-            exports: [],
-          };
-          // 应用设置页面
-          if (pkgJson?.mybricks?.setting) {
-            temp["setting"] = pkgJson?.mybricks?.setting;
-          } else if (
-            fs.existsSync(
-              path.join(appsFolder, appName, "./assets/setting.html")
-            )
-          ) {
-            // 约定的设置字段
-            temp["setting"] = `/${pkgJson.name}/setting.html`; // 约定
-          }
-          // 应用设置页面
-          if (pkgJson?.mybricks?.groupSetting) {
-            temp["groupSetting"] = pkgJson?.mybricks?.groupSetting;
-          } else if (
-            fs.existsSync(
-              path.join(appsFolder, appName, "./assets/groupSetting.html")
-            )
-          ) {
-            // 约定的设置字段
-            temp["groupSetting"] = `/${pkgJson.name}/groupSetting.html`; // 约定
-          }
-          if(
-            fs.existsSync(
-              path.join(appsFolder, appName, "./assets/index.html")
-            )
-          ) {
-            temp["_hasPage"] = true; // 约定
-          }
-          // 应用导出能力
-          if (pkgJson?.mybricks?.serviceProvider) {
-            for (let serviceName in pkgJson?.mybricks?.serviceProvider) {
-              const val = pkgJson?.mybricks?.serviceProvider[serviceName];
-              temp.exports.push({
-                name: serviceName,
-                path: `/${pkgJson.name}/${val}`,
-              });
-            }
-          }
-          if (pkgJson?.mybricks?.isSystem) {
-            temp["isSystem"] = pkgJson?.mybricks?.isSystem;
-          }
-          apps.push(temp);
-        }
-      }
-    }
-    return apps
+    this.appService = new AppService();
   }
 
   @Get("/getInstalledList")
   async getInstalledList() {
-    const apps = await this.getAllInstalledList({ filterSystemApp: true })
+    const apps = await this.appService.getAllInstalledList({ filterSystemApp: true })
     return {
       code: 1,
       data: apps,
@@ -149,7 +70,7 @@ export default class AppsService {
       let remoteAppList = []
       let mergedList = []
       try {
-        const currentInstallList = (await this.getAllInstalledList({ filterSystemApp: true }))?.map(i => {
+        const currentInstallList = (await this.appService.getAllInstalledList({ filterSystemApp: true }))?.map(i => {
           return {
             namespace: i.namespace,
             version: i.version,
@@ -295,13 +216,6 @@ export default class AppsService {
           namespace: remoteApp.namespace,
           version: version,
         });
-      } else if(remoteApp.installType === 'local') {
-        applications.installApps.push({
-          type: "local",
-          version: version,
-          namespace: installPkgName,
-          path: ''
-        });
       } else {
         applications.installApps.push({
           type: "npm",
@@ -334,13 +248,9 @@ export default class AppsService {
         installedApp.version = version
         installedApp.path = remoteAppInstallInfo.ossPath
         applications.installApps.splice(installedIndex, 1, installedApp);
-      } else if(installedApp.type === 'local') {
-        installPkgName = installedApp.namespace
-        installedApp.version = version
-        applications.installApps.splice(installedIndex, 1, installedApp);
       }
 
-      if (['npm', 'oss', 'local'].includes(installedApp.type)) {
+      if (['npm', 'oss'].includes(installedApp.type)) {
         logInfo = {
           action: 'install',
           type: 'application',
@@ -406,7 +316,7 @@ export default class AppsService {
         } else {
           Logger.info("有service，即将重启服务");
           childProcess.exec(
-            `npx pm2 reload ${env.getAppThreadName()}`,
+            `npx pm2 reload ${getAppThreadName()}`,
             {
               cwd: path.join(process.cwd()),
             },
@@ -434,6 +344,114 @@ export default class AppsService {
       await unLockUpgrade({ force: true })
     }
     return { code: 1, data: null, message: "安装成功" };
+  }
+
+  updateLocalAppVersion({ namespace, version, installType }) {
+    const application = require(path.join(process.cwd(), './application.json'));
+    let installApp = null
+    application?.installApps?.forEach(app => {
+      if(app.namespace === namespace) {
+        app.version = version
+        app.installType = installType
+        installApp = app
+      }
+    })
+    if(!installApp) {
+      application?.installApps.push({
+        namespace,
+        version,
+        type: installType
+      })
+    }
+    fs.writeFileSync(path.join(process.cwd(), './application.json'), JSON.stringify(application, undefined, 2))
+  }
+
+
+  @Post("/offlineUpdate")
+  @UseInterceptors(FileInterceptor('file'))
+  async appOfflineUpdate(@Req() request, @Body() body, @UploadedFile() file) {
+    const systemConfig = await this.configService.getConfigByScope(['system'])
+    try {
+      if(systemConfig?.system?.config?.openConflictDetection) {
+        Logger.info('开启了冲突检测')
+        await lockUpgrade()
+      }
+    } catch(e) {
+      Logger.info(e)
+      return {
+        code: -1,
+        msg: '当前已有升级任务，请稍后重试'
+      }
+    }
+    const tempFolder = path.join(process.cwd(), '../_tempapp_')
+    try {
+      if(!fs.existsSync(tempFolder)) {
+        fs.mkdirSync(tempFolder)
+      }
+      const zipFilePath = path.join(tempFolder, `./${file.originalname}`)
+      Logger.info('开始持久化压缩包')
+      fs.writeFileSync(zipFilePath, file.buffer);
+      childProcess.execSync(`which unzip`).toString()
+      Logger.info('开始解压文件')
+      childProcess.execSync(`unzip -o ${zipFilePath} -d ${tempFolder}`, {
+        stdio: 'inherit' // 不inherit输出会导致 error: [Circular *1]
+      })
+      const subFolders = fs.readdirSync(tempFolder)
+      let unzipFolderSubpath = ''
+      Logger.info(`subFolders: ${JSON.stringify(subFolders)}}`)
+      for(let name of subFolders) {
+        if(name.indexOf('.') === -1) {
+          unzipFolderSubpath = name
+          break
+        }
+      }
+      const unzipFolderPath = path.join(tempFolder, unzipFolderSubpath)
+      const pkg = require(path.join(unzipFolderPath, './package.json'))
+      Logger.info(`pkg: ${JSON.stringify(pkg)}`)
+      let appName = pkg.name;
+      // 包含scope，需要编码
+      if(pkg.name.indexOf('@') !== -1) {
+        // 需要加密
+        appName = encodeURIComponent(pkg.name)
+      }
+      const destAppDir = path.join(env.getAppInstallFolder(), `./${appName}`)
+      Logger.info('开始复制文件')
+      // fse.copySync(unzipFolderPath, destAppDir)
+      childProcess.execSync(`cp -rf ${unzipFolderPath} ${destAppDir}`)
+      Logger.info('开始清除临时文件')
+      fse.removeSync(tempFolder)
+      Logger.info('版本信息开始持久化到本地')
+      // 更新本地版本
+      this.updateLocalAppVersion({ namespace: pkg.name, version: pkg.version, installType: 'local' })
+
+      Logger.info('开始重启服务')
+      // 重启服务
+      childProcess.exec(
+        `npx pm2 reload ${getAppThreadName()}`,
+        {
+          cwd: path.join(process.cwd()),
+        },
+        (error, stdout, stderr) => {
+          if (error) {
+            Logger.info(`exec error: ${error}`);
+            return;
+          }
+          Logger.info(`stdout: ${stdout}`);
+          Logger.info(`stderr: ${stderr}`);
+        }
+      );
+    } catch(e) {
+      Logger.info('错误信息是')
+      Logger.info(e.message)
+      fse.removeSync(tempFolder)
+    }
+    
+    if(systemConfig?.system?.config?.openConflictDetection) {
+      Logger.info("解锁成功，可继续升级应用");
+      // 解锁
+      await unLockUpgrade({ force: true })
+    }
+    return { code: 1, message: "安装成功" };
   }
 
   @Get("/update/status")

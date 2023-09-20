@@ -425,7 +425,7 @@ function Path({path, onClick, APPSMap}) {
       return <></>
     }
 
-    const icon = <Icon icon={isMy ? 'https://assets.mybricks.world/icon/myprojects.7cd8f4c7813982aa.png' : (isGroup ? (itemIcon || UserGroup) : appReg.icon)} width={16} height={16}/>
+    const icon = <Icon icon={isMy ? './image/icon_myproject.png' : (isGroup ? (itemIcon || UserGroup) : appReg.icon)} width={16} height={16}/>
 
     return (
       <div className={css.path}>
