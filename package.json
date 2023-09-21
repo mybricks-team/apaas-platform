@@ -6,7 +6,7 @@
     "docker:load": "docker load < ./mybricks-apaas.tar",
     "docker:save": "docker save -o ./mybricks-apaas.tar mybricks-apaas:v0.1.4",
     "docker:build": "docker build -t mybricks-apaas:v0.1.4 .",
-    "docker:run": "docker run -p 49160:3100 -v /Users/andyzou/Work/registry/mybricks-team/apaas-platform/PlatformConfig.json:/usr/src/PlatformConfig.json -d --name mybricks-apaas mybricks-apaas:v0.1.4",
+    "docker:run": "docker run -p 49160:4100 -v /Users/andyzou/Work/registry/mybricks-team/apaas-platform/PlatformConfig.json:/usr/src/PlatformConfig.json -d --name mybricks-apaas mybricks-apaas:v0.1.4",
     "docker:stop": "docker stop mybricks-apaas",
     "build:page": "cd page && npm install && npm run build",
     "zip:update": "npm run build:page && node ./zip_update.js",

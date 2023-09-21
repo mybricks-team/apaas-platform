@@ -1,6 +1,6 @@
 FROM node:16.20
 
-RUN yum install -y make gcc libx11-devel.x86_64 libxkbfile-devel.x86_64 libsecret-devel nginx lsof wget unzip
+RUN yum install -y nginx lsof wget unzip
 
 WORKDIR /usr/src/app
 
