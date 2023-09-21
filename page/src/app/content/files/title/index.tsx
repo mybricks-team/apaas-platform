@@ -275,7 +275,7 @@ function SearchModal({open, onCancel}) {
       params: {
         userId: appCtx.user.id,
         name: value,
-        limit: 20,
+        limit: 10,
         offset: 0
       }
     }).then(({data: {data}}) => {
