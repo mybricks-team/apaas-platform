@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-EXPOSE 3100
+EXPOSE 4100
 
 WORKDIR /usr/src/app/server
 USER root
