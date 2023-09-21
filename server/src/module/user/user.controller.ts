@@ -398,4 +398,22 @@ export default class UserController {
       data: res
     }
   }
+
+  @Post('/setUserInfo')
+  async setUserInfo(
+    @Body('userId') userId: number,
+    @Body('name') name: string
+  ) {
+    if(!name || !userId) {
+      return {
+        code: -1,
+        msg: '参数缺失'
+      }
+    }
+    await this.userService.setUserInfo({userId, name})
+    return {
+      code: 1,
+      msg: '设置成功'
+    }
+  }
 }

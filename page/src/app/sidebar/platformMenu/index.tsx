@@ -50,7 +50,7 @@ export default function PlatformMenu() {
       </div>
       <div style={{marginTop: 'auto'}}>
         <Item
-          icon="https://assets.mybricks.world/icon/163921.png"
+          icon="./image/icon_rubbish.png"
           title="回收站"
           namespace="?appId=trash"
         />
@@ -74,7 +74,7 @@ function My() {
       name='我的'
       child={proxyLocal}
       namespace={`?appId=files`}
-      icon='https://assets.mybricks.world/icon/myprojects.7cd8f4c7813982aa.png'
+      icon='./image/icon_myproject.png'
       getFiles={(id) => {
         return new Promise((resolve) => {
           const [, parentId] = id.split('-')

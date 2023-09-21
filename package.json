@@ -1,16 +1,15 @@
 {
   "name": "mybricks-apaas-platform",
-  "version": "0.1.4",
+  "version": "0.1.10",
   "description": "",
   "scripts": {
     "docker:build": "docker build -t mybricks-apaas:v1.1.4 .",
     "docker:run": "docker run -p 49160:3100 -v /Users/andyzou/Work/registry/mybricks-team/apaas-platform/PlatformConfig.json:/usr/src/PlatformConfig.json -d --name mybricks-apaas mybricks-apaas:v1.1.4",
     "docker:stop": "docker stop mybricks-apaas",
-    "build": "cd page && npm install && npm run build",
-    "zip:server": "npm run build && node ./server/zip.js",
-    "zip:server-runtime": "node ./server-runtime/zip.js",
-    "zip:update": "npm run build && node ./zip.js",
-    "zip:deploy": "npm run build && node ./zip_deploy.js",
+    "build:page": "cd page && npm install && npm run build",
+    "zip:update": "npm run build:page && node ./zip_update.js",
+    "zip:deploy": "npm run build:page && node ./zip_deploy.js",
+    "zip:offline": "npm run build:page && cd server && npm i && cd ../ && node ./zip_offline.js",
     "deploy:fangzhou": "bash deploy_fangzhou.sh",
     "publishToNpm": "npm run zip:update && npm publish --registry=https://registry.npmjs.org && node sync.js --origin=https://my.mybricks.world"
   },

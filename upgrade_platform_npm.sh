@@ -17,9 +17,9 @@ echo "开始执行安装操作..."
 echo "开始拉取代码"
 if [ "$1" = "" ]; 
 then
-npm i --registry=https://registry.npm.taobao.org mybricks-apaas-platform@latest  --production
+npm i --registry=https://registry.npm.taobao.org mybricks-apaas-platform@latest
 else
-npm i --registry=https://registry.npm.taobao.org "mybricks-apaas-platform@$1"  --production
+npm i --registry=https://registry.npm.taobao.org "mybricks-apaas-platform@$1"
 fi
 tmpPlatformFolder=$tmpFolderBase/node_modules/mybricks-apaas-platform
 cd "./node_modules/mybricks-apaas-platform"

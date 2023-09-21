@@ -51,6 +51,7 @@ const filterFileName = [
 ];
 const filesPlatform = [];
 const filesRuntime = [];
+const filesLocalStorage = [];
 fs.readdirSync(path.join(__dirname, './server')).forEach(filename => {
   if(!filterFileName.includes(filename)) {
     filesPlatform.push(filename);
@@ -61,9 +62,15 @@ fs.readdirSync(path.join(__dirname, './server-runtime')).forEach(filename => {
     filesRuntime.push(filename);
   }
 });
+fs.readdirSync(path.join(__dirname, './_localstorage')).forEach(filename => {
+  if(filename.includes('editor_assets')) {
+    filesLocalStorage.push(filename);
+  }
+});
 
 read(zipRootFolder.folder('server'), filesPlatform, path.join(__dirname, './server'));
 read(zipRootFolder.folder('server-runtime'), filesRuntime, path.join(__dirname, './server-runtime'));
+read(zipRootFolder.folder('_localstorage'), filesLocalStorage, path.join(__dirname, './_localstorage'));
 
 zipRootFolder.file('upgrade_platform.sh', fs.readFileSync(path.join(__dirname, './upgrade_platform.sh')));
 // if(targetConfig) {
@@ -76,5 +83,5 @@ zip.generateAsync({
     level: 9
   }
 }).then((content) => {
-  fs.writeFileSync(path.join(__dirname, './mybricks-apaas.zip'), content, 'utf-8');
+  fs.writeFileSync(path.join(__dirname, './mybricks-apaas-deploy.zip'), content, 'utf-8');
 });

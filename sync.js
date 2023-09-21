@@ -22,7 +22,7 @@ formData.append('payload', JSON.stringify({
   version: packageJSON.version,
   creatorName: Buffer.from('em91eW9uZ3NoZW5nQGt1YWlzaG91LmNvbQ==', 'base64').toString('utf-8') || '',
 }));
-formData.append('file', fs.readFileSync(path.join(__dirname, './mybricks-apaas.zip')), `mybricks-apaas.zip`);
+formData.append('file', fs.readFileSync(path.join(__dirname, './mybricks-apaas-update.zip')), `mybricks-apaas.zip`);
 
 axios
   .post(domain + '/central/api/channel/gateway', formData, {

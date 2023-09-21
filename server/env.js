@@ -16,6 +16,17 @@ const FILE_LOCAL_STORAGE_PREFIX_RUNTIME = 'runtime/mfs'
 const NPM_REGISTRY = process.env.MYBRICKS_NPM_REGISTRY ? process.env.MYBRICKS_NPM_REGISTRY : (process.env.PLATFORM_HOSTNAME === 'FANGZHOU') ? decodeURIComponent(Buffer.from('aHR0cHMlM0EvL25wbS5jb3JwLmt1YWlzaG91LmNvbS8=', 'base64').toString('utf-8')) : 'https://registry.npm.taobao.org'
 
 
+const getAppThreadName = () => {
+  try {
+    const ecosystemConfig = require("./ecosystem.config.js");
+    // @ts-ignore
+    return ecosystemConfig?.apps?.[0]?.name ?? 'index'
+  } catch(e) {
+    console.log(e)
+    return 'index'
+  }
+}
+
 module.exports = {
   FILE_LOCAL_STORAGE_PREFIX,
   FILE_LOCAL_STORAGE_PREFIX_RUNTIME,
@@ -23,5 +34,6 @@ module.exports = {
   APPS_BASE_FOLDER,
   LOGS_BASE_FOLDER,
   FILE_UPGRADE_LOCK_FILE,
-  NPM_REGISTRY
+  NPM_REGISTRY,
+  getAppThreadName
 }

@@ -34,7 +34,7 @@ export function apiProxy(option: Option = {}) {
 
           if (Object.keys(parse.query).length) {
             Object.keys(req.query).forEach(key => {
-              url += `${url.includes('?') ? '&' : '?'}${key}=${req.query[key]}`;
+              url += `${url.includes('?') ? '&' : '?'}${key}=${encodeURIComponent(req.query[key])}`;
             });
           }
 

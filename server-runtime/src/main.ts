@@ -29,7 +29,7 @@ async function bootstrap() {
   app.use(bodyParser.json({ limit: "100mb" }));
   app.use(cookieParser());
 	app.use(xmlparser());
-  app.use(timeout(6 * 1000))
+  // app.use(timeout(6 * 1000))
 
   const port = 3101;
   await app.listen(port);

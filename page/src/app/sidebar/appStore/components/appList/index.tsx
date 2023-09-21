@@ -10,16 +10,22 @@ import {
 	Row,
 	Spin,
 	Empty,
-	Button
+	Button,
+	message,
+	Upload,
+	Popover,
 } from 'antd'
+import { InboxOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { chunk } from 'lodash-es'
 import compareVersion from 'compare-version'
 import { LeftOutlined } from '@ant-design/icons'
+import { getApiUrl } from '../../../../../utils'
 
 import AppCard from '../appCard'
 import {T_App} from '../../../../AppCtx'
 
 import styles from './index.less'
+const { Dragger } = Upload;
 
 interface AppListProps {
 	loading: boolean;
@@ -66,6 +72,34 @@ const AppList: FC<AppListProps> = props => {
 	const onChangeType = useCallback((event) => {
 		setType(event.target.value)
 	}, [])
+
+
+  const uploadProps = {
+		multiple: false,
+		maxCount: 1,
+		showUploadList: true,
+		action: getApiUrl('/paas/api/apps/offlineUpdate'),
+		onChange(info) {
+			const { status } = info.file;
+			console.log(info)
+			if (status === 'done') {
+				message.destroy()
+				message.success(`上传成功，正在安装中, 请稍后(大概10s)`, 10);
+				setTimeout(() => {
+					message.success(`安装成功, 即将自动刷新`);
+					setTimeout(() => {
+						location.reload();
+					}, 1000)
+				}, 10 * 1000)
+			} else if (status === 'error') {
+				message.destroy()
+				message.error(`上传失败`);
+			}
+		},
+		onDrop(e) {
+			console.log('Dropped files', e.dataTransfer.files);
+		},
+	};
 	
 	return (
 		<div className={`${styles.viewContainer} fangzhou-theme`}>
@@ -88,8 +122,16 @@ const AppList: FC<AppListProps> = props => {
 					}
 				</div> */}
 			</div>
+			<p style={{height: 32, fontSize: 16, fontWeight: 'bold'}}>
+				在线更新&nbsp;
+				<Popover
+					content={'需要能够访问公网环境，点击下面更新按钮，即可在线更新'}
+					trigger="hover"
+				>
+					<QuestionCircleOutlined />
+				</Popover>
+			</p>
 			<div className={`${styles.appList}`}>
-				
 				<Spin spinning={loading} className={styles.spin}>
 					{/* <div className={styles.filter}>
 						<Radio.Group onChange={onChangeType} value={type}>
@@ -132,6 +174,27 @@ const AppList: FC<AppListProps> = props => {
 						<Empty className={styles.empty} imageStyle={{ height: '152px' }} description='暂无组件'/>
 					)}
 				</Spin>
+			</div>
+			<div>
+				<p style={{height: 32, fontSize: 16, fontWeight: 'bold'}}>
+					离线更新&nbsp;
+					<Popover
+						content={'不需要能够访问公网环境，拖入应用安装包即可上传进行应用更新'}
+						trigger="hover"
+					>
+						<QuestionCircleOutlined />
+					</Popover>
+				</p>
+			<Dragger 
+				{...uploadProps}
+			>
+				<p className="ant-upload-drag-icon">
+					<InboxOutlined />
+				</p>
+				<p className="ant-upload-text">拖拽 应用安装包 至此</p>
+				<p className="ant-upload-hint">
+				</p>
+			</Dragger>
 			</div>
 		</div>
 	)

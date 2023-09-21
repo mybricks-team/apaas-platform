@@ -19,3 +19,4 @@ page/package-lock.json
 server/package-lock.json
 logs
 .VSCodeCounter
+!_localstorage/editor_assets

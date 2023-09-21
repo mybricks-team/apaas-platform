@@ -1,6 +1,6 @@
 {
   "name": "fangzhou-paas-application-template",
-  "version": "0.0.90",
+  "version": "0.1.8",
   "description": "",
   "main": "index.js",
   "scripts": {

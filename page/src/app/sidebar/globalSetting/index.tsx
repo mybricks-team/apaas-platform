@@ -13,10 +13,11 @@ import {
   Switch,
   Select,
   Popover,
+  Upload
 } from 'antd'
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
-import Icon, {SettingOutlined, LeftOutlined, InfoCircleOutlined} from '@ant-design/icons'
+import Icon, {SettingOutlined, LeftOutlined, InfoCircleOutlined, QuestionCircleOutlined, InboxOutlined, GlobalOutlined, ThunderboltOutlined} from '@ant-design/icons'
 import { APaaS } from '../../noaccess/Icons'
 
 import compareVersion from 'compare-version'
@@ -24,6 +25,7 @@ import {getApiUrl} from '../../../utils'
 import AppCtx, { T_App } from '../../AppCtx'
 import SchemaSetting, {SettingItem} from './schemaSetting'
 
+const { Dragger } = Upload;
 interface MenuItem extends T_App {
   icon: any
   setting?: SettingItem[] | string
@@ -83,6 +85,8 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
 const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [form] = Form.useForm()
   const [openSystemWhiteListSwitch, setOpenSystemWhiteListSwitch] = useState(initialValues?.openSystemWhiteList)
+  const [openLogoutSwitch, setOpenLogoutSwitch] = useState(initialValues?.openLogout)
+  const [openUserInfoSettingSwitch, setOpenUserInfoSettingSwitch] = useState(initialValues?.openUserInfoSetting)
   const [openConflictDetectionSwitch, setOpenConflictDetectionSwitch] = useState(initialValues?.openConflictDetection)
 
   useEffect(() => {
@@ -129,6 +133,23 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         >
           <Switch checked={openSystemWhiteListSwitch} onChange={() => {
             setOpenSystemWhiteListSwitch(!openSystemWhiteListSwitch)
+          }} />
+        </Form.Item>
+        <Form.Item
+          initialValue=''
+          label="开启退出登录"
+          name="openLogout"
+        >
+          <Switch checked={openLogoutSwitch} onChange={() => {
+            setOpenLogoutSwitch(!openLogoutSwitch)
+          }} />
+        </Form.Item><Form.Item
+          initialValue=''
+          label="开启个人资料设置"
+          name="openUserInfoSetting"
+        >
+          <Switch checked={openUserInfoSettingSwitch} onChange={() => {
+            setOpenUserInfoSettingSwitch(!openUserInfoSettingSwitch)
           }} />
         </Form.Item>
         <Form.Item
@@ -302,6 +323,33 @@ const AboutForm = ({ currentPlatformVersion }) => {
   const [isDownloading, setIsDownloading] = useState(false)
   let upgradeContainer = null;
 
+  const uploadProps = {
+		multiple: false,
+		maxCount: 1,
+		showUploadList: true,
+		action: getApiUrl('/paas/api/system/offlineUpdate'),
+		onChange(info) {
+			const { status } = info.file;
+			console.log(info)
+			if (status === 'done') {
+				message.destroy()
+				message.success(`上传成功，正在安装中, 请稍后(大概10s)`, 10);
+				setTimeout(() => {
+					message.success(`安装成功, 即将自动刷新`);
+					setTimeout(() => {
+						location.reload();
+					}, 1000)
+				}, 10 * 1000)
+			} else if (status === 'error') {
+				message.destroy()
+				message.error(`上传失败`);
+			}
+		},
+		onDrop(e) {
+			console.log('Dropped files', e.dataTransfer.files);
+		},
+	};
+
   const upgrade = useCallback((version) => {
     setIsDownloading(true)
       message.info('正在执行下载操作, 此过程大约15s', 15)
@@ -349,11 +397,12 @@ const AboutForm = ({ currentPlatformVersion }) => {
               <span>最新版本是: <span style={{ color: 'rgb(255, 77, 79)' }}>{upgradeInfo.version}</span></span>
               <Button 
                 loading={isDownloading}
+                icon={<ThunderboltOutlined />}
                 onClick={() => {
                   upgrade(upgradeInfo.version)
                 }}
               >
-                立即升级?
+                立即升级
               </Button>
             </div>
           ) : null
@@ -403,9 +452,20 @@ const AboutForm = ({ currentPlatformVersion }) => {
       </span>
        Platform</p>
       <p style={{textAlign: 'center'}}>当前版本是： <span style={{color: 'rgb(22, 119, 255)'}}>{currentPlatformVersion}</span></p>
+			<p style={{height: 32, fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginTop: 10}}>
+				在线更新&nbsp;
+				<Popover
+					content={'需要能够访问公网环境，点击下面检查更新按钮，即可在线更新'}
+					trigger="hover"
+				>
+					<QuestionCircleOutlined />
+				</Popover>
+			</p>
       <div style={{display: 'flex', justifyContent: 'center', marginTop: 8}}>
         <Button
           loading={checkLoading}
+          type='primary'
+          icon={<GlobalOutlined />}
           onClick={() => {
             setCheckLoading(true)
             axios.post(getApiUrl('/paas/api/system/channel'), {
@@ -444,6 +504,25 @@ const AboutForm = ({ currentPlatformVersion }) => {
           </Button>
       </div>
       {upgradeContainer}
+      <p style={{height: 32, fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginTop: 10}}>
+        离线更新&nbsp;
+        <Popover
+          content={'不需要能够访问公网环境，拖入平台安装包即可上传进行平台更新'}
+          trigger="hover"
+        >
+          <QuestionCircleOutlined />
+        </Popover>
+      </p>
+      <Dragger 
+				{...uploadProps}
+			>
+				<p className="ant-upload-drag-icon">
+					<InboxOutlined />
+				</p>
+				<p className="ant-upload-text">拖拽 平台安装包 至此</p>
+				<p className="ant-upload-hint">
+				</p>
+			</Dragger>
     </div>
   )
 }
