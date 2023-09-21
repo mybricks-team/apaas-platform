@@ -414,7 +414,7 @@ export default class AppController {
         // 需要加密
         appName = encodeURIComponent(pkg.name)
       }
-      const destAppDir = path.join(env.getAppInstallFolder(), `./${appName}`)
+      const destAppDir = path.join(env.getAppInstallFolder())
       Logger.info('开始复制文件')
       // fse.copySync(unzipFolderPath, destAppDir)
       childProcess.execSync(`cp -rf ${unzipFolderPath} ${destAppDir}`)
