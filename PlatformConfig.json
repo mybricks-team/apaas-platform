@@ -1,11 +1,11 @@
 {
   "database": {
     "dbType": "MYSQL",
-    "host": "47.111.7.45",
-    "user": "apaas-staging",
-    "password": "mBcLYBXTyJM8CERc",
+    "host": "127.0.0.1",
+    "user": "root",
+    "password": "12345678",
     "port": 3306,
-    "databaseName": "apaas-staging",
+    "databaseName": "test",
     "sqlPath": "./resource"
   },
   "platformConfig": {
@@ -20,21 +20,15 @@
   "installApps": [
     {
       "type": "oss",
-      "version": "0.4.10",
-      "namespace": "mybricks-pc-page",
-      "path": "asset-center/asset/app/mybricks-pc-page/0.4.10/mybricks-pc-page.zip"
+      "version": "1.1.32",
+      "namespace": "mybricks-app-pcspa",
+      "path": "asset-center/asset/app/mybricks-pc-page/1.1.32/mybricks-app-pcspa.zip"
     },
     {
       "type": "oss",
-      "version": "0.1.45",
+      "version": "0.1.56",
       "namespace": "mybricks-material",
-      "path": "asset-center/asset/app/mybricks-material/0.1.45/mybricks-material.zip"
-    },
-    {
-      "type": "oss",
-      "version": "0.2.81",
-      "namespace": "mybricks-domain",
-      "path": "asset-center/asset/app/mybricks-domain/0.2.75/mybricks-domain.zip"
+      "path": "asset-center/asset/app/mybricks-material/0.1.56/mybricks-material.zip"
     }
   ],
   "platformDomain": "http://localhost:3100/"
