@@ -134,8 +134,8 @@ async function startInstall() {
   injectPLatformConfig()
   connectDB()
   await _initDatabase()
-  // await _initDatabaseTables()
-  // await _initDatabaseRecord()
+  await _initDatabaseTables()
+  await _initDatabaseRecord()
   persistenceToConfig()
   mergeToApplication()
 }
@@ -199,7 +199,7 @@ function startService() {
       resolve()
     }, 3000)
     childProcess.execSync(`
-      npx pm2 start ecosystem.config.js --no-daemon
+      npx pm2 start ecosystem.config.js
     `, {
       cwd: path.join(__dirname, '../'),
       stdio: 'inherit'
