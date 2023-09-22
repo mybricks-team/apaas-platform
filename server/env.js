@@ -1,6 +1,6 @@
 const path = require('path')
 
-const FILE_LOCAL_STORAGE_BASE_FOLDER = process.env.PLATFORM_HOSTNAME === 'FANGZHOU' ? '/kwaishop-fangzhou-apaas-platform-service/apaas' : path.join(process.cwd(), `../`);
+const FILE_LOCAL_STORAGE_BASE_FOLDER = process.env.EXTERNAL_FILE_STORAGE ? process.env.EXTERNAL_FILE_STORAGE : (process.env.PLATFORM_HOSTNAME === 'FANGZHOU' ? '/kwaishop-fangzhou-apaas-platform-service/apaas' : path.join(process.cwd(), `../`));
 
 const LOGS_BASE_FOLDER = path.join(FILE_LOCAL_STORAGE_BASE_FOLDER, './logs');
 
