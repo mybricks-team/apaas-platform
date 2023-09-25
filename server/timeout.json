@@ -20,6 +20,9 @@
     },
     "/paas/api/apps/update:POST": {
       "ignore": true
-    }
+    },
+    "/api/pcpage/publish:POST": {
+      "ignore": true
+    } 
   }
 }
