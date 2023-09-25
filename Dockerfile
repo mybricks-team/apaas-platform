@@ -7,8 +7,8 @@ RUN echo "centos6.10安装成功"
 
 # CMD echo "yum更新成功"
 
-# RUN yum -y install epel-release && \
-#     yum -y install wget unzip gcc-c++ make
+RUN yum -y install epel-release && \
+    yum -y install which wget unzip gcc-c++ make 
 
 # # CMD echo "基础依赖安装成功"
 
@@ -18,18 +18,18 @@ RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash - && \
 
 # CMD echo "nodejs安装成功"
 
-# # # 安装Nginx
-# # RUN yum -y install nginx
+# 安装Nginx
+RUN yum -y install nginx
 
 # # CMD echo "nginx安装成功"
 
-# # 安装Unzip
-# RUN yum -y install unzip
+# 安装Unzip
+RUN yum -y install unzip
 
 # # CMD echo "unzip安装成功"
 
-# # # 清理缓存
-# # RUN yum -y clean all
+# 清理缓存
+RUN yum -y clean all
 
 # # CMD echo "清理缓存成功"
 
@@ -57,10 +57,11 @@ COPY . .
 
 WORKDIR /home/apaas/server
 
-RUN npm i --registry https://registry.npm.taobao.org --legacy-peer-deps
+RUN /bin/bash -c 'npm i --registry https://registry.npm.taobao.org --legacy-peer-deps'
 
-RUN cd ./_deployment && node install_docker.js
+WORKDIR /home/apaas/server/_deployment
 
+RUN /bin/bash -c 'node ./install_docker.js'
 
 # CMD echo "应用安装成功"
 
@@ -71,4 +72,5 @@ RUN cd ./_deployment && node install_docker.js
 # USER root
 
 # CMD echo "安装完毕"
-CMD ["sh", "-c", "NODE_ENV=production npx pm2 start ecosystem.config.js --no-daemon"]
+# CMD ["bash", "-c", "NODE_ENV=production npx pm2 start ecosystem.config.js --no-daemon"]
+CMD ["/usr/sbin/init"]

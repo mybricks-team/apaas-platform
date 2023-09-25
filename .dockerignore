@@ -9,12 +9,12 @@ page/
 server/config
 node_modules
 **/node_modules/
+.VSCodeCounter/
 
 **/PlatformConfig_*.json
 **/application_*.json
-**/PlatformConfig.json
 **/application.json
-mybricks-apaas.zip
+*.zip
 **/package-lock.json
 **/yarn.lock
 **/deploy_fangzhou.sh
@@ -25,3 +25,4 @@ zip_deploy.js
 zip.js
 .DS_Store
 *.log
+!_localstorage/editor_assets
