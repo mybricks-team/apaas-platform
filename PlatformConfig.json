@@ -1,7 +1,7 @@
 {
   "database": {
     "dbType": "MYSQL",
-    "host": "127.0.0.1",
+    "host": "172.26.216.142",
     "user": "root",
     "password": "12345678",
     "port": 3306,
@@ -23,12 +23,6 @@
       "version": "1.1.32",
       "namespace": "mybricks-app-pcspa",
       "path": "asset-center/asset/app/mybricks-pc-page/1.1.32/mybricks-app-pcspa.zip"
-    },
-    {
-      "type": "oss",
-      "version": "0.1.56",
-      "namespace": "mybricks-material",
-      "path": "asset-center/asset/app/mybricks-material/0.1.56/mybricks-material.zip"
     }
   ],
   "platformDomain": "http://localhost:3100/"

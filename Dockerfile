@@ -65,12 +65,13 @@ RUN /bin/bash -c 'node ./install_docker.js'
 
 # CMD echo "应用安装成功"
 
-# EXPOSE 4100
+EXPOSE 4100
 
-# WORKDIR /home/apaas/server
+WORKDIR /home/apaas/server
 
-# USER root
+USER root
 
 # CMD echo "安装完毕"
+CMD ["bash", "start_docker.sh"]
 # CMD ["bash", "-c", "NODE_ENV=production npx pm2 start ecosystem.config.js --no-daemon"]
-CMD ["/usr/sbin/init"]
+# CMD ["/usr/sbin/init"]
