@@ -26,3 +26,8 @@ zip.js
 .DS_Store
 *.log
 !_localstorage/editor_assets
+
+zip_offline.js
+zip_update.js
+Dockerfile
+PlatformConfig.json
