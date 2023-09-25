@@ -74,7 +74,7 @@ async function bootstrap() {
   })
   app.use(cookieParser());
 	app.use(xmlparser());
-  app.use(timeout(10 * 1000))
+  app.use(timeout(30 * 1000))
 
   await app.listen(3100);
 }
