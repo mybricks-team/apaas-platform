@@ -33,7 +33,7 @@ export default class LogsController {
       let logStr;
 
       if(searchValue) {
-        logStr = cp.execSync(`tail -n ${LINES} ${fileName} | grep ${searchValue}`).toString()
+        logStr = cp.execSync(`tail -n ${LINES} ${fileName} | grep '${searchValue}'`).toString()
       } else {
         logStr = cp.execSync(`tail -n ${LINES} ${fileName}`).toString()
       }
