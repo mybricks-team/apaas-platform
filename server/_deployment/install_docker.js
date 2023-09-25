@@ -61,7 +61,6 @@ function installApplication() {
 
 
 async function start() {
-  clearEnv()
   console.log(`[install] 未安装，正在执行安装操作`)
   await startInstallServer()
   installApplication()
