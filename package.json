@@ -5,9 +5,9 @@
   "scripts": {
     "docker:load": "docker load < ./mybricks-apaas.tar",
     "docker:save": "docker save -o ./mybricks-apaas.tar mybricks-apaas:v0.1.6",
-    "docker:build:all": "docker buildx --platform linux/amd64,linux/arm64/v8 -t mybricks-apaas:v0.1.6 .",
-    "docker:build:linux": "docker buildx --platform linux/amd64 -t mybricks-apaas:v0.1.6 .",
-    "docker:build:mac": "docker buildx --platform linux/arm64/v8 -t mybricks-apaas:v0.1.6 .",
+    "docker:build:all": "docker buildx build --platform linux/amd64,linux/arm64/v8 -t mybricks-apaas:v0.1.6 .",
+    "docker:build:linux": "docker buildx build --platform linux/amd64 -t mybricks-apaas:v0.1.6 .",
+    "docker:build:mac": "docker buildx build --platform linux/arm64/v8 -t mybricks-apaas:v0.1.6 .",
     "docker:run": "docker run -p 4100:4100 -v ~/Work/registry/mybricks-team/apaas-platform/PlatformConfig.json:/home/apaas/external/PlatformConfig.json -v ~/Work/registry/mybricks-team/apaas-platform/logs:/home/apaas/logs -v ~/Work/registry/mybricks-team/apaas-platform/_localstorage:/home/apaas/_localstorage -d --name mybricks-apaas mybricks-apaas:v0.1.6",
     "docker:stop": "docker stop mybricks-apaas",
     "build:page": "cd page && npm install && npm run build",
