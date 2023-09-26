@@ -20,4 +20,5 @@ server/package-lock.json
 logs
 .VSCodeCounter
 mybricks-apaas.tar
+docker_logs
 !_localstorage/editor_assets

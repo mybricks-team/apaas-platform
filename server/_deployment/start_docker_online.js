@@ -96,6 +96,32 @@ function persistenceToConfig() {
   console.log(`【install】: 配置持久化成功`)
 }
 
+function mergeToApplication() {
+  try {
+    const appConfigPath = path.join(__dirname, '../application.json')
+    let appConfig = {
+      "installApps": [
+        {
+          "type": "oss",
+          "version": "0.1.45",
+          "namespace": "mybricks-material",
+          "path": "asset-center/asset/app/mybricks-material/0.1.45/mybricks-material.zip"
+        }
+      ],
+      "platformVersion": require(path.join(__dirname, '../package.json')).version
+    };
+  
+    if(UserInputConfig.installApps) {
+      console.log('[install] 检测到自定义安装应用，正在合并')
+      appConfig.installApps = appConfig.installApps.concat(UserInputConfig.installApps)
+    }
+    fs.writeFileSync(appConfigPath, JSON.stringify(appConfig, null, 2), 'utf-8')
+    console.log('[install] 配置文件写入成功')
+  } catch(e) {
+    console.log('[install] mergeToApplication失败：' + e.message)
+  }
+}
+
 function injectPLatformConfig() {
   const config = require(path.join(__dirname, '../ecosystem.config.js'))
   if(UserInputConfig.platformDomain) {
@@ -106,6 +132,17 @@ function injectPLatformConfig() {
   console.log(`【install】: 初始化平台域名成功`)
 }
 
+function installApplication() {
+  console.log(`【install】: 开始安装应用`)
+  childProcess.execSync(`
+    node installApplication.js
+  `, {
+    cwd: path.join(__dirname, '../'),
+    stdio: 'inherit'
+  })
+  console.log(`【install】: 应用安装成功`)
+}
+
 async function startInstall() {
   injectPLatformConfig()
   connectDB()
@@ -113,6 +150,7 @@ async function startInstall() {
   await _initDatabaseTables()
   await _initDatabaseRecord()
   persistenceToConfig()
+  mergeToApplication()
 }
 
 async function startInstallServer() {
@@ -143,7 +181,7 @@ function startService() {
     console.log(`【install】: 正在启动线上服务`)
 
     const nginxConf = path.join(__dirname, '../../nginx.conf')
-    childProcess.exec(`nginx -c ${nginxConf}`)
+    const childProcess = child_process.exec(`nginx -c ${nginxConf}`)
     setTimeout(async () => {
       try {
         console.log(`【install】: 转发服务启动成功`)
@@ -165,6 +203,7 @@ function startService() {
 
 async function start() {
   await startInstallServer()
+  installApplication()
   await startService()
   exit()
 }
