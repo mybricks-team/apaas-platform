@@ -46,7 +46,7 @@ const Asset: FC<AssetProps> = () => {
 	const [loading, setLoading] = useState(false);
 	const [uploading, setUploading] = useState(false);
 	const [showCategoryModal, setShowCategoryModal] = useState(false);
-	const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+	const [fileUploadAction, setFileUploadAction] = useState('');
 	const [pageNum, setPageNum] = useState(1);
 	const [total, setTotal] = useState(0);
 	const [pageSize, setPageSize] = useState(20);
@@ -155,7 +155,11 @@ const Asset: FC<AssetProps> = () => {
 	}, [pageSize, pageNum, fetchFiles, paths]);
 	const openFileUploadModal = useCallback(() => {
 		fileUploadForm.resetFields();
-		setShowFileUploadModal(true);
+		setFileUploadAction('file');
+	}, []);
+	const openCategoryUploadModal = useCallback(() => {
+		fileUploadForm.resetFields();
+		setFileUploadAction('category');
 	}, []);
 	const handleUploadFile = useCallback(() => {
 		fileUploadForm.validateFields().then(value => {
@@ -166,6 +170,10 @@ const Asset: FC<AssetProps> = () => {
 				formData.append('files', file.originFileObj);
 			});
 
+			if (fileUploadAction === 'category') {
+				formData.append('filePathMap', JSON.stringify(value.files.map(file => file.originFileObj.webkitRelativePath)));
+			}
+
 			setUploading(true);
 			axios
 				.post('/paas/api/flow/uploadAsset', formData)
@@ -173,7 +181,7 @@ const Asset: FC<AssetProps> = () => {
 					if (res.data?.code === 1) {
 						message.success(res.data?.msg || '上传成功');
 						fetchFiles(pageNum, pageSize);
-						setShowFileUploadModal(false);
+						setFileUploadAction('');
 					} else {
 						message.error(res.data?.msg || '上传失败');
 					}
@@ -181,7 +189,7 @@ const Asset: FC<AssetProps> = () => {
 				.catch(e => message.error(e.message || '上传失败'))
 				.finally(() => setUploading(false));
 		});
-	}, [paths]);
+	}, [paths, fileUploadAction]);
 
 	useEffect(() => {
 		fetchFiles(pageNum, pageSize);
@@ -201,6 +209,17 @@ const Asset: FC<AssetProps> = () => {
 					)}
 				>
 					上传文件
+				</Button>
+				<Button
+					className={styles.button}
+					onClick={openCategoryUploadModal}
+					icon={(
+						<span className={styles.icon}>
+							<UploadIcon/>
+						</span>
+					)}
+				>
+					上传目录
 				</Button>
 				<Button
 					className={styles.button}
@@ -280,8 +299,8 @@ const Asset: FC<AssetProps> = () => {
 			</Modal>
 			<Modal
 				maskClosable={false}
-				onCancel={() => setShowFileUploadModal(false)}
-				open={showFileUploadModal}
+				onCancel={() => setFileUploadAction('')}
+				open={!!fileUploadAction}
 				className={styles.uploadModal}
 				width={800}
 				centered
@@ -293,11 +312,11 @@ const Asset: FC<AssetProps> = () => {
 					<Form.Item label="上传到">
 						{paths.map(p => p.name).join('/')}
 					</Form.Item>
-					<Form.Item label="生成Hash" name="hash" initialValue={false} valuePropName="checked">
+					<Form.Item label="文件Hash" name="hash" initialValue={false} valuePropName="checked">
 						<Switch />
 					</Form.Item>
 					<Form.Item label="上传文件" name="files" required rules={[{ required: true, message: '文件列表不能为空' }]}>
-						<CustomUpload />
+						<CustomUpload type={fileUploadAction} />
 					</Form.Item>
 				</Form>
 			</Modal>

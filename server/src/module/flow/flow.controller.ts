@@ -197,7 +197,7 @@ export default class FlowController {
   @UseInterceptors(FilesInterceptor('files'))
   async uploadAsset(@Request() request, @Body() body, @UploadedFiles() files) {
     try {
-      const { hash, path: folderPath = './' } = body;
+      const { hash, path: folderPath = './', filePathMap } = body;
       const domainName = getRealDomain(request);
       if (!Array.isArray(files) || !files.length) {
         return { code: -1, msg: '参数 files 必须为数组，且不能为空' };
@@ -208,12 +208,20 @@ export default class FlowController {
         return { code: -1, msg: '无法访问非静态文件目录' };
       }
 
+      const curFilePathMap = filePathMap ? JSON.parse(filePathMap) : [];
       const cdnList = await Promise.all(
-        files.map((file) => {
+        files.map((file, index) => {
+          let curFolderPath = folderPath;
+
+          if (curFilePathMap?.[index]) {
+            const joinPath = curFilePathMap[index].split('/').slice(0, -1).join('/');
+            joinPath && (curFolderPath += (folderPath.endsWith('/') ? '' : '/') + joinPath);
+          }
+
           return this.flowService.saveFile({
             str: file.buffer,
             filename: hash && JSON.parse(hash) ? `${uuid()}-${new Date().getTime()}-${file.originalname}` : file.originalname,
-            folderPath
+            folderPath: curFolderPath
           });
         }),
       );
