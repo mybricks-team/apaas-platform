@@ -18,6 +18,16 @@ function mergeToApplication() {
           "version": "1.1.35",
           "namespace": "mybricks-app-pcspa",
           "path": "asset-center/asset/app/mybricks-app-pcspa/1.1.35/mybricks-app-pcspa.zip"
+        },
+        {
+          "type": "npm",
+          "path": "mybricks-hainiu-login@0.0.4"
+        },
+        {
+          "type": "oss",
+          "version": "0.0.67",
+          "namespace": "mybricks-app-theme",
+          "path": "asset-center/asset/app/mybricks-app-theme/0.0.67/mybricks-app-theme.zip"
         }
       ],
       "platformVersion": require(path.join(__dirname, '../package.json')).version
