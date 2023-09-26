@@ -628,14 +628,14 @@ function ConfigFormModal({
     form.resetFields()
   }, [])
 
-  // useEffect(() => {
-  //   if (open && ref.current) {
-  //     form.setFieldsValue(defaultValues)
-  //     setTimeout(() => {
-  //       (ref.current as any).focus()
-  //     }, 100)
-  //   }
-  // }, [open])
+  useEffect(() => {
+    if (open && ref.current) {
+      form.setFieldsValue(defaultValues)
+      setTimeout(() => {
+        (ref.current as any).focus()
+      }, 100)
+    }
+  }, [open])
 
   const RenderForm = useMemo(() => {
     return <Form form={form} editRef={ref} ok={ok}/>
