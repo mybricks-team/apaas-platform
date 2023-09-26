@@ -179,16 +179,25 @@ function exit() {
 function startService() {
   return new Promise((resolve) => {
     console.log(`【install】: 正在启动线上服务`)
-    setTimeout(() => {
-      console.log(`【install】: 线上服务启动成功，服务启动在 http://localhost:3100`)
-      resolve()
-    }, 3000)
-    childProcess.execSync(`
-      npx pm2 start ecosystem.config.js --no-daemon
-    `, {
-      cwd: path.join(__dirname, '../'),
-      stdio: 'inherit'
-    })
+
+    const nginxConf = path.join(__dirname, '../../nginx.conf')
+    const childProcess = child_process.exec(`nginx -c ${nginxConf}`)
+    setTimeout(async () => {
+      try {
+        console.log(`【install】: 转发服务启动成功`)
+        childProcess.execSync(`
+          npx pm2 start ecosystem.config.js --no-daemon
+        `, {
+          cwd: path.join(__dirname, '../'),
+          stdio: 'inherit'
+        })
+        setTimeout(() => {
+          console.log(`【install】: 线上服务启动成功，服务启动在 http://localhost:4100`)
+          resolve()
+        }, 3000)
+      } catch(err) {
+      }
+    }, 100)
   })
 }
 
