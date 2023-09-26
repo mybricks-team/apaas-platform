@@ -764,6 +764,7 @@ export default class SystemService {
       childProcess.execSync(`unzip -o ${zipFilePath} -d ${tempFolder}`, {
         stdio: 'inherit' // 不inherit输出会导致 error: [Circular *1]
       })
+      Logger.info(`解压文件成功, 目录是: ${JSON.stringify(fs.readdirSync(tempFolder))}`)
       const subFolders = fs.readdirSync(tempFolder)
       let unzipFolderSubpath = ''
       Logger.info(`subFolders: ${JSON.stringify(subFolders)}}`)
@@ -777,7 +778,9 @@ export default class SystemService {
       const pkg = require(path.join(unzipFolderPath, './server/package.json'))
       Logger.info(`pkg: ${JSON.stringify(pkg)}`)
       Logger.info(`开始复制文件: 从${path.join(unzipFolderPath, './')} 到 ${path.join(process.cwd(), '../')}`)
-      childProcess.execSync(`cp -rf ${path.join(unzipFolderPath, './')} ${path.join(process.cwd(), '../')}`)
+      childProcess.execSync(`cp -rf ${path.join(unzipFolderPath, './server')} ${path.join(process.cwd(), '../')}`)
+      childProcess.execSync(`cp -rf ${path.join(unzipFolderPath, './server-runtime')} ${path.join(process.cwd(), '../')}`)
+      childProcess.execSync(`cp -rf ${path.join(unzipFolderPath, './upgrade_platform.sh')} ${path.join(process.cwd(), '../')}`)
       // childProcess.execSync(`cp -rf ${path.join(unzipFolderPath, './server-runtime')} ${path.join(process.cwd(), '../')}`)
       Logger.info('开始清除临时文件')
       fse.removeSync(tempFolder)
