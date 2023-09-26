@@ -14,7 +14,7 @@ const _execSqlSync = (sql) => {
       sql,
       function (err, results, fields) {
         if(!err) {
-          resolve(true)
+          resolve(results)
           return true
         } else {
           reject(err)
@@ -40,22 +40,22 @@ async function _initDatabaseTables() {
 }
 
 async function _initDatabaseRecord() {
-  const insertUser = `
-    IF (SELECT COUNT(*) FROM \`${UserInputConfig.database.databaseName}\`.\`apaas_user\`) = 0
-    THEN
+  const users = await _execSqlSync(`SELECT COUNT(*) as total FROM \`${UserInputConfig.database.databaseName}\`.\`apaas_user\``)
+  if(users && users[0] && users[0]['total'] === 0) {
+    const insertUser = `
       INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_user\` (\`email\`, \`password\`, \`create_time\`, \`update_time\`, \`status\`, \`role\`) VALUES ('${UserInputConfig.adminUser.email}', '${Buffer.from(UserInputConfig.adminUser.password).toString('base64')}', ${Date.now()}, ${Date.now()}, 1, 10);
-    END IF;
-  `
-  await _execSqlSync(insertUser)
+    `
+    await _execSqlSync(insertUser)
+  }
   if(UserInputConfig.platformConfig) {
     console.log(`【install】: 检测到平台初始化配置`)
-    const insertConfig = `
-      IF (SELECT COUNT(*) FROM \`${UserInputConfig.database.databaseName}\`.\`apaas_config\`) = 0
-      THEN
-        INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_config\` (\`config\`, \`app_namespace\`, \`create_time\`, \`update_time\`, \`creator_id\`, \`creator_name\`, \`updator_id\`, \`updator_name\`) VALUES ('${JSON.stringify(UserInputConfig.platformConfig)}', 'system', ${Date.now()}, ${Date.now()}, '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}');
-      END IF;
-    `
-    await _execSqlSync(insertConfig)
+    const defaultConfig = await _execSqlSync(`SELECT COUNT(*) as total FROM \`${UserInputConfig.database.databaseName}\`.\`apaas_config\``)
+    if(defaultConfig && defaultConfig[0] && defaultConfig[0]['total'] === 0) {
+      const insertConfig = `
+        INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_config\` (\`config\`, \`app_namespace\`, \`create_time\`, \`update_time\`, \`creator_id\`, \`creator_name\`, \`updator_id\`, \`updator_name\`) VALUES ('${JSON.stringify(UserInputConfig.platformConfig)}', 'system', ${Date.now()}, ${Date.now()}, 1, '${UserInputConfig.adminUser.email}', 1, '${UserInputConfig.adminUser.email}');
+      `
+      await _execSqlSync(insertConfig)
+    }
   }
   console.log(`【install】: 数据记录初始化成功`)
 }
