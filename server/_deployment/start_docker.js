@@ -184,7 +184,7 @@ function startService() {
       resolve()
     }, 3000)
     childProcess.execSync(`
-      npx pm2 start ecosystem.config.js
+      npx pm2 start ecosystem.config.js --no-daemon
     `, {
       cwd: path.join(__dirname, '../'),
       stdio: 'inherit'
