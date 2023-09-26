@@ -776,7 +776,7 @@ export default class SystemService {
       const unzipFolderPath = path.join(tempFolder, unzipFolderSubpath)
       const pkg = require(path.join(unzipFolderPath, './server/package.json'))
       Logger.info(`pkg: ${JSON.stringify(pkg)}`)
-      Logger.info(`开始复制文件: 从${path.join(unzipFolderPath, './server')} 到 ${process.cwd()}`)
+      Logger.info(`开始复制文件: 从${path.join(unzipFolderPath, './')} 到 ${path.join(process.cwd(), '../')}`)
       childProcess.execSync(`cp -rf ${path.join(unzipFolderPath, './')} ${path.join(process.cwd(), '../')}`)
       // childProcess.execSync(`cp -rf ${path.join(unzipFolderPath, './server-runtime')} ${path.join(process.cwd(), '../')}`)
       Logger.info('开始清除临时文件')
