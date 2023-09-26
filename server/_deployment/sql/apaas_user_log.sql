@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_user_log` (
+CREATE TABLE IF NOT EXISTS `apaas_user_log` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `type` int NOT NULL COMMENT 'type',
   `user_id` bigint NOT NULL COMMENT 'user_id',

@@ -1,4 +1,4 @@
-CREATE TABLE `domain_table_action` (
+CREATE TABLE IF NOT EXISTS `domain_table_action` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `table_meta` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT '表格元信息',
   `action_log` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT '表格操作记录',

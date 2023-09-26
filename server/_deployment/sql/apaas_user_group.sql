@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_user_group` (
+CREATE TABLE IF NOT EXISTS `apaas_user_group` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` varchar(255) CHARACTER SET utf8mb4 NOT NULL COMMENT '组名称',
   `icon` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '组图标',

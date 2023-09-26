@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_file_content` (
+CREATE TABLE IF NOT EXISTS `apaas_file_content` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `file_id` bigint NOT NULL COMMENT 'file_id',
   `content` mediumtext COMMENT 'content',

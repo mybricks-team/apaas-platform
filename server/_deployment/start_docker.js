@@ -33,7 +33,6 @@ async function _initDatabaseTables() {
       const fullPath = path.join(__dirname, './sql', dirs[i]);
       const sqlStr = fs.readFileSync(fullPath, 'utf-8').toString();
       const temp = sqlStr.replace(/\n/g, '')
-      // await _execSqlSync(`DROP TABLE IF EXISTS \`${tableName}\`;`)
       await _execSqlSync(temp)
     }
   }
@@ -42,13 +41,19 @@ async function _initDatabaseTables() {
 
 async function _initDatabaseRecord() {
   const insertUser = `
-    INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_user\` (\`email\`, \`password\`, \`create_time\`, \`update_time\`, \`status\`, \`role\`) VALUES ('${UserInputConfig.adminUser.email}', '${Buffer.from(UserInputConfig.adminUser.password).toString('base64')}', ${Date.now()}, ${Date.now()}, 1, 10);
+    IF (SELECT COUNT(*) FROM \`${UserInputConfig.database.databaseName}\`.\`apaas_user\`) = 0
+    THEN
+      INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_user\` (\`email\`, \`password\`, \`create_time\`, \`update_time\`, \`status\`, \`role\`) VALUES ('${UserInputConfig.adminUser.email}', '${Buffer.from(UserInputConfig.adminUser.password).toString('base64')}', ${Date.now()}, ${Date.now()}, 1, 10);
+    END IF;
   `
   await _execSqlSync(insertUser)
   if(UserInputConfig.platformConfig) {
     console.log(`【install】: 检测到平台初始化配置`)
     const insertConfig = `
-      INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_config\` (\`config\`, \`app_namespace\`, \`create_time\`, \`update_time\`, \`creator_id\`, \`creator_name\`, \`updator_id\`, \`updator_name\`) VALUES ('${JSON.stringify(UserInputConfig.platformConfig)}', 'system', ${Date.now()}, ${Date.now()}, '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}');
+      IF (SELECT COUNT(*) FROM \`${UserInputConfig.database.databaseName}\`.\`apaas_config\`) = 0
+      THEN
+        INSERT INTO \`${UserInputConfig.database.databaseName}\`.\`apaas_config\` (\`config\`, \`app_namespace\`, \`create_time\`, \`update_time\`, \`creator_id\`, \`creator_name\`, \`updator_id\`, \`updator_name\`) VALUES ('${JSON.stringify(UserInputConfig.platformConfig)}', 'system', ${Date.now()}, ${Date.now()}, '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}', '${UserInputConfig.adminUser.email}');
+      END IF;
     `
     await _execSqlSync(insertConfig)
   }

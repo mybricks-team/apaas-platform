@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_file_cooperation` (
+CREATE TABLE IF NOT EXISTS `apaas_file_cooperation` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `file_id` bigint NOT NULL COMMENT '文件ID',
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '用户ID',

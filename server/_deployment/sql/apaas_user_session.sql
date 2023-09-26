@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_user_session` (
+CREATE TABLE IF NOT EXISTS `apaas_user_session` (
   `id` bigint NOT NULL,
   `user_id` bigint DEFAULT NULL COMMENT '用户id',
   `fingerprint` varchar(255) DEFAULT NULL COMMENT '当前登录设备指纹',

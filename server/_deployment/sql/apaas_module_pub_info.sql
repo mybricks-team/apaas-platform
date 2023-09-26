@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_module_pub_info` (
+CREATE TABLE IF NOT EXISTS `apaas_module_pub_info` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `module_id` bigint DEFAULT NULL,
   `version` varchar(50) DEFAULT NULL,

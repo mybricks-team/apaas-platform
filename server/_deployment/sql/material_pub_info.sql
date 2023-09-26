@@ -1,4 +1,4 @@
-CREATE TABLE `material_pub_info` (
+CREATE TABLE IF NOT EXISTS `material_pub_info` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `material_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '文件id',
   `version` varchar(50) NOT NULL DEFAULT '1.0.0' COMMENT '版本号',

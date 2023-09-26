@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_service_pub` (
+CREATE TABLE IF NOT EXISTS `apaas_service_pub` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `file_id` bigint DEFAULT NULL COMMENT '文件id',
   `service_id` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '文件内具体服务id',

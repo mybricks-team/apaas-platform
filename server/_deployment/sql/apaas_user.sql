@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_user` (
+CREATE TABLE IF NOT EXISTS `apaas_user` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `name` varchar(256) DEFAULT NULL COMMENT 'name',
   `email` varchar(256) NOT NULL COMMENT 'email',

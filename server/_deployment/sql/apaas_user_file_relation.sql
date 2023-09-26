@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_user_file_relation` (
+CREATE TABLE IF NOT EXISTS `apaas_user_file_relation` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `file_id` bigint unsigned NOT NULL COMMENT '文件id',
   `user_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '用户id',

@@ -1,4 +1,4 @@
-CREATE TABLE `material_tag_relation` (
+CREATE TABLE IF NOT EXISTS `material_tag_relation` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '关系记录id',
   `material_id` bigint(20) unsigned NOT NULL COMMENT '物料id',
   `tag_id` bigint(20) unsigned NOT NULL COMMENT '标签id',

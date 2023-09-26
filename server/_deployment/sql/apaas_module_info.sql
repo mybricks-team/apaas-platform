@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_module_info` (
+CREATE TABLE IF NOT EXISTS `apaas_module_info` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` varchar(256) CHARACTER SET utf8mb4 DEFAULT NULL,
   `origin_file_id` bigint DEFAULT NULL COMMENT '源文件ID',

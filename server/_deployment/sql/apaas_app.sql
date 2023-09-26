@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_app` (
+CREATE TABLE IF NOT EXISTS `apaas_app` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `name` varchar(255) DEFAULT NULL COMMENT '应用中文名称',
   `namespace` varchar(255) DEFAULT NULL COMMENT 'namespace',

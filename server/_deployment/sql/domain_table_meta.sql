@@ -1,4 +1,4 @@
-CREATE TABLE `domain_table_meta` (
+CREATE TABLE IF NOT EXISTS `domain_table_meta` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `table_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '表名',
   `domain_file_id` bigint NOT NULL COMMENT '领域模型文件 ID',

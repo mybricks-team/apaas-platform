@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_project_info` (
+CREATE TABLE IF NOT EXISTS `apaas_project_info` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `file_id` bigint DEFAULT NULL COMMENT '项目ID',
   `version` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '项目版本信息',

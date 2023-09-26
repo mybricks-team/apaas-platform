@@ -1,4 +1,4 @@
-CREATE TABLE `material_tag` (
+CREATE TABLE IF NOT EXISTS `material_tag` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '标签主键id',
   `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '标签名称',
   `scene_id` bigint(20) unsigned DEFAULT '0' COMMENT '场景id',

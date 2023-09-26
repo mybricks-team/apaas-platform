@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_file` (
+CREATE TABLE IF NOT EXISTS `apaas_file` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `parent_id` bigint DEFAULT NULL COMMENT 'parent_id',
   `group_id` bigint DEFAULT NULL COMMENT 'group_id',

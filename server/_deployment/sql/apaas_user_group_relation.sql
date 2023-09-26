@@ -1,4 +1,4 @@
-CREATE TABLE `apaas_user_group_relation` (
+CREATE TABLE IF NOT EXISTS `apaas_user_group_relation` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `status` int NOT NULL DEFAULT '1' COMMENT '状态，-1-删除，1-正常',
   `creator_name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '创建人名称',
