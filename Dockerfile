@@ -45,7 +45,7 @@ COPY . .
 
 WORKDIR /home/apaas
 
-RUN mv  /home/apaas/server/_localstorage /home/apaas/server/localstorage
+RUN mv  /home/apaas/_localstorage /home/apaas/localstorage
 
 WORKDIR /home/apaas/server
 
