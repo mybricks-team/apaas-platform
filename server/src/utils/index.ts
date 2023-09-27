@@ -138,6 +138,8 @@ export function getRealHostName(requestHeaders) {
 }
 
 export function getRealDomain(request) {
+  const { origin } = request.headers
+  if (origin) return origin
   let hostName = getRealHostName(request.headers);
   // let protocol = request.headers['x-scheme'] ? 'https' : 'http'
 	/** TODO: 暂时写死 https */

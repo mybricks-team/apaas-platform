@@ -126,7 +126,7 @@ export default class FlowController {
   @Post('/saveFile')
   @UseInterceptors(FileInterceptor('file'))
   async saveFile(@Request() request, @Body() body, @UploadedFile() file) {
-    const domainName = getRealDomain(request)
+    const domainName = body?.domainName || getRealDomain(request)
     Logger.info(`[API][/paas/api/flow/saveFile]saveFile请求头是: ${domainName}`)
     try {
       const subPath = await this.flowService.saveFile({
