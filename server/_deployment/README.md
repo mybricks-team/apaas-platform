@@ -1,11 +1,12 @@
 # Mybricks 私有化部署版安装介绍
 
-## 前置环境配置
+## 物理机部署
+### 前置环境配置
 
 1. 容器必须安装有 `MySQL 5.7`、`Node` V14 以上（推荐v14.21.0）（备注，如果安装的是 MySQL8.x，注意密码加密方式设置为：Legacy Password Encryption，切记不要设置为 Strong Password Encryption）
 
-## 开始安装
-### Linux
+### 开始安装
+#### Linux
 
 1. 拿到安装的 `zip` 包，
 2. 在zip包的同级目录，新建一个自己的配置文件，并命名为 `PlatformConfig.json`
@@ -54,7 +55,37 @@ sudo bash ./deploy.sh
 
 4. 安装过程中查看服务器端的输出日志，出现如下字样了，即可打开浏览器，输入反向代理后的地址,例如：https://mybricks.world
 
-### Windows
+5. 反向代理，需要将搭建服务的接口反向代理出来
+```
+4. NG配置
+此时搭建服务已经启动在 3100端口，需要将此端口代理出来, 参考配置如下：
+```
+server
+{
+
+    client_max_body_size 100m; # 勿忘！限制上传大小为 100MB
+
+    location / {
+        proxy_pass http://127.0.0.1:3100;
+        proxy_set_header Host 127.0.0.1:$server_port;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header REMOTE-HOST $remote_addr;
+        add_header X-Cache $upstream_cache_status;
+        proxy_set_header X-Host $host:$server_port;
+        proxy_set_header X-Scheme $scheme;
+        proxy_connect_timeout 30s;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 30s;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
+```
+
+#### Windows
 
 1. 拿到安装的 `zip` 包，
 2. 在zip包的同级目录，新建一个自己的配置文件，并命名为 `PlatformConfig.json`
@@ -94,6 +125,82 @@ sudo bash ./deploy.sh
 5. 使用 `管理员权限运行` start.bat 进行服务启动
 6. 安装过程中查看服务器端的输出日志，出现如下字样了，即可打开浏览器，输入反向代理后的地址,例如：https://mybricks.world
 
+## 容器部署
+请在宿主机上预先安装好docker环境，推荐环境 20.10.21 以上
+
+### 局域网安装
+拿到对应的镜像文件执行导入操作（请先确保已经登陆过docker）
+```
+docker load < ./mybricks-apaas.tar
+```
+
+### 启动容器
+1. 启动容器前请先在宿主机的如下目录新建文件夹
+```
+cd /home
+mkdir mybricks-apaas
+cd mybricks-apaas
+mkdir logs
+mkdir _localstorage
+```
+2. 在目录 `/home/mybricks-apaas`目录下新建文件 `PlatformConfig.json`, 文件内容如下（**请替换xxx部分为真实信息**）：
+```
+{
+  "database": {
+    "dbType": "MYSQL",
+    "host": "xxx",
+    "user": "xxx",
+    "password": "xxx",
+    "port": xxx,
+    "databaseName": "xxx",
+    "sqlPath": "./resource"
+  },
+  "platformConfig": {
+    "logo": "./mfs/editor_assets/logo-dark.975c4e65b9e0cc28f7b4a26f397ca642.svg",
+    "title": "前端 | 工作台",
+    "favicon": "./mfs/editor_assets/1688985105204.c0703a1463af6ad6.ico"
+  },
+  "adminUser": {
+    "email": "admin@mybricks.com",
+    "password": "123456"
+  },
+  "installApps": [],
+  "platformDomain": "xxx 部署后的域名，例如：https://my.mybricks.world"
+}
+```
+
+3. 启动容器
+
+```
+docker run -p 14100:4100 -v /home/mybricks-apaas/PlatformConfig.json:/home/apaas/external/PlatformConfig.json -v /home/mybricks-apaas/logs:/home/apaas/logs -v /home/mybricks-apaas/_localstorage:/home/apaas/_localstorage -d --name mybricks-apaas mybricks-apaas:v0.1.8
+```
+
+4. NG配置
+此时搭建服务已经启动在 14100端口，需要将此端口代理出来, 参考配置如下：
+```
+server
+{
+
+    client_max_body_size 100m; # 勿忘！限制上传大小为 100MB
+
+    location / {
+        proxy_pass http://127.0.0.1:14100;
+        proxy_set_header Host 127.0.0.1:$server_port;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header REMOTE-HOST $remote_addr;
+        add_header X-Cache $upstream_cache_status;
+        proxy_set_header X-Host $host:$server_port;
+        proxy_set_header X-Scheme $scheme;
+        proxy_connect_timeout 30s;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 30s;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
 
 ## 安装后配置
 安装完毕后，可以使用安装时配置的管理员账号登录进行平台的初始化配置：
