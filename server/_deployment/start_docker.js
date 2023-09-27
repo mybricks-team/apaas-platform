@@ -111,6 +111,18 @@ function injectPLatformConfig() {
   console.log(`【install】: 初始化平台域名成功`)
 }
 
+async function syncLocalFileToExternal() {
+  const localPath = path.join(__dirname, '../../localstorage')
+  if(fs.existsSync(localPath)) {
+    const externalPath = path.join(__dirname, '../../localstorage')
+    if(!fs.existsSync(externalPath)) {
+      fs.mkdirSync(externalPath)
+    }
+    fs.copySync(localPath, externalPath)
+    console.log(`【install】: 同步本地文件到外部文件夹成功`)
+  }
+}
+
 async function startInstall() {
   injectPLatformConfig()
   connectDB()
@@ -118,6 +130,7 @@ async function startInstall() {
   await _initDatabaseTables()
   await _initDatabaseRecord()
   persistenceToConfig()
+  await syncLocalFileToExternal()
 }
 
 async function startInstallServer() {

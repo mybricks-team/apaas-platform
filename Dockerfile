@@ -43,17 +43,9 @@ WORKDIR /home/apaas
 
 COPY . .
 
-# COPY ./server-runtime /home/apaas
+WORKDIR /home/apaas
 
-# COPY ./upgrade_platform.sh /home/apaas
-
-# CMD echo "资源复制成功"
-
-# CMD echo "开始安装应用"
-
-# CMD ls
-
-# # CMD pwd
+RUN mv  /home/apaas/server/_localstorage /home/apaas/server/localstorage
 
 WORKDIR /home/apaas/server
 
