@@ -114,7 +114,7 @@ function injectPLatformConfig() {
 async function syncLocalFileToExternal() {
   const localPath = path.join(__dirname, '../../localstorage')
   if(fs.existsSync(localPath)) {
-    const externalPath = path.join(__dirname, '../../localstorage')
+    const externalPath = path.join(__dirname, '../../_localstorage')
     if(!fs.existsSync(externalPath)) {
       fs.mkdirSync(externalPath)
     }
