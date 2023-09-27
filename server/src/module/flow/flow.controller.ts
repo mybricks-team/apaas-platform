@@ -198,7 +198,6 @@ export default class FlowController {
   async uploadAsset(@Request() request, @Body() body, @UploadedFiles() files) {
     try {
       const { hash, path: folderPath = './', filePathMap } = body;
-      const domainName = getRealDomain(request);
       if (!Array.isArray(files) || !files.length) {
         return { code: -1, msg: '参数 files 必须为数组，且不能为空' };
       }
@@ -228,7 +227,7 @@ export default class FlowController {
 
       if (Array.isArray(cdnList) && cdnList.length && !cdnList.some((url) => !url)) {
         return {
-          data: cdnList?.map((subPath) => `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath.replace(/^\.\//, '/')}`),
+          data: cdnList?.map((subPath) => `/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath.replace(/^\.\//, '/')}`),
           code: 1,
         };
       }
@@ -279,7 +278,7 @@ export default class FlowController {
           return -1;
         }
         if ((statA.isDirectory() && statB.isDirectory()) || (!statA.isDirectory() && !statB.isDirectory())) {
-          return statB.birthtimeMs * 1000 - statA.birthtimeMs * 1000;
+          return statB.mtimeMs * 1000 - statA.mtimeMs * 1000;
         }
         if (!statA.isDirectory() && statB.isDirectory()) {
           return 1;
@@ -289,8 +288,7 @@ export default class FlowController {
       });
 
     const startIndex = pageSize * (pageNum - 1);
-    const domainName = getRealDomain(request);
-    let prefix = `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${rootFile.replace(env.FILE_LOCAL_STORAGE_FOLDER, '')}`;
+    let prefix = `/${env.FILE_LOCAL_STORAGE_PREFIX}${rootFile.replace(env.FILE_LOCAL_STORAGE_FOLDER, '')}`;
     prefix += prefix.endsWith('/') ? '' : '/';
 
     return {
@@ -300,10 +298,11 @@ export default class FlowController {
         pageSize,
         dataSource: fileInfos.slice(startIndex, startIndex + pageSize).map(file => {
           const name = (file as any).name;
+
           return {
             name: name,
             type: file.isDirectory() ? 'folder' : 'file',
-            createTime: file.birthtime,
+            updateTime: file.mtime,
             size: file.size,
             url: prefix + name,
           };

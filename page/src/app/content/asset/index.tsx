@@ -19,7 +19,7 @@ type FileItem = {
 	type: 'folder' | 'file' | string,
 	name: string;
 	url: string;
-	createTime: string;
+	updateTime: string;
 	size: number;
 };
 
@@ -88,12 +88,12 @@ const Asset: FC<AssetProps> = () => {
 				}
 			},
 			{
-				title: '上传时间',
-				dataIndex: 'createTime',
-				key: 'createTime',
+				title: '修改时间',
+				dataIndex: 'updateTime',
+				key: 'updateTime',
 				width: '200px',
-				render(createTime) {
-					return createTime ? moment(createTime).format('YYYY-MM-DD HH:mm:ss') : '-';
+				render(updateTime) {
+					return updateTime ? moment(updateTime).format('YYYY-MM-DD HH:mm:ss') : '-';
 				},
 			},
 			{
@@ -104,7 +104,14 @@ const Asset: FC<AssetProps> = () => {
 				render(_, item) {
 					return item.type === 'folder' ? null : (
 						<div className={styles.operateColumn}>
-							<span onClick={() => copyText(item.url)}>复制链接</span>
+							<span
+								onClick={() => {
+									copyText(location.origin + item.url);
+									message.success('复制成功');
+								}}
+							>
+								复制链接
+							</span>
 							<span onClick={() => window.open(item.url, '_blank')}>预览</span>
 						</div>
 					);
