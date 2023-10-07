@@ -244,4 +244,12 @@
             update_time 
         from apaas_user where id in (select creator_id from apaas_user_group where id = #{groupId})
     </select>
+
+    <update id="deleteById">
+        update apaas_user
+        set
+        status = -1,
+        update_time = #{updateTime}
+        where id = #{id}
+    </update>
 </mapper>

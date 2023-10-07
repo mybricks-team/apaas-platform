@@ -260,4 +260,16 @@ export default class UserDao extends DOBase {
 
     return result && result[0]
   }
+
+  public async deleteById(query: { id: number }) {
+    const result = await this.exe<any>(
+      'apaas_user:deleteById',
+      {
+        id: query.id,
+        updateTime: Date.now()
+      }
+    )
+
+    return result
+  }
 }
