@@ -32,19 +32,19 @@ export default class LogsController {
       const fileName = path.join(env.LOGS_BASE_FOLDER, './application/application.log')
       let logStr;
 
-      if(searchValue) {
-        logStr = cp.execSync(`tail -n ${LINES} ${fileName} | grep '${searchValue}'`).toString()
+      if (searchValue) {
+        logStr = cp.execSync(`tail -n ${LINES} ${fileName} | grep '${searchValue}' | awk '{ if (length($0) > 2000) print substr($0, 1, 2000) "..."; else print }'`, { maxBuffer: 3 * 1024 * 1024 }).toString()
       } else {
-        logStr = cp.execSync(`tail -n ${LINES} ${fileName}`).toString()
+        logStr = cp.execSync(`tail -n ${LINES} ${fileName} | awk '{ if (length($0) > 2000) print substr($0, 1, 2000) "..."; else print }'`, { maxBuffer: 3 * 1024 * 1024 }).toString()
       }
-  
+
       return {
         code: 1,
         data: {
           content: logStr
         }
       }
-    } catch(e) {
+    } catch (e) {
       Logger.warn('获取运行日志失败')
       return {
         code: -1,
