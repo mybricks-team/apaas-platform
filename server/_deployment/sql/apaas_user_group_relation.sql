@@ -10,5 +10,7 @@ CREATE TABLE IF NOT EXISTS `apaas_user_group_relation` (
   `role_description` int NOT NULL COMMENT '1-管理，2-编辑， 3-能看到组，-1-被移除 ...',
   `user_group_id` bigint NOT NULL COMMENT '组ID',
   `user_id` varchar(255) CHARACTER SET utf8mb4 NOT NULL COMMENT '用户ID',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_userid` (`user_id`),
+  KEY `idx_groupid_userid` (`user_group_id`,`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;

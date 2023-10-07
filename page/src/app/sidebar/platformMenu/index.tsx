@@ -175,6 +175,57 @@ function Group() {
     )
   }, [])
 
+  const AdminGroupItem = useMemo(() => {
+    return (
+      <NavMenu
+        id={''}
+        name='其他协作组(超管可见)'
+        namespace={`otherGroup`}
+        child={{open: false, child: {}}}
+        focusable={false}
+        canDrag={() => false}
+        icon={UserGroup}
+        suffix={null}
+        getFiles={(id) => {
+          return new Promise((resolve) => {
+            const [groupId, parentId] = id.split('-')
+
+            if (groupId) {
+              // 查文件夹
+              axios({
+                method: 'get',
+                url: getApiUrl('/paas/api/file/getGroupFiles'),
+                params: {
+                  userId: appCtx.user.id,
+                  extNames: 'folder,folder-project,folder-module',
+                  parentId,
+                  groupId
+                }
+              }).then(({ data }) => {
+                resolve(fileSort(data.data))
+              })
+            } else {
+              // 查协作组
+              axios({
+                method: 'get',
+                url: getApiUrl('/paas/api/userGroup/getOtherGroups'),
+                params: {
+                  userId: appCtx.user.id
+                }
+              }).then(({ data: { data } }) => {
+                resolve(data)
+              })
+            }
+          })
+        }}
+        onClick={(id) => {
+          const [groupId, parentId] = id.split('-')
+          history.pushState(null, '', `?appId=files${groupId ? `&groupId=${groupId}` : ''}${parentId ? `&parentId=${parentId}` : ''}`)
+        }}
+      />
+    )
+  }, [])
+
   const modalOk = useCallback((values, app) => {
     return new Promise(async (resolve, reject) => {
       const { name, icon } = values
@@ -219,6 +270,7 @@ function Group() {
   return (
     <>
       {GroupItem}
+      { appCtx.user?.isAdmin ? AdminGroupItem : null }
       {RenderCreateAppModal}
     </>
   )

@@ -55,6 +55,22 @@
         and role_description <> -1
     </select>
 
+    <select id="adminQueryRemainPart">
+        select user_group_id, role_description from apaas_user_group_relation
+        where
+        user_group_id not in (
+            select user_group_id from apaas_user_group_relation
+            where
+            user_id = #{userId}
+            and 
+            status = 1
+            and role_description <> -1
+        )
+        and
+        status = 1
+        and role_description <> -1
+    </select>
+
     <select id="queryByUserGroupId">
         select 
             apaas_user_group_relation.role_description,

@@ -54,3 +54,10 @@ export const STATUS_CODE = {
   SUCCESS: 1,
   LOGIN_OUT_OF_DATE: 100001, 
 }
+
+export const USER_ROLE = {
+  GUEST: 1, // 游客
+  NORMAL: 2, // 普通用户
+  NORMAL_PROJECT: 3, // 普通-能查看项目
+  ADMIN: 10 // 超管
+}

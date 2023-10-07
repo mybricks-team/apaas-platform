@@ -4,6 +4,7 @@ import UserGroupDao from '../dao/UserGroupDao'
 import UserGroupRelation from '../dao/UserGroupRelationDao'
 import UserService from '../module/user/user.service';
 import { Logger } from '@mybricks/rocker-commons';
+import { USER_ROLE } from '../constants';
 
 @Controller('/paas/api')
 export default class UserGroupService {
@@ -146,6 +147,7 @@ export default class UserGroupService {
   async getVisibleGroups(@Query() query) {
     const { userId: originUserId } = query;
     const userId = await this.userService.getCurrentUserId(originUserId);
+
     const userGroupRelations = await this.userGroupRelation.queryByUserId({userId})
     let data = [];
 
@@ -161,6 +163,35 @@ export default class UserGroupService {
         roleDescription: map.get(item.id).roleDescription
       }
     })
+
+    return {
+      code: 1,
+      data
+    }
+  }
+
+  @Get('/userGroup/getOtherGroups')
+  async getOtherGroups(@Query() query) {
+    const { userId } = query;
+    const userInfo = await this.userService.queryById({ id: userId });
+    const isAdmin = userInfo?.role === USER_ROLE.ADMIN;
+    let data = [];
+    if(isAdmin) {
+      const userGroupRelations = await this.userGroupRelation.adminQueryRemainPart({userId})
+
+      if (userGroupRelations.length) {
+        data = await this.userGroupDao.queryByIds({ids: userGroupRelations.map((item) => item.userGroupId)})
+      }
+
+      const map = new Map(userGroupRelations.map((item) => [item.userGroupId, item]))
+
+      data = data.map((item) => {
+        return {
+          ...item,
+          roleDescription: map.get(item.id).roleDescription
+        }
+      })
+    }
 
     return {
       code: 1,

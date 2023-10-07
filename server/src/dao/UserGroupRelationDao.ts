@@ -109,6 +109,16 @@ export default class UserGroupRelationDao extends DOBase {
     )
   }
 
+  @Mapping(UserGroupRelationDO)
+  public async adminQueryRemainPart(params: {
+    userId: string
+  }) {
+    return await this.exe<UserGroupRelationDO[]>(
+      'apaas_user_group_relation:adminQueryRemainPart',
+      params
+    )
+  }
+
   public async queryByUserGroupId(params: {
     userGroupId: number;
     limit?: number;

@@ -7,6 +7,7 @@ import {FolderModule, FolderProject} from './components'
 
 /** 用户信息 */
 export interface User {
+  isAdmin?: boolean;
   /** id */
   id: number;
   /** 名称 */

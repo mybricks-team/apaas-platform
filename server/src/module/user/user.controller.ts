@@ -14,6 +14,7 @@ import UserDao from '../../dao/UserDao';
 import { Logs } from '../../utils';
 import UserService from './user.service';
 import { Logger } from '@mybricks/rocker-commons';
+import { USER_ROLE } from '../../constants'
 
 @Controller('/paas/api/user')
 export default class UserController {
@@ -117,7 +118,7 @@ export default class UserController {
               email: user.email,
               name: user.name,
               avatar: user.avatar,
-              isAdmin: user.role === 10,
+              isAdmin: user.role === USER_ROLE.ADMIN,
               createTime: user.createTime,
             },
           ],
@@ -408,7 +409,7 @@ export default class UserController {
       if (userInfo) {
         const data: any = {
           ...userInfo,
-          isAdmin: userInfo.role === 10,
+          isAdmin: userInfo.role === USER_ROLE.ADMIN,
         }
         delete data.password;
         delete data.mobilePhone;
@@ -479,7 +480,7 @@ export default class UserController {
       }
     }
     const user = await this.userDao.queryById({ id: updatorId })
-    if(user.role === 10) {
+    if(user.role === USER_ROLE.ADMIN) {
       await this.userService.setUserRole({userId: userId, role})
       return {
         code: 1,
