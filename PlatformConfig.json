@@ -9,9 +9,9 @@
     "sqlPath": "./resource"
   },
   "platformConfig": {
-    "logo": "./mfs/editor_assets/logo-dark.975c4e65b9e0cc28f7b4a26f397ca642.svg",
+    "logo": "/mfs/editor_assets/hainiu/logo-dark.975c4e65b9e0cc28f7b4a26f397ca642.svg",
     "title": "前端 | 工作台",
-    "favicon": "./mfs/editor_assets/1688985105204.c0703a1463af6ad6.ico"
+    "favicon": "/mfs/editor_assets/hainiu/1688985105204.c0703a1463af6ad6.ico"
   },
   "adminUser": {
     "email": "admin@mybricks.com",
