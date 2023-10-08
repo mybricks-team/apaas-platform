@@ -1,21 +1,30 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
   name: mybricks-apaas
   labels:
     app: mybricks-apaas
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mybricks-apaas
-  template:
-    metadata:
-      labels:
-        app: mybricks-apaas
-    spec:
-      containers:
-      - name: mybricks-apaas
-        image: mybricks-apaas:0.0.1
-        ports:
+#  replicas: 1
+  containers:
+    - name: mybricks-apaas
+      image: mybricks-apaas:v0.0.1
+      ports:
         - containerPort: 4100
+      volumeMounts:
+        - name: config
+          mountPath: /home/apaas/external/PlatformConfig.json
+        - name: log
+          mountPath: /home/apaas/logs
+        - name: localstorage
+          mountPath: /home/apaas/_localstorage
+  volumes:
+    - name: config
+      hostPath:
+        path: /Users/andyzou/Work/registry/mybricks-team/apaas-platform/PlatformConfig.json
+    - name: log
+      hostPath:
+        path: /Users/andyzou/Work/registry/mybricks-team/apaas-platform/logs
+    - name: localstorage
+      hostPath:
+        path: /Users/andyzou/Work/registry/mybricks-team/apaas-platform/_localstorage

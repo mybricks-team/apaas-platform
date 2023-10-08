@@ -18,5 +18,5 @@
     "password": "123456"
   },
   "installApps": [],
-  "platformDomain": "http://localhost:3100/"
+  "platformDomain": "https://test.mybricks.world"
 }
