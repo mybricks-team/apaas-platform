@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mybricks-apaas
+  labels:
+    app: mybricks-apaas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mybricks-apaas
+  template:
+    metadata:
+      labels:
+        app: mybricks-apaas
+    spec:
+      containers:
+      - name: mybricks-apaas
+        image: mybricks-apaas:0.0.1
+        ports:
+        - containerPort: 4100

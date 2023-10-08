@@ -1,0 +1,13 @@
+apiVersion: v1        ##版本号
+kind: Service        ##服务类型
+metadata:
+  name: mybricks-apaas
+  labels:
+    app: mybricks-apaas
+spec:
+  type: NodePort     ##端口映射
+  ports:
+  - port: 4100 		##内部端口
+    targetPort: 14100   ##映射端口
+  selector:       ##选择器/
+    app: mybricks-apaas			##选择业务进行发布
