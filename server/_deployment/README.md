@@ -53,12 +53,11 @@ cd server
 sudo bash ./deploy.sh
 ```
 
-4. 安装过程中查看服务器端的输出日志，出现如下字样了，即可打开浏览器，输入反向代理后的地址,例如：https://mybricks.world
+5. 安装过程中查看服务器端的输出日志，出现如下字样了，即可打开浏览器，输入反向代理后的地址,例如：https://mybricks.world
 
-5. 反向代理，需要将搭建服务的接口反向代理出来
-```
-4. NG配置
-此时搭建服务已经启动在 3100端口，需要将此端口代理出来, 参考配置如下：
+6. 反向代理，需要将搭建服务的接口反向代理出来
+
+7. NG配置: 此时搭建服务已经启动在 3100端口，需要将此端口代理出来, 参考配置如下：
 ```
 server
 {
@@ -83,7 +82,7 @@ server
     }
 }
 ```
-```
+
 
 #### Windows
 
@@ -109,8 +108,9 @@ server
   },
   "installApps": [
     {
-      "type": "npm",
-      "path": "mybricks-app-pcspa-for-manatee@1.0.20"
+      "type": "oss",
+      "version": "1.0.82",
+      "namespace": "mybricks-app-pcspa"
     },
     {
       "type": "npm",
