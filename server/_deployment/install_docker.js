@@ -19,15 +19,21 @@ function mergeToApplication() {
           "namespace": "mybricks-app-pcspa",
           "path": "asset-center/asset/app/mybricks-app-pcspa/1.1.35/mybricks-app-pcspa.zip"
         },
+        {
+          "type": "npm",
+          "path": "mybricks-hainiu-login@0.0.4"
+        },
         // {
-        //   "type": "npm",
-        //   "path": "mybricks-hainiu-login@0.0.4"
+        //   "type": "oss",
+        //   "version": "0.0.8",
+        //   "namespace": "mybricks-app-login",
+        //   "path": "mybricks-app-login@0.0.5"
         // },
         {
           "type": "oss",
-          "version": "0.0.8",
-          "namespace": "mybricks-app-login",
-          "path": "mybricks-app-login@0.0.5"
+          "version": "1.0.19",
+          "namespace": "mybricks-app-th5",
+          "path": "asset-center/asset/app/mybricks-app-th5/1.0.19/mybricks-app-th5.zip"
         },
         {
           "type": "oss",
