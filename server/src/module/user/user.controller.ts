@@ -219,7 +219,7 @@ export default class UserController {
       const { action, payload } = body;
       switch(action) {
         case 'register': {
-          const { nick, name } = payload
+          const { nick, name, isAdmin } = payload
           // 根据userId查询用户表
           let user = await this.userDao.queryByEmail({
             email: `${nick}`,
@@ -232,7 +232,8 @@ export default class UserController {
             await this.userDao.create({
               name: name,
               email: `${nick}`,
-              avatar
+              avatar,
+              role: isAdmin ? USER_ROLE.ADMIN : USER_ROLE.GUEST
             });
             Logger.info(`[manateeai] 用户 ${nick }注册完成.`);
           } else {
