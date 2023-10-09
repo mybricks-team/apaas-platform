@@ -125,6 +125,7 @@ function injectPLatformConfig() {
   if(UserInputConfig.platformDomain) {
     config.apps[0].env.MYBRICKS_PLATFORM_ADDRESS = UserInputConfig.platformDomain
     config.apps[0].env.MYBRICKS_NODE_MODE = 'slave'
+    config.apps[0].env.TZ = 'Asia/Shanghai'
     fs.writeFileSync(path.join(__dirname, '../ecosystem.config.js'), `module.exports = ${JSON.stringify(config)}`, 'utf-8')
   }
   console.log(`【install】: 初始化平台域名成功`)
