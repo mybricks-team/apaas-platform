@@ -260,20 +260,22 @@ export default class FlowController {
   async getFiles(@Request() request, @Query() query) {
     const { path: filePath = './', pageNum = 1, pageSize = 20 } = query;
     const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
-
     if (!rootFile.startsWith(env.FILE_LOCAL_STORAGE_FOLDER)) {
       return { code: -1, msg: '无法访问非静态文件目录' };
     }
 
     const files = fs.readdirSync(rootFile);
-    const fileInfos = files
-      .map(file => {
-        const info = fs.statSync(path.join(rootFile, file));
-        (info as any).name = file;
-
-        return info;
+    let fileInfos = []
+    files
+      .forEach(file => {
+        // 过滤根目录下的默认文件夹
+        if(filePath !== '.' || ( !file?.startsWith('__') && !file?.endsWith('__') ) ) {
+          const info = fs.statSync(path.join(rootFile, file));
+          (info as any).name = file;
+          fileInfos.push(info);
+        }
       })
-      .sort((statA, statB) => {
+      fileInfos.sort((statA, statB) => {
         if (statA.isDirectory() && !statB.isDirectory()) {
           return -1;
         }
