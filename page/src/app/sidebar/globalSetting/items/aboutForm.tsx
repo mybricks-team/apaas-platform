@@ -1,7 +1,5 @@
 import React, {
-  useMemo,
   useState,
-  useEffect,
   useCallback
 } from 'react'
 import compareVersion from 'compare-version'
@@ -9,17 +7,13 @@ import axios from 'axios'
 import {observe} from '@mybricks/rxui'
 import {QuestionCircleOutlined, InboxOutlined, GlobalOutlined, ThunderboltOutlined} from '@ant-design/icons'
 import {
-  Form,
-  Input,
   Button,
   message,
-  Switch,
-  Select,
   Popover,
   Upload
 } from 'antd'
 import { APaaS } from '../../../noaccess/Icons'
-import AppCtx, { T_App } from '../../../AppCtx'
+import AppCtx from '../../../AppCtx'
 import {getApiUrl} from '../../../../utils'
 import styles from '../index.less'
 

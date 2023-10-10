@@ -1,18 +1,12 @@
 import React, {
-  useMemo,
   useState,
   useEffect,
-  useCallback
 } from 'react'
 import {
   Form,
   Input,
   Button,
-  message,
   Switch,
-  Select,
-  Popover,
-  Upload
 } from 'antd'
 import styles from '../index.less'
 

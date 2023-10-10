@@ -1,8 +1,5 @@
 import React, {
-  useMemo,
-  useState,
   useEffect,
-  useCallback
 } from 'react'
 import {
   Form,
@@ -10,7 +7,6 @@ import {
   Button,
   message,
   Switch,
-  Select,
   Popover,
   Upload
 } from 'antd'

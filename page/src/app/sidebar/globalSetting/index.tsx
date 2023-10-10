@@ -6,14 +6,7 @@ import React, {
 } from 'react'
 
 import {
-  Form,
-  Input,
-  Button,
   message,
-  Switch,
-  Select,
-  Popover,
-  Upload
 } from 'antd'
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
