@@ -16,7 +16,7 @@ import {SettingOutlined, LeftOutlined, InfoCircleOutlined} from '@ant-design/ico
 import {getApiUrl} from '../../../utils'
 import AppCtx, { T_App } from '../../AppCtx'
 import SchemaSetting, {SettingItem} from './schemaSetting'
-import { LogIcon, OssIcon } from './icon'
+import { LogIcon, MonitorIcon, OssIcon } from './icon'
 import AboutForm from './items/aboutForm'
 import OssForm from './items/ossForm'
 import GlobalForm from './items/globalForm'
@@ -41,6 +41,14 @@ interface TabsProps {
   breakCount: number
 }
 
+const SystemConfigItems = [
+  { title: '全局设置', namespace: 'system', icon: <SettingOutlined /> },
+  { title: '资源存储', namespace: 'mybricks-oss-config', icon: <OssIcon />},
+  { title: '运行日志', namespace: 'mybricks-log', icon: <LogIcon />},
+  { title: '监控与统计', namespace: 'mybricks-monitor', icon: <MonitorIcon />},
+  { title: '关于', namespace: 'about', icon: <InfoCircleOutlined /> }
+]
+
 const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
   if (!Array.isArray(items)) {
     return null
@@ -59,7 +67,7 @@ const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
           <div className={styles.label}>{item?.title}</div>
       </div>
     );
-    if(index <= 3) {
+    if(index <= SystemConfigItems.length - 1) {
       group1.push(temp)
     } else {
       group2.push(temp)
@@ -86,15 +94,9 @@ export default () => {
   const [isConfigMount, setIsConfigMount] = useState(false)
   const [currentPlatformVersion, setCurrentPlatformVersion] = useState('');
 
-  const menuItems = useMemo((): MenuItem[] => {
-    let defaultItems = [
-      { title: '全局设置', namespace: 'system', icon: <SettingOutlined /> },
-      { title: '资源存储', namespace: 'mybricks-oss-config', icon: <OssIcon />},
-      { title: '运行日志', namespace: 'mybricks-log', icon: <LogIcon />},
-      { title: '关于', namespace: 'about', icon: <InfoCircleOutlined /> }
-    ]
+  const menuItems = useMemo((): any[] => {
     if (!Array.isArray(appCtx.InstalledAPPS)) {
-      return defaultItems
+      return SystemConfigItems
     } else {
       const appSettings = appCtx.InstalledAPPS.filter(
         (app) => app?.setting
@@ -105,7 +107,7 @@ export default () => {
         }
       })
 
-      return [...defaultItems, ...appSettings]
+      return [...SystemConfigItems, ...appSettings]
     }
   }, [])
 
