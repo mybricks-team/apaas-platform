@@ -1,4 +1,5 @@
 import { NextFunction, Request } from "express";
+import { TIMEOUT_TIME } from '../constants';
 const proxy = require('express-http-proxy');
 const URL = require('url');
 
@@ -26,7 +27,7 @@ export function apiProxy(option: Option = {}) {
 
       return proxy(url, {
         limit: '100mb',
-        timeout: 10 * 1000,
+        timeout: TIMEOUT_TIME,
         proxyReqPathResolver: req => {
           const parse = URL.parse(req.url, true);
           parse.query = { ...(parse.query || {}), ...req.query };

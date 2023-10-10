@@ -18,6 +18,7 @@ import { enhanceApp } from "./enhance";
 import init from "./init";
 import ValidationPipe from "./pipe/validationPipe";
 import { runtimeLogger } from './middleware/log.middleware';
+import { TIMEOUT_TIME } from './constants';
 
 const env = require('../env.js')
 
@@ -75,7 +76,7 @@ async function bootstrap() {
   })
   app.use(cookieParser());
 	app.use(xmlparser());
-  app.use(timeout(60 * 1000))
+  app.use(timeout(TIMEOUT_TIME))
   app.use(requestPerformance)
 
   await app.listen(3100);
