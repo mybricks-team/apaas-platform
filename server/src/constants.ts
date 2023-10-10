@@ -61,3 +61,5 @@ export const USER_ROLE = {
   NORMAL_PROJECT: 3, // 普通-能查看项目
   ADMIN: 10 // 超管
 }
+
+export const TIMEOUT_TIME = 60 * 1000;
