@@ -8,6 +8,8 @@ const APPS_BASE_FOLDER = path.join(FILE_LOCAL_STORAGE_BASE_FOLDER, './_apps');
 
 const FILE_LOCAL_STORAGE_FOLDER = path.join(FILE_LOCAL_STORAGE_BASE_FOLDER, './_localstorage')
 
+const FILE_ANALYSIS_PERFORMANCE_FOLDER = path.join(FILE_LOCAL_STORAGE_FOLDER, './__analyse__/performance')
+
 const FILE_UPGRADE_LOCK_FILE = path.join(FILE_LOCAL_STORAGE_FOLDER, '_lock_.lock')
 
 const FILE_LOCAL_STORAGE_PREFIX = 'mfs'
@@ -28,6 +30,7 @@ const getAppThreadName = () => {
 }
 
 module.exports = {
+  FILE_ANALYSIS_PERFORMANCE_FOLDER,
   FILE_LOCAL_STORAGE_PREFIX,
   FILE_LOCAL_STORAGE_PREFIX_RUNTIME,
   FILE_LOCAL_STORAGE_FOLDER,

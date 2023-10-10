@@ -28,6 +28,7 @@ interface MenuItem extends T_App {
 
 import styles from './index.less'
 import Term from './term'
+import Monitor from './items/monitor'
 
 interface TabsProps {
   onClick: (e: any) => void
@@ -204,6 +205,11 @@ export default () => {
       case activeKey === 'mybricks-log': {
         return (
           <Term />
+        )
+      }
+      case activeKey === 'mybricks-monitor': {
+        return (
+          <Monitor />
         )
       }
       case activeKey === 'about': {

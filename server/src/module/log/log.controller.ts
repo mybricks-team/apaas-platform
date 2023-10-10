@@ -13,6 +13,7 @@ import {
 import LogService from './log.service';
 import { Logger } from '@mybricks/rocker-commons';
 const cp = require('child_process')
+const fs = require('fs')
 const path = require('path')
 const env = require('../../../env.js')
 
@@ -68,6 +69,25 @@ export default class LogsController {
         pageNum: curPageNum,
         pageSize: curPageSize,
         ...result
+      }
+    }
+  }
+
+  @Post('/runtimeLog/monitor/interfacePerformanceDetail')
+  interfacePerformanceDetail() {
+    try {
+    const list = fs.readdirSync(env.FILE_ANALYSIS_PERFORMANCE_FOLDER)
+    console.log(list)
+
+      return {
+        code: 1,
+        data: list
+      }
+    } catch (e) {
+      Logger.warn('获取运行日志失败')
+      return {
+        code: -1,
+        msg: e.message || '更新失败'
       }
     }
   }
