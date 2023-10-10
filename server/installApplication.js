@@ -58,7 +58,7 @@ function injectAjaxScript({ namespace }) {
                   }
                   return Reflect.get(target.oldxhr,prop+'proxy')
               }
-              if(prop.indexOf('response')!==-1)
+              if(prop && prop.indexOf && prop.indexOf('response')!==-1)
               {
                   return Reflect.get(target.oldxhr,prop)
               }
