@@ -21,7 +21,7 @@ import {
 import { APaaS } from '../../../noaccess/Icons'
 import AppCtx, { T_App } from '../../../AppCtx'
 import {getApiUrl} from '../../../../utils'
-import styles from './index.less'
+import styles from '../index.less'
 
 const { Dragger } = Upload;
 
