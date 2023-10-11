@@ -258,59 +258,69 @@ export default class FlowController {
 
   @Get('/getAsset')
   async getFiles(@Request() request, @Query() query) {
-    const { path: filePath = './', pageNum = 1, pageSize = 20 } = query;
-    const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
-    if (!rootFile.startsWith(env.FILE_LOCAL_STORAGE_FOLDER)) {
-      return { code: -1, msg: '无法访问非静态文件目录' };
-    }
-
-    const files = fs.readdirSync(rootFile);
-    let fileInfos = []
-    files
-      .forEach(file => {
-        // 过滤根目录下的默认文件夹
-        if(filePath !== '.' || ( !file?.startsWith('__') && !file?.endsWith('__') ) ) {
+    try {
+      if(fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
+        Logger.info('[API][/paas/api/flow/getAsset]: 文件夹不存在，创建文件夹')
+        fs.mkdirSync(env.FILE_LOCAL_STORAGE_FOLDER)
+      }
+      const { path: filePath = './', pageNum = 1, pageSize = 20 } = query;
+      const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
+  
+      if (!rootFile.startsWith(env.FILE_LOCAL_STORAGE_FOLDER)) {
+        return { code: -1, msg: '无法访问非静态文件目录' };
+      }
+  
+      const files = fs.readdirSync(rootFile);
+      const fileInfos = files
+        .map(file => {
           const info = fs.statSync(path.join(rootFile, file));
           (info as any).name = file;
-          fileInfos.push(info);
-        }
-      })
-      fileInfos.sort((statA, statB) => {
-        if (statA.isDirectory() && !statB.isDirectory()) {
-          return -1;
-        }
-        if ((statA.isDirectory() && statB.isDirectory()) || (!statA.isDirectory() && !statB.isDirectory())) {
-          return statB.mtimeMs * 1000 - statA.mtimeMs * 1000;
-        }
-        if (!statA.isDirectory() && statB.isDirectory()) {
-          return 1;
-        }
-
-        return 0;
-      });
-
-    const startIndex = pageSize * (pageNum - 1);
-    let prefix = `/${env.FILE_LOCAL_STORAGE_PREFIX}${rootFile.replace(env.FILE_LOCAL_STORAGE_FOLDER, '')}`;
-    prefix += prefix.endsWith('/') ? '' : '/';
-
-    return {
-      code: 1,
-      data: {
-        pageNum,
-        pageSize,
-        dataSource: fileInfos.slice(startIndex, startIndex + pageSize).map(file => {
-          const name = (file as any).name;
-
-          return {
-            name: name,
-            type: file.isDirectory() ? 'folder' : 'file',
-            updateTime: file.mtime,
-            size: file.size,
-            url: prefix + name,
-          };
-        }),
-        total: files.length,
-      },
-    };
+  
+          return info;
+        })
+        .sort((statA, statB) => {
+          if (statA.isDirectory() && !statB.isDirectory()) {
+            return -1;
+          }
+          if ((statA.isDirectory() && statB.isDirectory()) || (!statA.isDirectory() && !statB.isDirectory())) {
+            return statB.mtimeMs * 1000 - statA.mtimeMs * 1000;
+          }
+          if (!statA.isDirectory() && statB.isDirectory()) {
+            return 1;
+          }
+  
+          return 0;
+        });
+  
+      const startIndex = pageSize * (pageNum - 1);
+      let prefix = `/${env.FILE_LOCAL_STORAGE_PREFIX}${rootFile.replace(env.FILE_LOCAL_STORAGE_FOLDER, '')}`;
+      prefix += prefix.endsWith('/') ? '' : '/';
+  
+      return {
+        code: 1,
+        data: {
+          pageNum,
+          pageSize,
+          dataSource: fileInfos.slice(startIndex, startIndex + pageSize).map(file => {
+            const name = (file as any).name;
+  
+            return {
+              name: name,
+              type: file.isDirectory() ? 'folder' : 'file',
+              updateTime: file.mtime,
+              size: file.size,
+              url: prefix + name,
+            };
+          }),
+          total: files.length,
+        },
+      };
+    } catch(e) {
+      Logger.info(`[API][/paas/api/flow/getAsset]: 出错了: ${e.message}`)
+      return {
+        code: -1,
+        msg: e.message || '出错了'
+      }
+    }
   }
 }
