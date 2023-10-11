@@ -168,6 +168,9 @@ module.exports = {
         extractComments: false,
       }),
     ],
+    splitChunks: {      
+      chunks: 'all',//默认只作用于异步模块，为`all`时对所有模块生效,`initial`对同步模块有效
+    }
   },
   plugins: [
     // new ExtraWatchWebpackPlugin({
