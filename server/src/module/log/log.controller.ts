@@ -73,15 +73,55 @@ export default class LogsController {
     }
   }
 
-  @Post('/runtimeLog/monitor/interfacePerformanceDetail')
-  interfacePerformanceDetail() {
+  @Post('/runtimeLog/monitor/interfacePerformanceList')
+  interfacePerformanceList() {
     try {
+    if(fs.existsSync(env.FILE_ANALYSIS_PERFORMANCE_FOLDER) === false) {
+      return {
+        code: -1,
+        msg: '数据生产中（T+1生效）'
+      }
+    }
     const list = fs.readdirSync(env.FILE_ANALYSIS_PERFORMANCE_FOLDER)
     console.log(list)
+    const data = [];
+    list.forEach((item) => {
+      if(item?.indexOf('.json') !== -1) {
+        data.push(item.replace('.json', ''))
+      }
+    })
 
       return {
         code: 1,
-        data: list
+        data: data
+      }
+    } catch (e) {
+      Logger.warn('获取运行日志失败')
+      return {
+        code: -1,
+        msg: e.message || '更新失败'
+      }
+    }
+  }
+
+  @Post('/runtimeLog/monitor/interfacePerformanceDetail')
+  interfacePerformanceDetail(@Body('date') date: string) {
+    try {
+      const filePath = path.join(env.FILE_ANALYSIS_PERFORMANCE_FOLDER, `./${date}.json`)
+      const fileData = fs.readFileSync(filePath, 'utf-8')
+      const data = JSON.parse(fileData);
+      console.log(data)
+      const map = {}
+      for(let api of data) {
+        if(!map[api.url]) {
+          map[api.url] = api.cost
+        } else {
+          map[api.url] = (map[api.url] + api.cost) * 0.5
+        }
+      }
+      return {
+        code: 1,
+        data: map
       }
     } catch (e) {
       Logger.warn('获取运行日志失败')
