@@ -17,7 +17,7 @@ export function requestPerformance(req: Request, res: Response, next: NextFuncti
     // @ts-ignore
     req._endTime = Date.now();
     if(req.url?.indexOf('/paas/api') > -1) {
-      Logger.info(`[requestPerformance]: [${new Date().toLocaleString()}]: [${req.method}] [${req.path}] 【${deltaTime}】 ms`);
+      Logger.info(`[requestPerformance]: [${new Date().toLocaleString()}]: [${req.method}] [${req.path}] [${deltaTime}] ms`);
     }
   }
   res.once('finish', calResponseTime);
