@@ -131,4 +131,23 @@ export default class LogsController {
       }
     }
   }
+
+  @Post('/runtimeLog/monitor/immediateAnalyze')
+  async immediateAnalyze() {
+    try {
+      Logger.info(`[analyzeLogTask]: 开始分析日志`)
+      await this.logService.offlineAnalyzeInterfacePerformance()
+      Logger.info(`[analyzeLogTask]: 日志分析完毕`)
+      return {
+        code: 1,
+        msg: '分析成功'
+      }
+    } catch(e) {
+      Logger.info(`[analyzeLogTask]: 日志分析失败: ${e.message}`)
+      return {
+        code: -1,
+        msg: e.message || '分析失败'
+      }
+    }
+  }
 }

@@ -1,5 +1,7 @@
-import { SchedulerRegistry } from "@nestjs/schedule";
+import { ScheduleModule, SchedulerRegistry } from "@nestjs/schedule";
 import { Module } from "@nestjs/common";
+
+import Task from './task/task'
 
 import WorkspaceService from "./services/workspace";
 import TaskController from "./services/task.controller";
@@ -45,6 +47,7 @@ import AppModule from "./module/app/app.module";
     LogModule,
     ConfigModule,
     AppModule,
+    ScheduleModule.forRoot(),
     ...loadModule().modules,
   ],
   controllers: [
@@ -55,6 +58,7 @@ import AppModule from "./module/app/app.module";
     HomeService
   ],
   providers: [
+    Task,
     TaskService,
     SchedulerRegistry,
     FileDao,
