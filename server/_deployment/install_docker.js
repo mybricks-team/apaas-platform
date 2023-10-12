@@ -9,13 +9,13 @@ function mergeToApplication() {
       "installApps": [
         {
           "type": "oss",
-          "version": "0.1.56",
+          "version": "0.1.83",
           "namespace": "mybricks-material",
           "path": "asset-center/asset/app/mybricks-material/0.1.56/mybricks-material.zip"
         },
         {
           "type": "oss",
-          "version": "1.1.35",
+          "version": "1.1.50",
           "namespace": "mybricks-app-pcspa",
           "path": "asset-center/asset/app/mybricks-app-pcspa/1.1.35/mybricks-app-pcspa.zip"
         },
