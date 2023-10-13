@@ -29,14 +29,21 @@ export default function () {
   const [line, setLine] = useState(100)
   const [isFullScreen, setIsFullScreen] = useState(false)
   const [form] = Form.useForm()
+  const [isError, setIsError] = useState(false)
+  const [countdown, setCountdown] = useState(10)
 
   const getLogStr = useCallback(
     async (str?: string) => {
       return new Promise((resolve) => {
         axios.post(getApiUrl('/paas/api/log/runtimeLog/search'), { searchValue: str, line }).then(({ data }) => {
           if (data.code === 1) {
+            setIsError(false)
             resolve(data.data)
+          } else {
+            setIsError(true)
           }
+        }).catch(() => {
+          setIsError(true)
         })
       })
     },
@@ -64,14 +71,23 @@ export default function () {
 
   useEffect(() => {
     let timer: NodeJS.Timeout
-    if (isRealtimeRefresh) {
-      const interval = () => {
-        clearTimeout(timer)
-        timer = setTimeout(() => {
+    let countdown: number
+    const interval = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        countdown--
+        if (countdown === 0) {
+          countdown = 10
           refresh()
-          interval()
-        }, 10000)
-      }
+        }
+        setCountdown(countdown)
+        interval()
+      }, 1000)
+    }
+    if (isRealtimeRefresh) {
+      countdown = 10
+      setCountdown(countdown)
+      refresh()
       interval()
     }
     return () => {
@@ -130,26 +146,29 @@ export default function () {
           </Form.Item>
         </Form>
         <div className={css.config}>
-          <InputNumber
-            className={css.lineInput}
-            size='small'
-            step={50}
-            max={1000}
-            defaultValue={100}
-            onChange={(val) => {
-              setLine(val)
-            }}
-          />
-          <span className={css.lineInputLabel}>行</span>
+          <div className={css.line}>
+            <InputNumber
+              className={css.lineInput}
+              size='small'
+              step={50}
+              max={1000}
+              defaultValue={100}
+              onChange={(val) => {
+                setLine(val)
+              }}
+            />
+            <span className={css.lineLabel}>行</span>
+          </div>
+          <div className={css.refresh} onClick={() => refresh()}>立即刷新</div>
           <Switch
             onChange={(e) => {
               setIsRealtimeRefresh(e)
             }}
-            checkedChildren='关闭刷新'
+            checkedChildren={`实时刷新(${countdown}S)`}
             unCheckedChildren='实时刷新'
           />
           <div
-            className={css.icon}
+            className={css.fullScreen}
             onClick={() => {
               setIsFullScreen((pre) => !pre)
             }}
@@ -192,21 +211,27 @@ export default function () {
           </div>
         </div>
       </div>
-      <CodeMirror
-        ref={codeMirrorRef}
-        height={isFullScreen ? fullScreenHeight : '500px'}
-        basicSetup={basicSetup}
-        readOnly
-        value={log}
-        theme={solarizedLight}
-        autoFocus
-        extensions={extensions}
-        onCreateEditor={scrollToBottom}
-        onUpdate={handleUpdate}
-      />
-      {isShowShortcatKeyTip && (
-        <div className={`${css.shortcatKeyTip} ${isFullScreen ? css.fullScreen : ''}`}>command/Ctrl + F 开启面板搜索</div>
-      )}
+      {
+        isError ?
+          <div className={css.error}>请求异常，请<p className={css.refresh} onClick={() => refresh()}>刷新</p>重试</div> :
+          <div>
+            <CodeMirror
+              ref={codeMirrorRef}
+              height={isFullScreen ? fullScreenHeight : '500px'}
+              basicSetup={basicSetup}
+              readOnly
+              value={log}
+              theme={solarizedLight}
+              autoFocus
+              extensions={extensions}
+              onCreateEditor={scrollToBottom}
+              onUpdate={handleUpdate}
+            />
+            {isShowShortcatKeyTip && (
+              <div className={`${css.shortcatKeyTip} ${isFullScreen ? css.fullScreen : ''}`}>command/Ctrl + F 开启面板搜索</div>
+            )}
+          </div>
+      }
     </div>
   )
 }
