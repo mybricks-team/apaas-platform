@@ -27,4 +27,15 @@ export default class HomeService {
       res.send(`未配置首页请前往: ${req.hostname}/workspace.html`);
     }
   }
+
+  @Get('/testtest')
+  async testtest(@Req() req) {
+    const test = require('../test/2-exec.js')
+    console.log(11)
+    test.func1()
+    test.func2()
+    return {
+      code: 1
+    }
+  }
 }

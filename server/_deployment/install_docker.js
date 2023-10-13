@@ -15,7 +15,7 @@ function mergeToApplication() {
         },
         {
           "type": "oss",
-          "version": "1.1.35",
+          "version": "1.1.53",
           "namespace": "mybricks-app-pcspa",
           "path": "asset-center/asset/app/mybricks-app-pcspa/1.1.35/mybricks-app-pcspa.zip"
         },

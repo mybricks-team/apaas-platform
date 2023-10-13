@@ -8,7 +8,7 @@ import TaskController from "./services/task.controller";
 import TaskService from "./services/task.service";
 import FileDao from "./dao/FileDao";
 import FileTaskDao from "./dao/FileTaskDao";
-import { loadModule } from "./module-loader";
+// import { loadModule } from "./module-loader";
 import FilePubDao from "./dao/filePub.dao";
 import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
@@ -48,7 +48,7 @@ import AppModule from "./module/app/app.module";
     ConfigModule,
     AppModule,
     ScheduleModule.forRoot(),
-    ...loadModule().modules,
+    // ...loadModule().modules,
   ],
   controllers: [
     proxy,

@@ -58,9 +58,12 @@ function injectAjaxScript({ namespace }) {
                   }
                   return Reflect.get(target.oldxhr,prop+'proxy')
               }
-              if(prop && prop.indexOf && prop.indexOf('response')!==-1)
-              {
-                  return Reflect.get(target.oldxhr,prop)
+              if(prop) {
+                if(prop.indexOf) {
+                  if(prop.indexOf('response')!==-1) {
+                    return Reflect.get(target.oldxhr,prop)
+                  }
+                }
               }
               return Reflect.get(target.oldxhr,prop);
           },
