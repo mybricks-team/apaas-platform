@@ -539,7 +539,7 @@ export default class UserController {
 
   @Post('/sendCode')
   async sendCode(@Body() body) {
-    const { email } = body;
+    const { email, isRegister } = body;
 
     if (!email || !email.match(/^\w{3,}(\.\w+)*@[A-z0-9]+(\.[A-z]{2,5}){1,2}$/)) {
       return { code: -1, msg: '邮箱格式错误' };
@@ -547,7 +547,8 @@ export default class UserController {
 
     Logs.info(`用户${email} 申请验证码发送.`);
 
-    const user = await this.userDao.queryByEmail({ email });
+    /** 注册才需要校验 */
+    const user = isRegister ? await this.userDao.queryByEmail({ email }) : false;
     if (user) {
       Logs.info(`邮箱${email}已被注册.`);
 
