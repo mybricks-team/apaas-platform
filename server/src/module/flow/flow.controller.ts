@@ -259,7 +259,7 @@ export default class FlowController {
   @Get('/getAsset')
   async getFiles(@Request() request, @Query() query) {
     try {
-      if(fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
+      if(!fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
         Logger.info('[API][/paas/api/flow/getAsset]: 文件夹不存在，创建文件夹')
         fs.mkdirSync(env.FILE_LOCAL_STORAGE_FOLDER)
       }
