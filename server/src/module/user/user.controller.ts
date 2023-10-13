@@ -11,10 +11,12 @@ import {
 } from '@nestjs/common';
 import FileDao from '../../dao/FileDao';
 import UserDao from '../../dao/UserDao';
-import { Logs } from '../../utils';
+import { Logs, uuidOfNumber } from '../../utils';
 import UserService from './user.service';
 import { Logger } from '@mybricks/rocker-commons';
 import { USER_ROLE } from '../../constants'
+import UserValidateDao from '../../dao/UserValidateDao';
+import { sendEmail } from '../../utils/email';
 
 @Controller('/paas/api/user')
 export default class UserController {
@@ -22,12 +24,14 @@ export default class UserController {
   userDao: UserDao;
   userService: UserService;
   userSessionDao: UserSessionDao;
+  userValidateDao: UserValidateDao;
 
   constructor() {
     this.fileDao = new FileDao();
     this.userDao = new UserDao();
     this.userService = new UserService();
     this.userSessionDao = new UserSessionDao();
+    this.userValidateDao = new UserValidateDao();
   }
 
   @Get('/getAll')
@@ -139,12 +143,13 @@ export default class UserController {
 
   @Post('/register')
   async register(@Body() body) {
-    const { email, psd, fingerprint } = body;
+    const { email, psd, fingerprint, captcha } = body;
 
     if (
       !email ||
       !email.match(/^\w{3,}(\.\w+)*@[A-z0-9]+(\.[A-z]{2,5}){1,2}$/) ||
-      !psd
+      !psd ||
+      !captcha
     ) {
       return {
         code: -1,
@@ -163,6 +168,10 @@ export default class UserController {
         msg: `邮箱${email}已被注册.`,
       };
     } else {
+      const [captchaItem] = await this.userValidateDao.queryByUserId({ type: 'email', timeInterval: (10 * 60) * 1000, userId: email });
+      if (!captchaItem || captcha !== captchaItem.captcha) {
+        return { code: -1, msg: '验证码错误，请重新发送验证码' };
+      }
       const { id } = await this.userDao.create({
         email,
         password: psd,
@@ -526,5 +535,202 @@ export default class UserController {
       code: 1,
       msg: '设置成功'
     }
+  }
+
+  @Post('/sendCode')
+  async sendCode(@Body() body) {
+    const { email } = body;
+
+    if (!email || !email.match(/^\w{3,}(\.\w+)*@[A-z0-9]+(\.[A-z]{2,5}){1,2}$/)) {
+      return { code: -1, msg: '邮箱格式错误' };
+    }
+
+    Logs.info(`用户${email} 申请验证码发送.`);
+
+    const user = await this.userDao.queryByEmail({ email });
+    if (user) {
+      Logs.info(`邮箱${email}已被注册.`);
+
+      return { code: -1, msg: `邮箱${email}已被注册.` };
+    } else {
+      const [captchaItem] = await this.userValidateDao.queryByUserId({ type: 'email', timeInterval: (3 * 60) * 1000, userId: email });
+
+      if (captchaItem) {
+        return { code: -1, msg: '验证码已发送，请不要频繁操作' };
+      }
+
+      // TODO: 还需要做更详细频率控制，因为 sendEmail 本身需要 3s 左右，这段时间内能频繁触发请求
+      const captcha = uuidOfNumber();
+      await sendEmail({
+        to: email,
+        subject: `Mybricks 验证码：“${captcha}”`,
+        html: `
+          <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.=w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
+          <html>
+            <head>
+              <base target=='_blank' />
+              <style type='text/css'>
+                ::-webkit-scrollbar {
+                  display: none;
+                }
+              </style>
+              <style id='cloudAttachStyle' type='text/css'>
+                #divNeteaseBigAttach,
+                #divNeteaseBigAttach_bak {
+                  display: none;
+                }
+              </style>
+            </head>
+            <body tabindex='0' role='listitem'>
+              <div id='content' class='netease_mail_readhtml'>
+                <table cellpadding='0' cellspacing='0' border='0' id='backgroundTable' width='100%' style='background-color: #f3f5f8' microsoft='' yahei=''>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <table
+                            cellpadding='0'
+                            cellspacing='0'
+                            border='0'
+                            align='center'
+                            width='600'
+                            style='border-collapse: collapse; background-color: #fff; border-radius: 4px; margin-top: 40px; margin-bottom: 40px; '
+                        >
+                          <tbody>
+                            <tr>
+                              <td valign='top'>
+                                <table
+                                    cellpadding='0'
+                                    cellspacing='0'
+                                    width='580'
+                                    align='center'
+                                    style='border-collapse: collapse; margin: 40px'
+                                >
+                                  <tbody>
+                                    <tr>
+                                      <td height='50' valign='top'>
+                                        <img border='0' style='display: block' width='100' height='100' src='https://my.mybricks.world/icon.png' />
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td valign='top'>
+                                        <p style=' margin-top: 24px; margin-bottom: 0; font-size: 32px; font-weight: 500; text-align: left; color: #333333; line-height: 40px; '>
+                                          您正在使用 Mybricks aPaas 平台
+                                        </p>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td valign='top'>
+                                        <p style=' margin-top: 0; margin-bottom: 0; font-size: 32px; font-weight: 500; text-align: left; color: #333333; line-height: 40px; ' >
+                                          请输入此验证码以完成邮箱验证。
+                                        </p>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td valign='top'>
+                                        <p style=' margin-top: 28px; margin-bottom: 7px; font-size: 64px; font-weight: 500; text-align: left; color: #333333; line-height: 90px; ' >
+                                          ${captcha}
+                                        </p>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td valign='top'>
+                                        <p style=' margin-top: 0; margin-bottom: 282px; font-size: 14px; font-weight: 400; color: #999999; line-height: 17px; ' >
+                                          验证码 10 分钟内有效，请尽快验证。
+                                        </p>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <style type='text/css'>
+                body {
+                  font-size: 14px;
+                  font-family: arial, verdana, sans-serif;
+                  line-height: 1.666;
+                  padding: 0;
+                  margin: 0;
+                  overflow: auto;
+                  white-space: normal;
+                  word-wrap: break-word;
+                  min-height: 100px;
+                }
+                td, input, button, select, body {
+                  font-family: Helvetica, 'Microsoft Yahei', verdana;
+                }
+                pre {
+                  white-space: pre-wrap;
+                  white-space: -moz-pre-wrap;
+                  white-space: -moz-pre-wrap;
+                  white-space: -o-pre-wrap;
+                  word-wrap: break-word;
+                  width: 95%;
+                }
+                th, td {
+                  font-family: arial, verdana, sans-serif;
+                  line-height: 1.666;
+                }
+                img {
+                  border: 0;
+                }
+                header, footer, section, aside, article, nav, hgroup, figure, figcaption {
+                  display: block;
+                }
+                blockquote {
+                  margin-right: 0;
+                }
+              </style>
+              <style id='netease_ail_footer_style' type=3D'text/css'>
+                #netease_mail_footer {
+                  display: none;
+                }
+              </style>
+              <style id='ntes_link_color' type=3D'text/css'>
+                a, td a {
+                  color: #064977;
+                }
+              </style>
+              <audio controls='controls' style='display: none'></audio>
+            </body>
+          </html>
+        `,
+      });
+      await this.userValidateDao.create({ userId: email, type: 'email', captcha });
+      Logs.info(`新用户${email}验证码（${captcha}）发送成功.`);
+
+      return { code: 1, data: null };
+    }
+  }
+
+  @Post('/findPassword')
+  async findPassword(@Body() body) {
+    const { email, password, confirmPassword, captcha } = body;
+
+    if (!email || !email.match(/^\w{3,}(\.\w+)*@[A-z0-9]+(\.[A-z]{2,5}){1,2}$/)) {
+      return { code: -1, msg: '邮箱格式错误' };
+    } else if (!password || password !== confirmPassword) {
+      return { code: -1, msg: '两次密码不一致，请检查密码' };
+    }
+
+    const [user] = await this.userDao.queryByEmails({ emails: [email] });
+
+    if (!user) {
+      return { code: -1, msg: '该邮箱号未被注册过，请前往注册' };
+    }
+    const [captchaItem] = await this.userValidateDao.queryByUserId({ type: 'email', timeInterval: (10 * 60) * 1000, userId: email });
+    if (!captchaItem || captcha !== captchaItem.captcha) {
+      return { code: -1, msg: '验证码错误，请重新发送验证码' };
+    }
+
+    await this.userDao.updateUser({ email, password });
+
+    return { code: 1, data: null };
   }
 }

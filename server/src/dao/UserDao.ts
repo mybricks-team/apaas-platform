@@ -173,7 +173,7 @@ export default class UserDao extends DOBase {
   @Mapping(UserDO)
   public async queryByEmails(params: {
     emails: string[]
-  }): Promise<UserDO> {
+  }): Promise<UserDO[]> {
     params = Object.assign({status: 1}, params)
 
     const result = await this.exe<any>(
@@ -271,5 +271,9 @@ export default class UserDao extends DOBase {
     )
 
     return result
+  }
+
+  public async updateUser(query: { licenseCode?: string; password?: string; status?: number; email: string; }) {
+    return await this.exe<any>('apaas_user:update', { ...query, update_time: Date.now() });
   }
 }

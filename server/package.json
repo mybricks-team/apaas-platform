@@ -39,6 +39,7 @@
     "gen-uniqueid": "0.0.2",
     "mybricks-midlog": "1.0.0",
     "mysql2": "^2.3.3",
+    "nodemailer": "^6.9.6",
     "parse5": "^7.1.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
