@@ -552,10 +552,17 @@ export default class SystemService {
   @Post('/system/channel')
   async channel(@Body() body: any) {
     const { type, version, isAdministrator, payload, userId } = body;
+    const systemConfig = await this.configService.getConfigByScope(['system'])
     if(platformEnvUtils.isPlatform_Fangzhou()) {
       return {
         code: -1,
         msg: '该平台暂不支持此功能'
+      }
+    }
+    if(systemConfig?.system?.config?.isPureIntranet) {
+      return {
+        code: -1,
+        msg: '纯内网部署，暂不支持此功能'
       }
     }
     try {

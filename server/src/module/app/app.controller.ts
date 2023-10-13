@@ -65,6 +65,14 @@ export default class AppController {
 
   @Get("/getLatestAllFromSource")
   async getLatestAllFromSource() {
+    const systemConfig = await this.configService.getConfigByScope(['system'])
+    if(systemConfig?.system?.config?.isPureIntranet) {
+      return {
+        code: 1,
+        data:[],
+        msg: '纯内网部署，暂不支持此功能'
+      }
+    }
     try {
       const localAppList = await this.appDao.queryLatestApp();
       let remoteAppList = []
@@ -80,13 +88,6 @@ export default class AppController {
         })
         if(env.isPlatform_Fangzhou()) {
           remoteAppList = await this.appDao.queryLatestApp(); 
-
-          // const temp = JSON.parse(require('child_process').execSync(`
-          //   curl -x 10.28.121.13:11080  --location --request POST 'https://my.mybricks.world/central/api/channel/gateway' --header 'Content-Type: application/json' --data '{"action": "app_getAllLatestList"}'
-          // `).toString())
-          // if(temp.code === 1) {
-          //   remoteAppList = temp.data
-          // }
         } else {
           const temp = (await (axios as any).post(
             // "http://localhost:4100/central/api/channel/gateway", 
