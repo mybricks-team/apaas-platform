@@ -45,7 +45,7 @@ export default class AppController {
     return {
       code: 1,
       data: apps,
-      msg: '成功'
+      msg: '成功!'
     };
   }
 
