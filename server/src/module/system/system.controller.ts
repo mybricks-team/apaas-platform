@@ -17,7 +17,6 @@ import { createVM } from 'vm-node';
 import FileService from '../file/file.controller'
 import * as axios from "axios";
 import platformEnvUtils from '../../utils/env'
-import RefreshDao from "../../dao/RefreshDao";
 import UserLogDao from "../../dao/UserLogDao";
 import SessionService from './session.service';
 import { STATUS_CODE } from '../../constants'
@@ -39,7 +38,6 @@ export default class SystemService {
   servicePubDao: ServicePubDao
 
   appDao: AppDao;
-  refreshDao: RefreshDao;
 
   fileService: FileService
   userLogDao: UserLogDao;
@@ -56,7 +54,6 @@ export default class SystemService {
     this.filePubDao = new FilePubDao();
     this.servicePubDao = new ServicePubDao();
     this.appDao = new AppDao()
-    this.refreshDao = new RefreshDao()
     this.userLogDao = new UserLogDao()
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
