@@ -31,9 +31,9 @@ function mergeToApplication() {
         // },
         {
           "type": "oss",
-          "version": "1.0.22",
+          "version": "1.0.23",
           "namespace": "mybricks-app-th5",
-          "path": "asset-center/asset/app/mybricks-app-th5/1.0.19/mybricks-app-th5.zip"
+          "path": "asset-center/asset/app/mybricks-app-th5/1.0.23/mybricks-app-th5.zip"
         },
         {
           "type": "oss",
