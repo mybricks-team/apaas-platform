@@ -37,7 +37,7 @@ function mergeToApplication() {
         },
         {
           "type": "oss",
-          "version": "0.0.78",
+          "version": "0.0.77",
           "namespace": "mybricks-app-theme",
           "path": "asset-center/asset/app/mybricks-app-theme/0.0.78/mybricks-app-theme.zip"
         }
