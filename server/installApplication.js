@@ -7,9 +7,17 @@ const axios = require('axios');
 const { APPS_BASE_FOLDER, NPM_REGISTRY, FILE_LOCAL_STORAGE_FOLDER } = require('./env');
 
 let npmRegistry = NPM_REGISTRY
+let appsBaseFolder = APPS_BASE_FOLDER
 
-if(process.argv[2] && process.argv[2].indexOf('--registry') !== -1) {
-  npmRegistry = process.argv[2].split('=')[1]
+if(process.argv) {
+  process.argv.forEach((args) => {
+    if(args.indexOf('--registry') !== -1) {
+      npmRegistry = args.split('=')[1]
+    }
+    if(args.indexOf('--appsFolder') !== -1) {
+      appsBaseFolder = args.split('=')[1]
+    }
+  })
 }
 
 let MYSQL_CONNECTION = null
@@ -158,12 +166,12 @@ async function installApplication() {
             rawPkgName = pkgName
             pkgVersion = npmPkg.split('@')[1]
           }
-          if(!fs.existsSync(APPS_BASE_FOLDER)) {
-            fs.mkdirSync(APPS_BASE_FOLDER)
+          if(!fs.existsSync(appsBaseFolder)) {
+            fs.mkdirSync(appsBaseFolder)
           }
-          const destAppDir = path.join(APPS_BASE_FOLDER, `./${pkgName}`)
-          if(!fs.existsSync(APPS_BASE_FOLDER)) {
-            fs.mkdirSync(APPS_BASE_FOLDER)
+          const destAppDir = path.join(appsBaseFolder, `./${pkgName}`)
+          if(!fs.existsSync(appsBaseFolder)) {
+            fs.mkdirSync(appsBaseFolder)
           }
           
           // judge jump
@@ -267,10 +275,10 @@ async function installApplication() {
         } else if(appConfig.type === 'oss') {
           const pkgVersion = appConfig.version;
           let pkgName = appConfig.namespace;
-          if(!fs.existsSync(APPS_BASE_FOLDER)) {
-            fs.mkdirSync(APPS_BASE_FOLDER)
+          if(!fs.existsSync(appsBaseFolder)) {
+            fs.mkdirSync(appsBaseFolder)
           }
-          const destAppDir = path.join(APPS_BASE_FOLDER, `./${pkgName}`)
+          const destAppDir = path.join(appsBaseFolder, `./${pkgName}`)
           
           // judge jump
           const existedAppPkgPath = path.join(destAppDir, './package.json')
@@ -389,10 +397,10 @@ async function installApplication() {
         } else if(appConfig.type === 'local') {
           const pkgVersion = appConfig.version;
           let pkgName = appConfig.namespace;
-          if(!fs.existsSync(APPS_BASE_FOLDER)) {
-            fs.mkdirSync(APPS_BASE_FOLDER)
+          if(!fs.existsSync(appsBaseFolder)) {
+            fs.mkdirSync(appsBaseFolder)
           }
-          const destAppDir = path.join(APPS_BASE_FOLDER, `./${pkgName}`)
+          const destAppDir = path.join(appsBaseFolder, `./${pkgName}`)
           
           // judge jump
           const existedAppPkgPath = path.join(destAppDir, './package.json')

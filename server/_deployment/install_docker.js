@@ -73,7 +73,7 @@ function exit() {
 function installApplication() {
   console.log(`【install】: 开始安装应用`)
   childProcess.execSync(`
-    node installApplication.js
+    node installApplication.js --appsFolder=/home/apaas/apps
   `, {
     cwd: path.join(__dirname, '../'),
     stdio: 'inherit'

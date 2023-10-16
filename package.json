@@ -8,7 +8,7 @@
     "docker:build:linux": "docker buildx build --platform linux/amd64 -t mybricks-apaas:v0.1.9 .",
     "docker:build:mac": "docker buildx build --platform linux/arm64/v8 -t mybricks-apaas:v0.0.1 .",
     "docker:run": "docker run -p 14100:4100 -v ~/Work/registry/mybricks-team/apaas-platform/PlatformConfig.json:/home/apaas/external/PlatformConfig.json -v ~/Work/registry/mybricks-team/apaas-platform/logs:/home/apaas/logs -v ~/Work/registry/mybricks-team/apaas-platform/_localstorage:/home/apaas/_localstorage -v ~/Work/registry/mybricks-team/apaas-platform/_apps:/home/apaas/_apps -d --name mybricks-apaas mybricks-apaas:v0.1.8",
-    "docker:runtest": "docker run -p 14100:4100 -v ~/Work/registry/test/PlatformConfig.json:/home/apaas/external/PlatformConfig.json -v ~/Work/registry/test/logs:/home/apaas/logs -v ~/Work/registry/test/_localstorage:/home/apaas/_localstorage -d --name mybricks-apaas mybricks-apaas:v0.1.8",
+    "docker:runtest": "docker run -p 14100:4100 -v ~/Work/registry/test/PlatformConfig.json:/home/apaas/external/PlatformConfig.json -v ~/Work/registry/test/logs:/home/apaas/logs -v ~/Work/registry/test/_localstorage:/home/apaas/_localstorage -v ~/Work/registry/test/_apps:/home/apaas/_apps -d --name mybricks-apaas mybricks-apaas:v0.0.1",
     "docker:stop": "docker stop mybricks-apaas",
     "docker:tag": "docker tag mybricks-apaas:v0.1.9 andyzou/mybricks-apaas:v0.1.9",
     "docker:push": "docker push andyzou/mybricks-apaas:v0.1.9",

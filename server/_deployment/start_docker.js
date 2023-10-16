@@ -120,8 +120,29 @@ async function syncLocalFileToExternal() {
     if(!fs.existsSync(externalPath)) {
       fs.mkdirSync(externalPath)
     }
+    // 以容器内的文件为准
     fs.copySync(localPath, externalPath)
     console.log(`【install】: 同步本地文件到外部文件夹成功`)
+  }
+}
+
+async function syncAppsFromDockerToExternal() {
+  const localAppsFolder = path.join(__dirname, '../../apps')
+  const externalAppsPath = path.join(__dirname, '../../_apps')
+  if(fs.existsSync(localAppsFolder)) {
+    const localApps = fs.readdirSync(localAppsFolder) || []
+    let externalApps = []
+    if(fs.existsSync(externalAppsPath)) {
+      externalApps = fs.readdirSync(externalAppsPath)
+    }
+    localApps.forEach(app => {
+      // 以外部的为准：外部没有
+      if(externalApps.indexOf(app) === -1) {
+        fs.copySync(path.join(localAppsFolder, app), path.join(externalAppsPath, app))
+        console.log(`【install】: 已同步${app}`)
+      }
+    })
+    console.log(`【install】: 同步应用到成功`)
   }
 }
 
@@ -133,6 +154,7 @@ async function startInstall() {
   await _initDatabaseRecord()
   persistenceToConfig()
   await syncLocalFileToExternal()
+  await syncAppsFromDockerToExternal()
 }
 
 async function startInstallServer() {
