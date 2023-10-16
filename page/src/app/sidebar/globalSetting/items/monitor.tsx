@@ -39,6 +39,7 @@ let ChartIns;
 function Monitor() {
   const [options, setOptions] = useState([]);
   const [selectDate, setSelectDate] = useState(null);
+  const [graphData, setGraphData] = useState({});
 
   useEffect(() => {
     // 基于准备好的dom，初始化echarts实例
@@ -93,9 +94,10 @@ function Monitor() {
       if(data.code === 1) {
         refreshChart({
           title: `接口性能监控（${date}）`,
-          xData: Object.keys(data.data),
-          yData: Object.values(data.data)
+          xData: Object.keys(data.data.detail),
+          yData: Object.values(data.data.detail)
         })
+        setGraphData(data.data)
       } else {
         message.info(data.msg || '获取数据失败')
       }
@@ -118,6 +120,11 @@ function Monitor() {
           }}
           options={options}
         />
+        {
+          graphData?.result?.averageCost ? (
+            <span style={{marginLeft: 12}}>平均性能为：{graphData?.result?.averageCost?.toFixed(2)} ms</span>
+          ) : null
+        }
       </div>
       <div style={{width: '100%', height: 600}} id="mybricks-monitor-root"></div>
     </div>
