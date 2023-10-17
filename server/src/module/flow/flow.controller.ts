@@ -13,11 +13,11 @@ import {
 import { Logger } from '@mybricks/rocker-commons';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 const env = require('../../../env.js')
-import { getRealDomain } from '../../utils/index'
+import { getRealDomain, uuid } from '../../utils'
 import FlowService from './flow.service';
-import { uuid } from '../../utils/index';
 import * as path from 'path';
 import * as fs from 'fs';
+import { removeFile } from '../../utils/file';
 
 
 @Controller('/paas/api/flow')
@@ -195,7 +195,7 @@ export default class FlowController {
 
   @Post('/uploadAsset')
   @UseInterceptors(FilesInterceptor('files'))
-  async uploadAsset(@Request() request, @Body() body, @UploadedFiles() files) {
+  async uploadAsset(@Body() body, @UploadedFiles() files) {
     try {
       const { hash, path: folderPath = './', filePathMap } = body;
       if (!Array.isArray(files) || !files.length) {
@@ -239,7 +239,7 @@ export default class FlowController {
   }
 
   @Post('/createCategory')
-  async createCategory(@Request() request, @Body() body) {
+  async createCategory(@Body() body) {
     const { path: filePath = './', name } = body;
     const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
 
@@ -257,7 +257,7 @@ export default class FlowController {
   }
 
   @Get('/getAsset')
-  async getFiles(@Request() request, @Query() query) {
+  async getFiles(@Query() query) {
     try {
       if(!fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
         Logger.info('[API][/paas/api/flow/getAsset]: 文件夹不存在，创建文件夹')
@@ -265,17 +265,17 @@ export default class FlowController {
       }
       const { path: filePath = './', pageNum = 1, pageSize = 20 } = query;
       const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
-  
+
       if (!rootFile.startsWith(env.FILE_LOCAL_STORAGE_FOLDER)) {
         return { code: -1, msg: '无法访问非静态文件目录' };
       }
-  
+
       const files = fs.readdirSync(rootFile);
       const fileInfos = files
         .map(file => {
           const info = fs.statSync(path.join(rootFile, file));
           (info as any).name = file;
-  
+
           return info;
         })
         .sort((statA, statB) => {
@@ -288,14 +288,14 @@ export default class FlowController {
           if (!statA.isDirectory() && statB.isDirectory()) {
             return 1;
           }
-  
+
           return 0;
         });
-  
+
       const startIndex = pageSize * (pageNum - 1);
       let prefix = `/${env.FILE_LOCAL_STORAGE_PREFIX}${rootFile.replace(env.FILE_LOCAL_STORAGE_FOLDER, '')}`;
       prefix += prefix.endsWith('/') ? '' : '/';
-  
+
       return {
         code: 1,
         data: {
@@ -303,7 +303,7 @@ export default class FlowController {
           pageSize,
           dataSource: fileInfos.slice(startIndex, startIndex + pageSize).map(file => {
             const name = (file as any).name;
-  
+
             return {
               name: name,
               type: file.isDirectory() ? 'folder' : 'file',
@@ -321,6 +321,29 @@ export default class FlowController {
         code: -1,
         msg: e.message || '出错了'
       }
+    }
+  }
+
+  @Post('/deleteAsset')
+  async deleteAsset(@Body() body) {
+    const { path: filePath = './', name } = body;
+    const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
+
+    if (!rootFile.startsWith(env.FILE_LOCAL_STORAGE_FOLDER)) {
+      return { code: -1, msg: '无法访问非静态文件目录' };
+    }
+
+    try {
+      if (!fs.existsSync(path.join(rootFile, name))) {
+        return { code: -1, msg: '该目录下文件不存在' };
+      }
+
+      removeFile(path.join(rootFile, name));
+
+      return { code: 1, msg: '删除成功' };
+    } catch(e) {
+      console.log(e);
+      return { code: -1, msg: '删除失败，请重试' };
     }
   }
 }
