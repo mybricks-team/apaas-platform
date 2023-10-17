@@ -17,6 +17,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [openUserInfoSettingSwitch, setOpenUserInfoSettingSwitch] = useState(initialValues?.openUserInfoSetting)
   const [openConflictDetectionSwitch, setOpenConflictDetectionSwitch] = useState(initialValues?.openConflictDetection)
   const [isPureIntranet, setIsPureIntranet] = useState(initialValues?.isPureIntranet)
+  const [openMonitor, setOpenMonitor] = useState(initialValues?.openMonitor)
 
   useEffect(() => {
     if (!initialValues) {
@@ -60,50 +61,74 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
         </div>
         <div style={{paddingLeft: 16}}>
           <p style={{fontSize: 16, fontWeight: 700, marginBottom: 8, marginLeft: -16}}>高级配置</p>
-          <Form.Item
-            initialValue=''
-            label="纯内网模式"
-            name="isPureIntranet"
-          >
-            <Switch checked={isPureIntranet} onChange={() => {
-              setIsPureIntranet(!isPureIntranet)
-            }} />
-          </Form.Item>
-          <Form.Item
-            initialValue=''
-            label="开启系统白名单"
-            name="openSystemWhiteList"
-          >
-            <Switch checked={openSystemWhiteListSwitch} onChange={() => {
-              setOpenSystemWhiteListSwitch(!openSystemWhiteListSwitch)
-            }} />
-          </Form.Item>
-          <Form.Item
-            initialValue=''
-            label="开启退出登录"
-            name="openLogout"
-          >
-            <Switch checked={openLogoutSwitch} onChange={() => {
-              setOpenLogoutSwitch(!openLogoutSwitch)
-            }} />
-          </Form.Item><Form.Item
-            initialValue=''
-            label="开启个人资料设置"
-            name="openUserInfoSetting"
-          >
-            <Switch checked={openUserInfoSettingSwitch} onChange={() => {
-              setOpenUserInfoSettingSwitch(!openUserInfoSettingSwitch)
-            }} />
-          </Form.Item>
-          <Form.Item
-            initialValue=''
-            label="开启升级冲突检测"
-            name="openConflictDetection"
-          >
-            <Switch checked={openConflictDetectionSwitch} onChange={() => {
-              setOpenConflictDetectionSwitch(!openConflictDetectionSwitch)
-            }} />
-          </Form.Item>
+          <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+            <Form.Item
+              initialValue=''
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 6 }}
+              label="离线模式"
+              name="isPureIntranet"
+            >
+              <Switch checked={isPureIntranet} onChange={() => {
+                setIsPureIntranet(!isPureIntranet)
+              }} />
+            </Form.Item>
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 6 }}
+              initialValue=''
+              label="系统白名单"
+              name="openSystemWhiteList"
+            >
+              <Switch checked={openSystemWhiteListSwitch} onChange={() => {
+                setOpenSystemWhiteListSwitch(!openSystemWhiteListSwitch)
+              }} />
+            </Form.Item>
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 6 }}
+              initialValue=''
+              label="退出登录"
+              name="openLogout"
+            >
+              <Switch checked={openLogoutSwitch} onChange={() => {
+                setOpenLogoutSwitch(!openLogoutSwitch)
+              }} />
+            </Form.Item>
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 6 }}
+              initialValue=''
+              label="个人资料设置"
+              name="openUserInfoSetting"
+            >
+              <Switch checked={openUserInfoSettingSwitch} onChange={() => {
+                setOpenUserInfoSettingSwitch(!openUserInfoSettingSwitch)
+              }} />
+            </Form.Item>
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 6 }}
+              initialValue=''
+              label="升级冲突检测"
+              name="openConflictDetection"
+            >
+              <Switch checked={openConflictDetectionSwitch} onChange={() => {
+                setOpenConflictDetectionSwitch(!openConflictDetectionSwitch)
+              }} />
+            </Form.Item>
+            {/* <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 6 }}
+              initialValue=''
+              label="监控统计"
+              name="openMonitor"
+            >
+              <Switch checked={openMonitor} onChange={() => {
+                setOpenMonitor(!openMonitor)
+              }} />
+            </Form.Item> */}
+          </div>
           <Form.Item
             initialValue=""
             label="应用黑名单"

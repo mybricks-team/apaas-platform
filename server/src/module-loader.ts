@@ -29,7 +29,7 @@ const scanDir = (dirFullPath: string) => {
             }
             if(fs.existsSync(middlewarePath)) {
               const fn = require(middlewarePath).default
-              const wrapperFn = fn({ userDao })
+              const wrapperFn = fn({ userDao, Logger })
               middleware.push(wrapperFn)
             }
             if(fs.existsSync(interceptorPath)) {

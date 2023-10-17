@@ -11,7 +11,6 @@ import { proxyMiddleWare } from "./middleware/proxy.middleware";
 import { apiProxy as apiProxyMiddleWare } from './middleware/api.proxy.middleware';
 import { timeout } from "./middleware/requestTimeout.middleware";
 import { checkHealthMiddleware } from './middleware/checkHealth.middleware';
-import { requestPerformance } from './middleware/requestPerformance.middleware';
 
 import { loadModule } from "./module-loader";
 import { enhanceApp } from "./enhance";
@@ -77,7 +76,6 @@ async function bootstrap() {
   app.use(cookieParser());
 	app.use(xmlparser());
   app.use(timeout(TIMEOUT_TIME))
-  app.use(requestPerformance)
 
   await app.listen(3100);
 }
