@@ -844,14 +844,14 @@ export default class SystemService {
         case 'envCheck': {
           await childProcess.execSync('unzip').toString()
           // const reqUrl = `http://localhost:3100/paas/api/system/diagnostics`
-          const reqUrl = process.env.platformDomain?.endsWith('/') ?  `${process.env.platformDomain}paas/api/system/diagnostics` : `${process.env.platformDomain}/paas/api/system/diagnostics`;
+          const reqUrl = process.env.MYBRICKS_PLATFORM_ADDRESS?.endsWith('/') ?  `${process.env.MYBRICKS_PLATFORM_ADDRESS}paas/api/system/diagnostics` : `${process.env.MYBRICKS_PLATFORM_ADDRESS}/paas/api/system/diagnostics`;
           Logger.info(`诊断服务请求日志：${reqUrl}`)
           // @ts-ignore
           await axios.post(reqUrl, { action: "init"})
           
           return {
             code: 1,
-            msg: `接口请求域名是：${process.env.platformDomain}`
+            msg: `接口请求域名是：${process.env.MYBRICKS_PLATFORM_ADDRESS}`
           }
         }
       }
@@ -859,7 +859,7 @@ export default class SystemService {
       Logger.info(`诊断服务出错：${e.message}`)
       return {
         code: -1,
-        msg: (e.message || '未知错误') + `\n后台服务请求域名是: ${process.env.platformDomain}`
+        msg: (e.message || '未知错误') + `\n后台服务请求域名是: ${process.env.MYBRICKS_PLATFORM_ADDRESS}`
       }
     }
   }

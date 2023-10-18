@@ -14,7 +14,7 @@ export default class Task {
   @Cron('0 0 1 * * *')
   async analyzeLogTask() {
     try {
-      if(process.env.platformDomain?.indexOf('mybricks.world') !== -1) {
+      if(process.env.MYBRICKS_PLATFORM_ADDRESS?.indexOf('mybricks.world') !== -1) {
         Logger.info(`[analyzeLogTask]: 开始分析日志`)
         await this.logService.offlineAnalyzeInterfacePerformance()
         Logger.info(`[analyzeLogTask]: 日志分析完毕`)
