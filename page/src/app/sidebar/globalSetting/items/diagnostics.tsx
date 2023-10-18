@@ -20,7 +20,6 @@ export default function Diagnostics() {
           result += `${new Date().toLocaleTimeString()}：诊断服务链接成功\n`;
           return axios.post(getApiUrl('/paas/api/system/diagnostics'), { action: 'envCheck' })
         } else {
-          message.warn(data.msg)
           result += `${new Date().toLocaleTimeString()}：诊断服务链接失败：\n${data.msg}\n`;
           setDiagnosticsResult(result)
         }
@@ -31,7 +30,6 @@ export default function Diagnostics() {
           setDiagnosticsResult(result)
         } else {
           result += `${new Date().toLocaleTimeString()}：运行环境检测失败：\n${data.msg}\n`;
-          message.warn(data.msg)
           setDiagnosticsResult(result)
         }
       }).finally(() => {
