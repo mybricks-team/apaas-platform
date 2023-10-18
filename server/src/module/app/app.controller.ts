@@ -374,7 +374,7 @@ export default class AppController {
     const systemConfig = await this.configService.getConfigByScope(['system'])
     try {
       if(systemConfig?.system?.config?.openConflictDetection) {
-        Logger.info('开启了冲突检测')
+        Logger.info('[offlineUpdate]: 开启了冲突检测')
         await lockUpgrade()
       }
     } catch(e) {
@@ -390,16 +390,16 @@ export default class AppController {
         fs.mkdirSync(tempFolder)
       }
       const zipFilePath = path.join(tempFolder, `./${file.originalname}`)
-      Logger.info('开始持久化压缩包')
+      Logger.info('[offlineUpdate]: 开始持久化压缩包')
       fs.writeFileSync(zipFilePath, file.buffer);
       childProcess.execSync(`which unzip`).toString()
-      Logger.info('开始解压文件')
+      Logger.info('[offlineUpdate]:开始解压文件')
       childProcess.execSync(`unzip -o ${zipFilePath} -d ${tempFolder}`, {
         stdio: 'inherit' // 不inherit输出会导致 error: [Circular *1]
       })
       const subFolders = fs.readdirSync(tempFolder)
       let unzipFolderSubpath = ''
-      Logger.info(`subFolders: ${JSON.stringify(subFolders)}}`)
+      Logger.info(`[offlineUpdate]: subFolders: ${JSON.stringify(subFolders)}}`)
       for(let name of subFolders) {
         if(name.indexOf('.') === -1) {
           unzipFolderSubpath = name
@@ -408,7 +408,7 @@ export default class AppController {
       }
       const unzipFolderPath = path.join(tempFolder, unzipFolderSubpath)
       const pkg = require(path.join(unzipFolderPath, './package.json'))
-      Logger.info(`pkg: ${JSON.stringify(pkg)}`)
+      Logger.info(`[offlineUpdate]: pkg: ${JSON.stringify(pkg)}`)
       let appName = pkg.name;
       // 包含scope，需要编码
       if(pkg.name.indexOf('@') !== -1) {
@@ -416,16 +416,24 @@ export default class AppController {
         appName = encodeURIComponent(pkg.name)
       }
       const destAppDir = path.join(env.getAppInstallFolder())
-      Logger.info('开始复制文件')
+      Logger.info('[offlineUpdate]: 开始复制文件')
       // fse.copySync(unzipFolderPath, destAppDir)
       childProcess.execSync(`cp -rf ${unzipFolderPath} ${destAppDir}`)
-      Logger.info('开始清除临时文件')
+      // copy xml
+      const bePath = path.join(unzipFolderPath, './nodejs')
+      if(fs.existsSync(bePath)) {
+        if(fs.existsSync(path.join(bePath, './mapper'))) {
+          Logger.info('[offlineUpdate]: 开始复制mapper')
+          fse.copySync(path.join(bePath, './mapper'), path.join(process.cwd(), `./src/resource`))
+        }
+      }
+      Logger.info('[offlineUpdate]: 开始清除临时文件')
       fse.removeSync(tempFolder)
-      Logger.info('版本信息开始持久化到本地')
+      Logger.info('[offlineUpdate]: 版本信息开始持久化到本地')
       // 更新本地版本
       this.updateLocalAppVersion({ namespace: pkg.name, version: pkg.version, installType: 'local' })
 
-      Logger.info('开始重启服务')
+      Logger.info('[offlineUpdate]: 开始重启服务')
       // 重启服务
       childProcess.exec(
         `npx pm2 reload ${getAppThreadName()}`,
@@ -448,7 +456,7 @@ export default class AppController {
     }
     
     if(systemConfig?.system?.config?.openConflictDetection) {
-      Logger.info("解锁成功，可继续升级应用");
+      Logger.info("[offlineUpdate]: 解锁成功，可继续升级应用");
       // 解锁
       await unLockUpgrade({ force: true })
     }
