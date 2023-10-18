@@ -312,7 +312,7 @@ function SystemMenus() {
           />
           <Item
             icon={<FileManage width={20} height={20} />}
-            title="静态文件管理"
+            title="静态文件"
             namespace="?appId=asset"
           />
           <Item
