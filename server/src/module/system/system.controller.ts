@@ -830,4 +830,37 @@ export default class SystemService {
       code: 1,
     };
   }
+
+  @Post('/system/diagnostics')
+  async diagnostics(@Body('action') action, @Body('payload') payload) {
+    try {
+      switch(action) {
+        case 'init': {
+          return {
+            code: 1,
+            msg: 'success'
+          }
+        }
+        case 'envCheck': {
+          await childProcess.execSync('unzip').toString()
+          // const reqUrl = `http://localhost:3100/paas/api/system/diagnostics`
+          const reqUrl = process.env.platformDomain?.endsWith('/') ?  `${process.env.platformDomain}paas/api/system/diagnostics` : `${process.env.platformDomain}/paas/api/system/diagnostics`;
+          Logger.info(`诊断服务请求日志：${reqUrl}`)
+          // @ts-ignore
+          await axios.post(reqUrl, { action: "init"})
+          
+          return {
+            code: 1,
+            msg: `接口请求域名是：${process.env.platformDomain}`
+          }
+        }
+      }
+    } catch(e) {
+      Logger.info(`诊断服务出错：${e.message}`)
+      return {
+        code: -1,
+        msg: e.message || '未知错误'
+      }
+    }
+  }
 }

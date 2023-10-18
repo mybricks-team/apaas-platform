@@ -16,7 +16,7 @@ import {SettingOutlined, LeftOutlined, InfoCircleOutlined} from '@ant-design/ico
 import {getApiUrl} from '../../../utils'
 import AppCtx, { T_App } from '../../AppCtx'
 import SchemaSetting, {SettingItem} from './schemaSetting'
-import { LogIcon, MonitorIcon, OssIcon } from './icon'
+import { DiagnosticsIcon, LogIcon, MonitorIcon, OssIcon } from './icon'
 import AboutForm from './items/aboutForm'
 import OssForm from './items/ossForm'
 import GlobalForm from './items/globalForm'
@@ -29,6 +29,7 @@ interface MenuItem extends T_App {
 import styles from './index.less'
 import Term from './term'
 import Monitor from './items/monitor'
+import Diagnostics from './items/diagnostics'
 
 interface TabsProps {
   onClick: (e: any) => void
@@ -46,6 +47,7 @@ const SystemConfigItems = [
   { title: '全局设置', namespace: 'system', icon: <SettingOutlined /> },
   { title: '资源存储', namespace: 'mybricks-oss-config', icon: <OssIcon />},
   { title: '运行日志', namespace: 'mybricks-log', icon: <LogIcon />},
+  { title: '系统诊断', namespace: 'mybricks-diagnostics', icon: <DiagnosticsIcon /> },
   { title: '关于', namespace: 'about', icon: <InfoCircleOutlined /> }
 ]
 if(location.href.indexOf('mybricks.world') !== -1 || location.href.indexOf('localhost') !== -1) {
@@ -212,6 +214,11 @@ export default () => {
       case activeKey === 'mybricks-monitor': {
         return (
           <Monitor />
+        )
+      }
+      case activeKey === 'mybricks-diagnostics': {
+        return (
+          <Diagnostics />
         )
       }
       case activeKey === 'about': {
