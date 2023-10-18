@@ -859,7 +859,7 @@ export default class SystemService {
       Logger.info(`诊断服务出错：${e.message}`)
       return {
         code: -1,
-        msg: e.message || '未知错误'
+        msg: (e.message || '未知错误') + `\n后台服务请求域名是: ${process.env.platformDomain}`
       }
     }
   }

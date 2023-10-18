@@ -50,6 +50,7 @@ const filterFileName = [
   'PlatformConfig_demo.json',
   'PlatformConfig_hainiu.json',
   'PlatformConfig_mybricks.json',
+  'ecosystem.config.js',
   'zip_update.js',
   'zip_offline.js',
   'zip_deploy.js'
