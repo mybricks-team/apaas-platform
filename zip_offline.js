@@ -20,8 +20,18 @@ function read (zipFolder, files, dirPath) {
     const file = fs.statSync(fillPath);
     if (file.isDirectory()) {
       const childZipFolder = zipFolder.folder(fileName);
-      const files = fs.readdirSync(fillPath)
-      read(childZipFolder, files, fillPath);
+      const subFiles = fs.readdirSync(fillPath)
+      const filterFiles = []
+      subFiles.forEach(fileName => {
+        if(fileName.endsWith('.xml')) {
+          if(fileName.startsWith('apaas_')) {
+            filterFiles.push(fileName)
+          }
+        } else {
+          filterFiles.push(fileName)
+        }
+      })
+      read(childZipFolder, filterFiles, fillPath);
     } else {
       zipFolder.file(fileName, fs.readFileSync(fillPath));
     }
