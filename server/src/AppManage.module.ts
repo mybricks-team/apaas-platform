@@ -3,8 +3,6 @@ import { Module, OnModuleInit } from "@nestjs/common";
 
 import Task from './task/task';
 import WorkspaceService from "./services/workspace";
-import TaskController from "./services/task.controller";
-import TaskService from "./services/task.service";
 import FileDao from "./dao/FileDao";
 import FileTaskDao from "./dao/FileTaskDao";
 import { loadModule } from "./module-loader";
@@ -61,12 +59,10 @@ const MethodMap = {
     proxy,
     WorkspaceService,
     UserGroupService,
-    TaskController,
     HomeService
   ],
   providers: [
     Task,
-    TaskService,
     SchedulerRegistry,
     FileDao,
     FileTaskDao,

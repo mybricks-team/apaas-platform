@@ -63,6 +63,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
           <p style={{fontSize: 16, fontWeight: 700, marginBottom: 8, marginLeft: -16}}>高级配置</p>
           <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
             <Form.Item
+              style={{ minWidth: '50%' }}
               initialValue=''
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 6 }}
@@ -74,6 +75,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
               }} />
             </Form.Item>
             <Form.Item
+              style={{ minWidth: '50%' }}
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 6 }}
               initialValue=''
@@ -85,6 +87,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
               }} />
             </Form.Item>
             <Form.Item
+              style={{ minWidth: '50%' }}
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 6 }}
               initialValue=''
@@ -96,6 +99,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
               }} />
             </Form.Item>
             <Form.Item
+              style={{ minWidth: '50%' }}
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 6 }}
               initialValue=''
@@ -107,6 +111,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
               }} />
             </Form.Item>
             <Form.Item
+              style={{ minWidth: '50%' }}
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 6 }}
               initialValue=''
