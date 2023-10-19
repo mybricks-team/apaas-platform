@@ -609,7 +609,7 @@ export default class UserController {
                                   <tbody>
                                     <tr>
                                       <td height='50' valign='top'>
-                                        <img border='0' style='display: block' width='100' height='100' src='https://my.mybricks.world/icon.png' />
+                                        <img border='0' style='display: block' width='100' height='100' src="https://my.mybricks.world/icon.png" />
                                       </td>
                                     </tr>
                                     <tr>
