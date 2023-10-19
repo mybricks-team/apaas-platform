@@ -352,7 +352,9 @@ export default class FileController {
 
     Reflect.deleteProperty(file, 'icon');
     if (versions?.[0]?.version) {
-      file.version = versions[0].version
+      const lastVersion = versions[0]
+      file.version = lastVersion.version
+      file.updatorName = lastVersion.creatorName || lastVersion.creatorEmail || lastVersion.creatorId || file.updatorName
     }
 
     return {
