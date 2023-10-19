@@ -4,8 +4,6 @@ import { Module } from "@nestjs/common";
 import Task from './task/task'
 
 import WorkspaceService from "./services/workspace";
-import TaskController from "./services/task.controller";
-import TaskService from "./services/task.service";
 import FileDao from "./dao/FileDao";
 import FileTaskDao from "./dao/FileTaskDao";
 import { loadModule } from "./module-loader";
@@ -54,12 +52,10 @@ import AppModule from "./module/app/app.module";
     proxy,
     WorkspaceService,
     UserGroupService,
-    TaskController,
     HomeService
   ],
   providers: [
     Task,
-    TaskService,
     SchedulerRegistry,
     FileDao,
     FileTaskDao,
