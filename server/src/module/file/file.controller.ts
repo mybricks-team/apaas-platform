@@ -132,16 +132,8 @@ export default class FileController {
   }
 
   @Post("/create")
-  async create(
-    @Body("name") name: string,
-    @Body("creatorId") originCreatorId: string,
-    @Body("creatorName") creatorName: string,
-    @Body("extName") extName: string,
-    @Body("groupId") groupId: number,
-    @Body("description") description: string,
-    @Body("parentId") parentId: number,
-    @Body("icon") icon: string,
-  ) {
+  async create(@Body() body) {
+    const { name, creatorId: originCreatorId, creatorName, extName, groupId, description, parentId, icon } = body;
     const creatorId = await this.userService.getCurrentUserId(originCreatorId);
 
     if(!name || !creatorId || !extName) {
