@@ -5,9 +5,14 @@
 <mapper namespace="material">
     <select id="getMaterials">
         select
-        *
+        material_info.*,
+        if(apaas_user.name is null, material_info.creator_name, apaas_user.name) as creator_name
         from
         material_info
+        left join apaas_user on apaas_user.id = material_info.creator_id
+        <if test="tags">
+            , material_tag_relation
+        </if>
         where
         1 = 1
         <choose>
@@ -36,13 +41,23 @@
             <foreach collection="scopeStatus" item="scope" open="and ( " separator=" or " close=" )" index="index">
                 <choose>
                     <when test="scope == -1">
-                        (creator_id = #{userId})
+                        (material_info.creator_id = #{userId})
                     </when>
                     <otherwise>
                         (material_info.scope_status = #{scope})
                     </otherwise>
                 </choose>
             </foreach>
+        </if>
+        <if test="tags">
+            and material_info.id = material_tag_relation.material_id
+            and material_tag_relation.tag_id in
+            <foreach collection="tags" item="tag" open="( " separator="," close=" )" index="index">
+                #{tag}
+            </foreach>
+        </if>
+        <if test="scene">
+            and scene_id = #{scene}
         </if>
         <if test="keyword">
             and (title like '%${keyword}%' or description like '%${keyword}%' or namespace like '%${keyword}%')
@@ -53,9 +68,12 @@
 
     <select id="getMaterialsTotal">
         select
-        count(*) as total
+        count(material_info.id) as total
         from
         material_info
+        <if test="tags">
+            , material_tag_relation
+        </if>
         where
         1 = 1
         <choose>
@@ -84,13 +102,23 @@
             <foreach collection="scopeStatus" item="scope" open="and ( " separator=" or " close=" )" index="index">
                 <choose>
                     <when test="scope == -1">
-                        (creator_id = #{userId})
+                        (material_info.creator_id = #{userId})
                     </when>
                     <otherwise>
                         (material_info.scope_status = #{scope})
                     </otherwise>
                 </choose>
             </foreach>
+        </if>
+        <if test="tags">
+            and material_info.id = material_tag_relation.material_id
+            and material_tag_relation.tag_id in
+            <foreach collection="tags" item="tag" open="( " separator="," close=" )" index="index">
+                #{tag}
+            </foreach>
+        </if>
+        <if test="scene">
+            and scene_id = #{scene}
         </if>
         <if test="keyword">
             and (title like '%${keyword}%' or description like '%${keyword}%' or namespace like '%${keyword}%')
@@ -116,7 +144,8 @@
         updator_id,
         updator_name,
         update_time,
-        meta
+        meta,
+        scene_id
         )
         <foreach collection="materials" item="item" open="values " separator="," close="" index="index">
             <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -144,6 +173,7 @@
                         '',
                     </otherwise>
                 </choose>
+                #{item.sceneId}
             </trim>
         </foreach>
     </insert>
@@ -184,15 +214,13 @@
     </select>
 
     <select id="getMaterialsByNamespace_Version">
-        select
-        material_pub_info.*,
-        material_info.type,
-        material_info.namespace
-        from
-        material_info, material_pub_info
-        where
-        material_pub_info.material_id = material_info.id
-        and ${query}
+        SELECT material_pub_info.*, material_info.namespace, material_info.type
+        FROM material_pub_info
+        JOIN material_info ON material_pub_info.material_id = material_info.id
+        WHERE
+        <foreach collection="components" item="item" open="" close="" separator=" OR " index="index">
+            (material_info.namespace = #{item.namespace} AND material_pub_info.version = #{item.version})
+        </foreach>
     </select>
 
     <select id="getMaterialPubInfoByIds">
@@ -235,6 +263,12 @@
         </if>
         <if test="nextInfo.scopeStatus != undefined">
             scope_status = #{nextInfo.scopeStatus},
+        </if>
+        <if test="nextInfo.sceneId != undefined">
+            scene_id = #{nextInfo.sceneId},
+        </if>
+        <if test="nextInfo.meta != undefined">
+            meta = #{nextInfo.meta},
         </if>
         update_time = #{nextInfo.updateTime},
         updator_id = #{nextInfo.updatorId},
@@ -413,7 +447,7 @@
         material_info.type,
         material_pub_info.version,
         material_pub_info.creator_id,
-        material_pub_info.creator_name,
+        if(apaas_user.name is null, material_pub_info.creator_name, apaas_user.name) as creator_name,
         material_pub_info.create_time,
         material_pub_info.id as material_pub_id,
         material_pub_info.material_id,
@@ -421,6 +455,7 @@
         from
         material_info,
         material_pub_info
+        left join apaas_user on apaas_user.id = material_pub_info.creator_id
         where
         material_info.id = material_pub_info.material_id
         and material_info.status = 1
@@ -435,5 +470,12 @@
 
     <select id="getMaterialByNamespace">
         select * from material_info where namespace = #{namespace};
+    </select>
+
+    <select id="getMaterialByNamespaces">
+        select * from material_info where namespace in
+        <foreach collection="namespaces" item="item" open="( " separator="," close=" )" index="index">
+            #{item}
+        </foreach>
     </select>
 </mapper>
