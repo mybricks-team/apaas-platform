@@ -741,7 +741,7 @@ export default class SystemService {
 
   @Post("/system/offlineUpdate")
   @UseInterceptors(FileInterceptor('file'))
-  async systemOfflineUpdate(@Req() request, @Body() body, @UploadedFile() file) {
+  async systemOfflineUpdate(@Req() req, @Body() body, @UploadedFile() file) {
     const systemConfig = await this.configService.getConfigByScope(['system'])
     try {
       if(systemConfig?.system?.config?.openConflictDetection) {
@@ -791,6 +791,18 @@ export default class SystemService {
       Logger.info('版本信息开始持久化到本地')
       // 更新本地版本
       this.updateLocalPlatformVersion({ version: pkg.version })
+
+      Logger.info('平台更新成功，准备写入操作日志')
+      await this.userLogDao.insertLog({
+        type: 10,
+        userId: req?.query?.userId,
+        logContent: JSON.stringify({
+          type: 'platform',
+          action: 'install',
+          installType: 'local',
+          content: `离线更新平台更新平台`,
+        })
+      });
 
       Logger.info('开始重启服务')
       // 重启服务

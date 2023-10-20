@@ -32,7 +32,7 @@ const AboutForm = ({ currentPlatformVersion }) => {
 		multiple: false,
 		maxCount: 1,
 		showUploadList: true,
-		action: getApiUrl('/paas/api/system/offlineUpdate'),
+		action: getApiUrl(`/paas/api/system/offlineUpdate?userId=${appCtx.user?.id}`),
 		onChange(info) {
 			const { status } = info.file;
 			console.log(info)
