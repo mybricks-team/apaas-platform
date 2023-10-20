@@ -73,12 +73,11 @@ const AppList: FC<AppListProps> = props => {
 		setType(event.target.value)
 	}, [])
 
-
   const uploadProps = {
 		multiple: false,
 		maxCount: 1,
 		showUploadList: true,
-		action: getApiUrl('/paas/api/apps/offlineUpdate'),
+		action: getApiUrl(`/paas/api/apps/offlineUpdate?userId=${userId}`),
 		onChange(info) {
 			const { status } = info.file;
 			console.log(info)
