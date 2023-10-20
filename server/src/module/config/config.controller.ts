@@ -14,10 +14,9 @@ export default class ConfigService {
 
   @Post("/config/get")
   async getAll(
-    @Body("scope") scope: string[],
-    @Body('type') type: string,
-    @Body('id') id: number,
+    @Body() body
   ) {
+    const { scope, type, id }: { scope: string[], type: string, id: number } = body
     if(scope?.length === 0) return { code: 1, data: {} };
     const allTypes = ['group'];
     const configList = await this.configDao.getConfig({

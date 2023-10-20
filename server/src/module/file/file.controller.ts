@@ -1096,7 +1096,8 @@ export default class FileController {
   }
 
   @Post('/getLatestPub')
-  async getLatestPub(@Body('fileId') fileId: number, @Body('type') type: string) {
+  async getLatestPub(@Body() body) {
+    const { fileId, type }: { fileId: number, type: string } = body;
     if (!fileId) {
       return {
         code: -1,
