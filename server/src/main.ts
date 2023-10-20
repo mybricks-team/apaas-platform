@@ -31,14 +31,18 @@ async function bootstrap() {
     index: false,
     setHeaders: (res, path, stat) => {
       res.set('Access-Control-Allow-Origin', '*');
-    }
+      res.set('Cache-Control', 'max-age=86400000') // 1d
+    },
+    etag: true
   });
   app.useStaticAssets(env.FILE_LOCAL_STORAGE_FOLDER, {
     prefix: `/${env.FILE_LOCAL_STORAGE_PREFIX}`,
     index: false,
     setHeaders: (res, path, stat) => {
       res.set('Access-Control-Allow-Origin', '*');
-    }
+      res.set('Cache-Control', 'max-age=86400000') // 1d
+    },
+    etag: true
   });
   app.use(apiProxyMiddleWare());
   app.use(bodyParser.json({ limit: "100mb" }));

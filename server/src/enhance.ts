@@ -11,7 +11,9 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
         index: false,
         setHeaders: (res, path, stat) => {
           res.set('Access-Control-Allow-Origin', '*');
-        }
+          res.set('Cache-Control', 'max-age=86400000') // 1d
+        },
+        etag: true
       });
     } else {
       app.useStaticAssets(path.join(baseFolder, `/${ns}/assets/`), {
@@ -19,6 +21,7 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
         index: false,
         setHeaders: (res, path, stat) => {
           res.set('Access-Control-Allow-Origin', '*');
+          res.set('Cache-Control', 'max-age=86400000') // 1d
         }
       });
     }
@@ -28,7 +31,9 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
       index: false,
       setHeaders: (res, path, stat) => {
         res.set('Access-Control-Allow-Origin', '*');
-      }
+        res.set('Cache-Control', 'max-age=86400000') // 1d
+      },
+      etag: true
     });
   })
 }
