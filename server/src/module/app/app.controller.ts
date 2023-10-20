@@ -442,7 +442,7 @@ export default class AppController {
             installType: 'local',
             namespace: pkg.name || '未知namespace',
             name: pkg?.mybricks?.title || '未知title',
-            content: `更新应用：${pkg?.mybricks?.title} 离线安装成功`,
+            content: `更新应用：${pkg?.mybricks?.title}，离线安装成功`,
           }
         ) 
       });
