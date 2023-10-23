@@ -823,7 +823,6 @@ export default class SystemService {
     } catch(e) {
       Logger.info('错误信息是')
       Logger.info(e.message)
-      console.log(e)
       fse.removeSync(tempFolder)
     }
     

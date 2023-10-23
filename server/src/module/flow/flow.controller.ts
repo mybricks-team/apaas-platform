@@ -342,7 +342,7 @@ export default class FlowController {
 
       return { code: 1, msg: '删除成功' };
     } catch(e) {
-      console.log(e);
+      Logger.info(e)
       return { code: -1, msg: '删除失败，请重试' };
     }
   }
