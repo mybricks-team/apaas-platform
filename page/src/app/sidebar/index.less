@@ -1,3 +1,5 @@
+@import url('../../theme.less');
+
 .sidebar {
   min-width: 280px;
   max-width: 280px;
@@ -45,9 +47,11 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    padding: 10px 0 20px 0;
+    padding: 10px 0 10px 0;
 
     .catelog {
+      .scrollbar();
+
       &:not(:first-child) {
         border-top: 1px solid #EEE;
       }
@@ -59,7 +63,7 @@
         flex-direction: column;
   
         .menuItem {
-          overflow: hidden;
+          // overflow: hidden;
           border-radius: 4px;
           cursor: pointer;
           color: #5c6066;

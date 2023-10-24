@@ -87,7 +87,7 @@ export default function Sidebar({ logo }) {
         <Catelog style={{ flex: '1 0 auto', height: 0, overflow: 'hidden' }}>
           <PlatformMenu />
         </Catelog>
-        <Catelog style={{ marginTop: 'auto' }}>
+        <Catelog style={{ marginTop: 'auto', maxHeight: 'calc(100vh - 400px)', overflow: 'scroll'}} >
           <SystemMenus />
         </Catelog>
       </div>
