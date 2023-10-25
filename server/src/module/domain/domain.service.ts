@@ -11,7 +11,7 @@ export default class DomainService {
     this.uploadService = new UploadService();
   }
 
-  async batchCreateService({ fileId, serviceContentList, projectId }, { domainName }) {
+  async batchCreateService({ fileId, serviceContentList, projectId }) {
     let folderPath = `/project/${fileId}`;
     if(projectId) {
       if(fileId) {
@@ -30,14 +30,8 @@ export default class DomainService {
         });
       }),
     );
-    if (
-      Array.isArray(cdnList) &&
-      cdnList.length &&
-      !cdnList.some((url) => !url)
-    ) {
-      return cdnList?.map((subPath) => {
-        return `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`
-      })
+    if (Array.isArray(cdnList) && cdnList.length && !cdnList.some((url) => !url)) {
+      return cdnList?.map(subPath => `/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`)
     }
   }
 }

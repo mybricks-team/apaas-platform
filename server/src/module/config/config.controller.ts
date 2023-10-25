@@ -13,10 +13,9 @@ export default class ConfigService {
   }
 
   @Post("/config/get")
-  async getAll(
-    @Body() body
-  ) {
-    const { scope, type, id }: { scope: string[], type: string, id: number } = body
+  async getAll(@Body() body: { scope: string[]; type: string; id: number }) {
+    const { scope, type, id } = body;
+
     if(scope?.length === 0) return { code: 1, data: {} };
     const allTypes = ['group'];
     const configList = await this.configDao.getConfig({
@@ -43,13 +42,8 @@ export default class ConfigService {
   }
 
   @Post("/config/update")
-  async updateConfig(
-    @Body("userId") originUserId: string,
-    @Body("config") config: any,
-    @Body("namespace") namespace: string,
-    @Body('type') type: string,
-    @Body('id') id: number,
-  ) {
+  async updateConfig(@Body() body: { userId: string; config: any; namespace: string; type: string; id: number }) {
+    const { userId: originUserId, config, namespace, type, id } = body;
     const userId = await this.userService.getCurrentUserId(originUserId);
     const user = await this.userService.queryById({ id: userId });
     const curNamespace = type ? `${namespace}@${type}[${id}]` : namespace;

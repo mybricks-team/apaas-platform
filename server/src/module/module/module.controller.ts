@@ -309,7 +309,8 @@ export default class ModuleController {
   }
 
   @Post('/getLatestFileList')
-  async getLatestFileList(@Body('moduleId') moduleId: number, @Body('parentId') parentId: number) {
+  async getLatestFileList(@Body() body: { moduleId: number; parentId: number }) {
+    const { moduleId, parentId } = body;
 
     if (!moduleId) {
       return { code: 0, message: '参数 moduleId 不能为空' };

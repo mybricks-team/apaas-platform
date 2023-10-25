@@ -1,6 +1,5 @@
-import {Body, Controller, Get, Inject, Post, Query, Request,} from '@nestjs/common';
+import {Body, Controller, Get, Post, Query, Request,} from '@nestjs/common';
 import DomainService from './domain.service';
-import {getRealDomain} from '../../utils/index'
 // @ts-ignore
 import {createVM} from 'vm-node';
 import FileDao from '../../dao/FileDao';
@@ -27,35 +26,21 @@ export default class DomainController {
   
   // 模块安装时，发布到运行容器
   @Post('/service/batchCreate')
-  async batchCreateService(
-    @Body('fileId') fileId: number,
-    @Body('projectId') projectId: number,
-    @Body('serviceContentList') serviceContentList: {id: string, code: string}[],
-    @Request() request,
-  ) {
-    const domainName = getRealDomain(request)
+  async batchCreateService(@Body() body) {
+		const { fileId, projectId, serviceContentList } = body;
     if(!fileId || !serviceContentList) {
-      return {
-        code: -1,
-        msg: 'fileId 或 serviceContent 为空'
-      }
+      return { code: -1, msg: 'fileId 或 serviceContent 为空' };
     }
     try {
       const cdnList = await this.domainService.batchCreateService({
         fileId,
         projectId,
         serviceContentList
-      }, { domainName })
+      })
       
-      return {
-        code: 1,
-        data: cdnList
-      }
+      return { code: 1, data: cdnList };
     } catch (err) {
-      return {
-        code: -1,
-        msg: err.message || '出错了'
-      }
+      return { code: -1, msg: err.message || '出错了' };
     }
   }
 
