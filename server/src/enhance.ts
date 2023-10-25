@@ -11,7 +11,10 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
         index: false,
         setHeaders: (res, path, stat) => {
           res.set('Access-Control-Allow-Origin', '*');
-        }
+          res.set('Cache-Control', 'max-age=86400000') // 1d
+        },
+        etag: true,
+        lastModified: true,
       });
     } else {
       app.useStaticAssets(path.join(baseFolder, `/${ns}/assets/`), {
@@ -19,7 +22,10 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
         index: false,
         setHeaders: (res, path, stat) => {
           res.set('Access-Control-Allow-Origin', '*');
-        }
+          res.set('Cache-Control', 'max-age=86400000') // 1d
+        },
+        etag: true,
+        lastModified: true,
       });
     }
     // 静态资源hash规范，也支持直接访问
@@ -28,7 +34,10 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
       index: false,
       setHeaders: (res, path, stat) => {
         res.set('Access-Control-Allow-Origin', '*');
-      }
+        res.set('Cache-Control', 'max-age=86400000') // 1d
+      },
+      etag: true,
+      lastModified: true,
     });
   })
 }

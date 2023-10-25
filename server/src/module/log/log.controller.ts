@@ -83,7 +83,6 @@ export default class LogsController {
       }
     }
     const list = fs.readdirSync(env.FILE_ANALYSIS_PERFORMANCE_FOLDER)
-    console.log(list)
     const data = [];
     list.forEach((item) => {
       if(item?.indexOf('.json') !== -1) {
@@ -111,7 +110,6 @@ export default class LogsController {
       const fileData = fs.readFileSync(filePath, 'utf-8')
       const data = JSON.parse(fileData);
       let averageCost = 0;
-      // console.log(data)
       const map = {}
       for(let api of data) {
         if(!map[api.url]) {

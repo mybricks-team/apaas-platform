@@ -70,6 +70,7 @@ export const sendEmail = (mailOptions: MailOption) => {
 			}
 		} catch (e) {
 			console.log('邮件发送错误：' + e.message);
+			Logs.info('邮件发送错误：' + e.message);
 			reject('邮件发送错误：' + e.message);
 		}
 	});

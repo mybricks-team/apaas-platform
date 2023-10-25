@@ -370,7 +370,7 @@ export default class AppController {
 
   @Post("/offlineUpdate")
   @UseInterceptors(FileInterceptor('file'))
-  async appOfflineUpdate(@Req() request, @Body() body, @UploadedFile() file) {
+  async appOfflineUpdate(@Req() req, @Body() body, @UploadedFile() file) {
     const systemConfig = await this.configService.getConfigByScope(['system'])
     try {
       if(systemConfig?.system?.config?.openConflictDetection) {
@@ -432,6 +432,20 @@ export default class AppController {
       Logger.info('[offlineUpdate]: 版本信息开始持久化到本地')
       // 更新本地版本
       this.updateLocalAppVersion({ namespace: pkg.name, version: pkg.version, installType: 'local' })
+
+      Logger.info('平台更新成功，准备写入操作日志')
+      await this.userLogDao.insertLog({ type: 9, userId: req?.query?.userId,
+        logContent: JSON.stringify(
+          {
+            action: 'install',
+            type: 'application',
+            installType: 'local',
+            namespace: pkg.name || '未知namespace',
+            name: pkg?.mybricks?.title || '未知title',
+            content: `更新应用：${pkg?.mybricks?.title}，离线安装成功`,
+          }
+        )
+      });
 
       Logger.info('[offlineUpdate]: 开始重启服务')
       // 重启服务
