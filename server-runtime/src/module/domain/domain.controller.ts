@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import DomainService from './domain.service';
 import UploadService from '../upload/upload.service';
-import {decrypt, encrypt} from "../../utils/crypto";
+import {decrypt, encrypt, crypto} from '../../utils/crypto';
 import SessionService from '../session/session.service';
 const path = require('path');
 const env = require('../../../env.js')
@@ -112,6 +112,7 @@ export default class FlowController {
         /** 加密函数 */
         encrypt,
         decrypt,
+        crypto,
       })
       console.log('运行容器：运行完毕')
       /** _CUSTOM_=true 自定义返回值 */
@@ -174,6 +175,7 @@ export default class FlowController {
         /** 加密函数 */
         encrypt,
         decrypt,
+        crypto,
       })
       console.log('运行容器：运行完毕')
       /** _CUSTOM_=true 自定义返回值 */
@@ -235,6 +237,7 @@ export default class FlowController {
         /** 加密函数 */
         encrypt,
         decrypt,
+        crypto,
       })
       console.log('运行容器：运行完毕')
       /** _CUSTOM_=true 自定义返回值 */
@@ -300,6 +303,7 @@ export default class FlowController {
         /** 加密函数 */
         encrypt,
         decrypt,
+        crypto,
       })
       console.log('运行容器：运行完毕')
       /** _CUSTOM_=true 自定义返回值 */
@@ -363,6 +367,7 @@ export default class FlowController {
         /** 加密函数 */
         encrypt,
         decrypt,
+        crypto,
       })
       console.log('运行容器：运行完毕')
       /** _CUSTOM_=true 自定义返回值 */
