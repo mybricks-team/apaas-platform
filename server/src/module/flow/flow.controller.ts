@@ -31,34 +31,25 @@ export default class FlowController {
   // 模块安装时，发布到运行容器
   @Post('/file/batchCreate')
   async batchCreateProjectFile(
-    @Body('projectId') projectId: number,
-    @Body('envType') envType: number,
-    @Body('codeStrList') codeStrList: {fileId: number, fileName: string, content: string}[],
+    @Body() body: { projectId: number; envType: any; codeStrList: {fileId: number, fileName: string, content: string}[]; },
     @Request() request,
   ) {
-    const domainName = getRealDomain(request)
+    const { projectId, envType, codeStrList } = body;
+    const domainName = getRealDomain(request);
     if(!codeStrList) {
-      return {
-        code: -1,
-        msg: 'fileId 或 codeStrList 为空'
-      }
+      return { code: -1, msg: 'fileId 或 codeStrList 为空' };
     }
+
     try {
       const cdnList = await this.flowService.batchCreateProjectFile({
         projectId,
         envType,
         codeStrList
-      }, { domainName })
+      }, { domainName });
       
-      return {
-        code: 1,
-        data: cdnList
-      }
+      return { code: 1, data: cdnList };
     } catch (err) {
-      return {
-        code: -1,
-        msg: err.message || '出错了'
-      }
+      return { code: -1, msg: err.message || '出错了' };
     }
   }
 
@@ -125,14 +116,17 @@ export default class FlowController {
 
   @Post('/saveFile')
   @UseInterceptors(FileInterceptor('file'))
-  async saveFile(@Request() request, @Body() body, @UploadedFile() file) {
-    const domainName = body?.domainName || getRealDomain(request)
-    Logger.info(`[API][/paas/api/flow/saveFile]saveFile请求头是: ${domainName}`)
+  async saveFile(@Body() body, @Request() request, @UploadedFile() uploadFile) {
+    const { noHash, folderPath } = body;
+    const domainName = body?.domainName || getRealDomain(request);
+    const file = uploadFile || body.file;
+    Logger.info(`[API][/paas/api/flow/saveFile]saveFile请求头是: ${domainName}`);
+
     try {
       const subPath = await this.flowService.saveFile({
         str: file.buffer,
-        filename: body.noHash ? file.originalname : `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
-        folderPath: body.folderPath
+        filename: noHash ? file.originalname : `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
+        folderPath: folderPath
       });
       return {
         data: {

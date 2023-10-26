@@ -150,6 +150,7 @@ export function getRealHostName(requestHeaders) {
 }
 
 export function getRealDomain(request) {
+  if (!request) { return ''; }
   const { origin } = request.headers
   if (origin) return origin
   let hostName = getRealHostName(request.headers);
