@@ -276,6 +276,17 @@ export default class AppController {
     );
 
     Logger.info("准备应用成功, 开始安装应用");
+
+    const serverModulePath = path.join(
+      env.getAppInstallFolder(),
+      `./${installPkgName}/nodejs/index.module.ts`
+    );
+    if (fs.existsSync(serverModulePath)) {
+      if(!remoteAppInstallInfo?.noServiceUpdate) {
+        logInfo += ', 服务已更新'
+      }
+    }
+
     try {
       const logStr = childProcess.execSync("node installApplication.js", {
         cwd: path.join(process.cwd()) // 不能inherit输出
@@ -307,10 +318,6 @@ export default class AppController {
       await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'success' }) });
     }
     try {
-      const serverModulePath = path.join(
-        env.getAppInstallFolder(),
-        `./${installPkgName}/nodejs/index.module.ts`
-      );
       if (fs.existsSync(serverModulePath)) {
         if(remoteAppInstallInfo?.noServiceUpdate) {
           Logger.info("有service，但是未更新服务端，无需重启");
@@ -442,7 +449,7 @@ export default class AppController {
             installType: 'local',
             namespace: pkg.name || '未知namespace',
             name: pkg?.mybricks?.title || '未知title',
-            content: `更新应用：${pkg?.mybricks?.title}，离线安装成功`,
+            content: `更新应用：${pkg?.mybricks?.title}，离线安装成功，服务已更新`,
           }
         )
       });
