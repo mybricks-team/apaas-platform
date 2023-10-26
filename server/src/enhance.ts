@@ -11,7 +11,7 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
         index: false,
         setHeaders: (res, path, stat) => {
           res.set('Access-Control-Allow-Origin', '*');
-          if(path?.indexOf('index.html') === -1){
+          if(path?.indexOf('.html') === -1){
             res.set('Cache-Control', 'max-age=86400000') // 1d
           }
         },
@@ -23,7 +23,7 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
         prefix: `/${ns}`,
         index: false,
         setHeaders: (res, path, stat) => {
-          if(path?.indexOf('index.html') === -1){
+          if(path?.indexOf('.html') === -1){
             res.set('Cache-Control', 'max-age=86400000') // 1d
           }
           res.set('Access-Control-Allow-Origin', '*');
@@ -38,7 +38,7 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
       index: false,
       setHeaders: (res, path, stat) => {
         res.set('Access-Control-Allow-Origin', '*');
-        if(path?.indexOf('index.html') === -1) {
+        if(path?.indexOf('.html') === -1) {
           res.set('Cache-Control', 'max-age=86400000') // 1d
         }
       },
