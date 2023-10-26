@@ -149,6 +149,32 @@ export default class FlowController {
     }
   }
 
+  @Post('/saveProducts')
+  @UseInterceptors(FileInterceptor('file'))
+  async saveProducts(@Body() body, @UploadedFile() file) {
+    const { fileId, type, version, content } = body
+    Logger.info(`[API][/paas/api/flow/saveProducts] 请求是: ${fileId}-${type}-${version}`)
+    try {
+      const subPath = await this.flowService.saveFile({
+        str: file?.buffer || content,
+        filename: `${fileId}.zip`,
+        folderPath: path.join(env.FILE_APP_PRODUCTS_FOLDER_PREFIX, `./${fileId}/${type}/${version}`)
+      });
+      return {
+        code: 1,
+        data: {
+          subPath,
+        },
+      };
+    } catch (err) {
+      Logger.info(`[API][/paas/api/flow/saveProducts]错误是: ${err.message}`)
+      return {
+        code: -1,
+        msg: `上传失败: ${err.message}`,
+      };
+    }
+  }
+
   @Post('/saveFiles')
   @UseInterceptors(FilesInterceptor('files[]'))
   async saveFiles(@Request() request, @Body() body, @UploadedFiles() file) {
