@@ -98,9 +98,7 @@ export default class FileController {
   }
 
   @Post('/delete')
-  async deleteFile(
-    @Body() body,
-  ) {
+  async deleteFile(@Body() body) {
     const { fileId, updatorId: originUpdatorId }: { fileId: number, updatorId: number | string } = body;
     const updatorId = await this.userService.getCurrentUserId(originUpdatorId);
     if(!fileId || !updatorId) {
@@ -1545,9 +1543,7 @@ export default class FileController {
   }
 
   @Post('/updateDeliveryChannel')
-  async updateFile(
-    @Body() body,
-  ) {
+  async updateFile(@Body() body) {
     const { id, deliveryChannel }: { id: number, deliveryChannel: string } = body;
     if (!id) {
       Logger.info(`[updateDeliveryChannel]: 缺少参数`);
