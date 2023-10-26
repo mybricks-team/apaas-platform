@@ -31,7 +31,9 @@ async function bootstrap() {
     index: false,
     setHeaders: (res, path, stat) => {
       res.set('Access-Control-Allow-Origin', '*');
-      res.set('Cache-Control', 'max-age=86400000') // 1d
+      if(path?.indexOf('.js') > -1){
+        res.set('Cache-Control', 'max-age=86400000') // 1d
+      }
     },
     etag: true,
     lastModified: true,

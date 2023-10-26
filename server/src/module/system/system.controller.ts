@@ -644,7 +644,7 @@ export default class SystemService {
                 installType: 'oss',
                 preVersion: prePlatformVersion,
                 version,
-                content: `更新平台，版本从 ${prePlatformVersion} 到 ${version}`,
+                content: `更新平台，版本从 ${prePlatformVersion} 到 ${version}, 服务已更新`,
               })
             });
             if(systemConfig?.system?.config?.openConflictDetection) {
@@ -800,7 +800,7 @@ export default class SystemService {
           type: 'platform',
           action: 'install',
           installType: 'local',
-          content: `离线更新平台更新平台`,
+          content: `离线更新平台更新平台, 服务已更新`,
         })
       });
 
