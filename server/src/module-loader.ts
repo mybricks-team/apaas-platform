@@ -77,6 +77,10 @@ export function loadModule() {
             }
             namespace = namespace.concat(data.namespace);
           } catch(e) {
+            if(!global.MYBRICKS_PLATFORM_START_ERROR) {
+              global.MYBRICKS_PLATFORM_START_ERROR = ''
+            }
+            global.MYBRICKS_PLATFORM_START_ERROR += `\n 模块 ${childPath} 加载失败 \n 错误详情是：${e.message}`;
             Logger.info(`模块加载失败, 准备跳过：${e.message}`)
             continue;
           }
@@ -84,6 +88,10 @@ export function loadModule() {
       }
     }
   } catch(e) {
+    if(!global.MYBRICKS_PLATFORM_START_ERROR) {
+      global.MYBRICKS_PLATFORM_START_ERROR = ''
+    }
+    global.MYBRICKS_PLATFORM_START_ERROR += `\n 错误详情是：${e.message}`;
     Logger.info(`模块加载失败：${e.message}`)
   }
   const res = {
