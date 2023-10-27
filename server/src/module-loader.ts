@@ -86,11 +86,12 @@ export function loadModule() {
   } catch(e) {
     Logger.info(`模块加载失败：${e.message}`)
   }
-  return {
+  const res = {
     modules,
     namespace,
     middleware,
     interceptor,
     namespaceMap
   };
+  return res
 }

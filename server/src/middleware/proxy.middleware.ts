@@ -33,6 +33,16 @@ export const proxyMiddleWare = (query: { namespaceMap: any }) => {
   return (req: Request, res: Response, next: NextFunction) => {
     let handleUrl = req.url;
     let jumpPaas = false;
+
+    let customPrefixList = Object.keys(global.MYBRICKS_MODULE_CUSTOM_PATH || {})
+    customPrefixList?.forEach((prefix) => {
+      if(req?.path?.startsWith(prefix)) {
+        console.log('自定义业务接口：', req?.path)
+        next()
+        return
+      }
+    })
+
     appRegs.forEach(({reg, namespace}) => {
       if (reg.test(handleUrl)) {
         jumpPaas = true;
