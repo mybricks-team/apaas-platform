@@ -441,7 +441,7 @@ export default class AppController {
       this.updateLocalAppVersion({ namespace: pkg.name, version: pkg.version, installType: 'local' })
 
       Logger.info('平台更新成功，准备写入操作日志')
-      await this.userLogDao.insertLog({ type: 9, userId: req?.query?.userId, 
+      await this.userLogDao.insertLog({ type: 9, userId: req?.query?.userId,
         logContent: JSON.stringify(
           {
             action: 'install',
@@ -451,7 +451,7 @@ export default class AppController {
             name: pkg?.mybricks?.title || '未知title',
             content: `更新应用：${pkg?.mybricks?.title}，离线安装成功，服务已更新`,
           }
-        ) 
+        )
       });
 
       Logger.info('[offlineUpdate]: 开始重启服务')

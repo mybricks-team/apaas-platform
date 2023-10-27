@@ -449,7 +449,7 @@ export default class WorkspaceService {
 
 
   @Post("/workspace/publish")
-  async publish(@Body() body, @Req() request: RequestType) {
+  async publish(@Body() body) {
     try {
       let {
         extName,

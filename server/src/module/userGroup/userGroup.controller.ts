@@ -17,14 +17,11 @@ export default class GroundService {
 
   @Get("/getUserGroup")
   async getUserGroup(@Query() query) {
-    const { id } = query
+    const { id } = query;
 
-    const userGroup = await this.userGroupDao.queryById({id})
+    const userGroup = await this.userGroupDao.queryById({ id });
 
-    return {
-      code: 1,
-      data: userGroup
-    }
+    return { code: 1, data: userGroup };
   }
 
   @Get("/getUser")

@@ -113,6 +113,7 @@ export default class UserController {
   async queryBy(@Query() query) {
     if (query.email) {
       const user = await this.userDao.queryByEmail({ email: query.email });
+
       if (user) {
         return {
           code: 1,
@@ -128,16 +129,10 @@ export default class UserController {
           ],
         };
       } else {
-        return {
-          code: 1,
-          data: null,
-        };
+        return { code: 1, data: null };
       }
     } else {
-      return {
-        code: -1,
-        msg: `email is null`,
-      };
+      return { code: -1, msg: 'email is null' };
     }
   }
 
@@ -372,20 +367,16 @@ export default class UserController {
    * 已登录用户
    */
   @Post('/signed')
-  async signed(
-    @Headers('username') us: string, 
-    @Request() request, @Body() body,
-    @Body('HAINIU_UserInfo') HAINIU_UserInfo: string,
-  ) {
+  async signed(@Body() body, @Headers('username') us: string, @Request() request) {
     try {
-
-      const { fileId } = body
+      const { fileId, HAINIU_UserInfo } = body;
       let userEmail;
+
       if(us) {
         userEmail = `${us}@kuaishou.com`;
       } else {
-        if(request.cookies?.['mybricks-login-user']) {
-          const userCookie = JSON.parse(request.cookies?.['mybricks-login-user'])
+        if(request?.cookies?.['mybricks-login-user']) {
+          const userCookie = JSON.parse(request?.cookies?.['mybricks-login-user'])
           userEmail = userCookie?.email
           // 单点
           if(userCookie?.fingerprint) {

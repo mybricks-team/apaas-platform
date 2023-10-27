@@ -98,10 +98,8 @@ export default class FileController {
   }
 
   @Post('/delete')
-  async deleteFile(
-    @Body("fileId") fileId: number,
-    @Body("updatorId") originUpdatorId: string,
-  ) {
+  async deleteFile(@Body() body) {
+    const { fileId, updatorId: originUpdatorId }: { fileId: number, updatorId: number | string } = body;
     const updatorId = await this.userService.getCurrentUserId(originUpdatorId);
     if(!fileId || !updatorId) {
       return {
@@ -112,7 +110,8 @@ export default class FileController {
   
     try {
       const file = await this.fileDao.queryById(fileId)
-      if(!file || file.creatorId !== updatorId) {
+      // 别写全不等
+      if(!file || file.creatorId != updatorId) {
         return {
           code: -1,
           msg: '删除失败，您没有此文件权限'
@@ -132,16 +131,8 @@ export default class FileController {
   }
 
   @Post("/create")
-  async create(
-    @Body("name") name: string,
-    @Body("creatorId") originCreatorId: string,
-    @Body("creatorName") creatorName: string,
-    @Body("extName") extName: string,
-    @Body("groupId") groupId: number,
-    @Body("description") description: string,
-    @Body("parentId") parentId: number,
-    @Body("icon") icon: string,
-  ) {
+  async create(@Body() body) {
+    const { name, creatorId: originCreatorId, creatorName, extName, groupId, description, parentId, icon } = body;
     const creatorId = await this.userService.getCurrentUserId(originCreatorId);
 
     if(!name || !creatorId || !extName) {
@@ -207,10 +198,9 @@ export default class FileController {
 
   @Post("/rename")
   async rename(
-    @Body("id") id: number,
-    @Body("name") name: string,
-    @Body("userId") userId: string,
+    @Body() body,
   ) {
+    const { id, name, userId }: { id: number, name: string, userId: string | number } = body;
     const user = await this.userDao.queryById({ id: userId })
     const result = await this.fileDao.update({ id, name, updatorId: user.id, updatorName: user.name })
 
@@ -874,7 +864,8 @@ export default class FileController {
   }
 
   @Get("/getParentModuleAndProjectInfo")
-  async getParentModuleAndProjectInfo(@Query('id') id: number) {
+  async getParentModuleAndProjectInfo(@Query() query) {
+    const { id } = query;
     if (!id) {
       return {
         code: -1,
@@ -1087,7 +1078,8 @@ export default class FileController {
   }
 
   @Post('/getLatestSave')
-  async getLatestSave(@Body('fileId') fileId: number) {
+  async getLatestSave(@Body() body) {
+    const { fileId }: { fileId: number } = body;
     if (!fileId) {
       return {
         code: -1,
@@ -1104,7 +1096,8 @@ export default class FileController {
   }
 
   @Post('/getLatestPub')
-  async getLatestPub(@Body('fileId') fileId: number, @Body('type') type: string) {
+  async getLatestPub(@Body() body) {
+    const { fileId, type }: { fileId: number, type: string } = body;
     if (!fileId) {
       return {
         code: -1,
@@ -1120,10 +1113,9 @@ export default class FileController {
 
   @Post('/moveFile')
   async moveFile(
-    @Body('fileId') fileId: number,
-    @Body('toGroupId') toGroupId: string,
-    @Body('toFileId') toFileId: number,
+    @Body() body
   ) {
+    const { fileId, toGroupId, toFileId }: { fileId: number, toGroupId: string, toFileId: number} = body;
     const res = await this.fileService.moveFile({
       fileId,
       toFileId,
@@ -1216,13 +1208,16 @@ export default class FileController {
 
   @Post('/publish/batchCreateService')
   async batchCreateServicePublish(
-    @Body('fileId') fileId: number,
-    @Body('filePubId') filePubId: number,
-    @Body('projectId') projectId: number,
-    @Body('serviceContentList') serviceContentList: any[],
-    @Body('env') env: string,
-    @Body('creatorName') creatorName: string
+    @Body() body
   ) {
+    const { fileId, filePubId, projectId, serviceContentList, env, creatorName }: {
+      fileId: number,
+      filePubId: number,
+      projectId: number,
+      serviceContentList: any[],
+      env: string,
+      creatorName: string
+    } = body;
     try {
       if (!fileId || !serviceContentList) {
         return {
@@ -1345,7 +1340,8 @@ export default class FileController {
   }
 
   @Get('/getModuleComponentsByProjectId')
-  async getModuleComponentsByProjectId(@Query('id') id: number, @Query('extName') extName: string) {
+  async getModuleComponentsByProjectId(@Query() query) {
+    const { id, extName } = query;
     if (!id) {
       return {
         code: 1,
@@ -1386,7 +1382,8 @@ export default class FileController {
   }
 
   @Get('/getModuleHtmlByProjectId')
-  async getModulesByProjectId(@Query('id') id: number) {
+  async getModulesByProjectId(@Query() query) {
+    const { id } = query;
     let modules = []
 
     if (id) {
@@ -1432,7 +1429,8 @@ export default class FileController {
    * @returns
    */
   @Get('getProjectFilesByProjectId')
-  async getModuleFilesByProjectId(@Query('id') id: number, @Query('extNames') extNames?: string) {
+  async getModuleFilesByProjectId(@Query() query) {
+    const { id, extNames } = query;
     if (!id || (!!extNames && (!extNames?.split || !Array.isArray(extNames.split(','))))) {
       return {
         code: -1,
@@ -1484,7 +1482,8 @@ export default class FileController {
   }
 
   @Post('/share/mark')
-  async shareMark(@Body('id') id: number, @Body('userId') userId: string) {
+  async shareMark(@Body() body) {
+    const { id, userId }: { id: number, userId: string } = body;
     if (!id || !userId) {
       return {
         code: -1,
@@ -1504,7 +1503,8 @@ export default class FileController {
 
 
   @Post('/share/unmark')
-  async shareUnmark(@Body('id') id: number, @Body('userId') userId: string) {
+  async shareUnmark(@Body() body) {
+    const { id, userId }: { id: number, userId: string } = body;
     if (!id || !userId) {
       return {
         code: -1,
@@ -1524,7 +1524,8 @@ export default class FileController {
   }
 
   @Post('/getCountOfUserAndExt')
-  async getCountOfUserAndExt(@Body('userId') userId: string, @Body('extName') extName: string) {
+  async getCountOfUserAndExt(@Body() body) {
+    const { userId, extName }: { userId: string, extName: string } = body;
     if (!userId || !extName) {
       return {
         code: -1,
@@ -1542,10 +1543,8 @@ export default class FileController {
   }
 
   @Post('/updateDeliveryChannel')
-  async updateFile(
-    @Body('id') id: number,
-    @Body('deliveryChannel') deliveryChannel: string
-  ) {
+  async updateFile(@Body() body) {
+    const { id, deliveryChannel }: { id: number, deliveryChannel: string } = body;
     if (!id) {
       Logger.info(`[updateDeliveryChannel]: 缺少参数`);
       return {

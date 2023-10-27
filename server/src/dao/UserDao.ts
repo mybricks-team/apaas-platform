@@ -158,7 +158,7 @@ export default class UserDao extends DOBase {
 
   @Mapping(UserDO)
   public async queryById(params: {
-    id: string
+    id: string | number
   }): Promise<UserDO> {
     params = Object.assign({status: 1}, params)
 
