@@ -351,4 +351,28 @@
         </if>
         order by material_scene.order ASC
     </select>
+
+    <insert id="bulkInsertScene">
+        insert into material_scene
+        (
+        title,
+        material_scene.order,
+        type,
+        creator_id,
+        create_time,
+        updator_id,
+        update_time
+        )
+        <foreach collection="scenes" item="item" open="values " separator="," close="" index="index">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.title},
+                #{item.order},
+                #{item.type},
+                #{item.creator_id},
+                #{item.create_time},
+                #{item.creator_id},
+                #{item.create_time}
+            </trim>
+        </foreach>
+    </insert>
 </mapper>

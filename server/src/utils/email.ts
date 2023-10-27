@@ -69,6 +69,7 @@ export const sendEmail = (mailOptions: MailOption) => {
 				reject('邮件发送错误：' + JSON.stringify(body));
 			}
 		} catch (e) {
+			console.log('邮件发送错误：' + e.message);
 			Logs.info('邮件发送错误：' + e.message);
 			reject('邮件发送错误：' + e.message);
 		}

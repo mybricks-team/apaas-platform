@@ -449,7 +449,7 @@ export default class WorkspaceService {
 
 
   @Post("/workspace/publish")
-  async publish(@Body() body, @Req() request: RequestType) {
+  async publish(@Body() body) {
     try {
       let {
         extName,
@@ -737,11 +737,12 @@ export default class WorkspaceService {
         fileContentId: filePub.fileContentId,
         commitInfo: `由 ${filePub.version} 版本回滚`,
       });
-      let pubAssetSubUrl = ''
+      let pubAssetSubUrl = '', pubAssetFilePath = '';
       const rawPath = path.join(env.FILE_APP_PRODUCTS_FOLDER, `./${filePub.fileId}/${filePub.type}/${filePub.version}/${filePub.fileId}.zip`)
       console.log('raw', rawPath)
       if(fs.existsSync(rawPath)) {
         pubAssetSubUrl = path.join(`./${env.FILE_LOCAL_STORAGE_PREFIX}/${env.FILE_APP_PRODUCTS_FOLDER_PREFIX}`, `./${filePub.fileId}/${filePub.type}/${filePub.version}/${filePub.fileId}.zip`)
+        pubAssetFilePath = rawPath;
       }
 
       return { 
@@ -750,6 +751,7 @@ export default class WorkspaceService {
         data: {
           filePubId: id,
           type: filePub.type,
+          pubAssetFilePath,
           rawVersion: filePub.version,
           nowVersion: nextVersion,
           fileId: filePub.fileId,

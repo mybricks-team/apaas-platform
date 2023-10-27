@@ -1,15 +1,5 @@
-import React, {
-  useEffect,
-} from 'react'
-import {
-  Form,
-  Input,
-  Button,
-  message,
-  Switch,
-  Popover,
-  Upload
-} from 'antd'
+import React, { useEffect } from 'react'
+import { Button, Form, Input, Select, Switch } from 'antd'
 import styles from '../index.less'
 
 const OssForm = ({ initialValues, onSubmit, style }) => {
