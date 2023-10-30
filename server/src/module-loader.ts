@@ -80,8 +80,9 @@ export function loadModule() {
             if(!global.MYBRICKS_PLATFORM_START_ERROR) {
               global.MYBRICKS_PLATFORM_START_ERROR = ''
             }
-            global.MYBRICKS_PLATFORM_START_ERROR += `\n 模块 ${childPath} 加载失败 \n 错误详情是：${e.message}`;
+            global.MYBRICKS_PLATFORM_START_ERROR += `\n 模块 ${childPath} 加载失败 \n 错误是：${e.message} \n 详情是: ${e?.stack?.toString()}`;
             Logger.info(`模块加载失败, 准备跳过：${e.message}`)
+            Logger.info(`错误详情是: ${e?.stack?.toString()}`)
             continue;
           }
         }
