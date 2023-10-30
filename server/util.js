@@ -68,12 +68,16 @@ function injectAjaxScript({ namespace }) {
 
 function injectAppConfigScript(appConfig) {
   const rawStr = `
-    var _APP_CONFIG_ = ${JSON.stringify(appConfig)}
+    try {
+      window._APP_CONFIG_;
+    } catch(e) {
+      window._APP_CONFIG_ = ${JSON.stringify(appConfig)}
+    }
   `
   return rawStr
 }
 
-function travelDom(domAst, { ajaxScriptStr, appConfigScriptStr }) {
+function travelDom(domAst, { ajaxScriptStr, appConfigScriptStr, rawHtmlStr }) {
   let headTag = domAst.childNodes?.[1]?.childNodes?.[0]
   if(headTag.nodeName === 'head') {
     let ajaxNode = {
@@ -101,7 +105,9 @@ function travelDom(domAst, { ajaxScriptStr, appConfigScriptStr }) {
       parentNode: headTag
     }
     headTag.childNodes.push(ajaxNode)
-    headTag.childNodes.unshift(appConfigNode)
+    if(rawHtmlStr?.indexOf('_APP_CONFIG_') === -1) {
+      headTag.childNodes.unshift(appConfigNode)
+    }
   }
 }
 

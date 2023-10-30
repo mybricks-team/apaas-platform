@@ -437,7 +437,8 @@ export default class AppController {
                 namespace: pkg.name ? pkg.name : '',
                 version: pkg?.version,
                 ...(pkg?.mybricks || {})
-              })
+              }),
+              rawHtmlStr: rawHomePageStr,
             })
             let handledHomePageStr = parse5.serialize(handledHomePageDom)
             fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')  
