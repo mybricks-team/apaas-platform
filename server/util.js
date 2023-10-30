@@ -69,7 +69,7 @@ function injectAjaxScript({ namespace }) {
 function injectAppConfigScript(appConfig) {
   const rawStr = `
     try {
-      window._APP_CONFIG_;
+      _APP_CONFIG_;
     } catch(e) {
       window._APP_CONFIG_ = ${JSON.stringify(appConfig)}
     }
