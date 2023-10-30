@@ -131,7 +131,7 @@ async function installApplication() {
                 if(pkg?.mybricks?.type !== 'system') { // 非系统任务
                   const feDirs = fs.readdirSync(fePath)
                   feDirs?.forEach(name => {
-                    if(name.indexOf('.html') !== -1 && name !== 'preview.html') {
+                    if(name.indexOf('.html') !== -1 && name !== 'preview.html' && name !== 'publish.html') {
                       // 默认注入所有的资源
                       const srcHomePage = path.join(fePath, name)
                       const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
@@ -250,7 +250,7 @@ async function installApplication() {
               if(pkg?.mybricks?.type !== 'system') { // 非系统任务
                 const feDirs = fs.readdirSync(fePath)
                 feDirs?.forEach(name => {
-                  if(name.indexOf('.html') !== -1 && name !== 'preview.html') {
+                  if(name.indexOf('.html') !== -1 && name !== 'preview.html' && name !== 'publish.html') {
                     // 默认注入所有的资源
                     const srcHomePage = path.join(fePath, name)
                     const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
@@ -360,7 +360,7 @@ async function installApplication() {
               if(pkg?.mybricks?.type !== 'system') { // 非系统任务
                 const feDirs = fs.readdirSync(fePath)
                 feDirs?.forEach(name => {
-                  if(name.indexOf('.html') !== -1 && name !== 'preview.html') {
+                  if(name.indexOf('.html') !== -1 && name !== 'preview.html' && name !== 'publish.html') {
                     // 默认注入所有的资源
                     const srcHomePage = path.join(fePath, name)
                     const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')

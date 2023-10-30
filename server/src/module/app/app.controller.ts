@@ -12,7 +12,9 @@ import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
 import AppService from './app.service';
 const fse = require('fs-extra');
+const parse5 = require('parse5');
 const { getAppThreadName } = require('../../../env.js')
+const { injectAjaxScript, travelDom, injectAppConfigScript } = require('../../../util');
 
 @Controller("/paas/api/apps")
 export default class AppController {
@@ -416,6 +418,33 @@ export default class AppController {
       const unzipFolderPath = path.join(tempFolder, unzipFolderSubpath)
       const pkg = require(path.join(unzipFolderPath, './package.json'))
       Logger.info(`[offlineUpdate]: pkg: ${JSON.stringify(pkg)}`)
+      // inject something
+      const fePath = path.join(unzipFolderPath, './assets')
+      if(fs.existsSync(fePath)) {
+        const feDirs = fs.readdirSync(fePath)
+        feDirs?.forEach(name => {
+          if(name.indexOf('.html') !== -1 && name !== 'preview.html' && name !== 'publish.html') {
+            // 默认注入所有的资源
+            Logger.info('[offlineUpdate]: assets: 开始注入')
+            const srcHomePage = path.join(fePath, name)
+            const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
+            let handledHomePageDom = parse5.parse(rawHomePageStr);
+            travelDom(handledHomePageDom, {
+              ajaxScriptStr: injectAjaxScript({
+                namespace: pkg.name ? pkg.name : ''
+              }),
+              appConfigScriptStr: injectAppConfigScript({
+                namespace: pkg.name ? pkg.name : '',
+                version: pkg?.version,
+                ...(pkg?.mybricks || {})
+              })
+            })
+            let handledHomePageStr = parse5.serialize(handledHomePageDom)
+            fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')  
+            Logger.info('[offlineUpdate]: assets: 注入成功')
+          }
+        })
+      }
       let appName = pkg.name;
       // 包含scope，需要编码
       if(pkg.name.indexOf('@') !== -1) {
