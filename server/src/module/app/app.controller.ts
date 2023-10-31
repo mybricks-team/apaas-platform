@@ -197,12 +197,12 @@ export default class AppController {
     let logInfo = null;
     applications.installApps.forEach((app, index) => {
       if(app.type === 'npm') {
-        if (app.path?.indexOf(namespace) !== -1) {
+        if (app.path?.indexOf(`${namespace}@`) !== -1) {
           installedApp = app;
           installedIndex = index;
         }
       } else if(app.type === 'oss') {
-        if (app.namespace?.indexOf(namespace) !== -1) {
+        if (app.namespace === namespace) {
           installedApp = app;
           installedIndex = index;
         }
