@@ -115,8 +115,8 @@ export default class GPTService {
       item.fields.timestamp = Date.now();
       item.fields.score = item.fields.score || 0.5;
 
-      if (item.fields.url) {
-        item.fields.content += `<br/><img src="${item.fields.url}" alt="">`;
+      if (item.fields.img) {
+        item.fields.content += `<br/><img src="${item.fields.img}" alt="">`;
       }
     });
     // @ts-ignore
