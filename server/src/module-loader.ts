@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import env from './utils/env'
+import { isDirectory } from './utils/index'
 import UserDao from './dao/UserDao';
 const userDao = new UserDao();
 import { Logger } from "@mybricks/rocker-commons";
@@ -63,11 +64,12 @@ export function loadModule() {
       if (folders) {
         for(let l=folders.length, i=0; i<l; i++) {
           const childPath = folders[i]
-          if(childPath === '.DS_Store') {
-            continue;
-          }
           try {
             const appFullPath = path.join(appDir, childPath);
+            if(!isDirectory(appFullPath)) {
+              Logger.info(`模块 ${childPath} 不合法，跳过`)
+              continue
+            }
             const data = scanDir(appFullPath);
             modules = modules.concat(data.modules);
             middleware = middleware.concat(data.middleware);
