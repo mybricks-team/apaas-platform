@@ -405,12 +405,8 @@ export default class WorkspaceService {
       await Promise.all(updatePages.map(async page => {
         let fileContentVersion = '1.0.0'
 
-        if (page.fileContentId) {
-          const [fileContent] = await this.fileContentDao.queryById({
-            id: page.fileContentId,
-          });
-          fileContentVersion = fileContent?.version as any as string
-        }
+        const fileContent = (await this.fileContentDao.queryLatestByFileId<FileContentDO>(page.fileId)) as any;
+        fileContentVersion = fileContent?.version as any as string
 
         return this.fileContentDao.create({
           fileId: page?.fileId ?? createMap[page.id],
