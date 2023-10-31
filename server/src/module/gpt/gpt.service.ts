@@ -114,6 +114,10 @@ export default class GPTService {
       item.fields.id = genMainIndexOfDB();
       item.fields.timestamp = Date.now();
       item.fields.score = item.fields.score || 0.5;
+
+      if (item.fields.url) {
+        item.fields.content += `<br/><img src="${item.fields.url}" alt="">`;
+      }
     });
     // @ts-ignore
     const res = await axios({
