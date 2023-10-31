@@ -31,4 +31,15 @@ export default class GPTController {
       return { code: -1, msg: e.message || '评价失败' };
     }
   }
+
+  @Post('/knowledge-push')
+  async knowledgePush(@Body() body: Record<string, unknown>) {
+    try {
+      await this.gptService.knowledgePush(body);
+
+      return { code: 1, data: null, msg: '文档推送成功' };
+    } catch (e) {
+      return { code: -1, msg: e.message || '文档推送失败' };
+    }
+  }
 }

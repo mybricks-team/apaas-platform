@@ -1,9 +1,9 @@
-import {Injectable} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Response } from 'express';
 import * as axios from 'axios';
-import GPTLogDao from "../../dao/GPTLogDao";
 const crypto = require('crypto');
-
+import GPTLogDao from '../../dao/GPTLogDao';
+import { genMainIndexOfDB } from '../../utils';
 
 function genAuthorization(params) {
   const {
@@ -24,6 +24,35 @@ function genAuthorization(params) {
   return `OPENSEARCH ${AccessKeyId}:${signature}`;
 }
 
+const VERB = 'POST';
+const getAuthHeaders = (params) => {
+  const AccessKeyId = process.env.ALI_GPT_ACCESS_KEY_ID;
+  const AccessKeySecret = process.env.ALI_GPT_ACCESS_KEY_SECRET;
+  const ContentMd5 = '';
+  const ContentType = 'application/json';
+  const date = new Date().toISOString().slice(0, -5) + 'Z';
+  const CanonicalizedOpenSearchHeaders = 'x-opensearch-nonce:mybricks';
+
+  const Authorization = genAuthorization({
+    AccessKeyId,
+    AccessKeySecret,
+    VERB,
+    ContentMd5,
+    ContentType,
+    date,
+    CanonicalizedOpenSearchHeaders,
+    CanonicalizedResource: params.resource,
+  });
+
+  return {
+    'Content-Md5': ContentMd5,
+    'Content-Type': ContentType,
+    Date: date,
+    'x-opensearch-nonce': 'mybricks',
+    Authorization: Authorization,
+  };
+};
+
 @Injectable()
 export default class GPTService {
   gptDao: GPTLogDao
@@ -33,37 +62,11 @@ export default class GPTService {
   }
 
   async knowledgeSearch(body, response: Response) {
-    const AccessKeyId = process.env.ALI_GPT_ACCESS_KEY_ID;
-    const AccessKeySecret = process.env.ALI_GPT_ACCESS_KEY_SECRET;
-    const VERB = 'POST';
-    const ContentMd5 = '';
-    const ContentType = 'application/json';
-    const date = new Date().toISOString().slice(0, -5) + 'Z';
-    const CanonicalizedOpenSearchHeaders = 'x-opensearch-nonce:mybricks';
-    const CanonicalizedResource = '/v3/openapi/apps/mybricks_docs_copilot/actions/knowledge-search';
-
-    const Authorization = genAuthorization({
-      AccessKeyId,
-      AccessKeySecret,
-      VERB,
-      ContentMd5,
-      ContentType,
-      date,
-      CanonicalizedOpenSearchHeaders,
-      CanonicalizedResource,
-    });
-
     // @ts-ignore
     axios({
       url: 'https://opensearch-cn-shanghai.aliyuncs.com/v3/openapi/apps/mybricks_docs_copilot/actions/knowledge-search',
       method: VERB,
-      headers: {
-        'Content-Md5': ContentMd5,
-        'Content-Type': ContentType,
-        Date: date,
-        'x-opensearch-nonce': 'mybricks',
-        Authorization: Authorization,
-      },
+      headers: getAuthHeaders({ resource: '/v3/openapi/apps/mybricks_docs_copilot/actions/knowledge-search' }),
       responseType: 'stream',
       data: body,
     })
@@ -104,5 +107,24 @@ export default class GPTService {
       suggestedAnswer: body.suggestedAnswer || '',
       judge: body.judge ?? null,
     });
+  }
+
+  async knowledgePush(body) {
+    body.forEach(item => {
+      item.fields.id = genMainIndexOfDB();
+      item.fields.timestamp = Date.now();
+      item.fields.score = item.fields.score || 0.5;
+    });
+    // @ts-ignore
+    const res = await axios({
+      url: 'https://opensearch-cn-shanghai.aliyuncs.com/v3/openapi/apps/mybricks_docs_copilot/actions/knowledge-bulk',
+      method: VERB,
+      headers: getAuthHeaders({resource: '/v3/openapi/apps/mybricks_docs_copilot/actions/knowledge-bulk'}),
+      data: body,
+    });
+
+    if (res.data?.status !== 'OK') {
+      throw Error('文档推送失败');
+    }
   }
 }
