@@ -110,7 +110,7 @@ export default class GPTService {
   }
 
   async knowledgePush(body) {
-    body.forEach(item => {
+    body.docs.forEach(item => {
       item.fields.id = genMainIndexOfDB();
       item.fields.timestamp = Date.now();
       item.fields.score = item.fields.score || 0.5;
@@ -120,7 +120,7 @@ export default class GPTService {
       url: 'https://opensearch-cn-shanghai.aliyuncs.com/v3/openapi/apps/mybricks_docs_copilot/actions/knowledge-bulk',
       method: VERB,
       headers: getAuthHeaders({resource: '/v3/openapi/apps/mybricks_docs_copilot/actions/knowledge-bulk'}),
-      data: body,
+      data: body.docs,
     });
 
     if (res.data?.status !== 'OK') {
