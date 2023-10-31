@@ -1,6 +1,6 @@
 {
   "name": "mybricks-apaas-platform",
-  "version": "0.1.28",
+  "version": "0.1.30",
   "description": "",
   "main": "index.js",
   "scripts": {
