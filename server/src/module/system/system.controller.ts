@@ -854,16 +854,17 @@ export default class SystemService {
         }
         case 'envCheck': {
           let msg = '';
+          if(global?.MYBRICKS_PLATFORM_START_ERROR) {
+            msg += global.MYBRICKS_PLATFORM_START_ERROR
+          }
           await childProcess.execSync('unzip').toString()
           // const reqUrl = `http://localhost:3100/paas/api/system/diagnostics`
           const reqUrl = process.env.MYBRICKS_PLATFORM_ADDRESS?.endsWith('/') ?  `${process.env.MYBRICKS_PLATFORM_ADDRESS}paas/api/system/diagnostics` : `${process.env.MYBRICKS_PLATFORM_ADDRESS}/paas/api/system/diagnostics`;
           Logger.info(`诊断服务请求日志：${reqUrl}`)
           // @ts-ignore
           await axios.post(reqUrl, { action: "init"})
-          msg = `接口请求域名是：${process.env.MYBRICKS_PLATFORM_ADDRESS}`
-          if(global?.MYBRICKS_PLATFORM_START_ERROR) {
-            msg += global.MYBRICKS_PLATFORM_START_ERROR
-          }
+          msg += `接口请求域名是：${process.env.MYBRICKS_PLATFORM_ADDRESS}`
+          
           return {
             code: 1,
             msg
