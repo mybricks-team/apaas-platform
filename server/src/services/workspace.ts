@@ -735,7 +735,7 @@ export default class WorkspaceService {
       });
       let pubAssetSubUrl = '', pubAssetFilePath = '';
       const rawPath = path.join(env.FILE_APP_PRODUCTS_FOLDER, `./${filePub.fileId}/${filePub.type}/${filePub.version}/${filePub.fileId}.zip`)
-      console.log('raw', rawPath)
+      Logger.info('[/workspace/file/revert]: 原始路径是: ', rawPath)
       if(fs.existsSync(rawPath)) {
         pubAssetSubUrl = path.join(`./${env.FILE_LOCAL_STORAGE_PREFIX}/${env.FILE_APP_PRODUCTS_FOLDER_PREFIX}`, `./${filePub.fileId}/${filePub.type}/${filePub.version}/${filePub.fileId}.zip`)
         pubAssetFilePath = rawPath;

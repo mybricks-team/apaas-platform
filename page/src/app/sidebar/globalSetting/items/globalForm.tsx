@@ -6,8 +6,11 @@ import {
   Form,
   Input,
   Button,
+  Select,
   Switch,
 } from 'antd'
+import AppCtx from '../../../AppCtx'
+import {observe} from '@mybricks/rxui'
 import styles from '../index.less'
 
 const GlobalForm = ({ initialValues, onSubmit, style }) => {
@@ -17,13 +20,24 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [openUserInfoSettingSwitch, setOpenUserInfoSettingSwitch] = useState(initialValues?.openUserInfoSetting)
   const [openConflictDetectionSwitch, setOpenConflictDetectionSwitch] = useState(initialValues?.openConflictDetection)
   const [isPureIntranet, setIsPureIntranet] = useState(initialValues?.isPureIntranet)
-  const [openMonitor, setOpenMonitor] = useState(initialValues?.openMonitor)
+  const appCtx = observe(AppCtx, {from: 'parents'})
+  const [appOptions, setAppOptions] = useState([])
 
   useEffect(() => {
     if (!initialValues) {
       return
     }
     form?.setFieldsValue?.(initialValues)
+    // console.log('1111', )
+    let tempOptions = []
+    appCtx.DesignAPPS?.forEach((item) => {
+      tempOptions.push({
+        label: item.title,
+        value: item.namespace
+      })
+    })
+    setAppOptions(tempOptions)
+
   }, [initialValues])
 
   return (
@@ -149,11 +163,17 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
             <Input.TextArea rows={4} placeholder='不同角色新建文件数量' />
           </Form.Item>
           <Form.Item
-            initialValue=""
+            initialValue={[]}
             label="基于模板新建"
             name="createBasedOnTemplate"
           >
-            <Input.TextArea rows={2} placeholder='开启的应用白名单' />
+            <Select
+              mode="multiple"
+              allowClear
+              style={{ width: '100%' }}
+              placeholder="请选择开启的应用"
+              options={appOptions}
+            />
           </Form.Item>
         </div>
       </Form>
@@ -164,6 +184,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
           type="primary"
           onClick={() => {
             form?.validateFields().then((values) => {
+              console.log(values)
               typeof onSubmit === 'function' && onSubmit(values)
             })
           }}
