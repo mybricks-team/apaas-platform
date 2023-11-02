@@ -144,7 +144,8 @@ export default class UserController {
       !email ||
       !email.match(/^\w{3,}(\.\w+)*@[A-z0-9]+(\.[A-z]{2,5}){1,2}$/) ||
       !psd ||
-      !captcha
+      /** 存在环境变量，代表使用邮箱验证码校验 */
+      (process.env.MYBRICKS_EMAIL_ACCESS_KEY_ID ? !captcha : false)
     ) {
       return {
         code: -1,
@@ -163,9 +164,12 @@ export default class UserController {
         msg: `邮箱${email}已被注册.`,
       };
     } else {
-      const [captchaItem] = await this.userValidateDao.queryByUserId({ type: 'email', timeInterval: (10 * 60) * 1000, userId: email });
-      if (!captchaItem || captcha !== captchaItem.captcha) {
-        return { code: -1, msg: '验证码错误，请重新发送验证码' };
+      /** 存在环境变量，代表使用邮箱验证码校验 */
+      if (process.env.MYBRICKS_EMAIL_ACCESS_KEY_ID) {
+        const [captchaItem] = await this.userValidateDao.queryByUserId({ type: 'email', timeInterval: (10 * 60) * 1000, userId: email });
+        if (!captchaItem || captcha !== captchaItem.captcha) {
+          return { code: -1, msg: '验证码错误，请重新发送验证码' };
+        }
       }
       const { id } = await this.userDao.create({
         email,
