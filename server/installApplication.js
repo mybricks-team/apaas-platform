@@ -203,10 +203,17 @@ async function installApplication() {
                 version: pkgVersion
               })
               })).data
-            const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
-            console.log(`[install]: 资源包下载成功 ${tempPathZipFile}}`)
-            fs.writeFileSync(tempPathZipFile, Buffer.from(res.data.data));
-            cp.execSync(`cd ${tempFolder} && unzip -o ${tempPathZipFile} -d ${destAppDir}`)
+            if(res.code !== 1) {
+              console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)
+              console.log(`【install】: 错误是 ${res.msg}`)
+              fs.removeSync(tempFolder)
+              continue;
+            } else {
+              const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
+              console.log(`[install]: 资源包下载成功 ${tempPathZipFile}}`)
+              fs.writeFileSync(tempPathZipFile, Buffer.from(res.data.data));
+              cp.execSync(`cd ${tempFolder} && unzip -o ${tempPathZipFile} -d ${destAppDir}`)
+            }
           } catch(e) {
             console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)
             console.log(`【install】: 错误是: ${e.toString()}`)
