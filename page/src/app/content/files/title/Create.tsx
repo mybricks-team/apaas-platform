@@ -240,12 +240,10 @@ export function Create(): JSX.Element {
 
   const renderTemplateChooseModal = () => {
     if(chooseTemplateModalVisible) {
-      return (  
-        <TemplateChooseModal 
+      return (
+        <TemplateChooseModal
           modalVisible={chooseTemplateModalVisible}
-          extName={'kh5'}
-          templateGuideType={'KH5'}
-          hasInstalledMaterial={appCtx.hasInstalledMaterialCenter}
+          extName={chooseApp?.extName}
           onChoose={(param) => {
             chooseTemplate = param
             setChooseTemplateModalVisible(false)
@@ -259,7 +257,7 @@ export function Create(): JSX.Element {
             setCreateApp(chooseApp)
           }}
         />
-      )
+      );
     } else {
       return null
     }

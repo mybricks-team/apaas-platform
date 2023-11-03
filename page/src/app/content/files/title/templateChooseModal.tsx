@@ -1,124 +1,119 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { Modal, Button } from 'antd'
+import { Icon } from '@/app/components';
+import { observe } from '@mybricks/rxui';
+import AppCtx from '@/app/AppCtx';
 
-function TemplateChooseModal(props) {
-  const { hasInstalledMaterial, extName, templateGuideType, onChoose, onCancel, onOk, modalVisible } = props
-  const [templateList, setTemplateList] = useState([])
-  const [currentHoverIndex, setCurrentHoverIndex] = useState(27981)
+const CommonTemplateChooseModal = props => {
+  const appCtx = observe(AppCtx, { from: 'parents' });
+  const { extName, onChoose, onCancel, onOk, modalVisible } = props;
+  const [templateList, setTemplateList] = useState([]);
+  const [currentHoverIndex, setCurrentHoverIndex] = useState(-1);
+  const { APPSMap } = appCtx;
+  const appReg = APPSMap[extName];
   useEffect(() => {
-    if(hasInstalledMaterial) {
-      axios.get('/api/material/template/list', {
-        params: {
-          extName: extName,
-          templateGuideType: templateGuideType
-        }
-      }).then(({ data }) => {
+    axios.post('/paas/api/share/getAll', {
+      extName: extName,
+      page: 0,
+      pageSize: 1000
+    })
+      .then(({ data }) => {
         if(data.code === 1) {
-          setTemplateList(data.data)
+          setTemplateList(data.data?.list ?? [])
         }
-      }).catch(() => {
-
       })
-    }
-  }, [])
+  }, []);
 
-  const renderNope = () => {
-    return (
-      <div>
-        <p style={{textAlign: 'center'}}>当前环境未安装物料市场</p>
-      </div>
-    )
-  }
-
-  const renderContent = () => {
-
-    return (
-      <div style={{height: 716, overflow:'scroll'}}>
-        {
-          templateList?.map((item, i) => {
-            return (
-              <div style={{marginBottom: '20px'}}>
-                <p style={{fontWeight: 800, fontSize: 16, display: 'block'}}>{i+1} - {item.title}</p>
-                <div style={{display: 'flex', flexWrap: 'wrap'}}>
-                  {item?.templates?.map((template, index) => {
-                    return (
-                      <div
-                        style={{
-                          boxSizing: 'border-box',
-                          position: 'relative',
-                          cursor: 'pointer',
-                          width: 208,
-                          height: 221,
-                          boxShadow: '0px 3px 5px 0px #1f23290a',
-                          borderRadius: 5,
-                          border: '1px solid #ebedf0',
-                          marginBottom: 20,
-                          marginRight: 10
-                        }} 
-                        data-fileid={template.file_id} 
-                        onMouseEnter={(e) => {
-                          const id = e.currentTarget.dataset.fileid;
-                          setCurrentHoverIndex(+id)
-
-                        }}
-                        onMouseLeave={(e) => {
-                          setCurrentHoverIndex(-1)
-                        }}
-                      >
-                        <div style={{padding: 6, height: '191px'}}>
-                          <div style={{ height: '100%', backgroundSize: 'cover', backgroundPosition: 'top', backgroundImage: `url(${template.preview_img})` }} />
-                        </div>
-                        <p style={{textAlign:'center', fontWeight: 800, backgroundColor: '#f8f9fa', lineHeight: '20px', textOverflow: 'ellipsis', padding: 5}}>{template.title}</p>
-                        {
-                          currentHoverIndex == template.file_id ? 
-                              <div 
-                                data-fileid={template.file_id}  
-                                style={{ 
-                                  position: 'absolute', 
-                                  left: 0, top: 0, 
-                                  width: '100%', height: '100%', 
-                                  backgroundColor:'#1f232980',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  display: 'flex',
-                                }}
-                              >
-                                <Button type="primary"
-                                  onClick={() => {
-                                    onChoose({ fileId: template.file_id, title: template.title })
-                                  }}
-                                >
-                                  使用
-                                </Button>
-                          </div>
-                           : null
-                        }
-                      </div>  
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })
-        }
-      </div>
-    )
-  }
   return (
     <Modal
       open={modalVisible}
       title="模板选择"
       destroyOnClose
       width={942}
-      onOk={onOk} 
+      onOk={onOk}
       onCancel={onCancel}
       cancelText="取消"
       okText="选择空模板"
     >
-      {hasInstalledMaterial ? renderContent() : renderNope()}
+      <div style={{maxHeight: 716, overflow: 'auto', display: 'flex', flexFlow: 'wrap'}}>
+        {
+          templateList?.map(template => {
+            return (
+              <div
+                style={{
+                  boxSizing: 'border-box',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  width: 208,
+                  height: 181,
+                  boxShadow: '0px 3px 5px 0px #1f23290a',
+                  borderRadius: 5,
+                  border: '1px solid #ebedf0',
+                  marginBottom: 20,
+                  marginRight: 10,
+                  display: 'inline-block',
+                  whiteSpace: 'nowrap'
+                }}
+                data-fileid={template.id}
+                onMouseEnter={(e) => {
+                  const id = e.currentTarget.dataset.fileid;
+                  setCurrentHoverIndex(+id)
+                }}
+                onMouseLeave={(e) => {
+                  setCurrentHoverIndex(-1)
+                }}
+              >
+                <div
+                  style={{
+                    padding: 6,
+                    height: '140px',
+                    backgroundColor: '#FAFAFA',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    position: 'relative'
+                  }}
+                >
+                  <Icon icon={template.icon || appReg?.icon} width={template.icon ? 140 : 32} height={template.icon ? '100%' : 32}/>
+                </div>
+                <p
+                  style={{
+                    textAlign:'center',
+                    fontWeight: 800,
+                    lineHeight: '30px',
+                    textOverflow: 'ellipsis',
+                    padding: 5
+                }}>
+                  {template.name}
+                </p>
+                {
+                  currentHoverIndex == template.id ?
+                    <div
+                      data-fileid={template.id}
+                      style={{
+                        position: 'absolute',
+                        left: 0, top: 0,
+                        width: '100%', height: '100%',
+                        backgroundColor:'#1f232980',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        display: 'flex',
+                      }}
+                    >
+                      <Button type="primary" onClick={() => onChoose({ fileId: template.id, title: template.name })}>
+                        使用
+                      </Button>
+                    </div>
+                    : null
+                }
+              </div>
+            )
+          })
+        }
+      </div>
     </Modal>
   )
-}
+};
 
-export default TemplateChooseModal
+export default CommonTemplateChooseModal;

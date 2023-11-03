@@ -102,6 +102,9 @@
         from apaas_file
         where
         share_type = #{shareType} and
+        <if test="extName">
+            ext_name = #{extName} and
+        </if>
         status = 1
         order by update_time desc
         limit #{limit} offset #{offset}
@@ -113,6 +116,9 @@
         from apaas_file
         where
         share_type = #{shareType} and
+        <if test="extName">
+            ext_name = #{extName} and
+        </if>
         status = 1
     </select>
 

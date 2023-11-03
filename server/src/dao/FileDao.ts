@@ -177,9 +177,10 @@ export default class FileDao extends DOBase {
 
   @Mapping(FileDO)
   public async getAllShareFiles(query?: {
-    page: number
-    pageSize: number,
-    shareType: number
+    page: number;
+    pageSize: number;
+    shareType: number;
+    extName?: string;
   }): Promise<any> {
     query = Object.assign({}, query)
 
@@ -194,7 +195,8 @@ export default class FileDao extends DOBase {
   }
 
   public async getCountOfShareFiles(query?: {
-    shareType: number
+    shareType: number;
+    extName?: string;
   }): Promise<any> {
     const count = await this.exe<any>("apaas_file:countShareFiles", {
       ...query
