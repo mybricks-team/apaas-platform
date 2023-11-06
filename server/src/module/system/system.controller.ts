@@ -22,6 +22,7 @@ import SessionService from './session.service';
 import { STATUS_CODE } from '../../constants'
 import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
+import TransformSuccessCodeInterceptor from '../../middleware/transformSuccessCode.interceptor'
 
 const childProcess = require('child_process');
 const path = require('path')
@@ -404,6 +405,7 @@ export default class SystemService {
 
   // 领域建模运行时
   @Post('/system/domain/run')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRun(
     // 通用参数
     @Body('serviceId') serviceId: string,
