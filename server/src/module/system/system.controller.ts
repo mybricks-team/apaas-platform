@@ -420,6 +420,7 @@ export default class SystemService {
 
   // 领域建模运行时
   @Post('/system/domain/run/:fileId/:serviceId')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Post(
     @Body() params: any,
     @Body('projectId') projectId: number,
@@ -439,6 +440,7 @@ export default class SystemService {
 
   // 领域建模运行时
   @Get('/system/domain/run/:fileId/:serviceId')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Get(
     @Query() params: any,
     @Query('projectId') projectId: number,
@@ -452,6 +454,7 @@ export default class SystemService {
 
   // 领域建模运行时
   @Post('/system/domain/run/:fileId/:serviceId/:action')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Action_Post(
     @Body() params: any,
     @Body('projectId') projectId: number,
@@ -472,6 +475,7 @@ export default class SystemService {
 
   // 领域建模运行时
   @Get('/system/domain/run/:fileId/:serviceId/:action')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Action_Get(
       @Query() params: any,
       @Req() req: any,
