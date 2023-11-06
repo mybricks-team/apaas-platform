@@ -8,6 +8,7 @@ import {
   Param,
   Request,
   Req,
+  UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
 import DomainService from './domain.service';
@@ -20,6 +21,7 @@ const fs = require('fs');
 const { getConnection, DOBase, getPool } = require("@mybricks/rocker-dao");
 const { SnowFlake } = require('gen-uniqueid');
 import { STATUS_CODE } from '../../const';
+import TransformSuccessCodeInterceptor from '../../middleware/transformSuccessCode.interceptor'
 
 @Controller('/runtime/api/domain')
 export default class FlowController {
@@ -36,6 +38,13 @@ export default class FlowController {
   
   constructor() {
     this.snowFlake = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
+  }
+
+  @Post('/test')
+  async test(@Body() body: any) {
+    return {
+      code: 1
+    }
   }
 
     // // 领域建模运行时(运行时)
@@ -70,6 +79,7 @@ export default class FlowController {
 
   // 领域建模运行时(运行时)
   @Post('/service/run')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRun(
     @Body('serviceId') serviceId: string,
     @Body('params') params: any,
@@ -131,6 +141,7 @@ export default class FlowController {
 
   // 领域建模运行时(运行时)
   @Post('/service/run/:projectId/:fileId/:serviceId')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Post(
     @Body() params: any,
     @Query() query: any,
@@ -194,6 +205,7 @@ export default class FlowController {
 
   // 领域建模运行时(运行时)
   @Get('/service/run/:projectId/:fileId/:serviceId')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Get(
     @Query() params: any,
     @Param('projectId') projectId: number,
@@ -256,6 +268,7 @@ export default class FlowController {
 
   // 领域建模运行时(运行时)
   @Post('/service/run/:projectId/:fileId/:serviceId/:action')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Action_Post(
     @Body() params: any,
     @Query() query: any,
@@ -322,6 +335,7 @@ export default class FlowController {
 
   // 领域建模运行时(运行时)
   @Get('/service/run/:projectId/:fileId/:serviceId/:action')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Action_Get(
     @Query() params: any,
     @Param('projectId') projectId: number,
