@@ -82,6 +82,8 @@ const CommonTemplateChooseModal = props => {
                     textAlign:'center',
                     fontWeight: 800,
                     lineHeight: '30px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
                     textOverflow: 'ellipsis',
                     padding: 5
                 }}>
