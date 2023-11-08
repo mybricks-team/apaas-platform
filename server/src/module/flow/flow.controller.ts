@@ -130,8 +130,9 @@ export default class FlowController {
       });
       return {
         data: {
-          url: `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`,
-          subPath,
+          url: `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`, // 陆续下掉
+          subPath, // 在平台静态资源库中文件存储路径，供后续回滚等操作使用
+          visitSubPath: `/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`, // 前端加上域名，访问静态资源
         },
         code: 1,
       };
