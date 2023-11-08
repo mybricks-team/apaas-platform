@@ -869,7 +869,7 @@ export default class SystemService {
           Logger.info(`诊断服务请求日志：${reqUrl}`)
           // @ts-ignore
           await axios.post(reqUrl, { action: "init"})
-          msg += `接口请求域名是：${process.env.MYBRICKS_PLATFORM_ADDRESS}`
+          msg += `\n 接口请求域名是：${process.env.MYBRICKS_PLATFORM_ADDRESS}`
           
           return {
             code: 1,

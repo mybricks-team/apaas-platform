@@ -84,6 +84,7 @@ export default class AppManageModule implements OnModuleInit {
         return { ...per, [instance.name]: instance };
       }, {});
       const pathMap = {};
+      const repeatPathMap = {};
       controllerInstances.forEach(instance => {
         const prefix = this.reflector.get('path', instance.instance.constructor);
         Object.getOwnPropertyNames(instance.instance.__proto__)
@@ -96,12 +97,35 @@ export default class AppManageModule implements OnModuleInit {
               return;
             }
 
-            pathMap[`${prefix}${path === '/' ? '' : path}[${MethodMap[methodCode]}]`] = {
-              controller: instance.name,
-              handler: key
-            };
+            const curPath = `${prefix}${path === '/' ? '' : path}[${MethodMap[methodCode]}]`;
+            const curMap = { controller: instance.name, handler: key };
+
+            /** 统计重复路由 */
+            if (pathMap[curPath]) {
+              if (!Array.isArray(repeatPathMap[curPath])) {
+                repeatPathMap[curPath] = [pathMap[curPath], curMap];
+              } else {
+                repeatPathMap[curPath] = [...repeatPathMap[curPath], curMap];
+              }
+            }
+
+            pathMap[curPath] = curMap;
           })
       });
+
+      /** 重复路由 */
+      if (Object.keys(repeatPathMap).length) {
+        Object.keys(repeatPathMap).forEach(key => {
+          const [_, path, method] = key.match(/^([^\[]*)\[(.*)]$/);
+
+          if(!global.MYBRICKS_PLATFORM_START_ERROR) {
+            global.MYBRICKS_PLATFORM_START_ERROR = ''
+          } else {
+            global.MYBRICKS_PLATFORM_START_ERROR += '\n';
+          }
+          global.MYBRICKS_PLATFORM_START_ERROR += `路由重复错误：请求方法为 ${method} 且路径为 ${path} 的路由存在重复，分别来自 Controller 中 ${repeatPathMap[key].map(item => `${item.controller} 的 ${item.handler} 方法`).join('、')}`;
+        });
+      }
 
       global.emitGlobalEvent = async (path: string, method: string, ...args: any[]) => {
         const curHandler = pathMap[`${path}[${method}]`];
