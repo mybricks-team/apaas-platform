@@ -130,6 +130,9 @@ function injectPLatformConfig() {
   if(UserInputConfig.platformPort) {
     config.apps[0].env.MYBRICKS_PLATFORM_PORT = UserInputConfig.platformPort
   }
+  if(UserInputConfig.platformAppName) {
+    config.apps[0].name = UserInputConfig.platformAppName
+  }
   fs.writeFileSync(path.join(__dirname, '../ecosystem.config.js'), `module.exports = ${JSON.stringify(config)}`, 'utf-8')
   console.log(`【install】: 初始化平台域名成功`)
 }
