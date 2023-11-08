@@ -285,10 +285,8 @@ export default class FileController {
       await this.fileCooperationDao.query({ userId, fileId }),
       await this.fileCooperationDao.numberOfOnlineUsers({ fileId }),
       new Promise(async (resolve) => {
-        const { creatorId, groupId } = file
-
         // 创建人、最高权限
-        if (creatorId == userId) {
+        if (file?.creatorId == userId) {
           resolve(1)
         } else {
           const [fileDescription, groupDescription] = await Promise.all([
@@ -297,10 +295,10 @@ export default class FileController {
               resolve(userFileFelation?.roleDescription)
             }),
             new Promise(async (resolve) => {
-              if (!groupId) {
+              if (!file?.groupId) {
                 resolve(undefined)
               } else {
-                const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({ userId, userGroupId: groupId, status: 1 })
+                const userGroupRelation = await this.userGroupRelationDao.queryByUserIdAndUserGroupId({ userId, userGroupId: file?.groupId, status: 1 })
                 resolve(userGroupRelation?.roleDescription)
               }
             })
