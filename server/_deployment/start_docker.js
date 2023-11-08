@@ -108,8 +108,11 @@ function injectPLatformConfig() {
     config.apps[0].env.EXTERNAL_FILE_STORAGE = EXTERNAL_FILE_STORAGE
     config.apps[0].env.MYBRICKS_RUN_MODE = 'docker'
     config.apps[0].env.TZ = 'Asia/Shanghai'
-    fs.writeFileSync(path.join(__dirname, '../ecosystem.config.js'), `module.exports = ${JSON.stringify(config)}`, 'utf-8')
   }
+  if(UserInputConfig.platformPort) {
+    config.apps[0].env.MYBRICKS_PLATFORM_PORT = UserInputConfig.platformPort
+  }
+  fs.writeFileSync(path.join(__dirname, '../ecosystem.config.js'), `module.exports = ${JSON.stringify(config)}`, 'utf-8')
   console.log(`【install】: 初始化平台域名成功`)
 }
 
