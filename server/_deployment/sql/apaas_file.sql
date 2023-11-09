@@ -19,5 +19,8 @@ CREATE TABLE IF NOT EXISTS `apaas_file` (
   `share_type` int DEFAULT NULL COMMENT 'share_type',
   `status` int DEFAULT NULL COMMENT 'status',
   PRIMARY KEY (`id`),
-  KEY `idx_extname` (`ext_name`)
+  KEY `idx_extname` (`ext_name`),
+  KEY `idx_creator_info`(`creator_id`, `creator_name`),
+  KEY `idx_file_info`(`name`, `ext_name`, `namespace`),
+  KEY `idx_namespace`(`namespace`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;

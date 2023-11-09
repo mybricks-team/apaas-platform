@@ -813,13 +813,8 @@ export default class FileDao extends DOBase {
     limit?: number,
     offset?: number
   }) {
-    params.name = `%${params.name}%`
-    const result = await this.exe(
-      'apaas_file:globalSearch',
-      params
-    )
-
-    return result
+    params.name = `%${params.name}%`;
+    return await this.exe('apaas_file:globalSearch', params)
   }
 
   @Mapping(FileDO)
