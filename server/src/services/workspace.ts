@@ -18,6 +18,7 @@ import { Logger } from '@mybricks/rocker-commons';
 
 const fs = require('fs');
 const path = require('path');
+const env = require('../../env.js')
 
 const folderExtnames = ['folder', 'folder-project', 'folder-module']
 
@@ -404,12 +405,8 @@ export default class WorkspaceService {
       await Promise.all(updatePages.map(async page => {
         let fileContentVersion = '1.0.0'
 
-        if (page.fileContentId) {
-          const [fileContent] = await this.fileContentDao.queryById({
-            id: page.fileContentId,
-          });
-          fileContentVersion = fileContent?.version as any as string
-        }
+        const fileContent = (await this.fileContentDao.queryLatestByFileId<FileContentDO>(page.fileId)) as any;
+        fileContentVersion = fileContent?.version as any as string
 
         return this.fileContentDao.create({
           fileId: page?.fileId ?? createMap[page.id],
@@ -448,7 +445,7 @@ export default class WorkspaceService {
 
 
   @Post("/workspace/publish")
-  async publish(@Body() body, @Req() request: RequestType) {
+  async publish(@Body() body) {
     try {
       let {
         extName,
@@ -724,25 +721,39 @@ export default class WorkspaceService {
       if (!filePub) {
         return { code: 0, message: "发布记录不存在" };
       }
-      if (!filePub.fileContentId) {
-        return { code: 0, message: "保存记录不存在" };
-      }
-
-      const [fileContent] = await this.fileContentDao.queryById({
-        id: filePub.fileContentId,
-      });
-
-      if (!fileContent) {
-        return { code: 0, message: "保存记录不存在" };
-      }
-
-      await this.fileContentDao.create({
-        fileId: fileContent.fileId,
-        content: fileContent.content,
-        version: getNextVersion(fileContent?.version || "1.0.0"),
+      const [latestPub] = await this.filePubDao.getLatestPubByFileId(filePub.fileId, filePub.type);
+      const nextVersion = getNextVersion(latestPub?.version || "1.0.0")
+      const { id } = await this.filePubDao.create({
+        fileId: filePub.fileId,
+        content: filePub.content,
+        version: nextVersion,
         creatorId: userId,
         creatorName: user?.name || user?.email || userId,
+        type: filePub.type,
+        fileContentId: filePub.fileContentId,
+        commitInfo: `由 ${filePub.version} 版本回滚`,
       });
+      let pubAssetSubUrl = '', pubAssetFilePath = '';
+      const rawPath = path.join(env.FILE_APP_PRODUCTS_FOLDER, `./${filePub.fileId}/${filePub.type}/${filePub.version}/${filePub.fileId}.zip`)
+      Logger.info('[/workspace/file/revert]: 原始路径是: ', rawPath)
+      if(fs.existsSync(rawPath)) {
+        pubAssetSubUrl = path.join(`./${env.FILE_LOCAL_STORAGE_PREFIX}/${env.FILE_APP_PRODUCTS_FOLDER_PREFIX}`, `./${filePub.fileId}/${filePub.type}/${filePub.version}/${filePub.fileId}.zip`)
+        pubAssetFilePath = rawPath;
+      }
+
+      return { 
+        code: 1, 
+        message: "回滚成功",
+        data: {
+          filePubId: id,
+          type: filePub.type,
+          pubAssetFilePath,
+          rawVersion: filePub.version,
+          nowVersion: nextVersion,
+          fileId: filePub.fileId,
+          pubAssetSubUrl: pubAssetSubUrl
+        }
+      };
     }
 
     return { code: 1, message: "回滚成功" };

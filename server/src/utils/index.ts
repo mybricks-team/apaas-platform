@@ -4,6 +4,7 @@ const os = require('os');
 const { SnowFlake } = require('gen-uniqueid');
 const SNOW_FLAKE = new SnowFlake({ workerId: process.env.WorkerId == undefined ? 1 : process.env.WorkerId });
 import { Logger } from '@mybricks/rocker-commons'
+const fs = require('fs');
 
 export function uuid(length = 32): string {
   let text = "";
@@ -17,6 +18,18 @@ export function uuid(length = 32): string {
     } else {
       text += possible2.charAt(Math.floor(Math.random() * possible2.length));
     }
+  }
+
+  return text;
+}
+
+export function uuidOfNumber(length = 6): string {
+  let text = '';
+
+  const possible = '0123456789';
+
+  for (let i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
 
   return text;
@@ -138,6 +151,7 @@ export function getRealHostName(requestHeaders) {
 }
 
 export function getRealDomain(request) {
+  if (!request) { return ''; }
   const { origin } = request.headers
   if (origin) return origin
   let hostName = getRealHostName(request.headers);
@@ -188,4 +202,14 @@ export function getPlatformFingerPrint() {
   var serverInfo = arch + type + release + hostname;
   var hash = crypto.createHash('md5').update(serverInfo).digest('hex');
   return hash;
+}
+
+export function isDirectory(path) {
+  try {
+    const stats = fs.statSync(path);
+    return stats.isDirectory();
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
 }

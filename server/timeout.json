@@ -29,6 +29,12 @@
     },
     "/mybricks-app-pcspa/api/pcpage/publish:POST": {
       "ignore": true
+    },
+    "(/.*)?/api/system/domain/run:GET": {
+      "ignore": true
+    },
+    "(/.*)?/api/system/domain/run:POST": {
+      "ignore": true
     }
   }
 }

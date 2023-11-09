@@ -240,3 +240,10 @@ DateBase名称：MySQL的DB名称，后续表即将安装至此
 【install】: 安装服务已退出
 ```
 
+### 备注 3：PlatformConfig配置详解：
+
+```
+platformAppName: 平台服务应用名称
+platformDomain：平台部署的http地址
+platformPort：平台部署服务端口
+```

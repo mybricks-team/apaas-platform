@@ -87,7 +87,7 @@ export default function Sidebar({ logo }) {
         <Catelog style={{ flex: '1 0 auto', height: 0, overflow: 'hidden' }}>
           <PlatformMenu />
         </Catelog>
-        <Catelog style={{ marginTop: 'auto' }}>
+        <Catelog style={{ marginTop: 'auto', maxHeight: 'calc(100vh - 400px)', overflow: 'scroll'}} >
           <SystemMenus />
         </Catelog>
       </div>
@@ -107,7 +107,7 @@ function signOut() {
       removeCookie('mybricks-login-user')
       location.href = '/'
     },
-    onCancel() {},
+    onCancel() { },
   })
 }
 
@@ -121,9 +121,9 @@ function UserInfoSettingForm() {
       userId: appCtx.user?.id,
       ...values
     }).then(({ data }) => {
-      if(data.code === 1) {
+      if (data.code === 1) {
         message.success('设置成功')
-        appCtx.setUser({...appCtx.user,...values})
+        appCtx.setUser({ ...appCtx.user, ...values })
       } else {
         message.info(data.msg)
       }
@@ -182,7 +182,7 @@ function User() {
       isShow: openLogout
     },
   ]
-  const items: MenuProps['items'] = menuList.filter((item)=>item.isShow)
+  const items: MenuProps['items'] = menuList.filter((item) => item.isShow)
 
   useEffect(() => {
     axios.post(getApiUrl('/paas/api/config/get'), {
@@ -208,19 +208,21 @@ function User() {
 
   return (
     <>
-      {!openLogout && !openUserInfoSetting ?
-        <div className={css.user}>{appCtx.user.name || appCtx.user.email}</div> :
-        <Dropdown 
-          className={css.user} 
-          menu={{ items, onClick: onUserMenuClick }}
-          overlayStyle={{ minWidth: 160 }}
-        >
-          <Space>
-            {appCtx.user.name || appCtx.user.email}
-            <DownOutlined />
-          </Space>
-        </Dropdown>
-      }
+      <div className={css.user}>
+        {
+          !openLogout && !openUserInfoSetting ?
+            appCtx.user.name || appCtx.user.email :
+            <Dropdown
+              menu={{ items, onClick: onUserMenuClick }}
+              overlayStyle={{ minWidth: 160 }}
+            >
+              <Space>
+                {appCtx.user.name || appCtx.user.email}
+                <DownOutlined />
+              </Space>
+            </Dropdown>
+        }
+      </div>
       {Content}
     </>
   )
@@ -310,7 +312,7 @@ function SystemMenus() {
           />
           <Item
             icon={<FileManage width={20} height={20} />}
-            title="静态文件管理"
+            title="静态文件"
             namespace="?appId=asset"
           />
           <Item

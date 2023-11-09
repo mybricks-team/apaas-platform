@@ -17,12 +17,12 @@ import { createVM } from 'vm-node';
 import FileService from '../file/file.controller'
 import * as axios from "axios";
 import platformEnvUtils from '../../utils/env'
-import RefreshDao from "../../dao/RefreshDao";
 import UserLogDao from "../../dao/UserLogDao";
 import SessionService from './session.service';
 import { STATUS_CODE } from '../../constants'
 import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
+import TransformSuccessCodeInterceptor from '../../middleware/transformSuccessCode.interceptor'
 
 const childProcess = require('child_process');
 const path = require('path')
@@ -39,7 +39,6 @@ export default class SystemService {
   servicePubDao: ServicePubDao
 
   appDao: AppDao;
-  refreshDao: RefreshDao;
 
   fileService: FileService
   userLogDao: UserLogDao;
@@ -56,7 +55,6 @@ export default class SystemService {
     this.filePubDao = new FilePubDao();
     this.servicePubDao = new ServicePubDao();
     this.appDao = new AppDao()
-    this.refreshDao = new RefreshDao()
     this.userLogDao = new UserLogDao()
     this.conn = null;
     this.nodeVMIns = createVM({ openLog: true });
@@ -212,7 +210,8 @@ export default class SystemService {
         data: totalList,
       };
     } catch (e) {
-      Logger.info(e);
+      Logger.info(e.message);
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
         data: [],
@@ -407,6 +406,7 @@ export default class SystemService {
 
   // 领域建模运行时
   @Post('/system/domain/run')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRun(
     // 通用参数
     @Body('serviceId') serviceId: string,
@@ -421,6 +421,7 @@ export default class SystemService {
 
   // 领域建模运行时
   @Post('/system/domain/run/:fileId/:serviceId')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Post(
     @Body() params: any,
     @Body('projectId') projectId: number,
@@ -440,6 +441,7 @@ export default class SystemService {
 
   // 领域建模运行时
   @Get('/system/domain/run/:fileId/:serviceId')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Get(
     @Query() params: any,
     @Query('projectId') projectId: number,
@@ -453,6 +455,7 @@ export default class SystemService {
 
   // 领域建模运行时
   @Post('/system/domain/run/:fileId/:serviceId/:action')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Action_Post(
     @Body() params: any,
     @Body('projectId') projectId: number,
@@ -473,6 +476,7 @@ export default class SystemService {
 
   // 领域建模运行时
   @Get('/system/domain/run/:fileId/:serviceId/:action')
+  @UseInterceptors(new TransformSuccessCodeInterceptor(200))
   async systemDomainRunById_Action_Get(
       @Query() params: any,
       @Req() req: any,
@@ -552,10 +556,17 @@ export default class SystemService {
   @Post('/system/channel')
   async channel(@Body() body: any) {
     const { type, version, isAdministrator, payload, userId } = body;
+    const systemConfig = await this.configService.getConfigByScope(['system'])
     if(platformEnvUtils.isPlatform_Fangzhou()) {
       return {
         code: -1,
         msg: '该平台暂不支持此功能'
+      }
+    }
+    if(systemConfig?.system?.config?.isPureIntranet) {
+      return {
+        code: -1,
+        msg: '纯内网部署，暂不支持此功能'
       }
     }
     try {
@@ -588,7 +599,8 @@ export default class SystemService {
               data: platformVersion
             }
           } catch (e) {
-            Logger.info(e)
+            Logger.info(e.message)
+            Logger.info(e?.stack?.toString())
             return {
               code: -1,
               msg: e.message
@@ -603,7 +615,8 @@ export default class SystemService {
               await lockUpgrade()
             }
           } catch(e) {
-            Logger.info(e)
+            Logger.info(e.message)
+            Logger.info(e?.stack?.toString())
             return {
               code: -1,
               msg: '当前已有升级任务，请稍后重试'
@@ -640,7 +653,7 @@ export default class SystemService {
                 installType: 'oss',
                 preVersion: prePlatformVersion,
                 version,
-                content: `更新平台，版本从 ${prePlatformVersion} 到 ${version}`,
+                content: `更新平台，版本从 ${prePlatformVersion} 到 ${version}, 服务已更新`,
               })
             });
             if(systemConfig?.system?.config?.openConflictDetection) {
@@ -720,11 +733,12 @@ export default class SystemService {
         code: -1,
         msg: '未知指令'
       }
-    } catch(err) {
-      Logger.info(err)
+    } catch(e) {
+      Logger.info(e)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
-        msg: `[${type}]:` + err.message
+        msg: `[${type}]:` + e.message
       }
     }
   }
@@ -737,7 +751,7 @@ export default class SystemService {
 
   @Post("/system/offlineUpdate")
   @UseInterceptors(FileInterceptor('file'))
-  async systemOfflineUpdate(@Req() request, @Body() body, @UploadedFile() file) {
+  async systemOfflineUpdate(@Req() req, @Body() body, @UploadedFile() file) {
     const systemConfig = await this.configService.getConfigByScope(['system'])
     try {
       if(systemConfig?.system?.config?.openConflictDetection) {
@@ -746,6 +760,7 @@ export default class SystemService {
       }
     } catch(e) {
       Logger.info(e)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
         msg: '当前已有升级任务，请稍后重试'
@@ -788,6 +803,18 @@ export default class SystemService {
       // 更新本地版本
       this.updateLocalPlatformVersion({ version: pkg.version })
 
+      Logger.info('平台更新成功，准备写入操作日志')
+      await this.userLogDao.insertLog({
+        type: 10,
+        userId: req?.query?.userId,
+        logContent: JSON.stringify({
+          type: 'platform',
+          action: 'install',
+          installType: 'local',
+          content: `离线更新平台更新平台, 服务已更新`,
+        })
+      });
+
       Logger.info('开始重启服务')
       // 重启服务
       childProcess.exec(
@@ -807,7 +834,6 @@ export default class SystemService {
     } catch(e) {
       Logger.info('错误信息是')
       Logger.info(e.message)
-      console.log(e)
       fse.removeSync(tempFolder)
     }
     
@@ -825,5 +851,43 @@ export default class SystemService {
     return {
       code: 1,
     };
+  }
+
+  @Post('/system/diagnostics')
+  async diagnostics(@Body('action') action, @Body('payload') payload) {
+    try {
+      switch(action) {
+        case 'init': {
+          return {
+            code: 1,
+            msg: 'success'
+          }
+        }
+        case 'envCheck': {
+          let msg = '';
+          if(global?.MYBRICKS_PLATFORM_START_ERROR) {
+            msg += global.MYBRICKS_PLATFORM_START_ERROR
+          }
+          await childProcess.execSync('unzip').toString()
+          // const reqUrl = `http://localhost:3100/paas/api/system/diagnostics`
+          const reqUrl = process.env.MYBRICKS_PLATFORM_ADDRESS?.endsWith('/') ?  `${process.env.MYBRICKS_PLATFORM_ADDRESS}paas/api/system/diagnostics` : `${process.env.MYBRICKS_PLATFORM_ADDRESS}/paas/api/system/diagnostics`;
+          Logger.info(`诊断服务请求日志：${reqUrl}`)
+          // @ts-ignore
+          await axios.post(reqUrl, { action: "init"})
+          msg += `\n 接口请求域名是：${process.env.MYBRICKS_PLATFORM_ADDRESS}`
+          
+          return {
+            code: 1,
+            msg
+          }
+        }
+      }
+    } catch(e) {
+      Logger.info(`诊断服务出错：${e.message}`)
+      return {
+        code: -1,
+        msg: (e.message || '未知错误') + `\n后台服务请求域名是: ${process.env.MYBRICKS_PLATFORM_ADDRESS}`
+      }
+    }
   }
 }

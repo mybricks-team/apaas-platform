@@ -12,7 +12,9 @@ import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
 import AppService from './app.service';
 const fse = require('fs-extra');
+const parse5 = require('parse5');
 const { getAppThreadName } = require('../../../env.js')
+const { injectAjaxScript, travelDom, injectAppConfigScript } = require('../../../util');
 
 @Controller("/paas/api/apps")
 export default class AppController {
@@ -45,7 +47,7 @@ export default class AppController {
     return {
       code: 1,
       data: apps,
-      msg: '成功'
+      msg: '成功!'
     };
   }
 
@@ -65,6 +67,14 @@ export default class AppController {
 
   @Get("/getLatestAllFromSource")
   async getLatestAllFromSource() {
+    const systemConfig = await this.configService.getConfigByScope(['system'])
+    if(systemConfig?.system?.config?.isPureIntranet) {
+      return {
+        code: 1,
+        data:[],
+        msg: '纯内网部署，暂不支持此功能'
+      }
+    }
     try {
       const localAppList = await this.appDao.queryLatestApp();
       let remoteAppList = []
@@ -80,13 +90,6 @@ export default class AppController {
         })
         if(env.isPlatform_Fangzhou()) {
           remoteAppList = await this.appDao.queryLatestApp(); 
-
-          // const temp = JSON.parse(require('child_process').execSync(`
-          //   curl -x 10.28.121.13:11080  --location --request POST 'https://my.mybricks.world/central/api/channel/gateway' --header 'Content-Type: application/json' --data '{"action": "app_getAllLatestList"}'
-          // `).toString())
-          // if(temp.code === 1) {
-          //   remoteAppList = temp.data
-          // }
         } else {
           const temp = (await (axios as any).post(
             // "http://localhost:4100/central/api/channel/gateway", 
@@ -120,7 +123,8 @@ export default class AppController {
           }
         }) 
       } catch(e) {
-        Logger.info(e)
+        Logger.info(e.message)
+        Logger.info(e?.stack?.toString())
       }
 
       return {
@@ -145,7 +149,8 @@ export default class AppController {
         await lockUpgrade()
       }
     } catch(e) {
-      Logger.info(e)
+      Logger.info(e.message)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
         msg: '当前已有升级任务，请稍后重试'
@@ -173,7 +178,7 @@ export default class AppController {
         remoteApps = await this.appDao.queryLatestApp();
       }
     } catch (e) {
-      Logger.info(`获取远程应用版本失败: ${e}`);
+      Logger.info(`获取远程应用版本失败: ${e?.stack?.toString()}`);
     }
 
     if (!remoteApps.length) {
@@ -194,12 +199,12 @@ export default class AppController {
     let logInfo = null;
     applications.installApps.forEach((app, index) => {
       if(app.type === 'npm') {
-        if (app.path?.indexOf(namespace) !== -1) {
+        if (app.path?.indexOf(`${namespace}@`) !== -1) {
           installedApp = app;
           installedIndex = index;
         }
       } else if(app.type === 'oss') {
-        if (app.namespace?.indexOf(namespace) !== -1) {
+        if (app.namespace === namespace) {
           installedApp = app;
           installedIndex = index;
         }
@@ -275,6 +280,17 @@ export default class AppController {
     );
 
     Logger.info("准备应用成功, 开始安装应用");
+
+    const serverModulePath = path.join(
+      env.getAppInstallFolder(),
+      `./${installPkgName}/nodejs/index.module.ts`
+    );
+    if (fs.existsSync(serverModulePath)) {
+      if(!remoteAppInstallInfo?.noServiceUpdate) {
+        logInfo += ', 服务已更新'
+      }
+    }
+
     try {
       const logStr = childProcess.execSync("node installApplication.js", {
         cwd: path.join(process.cwd()) // 不能inherit输出
@@ -300,16 +316,13 @@ export default class AppController {
         logInfo = null;
       }
       Logger.info(e.message);
+      Logger.info(e?.stack?.toString())
     }
 
     if (logInfo) {
       await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'success' }) });
     }
     try {
-      const serverModulePath = path.join(
-        env.getAppInstallFolder(),
-        `./${installPkgName}/nodejs/index.module.ts`
-      );
       if (fs.existsSync(serverModulePath)) {
         if(remoteAppInstallInfo?.noServiceUpdate) {
           Logger.info("有service，但是未更新服务端，无需重启");
@@ -336,6 +349,7 @@ export default class AppController {
       }
     } catch (e) {
       Logger.info(e);
+      Logger.info(e?.stack?.toString())
     }
 
     if(systemConfig?.system?.config?.openConflictDetection) {
@@ -369,15 +383,16 @@ export default class AppController {
 
   @Post("/offlineUpdate")
   @UseInterceptors(FileInterceptor('file'))
-  async appOfflineUpdate(@Req() request, @Body() body, @UploadedFile() file) {
+  async appOfflineUpdate(@Req() req, @Body() body, @UploadedFile() file) {
     const systemConfig = await this.configService.getConfigByScope(['system'])
     try {
       if(systemConfig?.system?.config?.openConflictDetection) {
-        Logger.info('开启了冲突检测')
+        Logger.info('[offlineUpdate]: 开启了冲突检测')
         await lockUpgrade()
       }
     } catch(e) {
       Logger.info(e)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
         msg: '当前已有升级任务，请稍后重试'
@@ -389,16 +404,16 @@ export default class AppController {
         fs.mkdirSync(tempFolder)
       }
       const zipFilePath = path.join(tempFolder, `./${file.originalname}`)
-      Logger.info('开始持久化压缩包')
+      Logger.info('[offlineUpdate]: 开始持久化压缩包')
       fs.writeFileSync(zipFilePath, file.buffer);
       childProcess.execSync(`which unzip`).toString()
-      Logger.info('开始解压文件')
+      Logger.info('[offlineUpdate]:开始解压文件')
       childProcess.execSync(`unzip -o ${zipFilePath} -d ${tempFolder}`, {
         stdio: 'inherit' // 不inherit输出会导致 error: [Circular *1]
       })
       const subFolders = fs.readdirSync(tempFolder)
       let unzipFolderSubpath = ''
-      Logger.info(`subFolders: ${JSON.stringify(subFolders)}}`)
+      Logger.info(`[offlineUpdate]: subFolders: ${JSON.stringify(subFolders)}}`)
       for(let name of subFolders) {
         if(name.indexOf('.') === -1) {
           unzipFolderSubpath = name
@@ -407,7 +422,35 @@ export default class AppController {
       }
       const unzipFolderPath = path.join(tempFolder, unzipFolderSubpath)
       const pkg = require(path.join(unzipFolderPath, './package.json'))
-      Logger.info(`pkg: ${JSON.stringify(pkg)}`)
+      Logger.info(`[offlineUpdate]: pkg: ${JSON.stringify(pkg)}`)
+      // inject something
+      const fePath = path.join(unzipFolderPath, './assets')
+      if(fs.existsSync(fePath)) {
+        const feDirs = fs.readdirSync(fePath)
+        feDirs?.forEach(name => {
+          if(name.indexOf('.html') !== -1 && name !== 'preview.html' && name !== 'publish.html') {
+            // 默认注入所有的资源
+            Logger.info('[offlineUpdate]: assets: 开始注入')
+            const srcHomePage = path.join(fePath, name)
+            const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
+            let handledHomePageDom = parse5.parse(rawHomePageStr);
+            travelDom(handledHomePageDom, {
+              ajaxScriptStr: injectAjaxScript({
+                namespace: pkg.name ? pkg.name : ''
+              }),
+              appConfigScriptStr: injectAppConfigScript({
+                namespace: pkg.name ? pkg.name : '',
+                version: pkg?.version,
+                ...(pkg?.mybricks || {})
+              }),
+              rawHtmlStr: rawHomePageStr,
+            })
+            let handledHomePageStr = parse5.serialize(handledHomePageDom)
+            fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')  
+            Logger.info('[offlineUpdate]: assets: 注入成功')
+          }
+        })
+      }
       let appName = pkg.name;
       // 包含scope，需要编码
       if(pkg.name.indexOf('@') !== -1) {
@@ -415,16 +458,38 @@ export default class AppController {
         appName = encodeURIComponent(pkg.name)
       }
       const destAppDir = path.join(env.getAppInstallFolder())
-      Logger.info('开始复制文件')
+      Logger.info('[offlineUpdate]: 开始复制文件')
       // fse.copySync(unzipFolderPath, destAppDir)
       childProcess.execSync(`cp -rf ${unzipFolderPath} ${destAppDir}`)
-      Logger.info('开始清除临时文件')
+      // copy xml
+      const bePath = path.join(unzipFolderPath, './nodejs')
+      if(fs.existsSync(bePath)) {
+        if(fs.existsSync(path.join(bePath, './mapper'))) {
+          Logger.info('[offlineUpdate]: 开始复制mapper')
+          fse.copySync(path.join(bePath, './mapper'), path.join(process.cwd(), `./src/resource`))
+        }
+      }
+      Logger.info('[offlineUpdate]: 开始清除临时文件')
       fse.removeSync(tempFolder)
-      Logger.info('版本信息开始持久化到本地')
+      Logger.info('[offlineUpdate]: 版本信息开始持久化到本地')
       // 更新本地版本
       this.updateLocalAppVersion({ namespace: pkg.name, version: pkg.version, installType: 'local' })
 
-      Logger.info('开始重启服务')
+      Logger.info('平台更新成功，准备写入操作日志')
+      await this.userLogDao.insertLog({ type: 9, userId: req?.query?.userId,
+        logContent: JSON.stringify(
+          {
+            action: 'install',
+            type: 'application',
+            installType: 'local',
+            namespace: pkg.name || '未知namespace',
+            name: pkg?.mybricks?.title || '未知title',
+            content: `更新应用：${pkg?.mybricks?.title}，离线安装成功，服务已更新`,
+          }
+        )
+      });
+
+      Logger.info('[offlineUpdate]: 开始重启服务')
       // 重启服务
       childProcess.exec(
         `npx pm2 reload ${getAppThreadName()}`,
@@ -443,11 +508,12 @@ export default class AppController {
     } catch(e) {
       Logger.info('错误信息是')
       Logger.info(e.message)
+      Logger.info(e?.stack?.toString())
       fse.removeSync(tempFolder)
     }
     
     if(systemConfig?.system?.config?.openConflictDetection) {
-      Logger.info("解锁成功，可继续升级应用");
+      Logger.info("[offlineUpdate]: 解锁成功，可继续升级应用");
       // 解锁
       await unLockUpgrade({ force: true })
     }
@@ -485,7 +551,8 @@ export default class AppController {
       }
     } catch (e) {
       Logger.info("安装应用失败");
-      Logger.info(e);
+      Logger.info(e.message);
+      Logger.info(e?.stack?.toString())
     }
     return { code: -1, data: null, message: "安装应用失败" };
   }

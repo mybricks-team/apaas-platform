@@ -1,11 +1,8 @@
 import { ScheduleModule, SchedulerRegistry } from "@nestjs/schedule";
-import { Module } from "@nestjs/common";
+import { Module, OnModuleInit } from "@nestjs/common";
 
-import Task from './task/task'
-
+import Task from './task/task';
 import WorkspaceService from "./services/workspace";
-import TaskController from "./services/task.controller";
-import TaskService from "./services/task.service";
 import FileDao from "./dao/FileDao";
 import FileTaskDao from "./dao/FileTaskDao";
 // import { loadModule } from "./module-loader";
@@ -30,6 +27,15 @@ import UserLogDao from './dao/UserLogDao';
 import LogModule from './module/log/log.module'
 import ConfigModule from "./module/config/config.module";
 import AppModule from "./module/app/app.module";
+import { DiscoveryService, Reflector } from "@nestjs/core";
+import GPTModule from './module/gpt/gpt.module';
+
+const MethodMap = {
+  0: 'GET',
+  1: 'POST',
+  2: 'PUT',
+  3: 'DELETE',
+};
 
 @Module({
   imports: [
@@ -47,6 +53,7 @@ import AppModule from "./module/app/app.module";
     LogModule,
     ConfigModule,
     AppModule,
+    GPTModule,
     ScheduleModule.forRoot(),
     // ...loadModule().modules,
   ],
@@ -54,20 +61,80 @@ import AppModule from "./module/app/app.module";
     proxy,
     WorkspaceService,
     UserGroupService,
-    TaskController,
     HomeService
   ],
   providers: [
     Task,
-    TaskService,
     SchedulerRegistry,
     FileDao,
     FileTaskDao,
     FilePubDao,
     ConfigDao,
-    UserLogDao
+    UserLogDao,
+    DiscoveryService
   ],
 })
-export default class AppManageModule {
-  constructor() {}
+export default class AppManageModule implements OnModuleInit {
+  constructor(private reflector: Reflector, private readonly discoveryService: DiscoveryService) {}
+
+  onModuleInit() {
+    try {
+      const controllerInstances = this.discoveryService.getControllers();
+      const controllerInstanceMap = controllerInstances.reduce((per, instance) => {
+        return { ...per, [instance.name]: instance };
+      }, {});
+      const pathMap = {};
+      const repeatPathMap = {};
+      controllerInstances.forEach(instance => {
+        const prefix = this.reflector.get('path', instance.instance.constructor);
+        Object.getOwnPropertyNames(instance.instance.__proto__)
+          .filter(key => key !== 'constructor')
+          .forEach(key => {
+            const path = this.reflector.get('path', instance.instance[key]);
+            const methodCode = this.reflector.get('method', instance.instance[key]);
+
+            if (path === undefined || methodCode === undefined) {
+              return;
+            }
+
+            const curPath = `${prefix}${path === '/' ? '' : path}[${MethodMap[methodCode]}]`;
+            const curMap = { controller: instance.name, handler: key };
+
+            /** 统计重复路由 */
+            if (pathMap[curPath]) {
+              if (!Array.isArray(repeatPathMap[curPath])) {
+                repeatPathMap[curPath] = [pathMap[curPath], curMap];
+              } else {
+                repeatPathMap[curPath] = [...repeatPathMap[curPath], curMap];
+              }
+            }
+
+            pathMap[curPath] = curMap;
+          })
+      });
+
+      /** 重复路由 */
+      if (Object.keys(repeatPathMap).length) {
+        Object.keys(repeatPathMap).forEach(key => {
+          const [_, path, method] = key.match(/^([^\[]*)\[(.*)]$/);
+
+          if(!global.MYBRICKS_PLATFORM_START_ERROR) {
+            global.MYBRICKS_PLATFORM_START_ERROR = ''
+          } else {
+            global.MYBRICKS_PLATFORM_START_ERROR += '\n';
+          }
+          global.MYBRICKS_PLATFORM_START_ERROR += `路由重复错误：请求方法为 ${method} 且路径为 ${path} 的路由存在重复，分别来自 Controller 中 ${repeatPathMap[key].map(item => `${item.controller} 的 ${item.handler} 方法`).join('、')}`;
+        });
+      }
+
+      global.emitGlobalEvent = async (path: string, method: string, ...args: any[]) => {
+        const curHandler = pathMap[`${path}[${method}]`];
+
+        return await controllerInstanceMap[curHandler.controller].instance[curHandler.handler](...args);
+      };
+    } catch (e) {
+      console.log('获取服务所有 controller 失败：', e);
+    }
+    // 使用方式：global.emitGlobalEvent('/paas/api/flow/getAsset', 'GET', {}).then(res => console.log(res.data));
+  }
 }

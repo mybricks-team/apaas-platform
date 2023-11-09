@@ -102,6 +102,9 @@
         from apaas_file
         where
         share_type = #{shareType} and
+        <if test="extName">
+            ext_name = #{extName} and
+        </if>
         status = 1
         order by update_time desc
         limit #{limit} offset #{offset}
@@ -113,6 +116,9 @@
         from apaas_file
         where
         share_type = #{shareType} and
+        <if test="extName">
+            ext_name = #{extName} and
+        </if>
         status = 1
     </select>
 
@@ -700,7 +706,7 @@
 
     <select id="globalSearch">
         SELECT * FROM (
-        SELECT A.id,A.name,A.creator_id,A.creator_name,A.create_time,A.update_time,A.ext_name,A.group_id,A.parent_id,A.share_type,A.icon FROM apaas_file AS A
+        SELECT A.id,A.name,A.creator_id,A.creator_name,A.update_time,A.ext_name,A.group_id,A.parent_id,A.share_type,null FROM apaas_file AS A
         JOIN apaas_user_group_relation AS B ON IF(
             A.group_id is NULL,
             A.creator_id = #{userId},
@@ -708,12 +714,12 @@
         ) OR A.share_type = 1
         
         UNION
-        
-        SELECT C.id,C.name,C.creator_id,C.creator_name,C.create_time,C.update_time,'group',null,null,null,C.icon FROM apaas_user_group AS C
+
+        SELECT C.id,C.name,C.creator_id,C.creator_name,C.update_time,'group',null,null,null,C.icon FROM apaas_user_group AS C
             JOIN apaas_user_group_relation AS D ON C.id = D.user_group_id AND D.user_id = #{userId} AND D.status = 1
         ) A WHERE name LIKE #{name} ORDER BY update_time DESC
         <if test="limit">
-            LIMIT #{limit} 
+            LIMIT #{limit}
         </if>
         <if test="offset">
             OFFSET #{offset}

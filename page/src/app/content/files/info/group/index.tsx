@@ -592,7 +592,7 @@ function DefaultAvatar({avatar = '', content, title = ''}) {
   )
 }
 
-function ConfigFormModal({
+export function ConfigFormModal({
   open,
   onOk,
   onCancel,

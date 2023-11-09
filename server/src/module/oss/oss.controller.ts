@@ -31,18 +31,16 @@ export default class OssController {
 
   @Post('/uploadFile')
   @UseInterceptors(FileInterceptor('file'))
-  async saveFile(@Request() request, @Body() body, @UploadedFile() file) {
+  async saveFile(@Body() body, @Request() request, @UploadedFile() uploadFile) {
     const ossConfig = await this.ossService.getOssConfig();
-
+    const file = uploadFile || body.file;
     const { openOss, cdnDomain, ...configItem } = ossConfig || {}
 
     if (openOss) {
       try {
         let { url } = await this.ossService.saveFile({
           buffer: file.buffer,
-          name: `${uuid()}-${new Date().getTime()}${path.extname(
-            file.originalname,
-          )}`,
+          name: `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
           path: body.folderPath,
         }, configItem);
 
@@ -50,18 +48,9 @@ export default class OssController {
           const domainReg = /^(https?:\/\/)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/; 
           url = url.replace(domainReg, cdnDomain)
         }
-        return {
-          data: {
-            url,
-          },
-          code: 1,
-        };
+        return { data: { url }, code: 1 };
       } catch (err) {
-        return {
-          code: -1,
-          msg: `上传失败: ${err}`,
-          message: `上传失败: ${err}`,
-        };
+        return { code: -1, msg: `上传失败: ${err}`, message: `上传失败: ${err}` };
       }
     }
 
@@ -69,10 +58,7 @@ export default class OssController {
     try {
       const subPath = await this.flowService.saveFile({
         str: file.buffer,
-        // filename: file.originalname,
-        filename: `${uuid()}-${new Date().getTime()}${path.extname(
-          file.originalname,
-        )}`,
+        filename: `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
         folderPath: body.folderPath,
       });
       return {

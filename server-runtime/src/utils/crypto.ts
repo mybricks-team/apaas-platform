@@ -17,3 +17,5 @@ export const decrypt = str => {
 	/** 进行加密，输入使用编码，输出使用编码 */
 	return crt.update(str, 'hex', 'utf-8') + crt.final('utf-8');
 }
+
+export { crypto };

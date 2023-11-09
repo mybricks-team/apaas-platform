@@ -6,6 +6,7 @@ import { copyText } from '@/utils';
 import { Content } from '../../content';
 import { Folder, File, UploadIcon } from '../../components';
 import CustomUpload from './custom-upload';
+import { ConfigFormModal } from '../files/info/group';
 
 import styles from './index.less';
 
@@ -46,6 +47,7 @@ const Asset: FC<AssetProps> = () => {
 	const [loading, setLoading] = useState(false);
 	const [uploading, setUploading] = useState(false);
 	const [showCategoryModal, setShowCategoryModal] = useState(false);
+	const [curDeleteAsset, setCurDeleteAsset] = useState(null);
 	const [fileUploadAction, setFileUploadAction] = useState('');
 	const [pageNum, setPageNum] = useState(1);
 	const [total, setTotal] = useState(0);
@@ -56,6 +58,7 @@ const Asset: FC<AssetProps> = () => {
 	}, []);
 	const [categoryForm] = Form.useForm();
 	const [fileUploadForm] = Form.useForm();
+	const deleteAsset = useCallback(asset => setCurDeleteAsset(asset), []);
 	const columns = useMemo(() => {
 		return [
 			{
@@ -102,7 +105,7 @@ const Asset: FC<AssetProps> = () => {
 				key: 'operate',
 				width: '120',
 				render(_, item) {
-					return item.type === 'folder' ? null : (
+					return item.type === 'folder' ? <span className={styles.danger} onClick={() => deleteAsset(item)}>删除</span> : (
 						<div className={styles.operateColumn}>
 							<span
 								onClick={() => {
@@ -113,6 +116,7 @@ const Asset: FC<AssetProps> = () => {
 								复制链接
 							</span>
 							<span onClick={() => window.open(item.url, '_blank')}>预览</span>
+							<span className={styles.danger} onClick={() => deleteAsset(item)}>删除</span>
 						</div>
 					);
 				},
@@ -160,6 +164,22 @@ const Asset: FC<AssetProps> = () => {
 				.catch(e => message.error(e.message || '创建目录失败'));
 		});
 	}, [pageSize, pageNum, fetchFiles, paths]);
+	const handleDeleteAsset = useCallback(() => {
+		categoryForm.validateFields().then(value => {
+			axios
+				.post('/paas/api/flow/deleteAsset', { name: curDeleteAsset.name, path: paths.map(p => p.path).join('/') })
+				.then(res => {
+					if (res.data?.code === 1) {
+						message.success(res.data?.msg || '删除文件成功');
+						fetchFiles(pageNum, pageSize);
+						setCurDeleteAsset(null);
+					} else {
+						message.error(res.data?.msg || '删除文件失败');
+					}
+				})
+				.catch(e => message.error(e.message || '删除文件失败'));
+		});
+	}, [curDeleteAsset, paths]);
 	const openFileUploadModal = useCallback(() => {
 		fileUploadForm.resetFields();
 		setFileUploadAction('file');
@@ -327,6 +347,44 @@ const Asset: FC<AssetProps> = () => {
 					</Form.Item>
 				</Form>
 			</Modal>
+			<ConfigFormModal
+				open={!!curDeleteAsset}
+				onOk={handleDeleteAsset}
+				key={curDeleteAsset}
+				onCancel={() => setCurDeleteAsset(null)}
+				title="删除文件"
+				Form={({ form, editRef }) => {
+					return (
+						<>
+							<div className={styles.deleteTip}>
+								您确定要删除该文件吗，该操作将
+								<span className={styles.danger}>永久删除文件</span>
+								，是否继续操作？
+							</div>
+							<Form labelCol={{ span: 0 }} wrapperCol={{ span: 24 }} form={form}>
+								<Form.Item
+									name="name"
+									rules={[
+										{
+											required: true,
+											message: '输入名称与当前文件名不同',
+											validator(rule, value) {
+												return new Promise((resolve, reject) => value !== curDeleteAsset?.name ? reject(rule.message) : resolve(true));
+											}
+										}
+									]}
+								>
+									<Input
+										ref={editRef}
+										placeholder={`如果确认操作，请手动输入“${curDeleteAsset?.name}“`}
+										autoFocus
+									/>
+								</Form.Item>
+							</Form>
+						</>
+					)
+				}}
+			/>
 		</Content>
 	);
 };

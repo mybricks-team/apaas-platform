@@ -11,7 +11,6 @@ import { proxyMiddleWare } from "./middleware/proxy.middleware";
 import { apiProxy as apiProxyMiddleWare } from './middleware/api.proxy.middleware';
 import { timeout } from "./middleware/requestTimeout.middleware";
 import { checkHealthMiddleware } from './middleware/checkHealth.middleware';
-import { requestPerformance } from './middleware/requestPerformance.middleware';
 
 import { enhanceApp } from "./enhance";
 import init from "./init";
@@ -33,14 +32,22 @@ async function bootstrap() {
     index: false,
     setHeaders: (res, path, stat) => {
       res.set('Access-Control-Allow-Origin', '*');
-    }
+      if(path?.indexOf('.js') > -1){
+        res.set('Cache-Control', 'max-age=86400000') // 1d
+      }
+    },
+    etag: true,
+    lastModified: true,
   });
   app.useStaticAssets(env.FILE_LOCAL_STORAGE_FOLDER, {
     prefix: `/${env.FILE_LOCAL_STORAGE_PREFIX}`,
     index: false,
     setHeaders: (res, path, stat) => {
       res.set('Access-Control-Allow-Origin', '*');
-    }
+      // res.set('Cache-Control', 'max-age=86400000') // 1d
+    },
+    // etag: true,
+    // lastModified: true,
   });
   app.use(apiProxyMiddleWare());
   app.use(bodyParser.json({ limit: "100mb" }));
@@ -78,9 +85,8 @@ async function bootstrap() {
   app.use(cookieParser());
 	app.use(xmlparser());
   app.use(timeout(TIMEOUT_TIME))
-  app.use(requestPerformance)
 
-  await app.listen(3100);
+  await app.listen(process.env?.MYBRICKS_PLATFORM_PORT || 3100);
 }
 
 bootstrap();

@@ -1,5 +1,6 @@
 .container {
     position: relative;
+
     &.fullScreen {
         position: fixed;
         top: 0;
@@ -25,23 +26,42 @@
             display: flex;
             align-items: center;
 
-            .lineInput {
-                width: 70px;
-            }
+            .line {
+                .lineInput {
+                    width: 70px;
+                }
 
-            .lineInputLabel {
-                margin: 0 15px 0 5px;
-            }
-
-            .icon {
-                margin-left: 15px;
-                display: flex;
-                align-items: center;
-
-                :hover {
-                    cursor: pointer;
+                .lineLabel {
+                    margin: 0 20px 0 5px;
                 }
             }
+
+            .refresh {
+                margin-right: 20px;
+                color: #3c9df9;
+                cursor: pointer;
+            }
+
+            .fullScreen {
+                margin-left: 20px;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+            }
+        }
+    }
+
+    .error {
+        height: 500px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .refresh {
+            margin: 0 1px;
+            color: #3c9df9;
+            text-decoration: underline;
+            cursor: pointer;
         }
     }
 

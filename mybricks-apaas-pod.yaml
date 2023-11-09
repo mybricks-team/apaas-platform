@@ -18,6 +18,8 @@ spec:
           mountPath: /home/apaas/logs
         - name: localstorage
           mountPath: /home/apaas/_localstorage
+        - name: apps
+          mountPath: /home/apaas/_apps
   volumes:
     - name: config
       hostPath:
@@ -28,3 +30,6 @@ spec:
     - name: localstorage
       hostPath:
         path: /Users/andyzou/Work/registry/mybricks-team/apaas-platform/_localstorage
+    - name: apps
+      hostPath:
+        path: /Users/andyzou/Work/registry/mybricks-team/apaas-platform/_apps

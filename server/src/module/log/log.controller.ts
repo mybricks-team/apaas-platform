@@ -83,7 +83,6 @@ export default class LogsController {
       }
     }
     const list = fs.readdirSync(env.FILE_ANALYSIS_PERFORMANCE_FOLDER)
-    console.log(list)
     const data = [];
     list.forEach((item) => {
       if(item?.indexOf('.json') !== -1) {
@@ -110,7 +109,7 @@ export default class LogsController {
       const filePath = path.join(env.FILE_ANALYSIS_PERFORMANCE_FOLDER, `./${date}.json`)
       const fileData = fs.readFileSync(filePath, 'utf-8')
       const data = JSON.parse(fileData);
-      console.log(data)
+      let averageCost = 0;
       const map = {}
       for(let api of data) {
         if(!map[api.url]) {
@@ -118,10 +117,19 @@ export default class LogsController {
         } else {
           map[api.url] = (map[api.url] + api.cost) * 0.5
         }
+        averageCost += api.cost
+      }
+      if(data.length > 0) {
+        averageCost = averageCost / data.length
       }
       return {
         code: 1,
-        data: map
+        data: {
+          result: {
+            averageCost
+          },
+          detail: map
+        }
       }
     } catch (e) {
       Logger.warn('获取运行日志失败')

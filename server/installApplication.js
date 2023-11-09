@@ -5,89 +5,23 @@ const parse5 = require('parse5');
 const mysql = require('mysql2');
 const axios = require('axios');
 const { APPS_BASE_FOLDER, NPM_REGISTRY, FILE_LOCAL_STORAGE_FOLDER } = require('./env');
+const { injectAjaxScript, travelDom, injectAppConfigScript } = require('./util');
 
 let npmRegistry = NPM_REGISTRY
+let appsBaseFolder = APPS_BASE_FOLDER
 
-if(process.argv[2] && process.argv[2].indexOf('--registry') !== -1) {
-  npmRegistry = process.argv[2].split('=')[1]
+if(process.argv) {
+  process.argv.forEach((args) => {
+    if(args.indexOf('--registry') !== -1) {
+      npmRegistry = args.split('=')[1]
+    }
+    if(args.indexOf('--appsFolder') !== -1) {
+      appsBaseFolder = args.split('=')[1]
+    }
+  })
 }
 
 let MYSQL_CONNECTION = null
-
-function injectAjaxScript({ namespace }) {
-  const placeholder = '_NAME_SPACE_'
-  const rawStr = `
-  var oldxhr=window.XMLHttpRequest
-  function newobj(){}
-  window.XMLHttpRequest=function(){
-      let tagetobk=new newobj();
-      tagetobk.oldxhr=new oldxhr();
-      let handle={
-          get: function(target, prop, receiver) {
-              if(prop==='oldxhr'){
-                  return Reflect.get(target,prop);
-              }
-              if(typeof Reflect.get(target.oldxhr,prop)==='function')
-              {
-                  if(Reflect.get(target.oldxhr,prop+'proxy')===undefined)
-                  {
-                      target.oldxhr[prop+'proxy']=function(...funcargs){
-                          let newArgs = [...funcargs]
-                          try {
-                              if (["GET", "POST", 'PUT', 'DELETE', 'OPTIONS'].indexOf(newArgs[0]) !== -1) {
-                                  if(newArgs[1].indexOf("http") !== 0) {
-                                    const pathname = newArgs[1];
-                                    let needProxy = false;
-                                    ['.js', '.css', '.html'].forEach(function (item) {
-                                        if(pathname.indexOf(item) !== -1) {
-                                            needProxy = false
-                                        }
-                                    })
-                                    if(pathname.startsWith('/paas/api') || pathname.startsWith('/api')) {
-                                      needProxy = true
-                                    }
-                                    if(needProxy) {
-                                        newArgs[1] = '${placeholder}' + newArgs[1]
-                                    }
-                                }
-                              }
-                          } catch (e) {}
-                          let result=target.oldxhr[prop].call(target.oldxhr,...newArgs)
-                          return result;
-                      }
-                  }
-                  return Reflect.get(target.oldxhr,prop+'proxy')
-              }
-              if(prop) {
-                if(prop.indexOf) {
-                  if(prop.indexOf('response')!==-1) {
-                    return Reflect.get(target.oldxhr,prop)
-                  }
-                }
-              }
-              return Reflect.get(target.oldxhr,prop);
-          },
-          set(target, prop, value) {
-              return Reflect.set(target.oldxhr, prop, value);
-          },
-          has(target, key) {
-              // debugger;
-              return Reflect.has(target.oldxhr,key);
-          }
-      }
-      let ret = new Proxy(tagetobk, handle);
-      return ret;
-  };
-  `
-  return rawStr.replace(placeholder, `/${namespace}`)
-}
-
-function injectAppConfigScript(appConfig) {
-  const rawStr = `
-    var _APP_CONFIG_ = ${JSON.stringify(appConfig)}
-  `
-  return rawStr
-}
 
 function isYarnExist() {
   let result;
@@ -98,38 +32,6 @@ function isYarnExist() {
     result = false
   }
   return result
-}
-
-function travelDom(domAst, { ajaxScriptStr, appConfigScriptStr }) {
-  let headTag = domAst.childNodes?.[1]?.childNodes?.[0]
-  if(headTag.nodeName === 'head') {
-    let ajaxNode = {
-      nodeName: 'script',
-      tagName: 'script',
-      attrs: [],
-      childNodes: [
-        {
-          nodeName: '#text',
-          value: ajaxScriptStr
-        }
-      ],
-      parentNode: headTag
-    }
-    let appConfigNode = {
-      nodeName: 'script',
-      tagName: 'script',
-      attrs: [],
-      childNodes: [
-        {
-          nodeName: '#text',
-          value: appConfigScriptStr
-        }
-      ],
-      parentNode: headTag
-    }
-    headTag.childNodes.push(ajaxNode)
-    headTag.childNodes.unshift(appConfigNode)
-  }
 }
 
 async function installApplication() {
@@ -158,12 +60,12 @@ async function installApplication() {
             rawPkgName = pkgName
             pkgVersion = npmPkg.split('@')[1]
           }
-          if(!fs.existsSync(APPS_BASE_FOLDER)) {
-            fs.mkdirSync(APPS_BASE_FOLDER)
+          if(!fs.existsSync(appsBaseFolder)) {
+            fs.mkdirSync(appsBaseFolder)
           }
-          const destAppDir = path.join(APPS_BASE_FOLDER, `./${pkgName}`)
-          if(!fs.existsSync(APPS_BASE_FOLDER)) {
-            fs.mkdirSync(APPS_BASE_FOLDER)
+          const destAppDir = path.join(appsBaseFolder, `./${pkgName}`)
+          if(!fs.existsSync(appsBaseFolder)) {
+            fs.mkdirSync(appsBaseFolder)
           }
           
           // judge jump
@@ -229,7 +131,7 @@ async function installApplication() {
                 if(pkg?.mybricks?.type !== 'system') { // 非系统任务
                   const feDirs = fs.readdirSync(fePath)
                   feDirs?.forEach(name => {
-                    if(name.indexOf('.html') !== -1 && name !== 'preview.html') {
+                    if(name.indexOf('.html') !== -1 && name !== 'preview.html' && name !== 'publish.html') {
                       // 默认注入所有的资源
                       const srcHomePage = path.join(fePath, name)
                       const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
@@ -242,7 +144,8 @@ async function installApplication() {
                           namespace: pkg.name ? pkg.name : '',
                           version: pkg?.version,
                           ...(pkg?.mybricks || {})
-                        })
+                        }),
+                        rawHtmlStr: rawHomePageStr,
                       })
                       let handledHomePageStr = parse5.serialize(handledHomePageDom)
                       fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')  
@@ -267,10 +170,10 @@ async function installApplication() {
         } else if(appConfig.type === 'oss') {
           const pkgVersion = appConfig.version;
           let pkgName = appConfig.namespace;
-          if(!fs.existsSync(APPS_BASE_FOLDER)) {
-            fs.mkdirSync(APPS_BASE_FOLDER)
+          if(!fs.existsSync(appsBaseFolder)) {
+            fs.mkdirSync(appsBaseFolder)
           }
-          const destAppDir = path.join(APPS_BASE_FOLDER, `./${pkgName}`)
+          const destAppDir = path.join(appsBaseFolder, `./${pkgName}`)
           
           // judge jump
           const existedAppPkgPath = path.join(destAppDir, './package.json')
@@ -300,10 +203,17 @@ async function installApplication() {
                 version: pkgVersion
               })
               })).data
-            const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
-            console.log(`[install]: 资源包下载成功 ${tempPathZipFile}}`)
-            fs.writeFileSync(tempPathZipFile, Buffer.from(res.data.data));
-            cp.execSync(`cd ${tempFolder} && unzip -o ${tempPathZipFile} -d ${destAppDir}`)
+            if(res.code !== 1) {
+              console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)
+              console.log(`【install】: 错误是 ${res.msg}`)
+              fs.removeSync(tempFolder)
+              continue;
+            } else {
+              const tempPathZipFile = path.join(tempFolder, `${pkgName}.zip`)
+              console.log(`[install]: 资源包下载成功 ${tempPathZipFile}}`)
+              fs.writeFileSync(tempPathZipFile, Buffer.from(res.data.data));
+              cp.execSync(`cd ${tempFolder} && unzip -o ${tempPathZipFile} -d ${destAppDir}`)
+            }
           } catch(e) {
             console.log(`【install】: 应用 ${pkgName} 安装失败，跳过...`)
             console.log(`【install】: 错误是: ${e.toString()}`)
@@ -348,7 +258,7 @@ async function installApplication() {
               if(pkg?.mybricks?.type !== 'system') { // 非系统任务
                 const feDirs = fs.readdirSync(fePath)
                 feDirs?.forEach(name => {
-                  if(name.indexOf('.html') !== -1 && name !== 'preview.html') {
+                  if(name.indexOf('.html') !== -1 && name !== 'preview.html' && name !== 'publish.html') {
                     // 默认注入所有的资源
                     const srcHomePage = path.join(fePath, name)
                     const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
@@ -361,7 +271,8 @@ async function installApplication() {
                         namespace: pkg.name ? pkg.name : '',
                         version: pkg?.version,
                         ...(pkg?.mybricks || {})
-                      })
+                      }),
+                      rawHtmlStr: rawHomePageStr,
                     })
                     let handledHomePageStr = parse5.serialize(handledHomePageDom)
                     fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')  
@@ -389,10 +300,10 @@ async function installApplication() {
         } else if(appConfig.type === 'local') {
           const pkgVersion = appConfig.version;
           let pkgName = appConfig.namespace;
-          if(!fs.existsSync(APPS_BASE_FOLDER)) {
-            fs.mkdirSync(APPS_BASE_FOLDER)
+          if(!fs.existsSync(appsBaseFolder)) {
+            fs.mkdirSync(appsBaseFolder)
           }
-          const destAppDir = path.join(APPS_BASE_FOLDER, `./${pkgName}`)
+          const destAppDir = path.join(appsBaseFolder, `./${pkgName}`)
           
           // judge jump
           const existedAppPkgPath = path.join(destAppDir, './package.json')
@@ -458,7 +369,7 @@ async function installApplication() {
               if(pkg?.mybricks?.type !== 'system') { // 非系统任务
                 const feDirs = fs.readdirSync(fePath)
                 feDirs?.forEach(name => {
-                  if(name.indexOf('.html') !== -1 && name !== 'preview.html') {
+                  if(name.indexOf('.html') !== -1 && name !== 'preview.html' && name !== 'publish.html') {
                     // 默认注入所有的资源
                     const srcHomePage = path.join(fePath, name)
                     const rawHomePageStr = fs.readFileSync(srcHomePage, 'utf-8')
@@ -471,7 +382,8 @@ async function installApplication() {
                         namespace: pkg.name ? pkg.name : '',
                         version: pkg?.version,
                         ...(pkg?.mybricks || {})
-                      })
+                      }),
+                      rawHtmlStr: rawHomePageStr,
                     })
                     let handledHomePageStr = parse5.serialize(handledHomePageDom)
                     fs.writeFileSync(srcHomePage, handledHomePageStr, 'utf-8')  

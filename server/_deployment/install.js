@@ -101,7 +101,7 @@ function mergeToApplication() {
       "installApps": [
         {
           "type": "oss",
-          "version": "0.1.45",
+          "version": "0.1.99",
           "namespace": "mybricks-material",
           "path": "asset-center/asset/app/mybricks-material/0.1.45/mybricks-material.zip"
         }
@@ -126,8 +126,14 @@ function injectPLatformConfig() {
     config.apps[0].env.MYBRICKS_PLATFORM_ADDRESS = UserInputConfig.platformDomain
     config.apps[0].env.MYBRICKS_NODE_MODE = 'slave'
     config.apps[0].env.TZ = 'Asia/Shanghai'
-    fs.writeFileSync(path.join(__dirname, '../ecosystem.config.js'), `module.exports = ${JSON.stringify(config)}`, 'utf-8')
   }
+  if(UserInputConfig.platformPort) {
+    config.apps[0].env.MYBRICKS_PLATFORM_PORT = UserInputConfig.platformPort
+  }
+  if(UserInputConfig.platformAppName) {
+    config.apps[0].name = UserInputConfig.platformAppName
+  }
+  fs.writeFileSync(path.join(__dirname, '../ecosystem.config.js'), `module.exports = ${JSON.stringify(config)}`, 'utf-8')
   console.log(`【install】: 初始化平台域名成功`)
 }
 

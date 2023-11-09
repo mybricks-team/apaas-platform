@@ -11,13 +11,14 @@ export default class GroundService {
   }
 
   @Post("/getAll")
-  async getAll(@Body('pageSize') pageSize: number, @Body('page') page: number) {
+  async getAll(@Body('pageSize') pageSize: number, @Body('page') page: number, @Body('extName') extName: string) {
     try {
       const rtn = await this.fileService.getAllShareFiles({
         pageSize,
-        page
+        page,
+        extName
       });
-      const total = await this.fileService.getCountOfShareFiles()
+      const total = await this.fileService.getCountOfShareFiles(extName)
       return {
         code: 1,
         data: {

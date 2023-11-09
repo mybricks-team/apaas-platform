@@ -1,6 +1,6 @@
 {
   "name": "mybricks-apaas-platform",
-  "version": "0.1.14",
+  "version": "0.1.32",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@alicloud/openapi-client": "^0.4.6",
+    "@alicloud/openapi-util": "^0.3.2",
+    "@alicloud/tea-util": "^1.4.7",
     "@mybricks/file-parser": "1.0.8",
     "@mybricks/render-com-node": "^1.0.0",
     "@mybricks/rocker-commons": "0.0.2",

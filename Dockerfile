@@ -39,6 +39,8 @@ RUN yum -y clean all
 # # 添加自定义的Nginx配置
 # # ADD nginx.conf /etc/nginx/
 
+RUN /bin/bash -c 'npm config set registry https://registry.npm.taobao.org'
+
 WORKDIR /home/apaas
 
 COPY . .
@@ -46,6 +48,7 @@ COPY . .
 WORKDIR /home/apaas
 
 RUN mv  /home/apaas/_localstorage /home/apaas/localstorage
+RUN mkdir -p /home/apaas/apps
 
 WORKDIR /home/apaas/server
 

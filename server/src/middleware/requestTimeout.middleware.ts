@@ -8,9 +8,14 @@ const timeout = function(time?, options?) {
   var respond = opts.respond === undefined || opts.respond === true
 
   return function (req, res, next) {
-    const { url, _parsedUrl, method } = req;
+    const { _parsedUrl, method } = req;
     let delay = delayConfig
-    const customConfig = timeConfig?.whiteList?.[_parsedUrl?.pathname + ':' + method];
+    const customConfigKey = Object.keys(timeConfig?.whiteList ?? {}).find(key => {
+      const [path, curMethod] = key?.split(':') ?? [];
+
+      return method === curMethod && new RegExp(path).test(_parsedUrl?.pathname ?? '');
+    });
+    const customConfig = timeConfig?.whiteList?.[customConfigKey];
     if(customConfig?.ignore === true) {
       next()
       return

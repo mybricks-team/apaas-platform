@@ -110,7 +110,7 @@ export default class AppCtx {
   getCurrentUserSystemConfig() {
     let config = {}
     try {
-      let sysConfigObj = JSON.parse(this.systemConfig?.authConfig)
+      let sysConfigObj = JSON.parse(this.systemConfig?.authConfig || '{}')
       // @ts-ignore
       const roleConfig = sysConfigObj[this.user?.role];
       if (roleConfig) {

@@ -48,7 +48,7 @@ export class AppDO {
 export default class AppDao extends DOBase {
   @Mapping(AppDO)
   public async queryLatestApp(params?: { creatorName }): Promise<Array<AppDO>> {
-    return await this.exe<Array<AppDO>>("apaas_app:queryLatestAppList", params);
+    return await this.exe<Array<AppDO>>("apaas_app:queryLatestAppList", params || {});
   }
 
   @Mapping(AppDO)

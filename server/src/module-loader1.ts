@@ -5,6 +5,7 @@ const env = require('./utils/env').default;
 const UserDaoObj = require('./dao/UserDao');
 const userDao = new UserDaoObj.default();
 const { Logger } = require('@mybricks/rocker-commons');
+const Util = require('./utils/index')
 
 const scanDir = (dirFullPath) => {
   const modules = [];
@@ -30,7 +31,7 @@ const scanDir = (dirFullPath) => {
             }
             if(fs.existsSync(middlewarePath)) {
               const fn = require(middlewarePath).default
-              const wrapperFn = fn({ userDao })
+              const wrapperFn = fn({ userDao, Logger })
               middleware.push(wrapperFn)
             }
             if(fs.existsSync(interceptorPath)) {
@@ -64,11 +65,12 @@ function loadModule() {
       if (folders) {
         for(let l=folders.length, i=0; i<l; i++) {
           const childPath = folders[i]
-          if(childPath === '.DS_Store') {
-            continue;
-          }
           try {
             const appFullPath = path.join(appDir, childPath);
+            if(!Util.isDirectory(appFullPath)) {
+              Logger.info(`模块 ${childPath} 不合法，跳过`)
+              continue
+            }
             const data = scanDir(appFullPath);
             modules = modules.concat(data.modules);
             middleware = middleware.concat(data.middleware);
@@ -78,22 +80,33 @@ function loadModule() {
             }
             namespace = namespace.concat(data.namespace);
           } catch(e) {
+            if(!global.MYBRICKS_PLATFORM_START_ERROR) {
+              global.MYBRICKS_PLATFORM_START_ERROR = ''
+            }
+            global.MYBRICKS_PLATFORM_START_ERROR += `\n 模块 ${childPath} 加载失败 \n 错误是：${e.message} \n 详情是: ${e?.stack?.toString()}`;
             Logger.info(`模块加载失败, 准备跳过：${e.message}`)
+            Logger.info(`错误详情是: ${e?.stack?.toString()}`)
             continue;
           }
         }
       }
     }
   } catch(e) {
+    if(!global.MYBRICKS_PLATFORM_START_ERROR) {
+      global.MYBRICKS_PLATFORM_START_ERROR = ''
+    }
+    global.MYBRICKS_PLATFORM_START_ERROR += `\n 错误详情是：${e.message}`;
     Logger.info(`模块加载失败：${e.message}`)
+    Logger.info(`${e?.stack?.toString()}`)
   }
-  return {
+  const res = {
     modules,
     namespace,
     middleware,
     interceptor,
     namespaceMap
   };
+  return res
 }
 
 module.exports = { loadModule };

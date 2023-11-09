@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import UserLogDao from '../../dao/UserLogDao';
+import { Logger } from '@mybricks/rocker-commons';
 const fs = require('fs');
 const path = require('path');
 const child_process = require('child_process')
@@ -62,7 +63,7 @@ export default class LogService {
   async offlineAnalyzeInterfacePerformance() {
     const pendingFileList = []
     if(!fs.existsSync(env.LOGS_BASE_FOLDER)) {
-      console.log('日志不存在')
+      Logger.info('日志不存在')
       return
     }
     if(!fs.existsSync(env.FILE_ANALYSIS_PERFORMANCE_FOLDER)) {

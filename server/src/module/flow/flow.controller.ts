@@ -13,11 +13,11 @@ import {
 import { Logger } from '@mybricks/rocker-commons';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 const env = require('../../../env.js')
-import { getRealDomain } from '../../utils/index'
+import { getRealDomain, uuid } from '../../utils'
 import FlowService from './flow.service';
-import { uuid } from '../../utils/index';
 import * as path from 'path';
 import * as fs from 'fs';
+import { removeFile } from '../../utils/file';
 
 
 @Controller('/paas/api/flow')
@@ -31,34 +31,25 @@ export default class FlowController {
   // 模块安装时，发布到运行容器
   @Post('/file/batchCreate')
   async batchCreateProjectFile(
-    @Body('projectId') projectId: number,
-    @Body('envType') envType: number,
-    @Body('codeStrList') codeStrList: {fileId: number, fileName: string, content: string}[],
+    @Body() body: { projectId: number; envType: any; codeStrList: {fileId: number, fileName: string, content: string}[]; },
     @Request() request,
   ) {
-    const domainName = getRealDomain(request)
+    const { projectId, envType, codeStrList } = body;
+    const domainName = getRealDomain(request);
     if(!codeStrList) {
-      return {
-        code: -1,
-        msg: 'fileId 或 codeStrList 为空'
-      }
+      return { code: -1, msg: 'fileId 或 codeStrList 为空' };
     }
+
     try {
       const cdnList = await this.flowService.batchCreateProjectFile({
         projectId,
         envType,
         codeStrList
-      }, { domainName })
+      }, { domainName });
       
-      return {
-        code: 1,
-        data: cdnList
-      }
+      return { code: 1, data: cdnList };
     } catch (err) {
-      return {
-        code: -1,
-        msg: err.message || '出错了'
-      }
+      return { code: -1, msg: err.message || '出错了' };
     }
   }
 
@@ -125,19 +116,23 @@ export default class FlowController {
 
   @Post('/saveFile')
   @UseInterceptors(FileInterceptor('file'))
-  async saveFile(@Request() request, @Body() body, @UploadedFile() file) {
-    const domainName = body?.domainName || getRealDomain(request)
-    Logger.info(`[API][/paas/api/flow/saveFile]saveFile请求头是: ${domainName}`)
+  async saveFile(@Body() body, @Request() request, @UploadedFile() uploadFile) {
+    const { noHash, folderPath } = body;
+    const domainName = body?.domainName || getRealDomain(request);
+    const file = uploadFile || body.file;
+    Logger.info(`[API][/paas/api/flow/saveFile]saveFile请求头是: ${domainName}`);
+
     try {
       const subPath = await this.flowService.saveFile({
         str: file.buffer,
-        filename: body.noHash ? file.originalname : `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
-        folderPath: body.folderPath
+        filename: noHash ? file.originalname : `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
+        folderPath: folderPath
       });
       return {
         data: {
-          url: `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`,
-          subPath,
+          url: `${domainName}/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`, // 陆续下掉
+          subPath, // 在平台静态资源库中文件存储路径，供后续回滚等操作使用
+          visitSubPath: `/${env.FILE_LOCAL_STORAGE_PREFIX}${subPath}`, // 前端加上域名，访问静态资源
         },
         code: 1,
       };
@@ -145,6 +140,32 @@ export default class FlowController {
       return {
         code: -1,
         msg: `上传失败: ${err}`,
+      };
+    }
+  }
+
+  @Post('/saveProducts')
+  @UseInterceptors(FileInterceptor('file'))
+  async saveProducts(@Body() body, @UploadedFile() file) {
+    const { fileId, type, version, content } = body
+    Logger.info(`[API][/paas/api/flow/saveProducts] 请求是: ${fileId}-${type}-${version}`)
+    try {
+      const subPath = await this.flowService.saveFile({
+        str: file?.buffer || content,
+        filename: `${fileId}.zip`,
+        folderPath: path.join(env.FILE_APP_PRODUCTS_FOLDER_PREFIX, `./${fileId}/${type}/${version}`)
+      });
+      return {
+        code: 1,
+        data: {
+          subPath,
+        },
+      };
+    } catch (err) {
+      Logger.info(`[API][/paas/api/flow/saveProducts]错误是: ${err.message}`)
+      return {
+        code: -1,
+        msg: `上传失败: ${err.message}`,
       };
     }
   }
@@ -195,7 +216,7 @@ export default class FlowController {
 
   @Post('/uploadAsset')
   @UseInterceptors(FilesInterceptor('files'))
-  async uploadAsset(@Request() request, @Body() body, @UploadedFiles() files) {
+  async uploadAsset(@Body() body, @UploadedFiles() files) {
     try {
       const { hash, path: folderPath = './', filePathMap } = body;
       if (!Array.isArray(files) || !files.length) {
@@ -239,7 +260,7 @@ export default class FlowController {
   }
 
   @Post('/createCategory')
-  async createCategory(@Request() request, @Body() body) {
+  async createCategory(@Body() body) {
     const { path: filePath = './', name } = body;
     const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
 
@@ -257,28 +278,31 @@ export default class FlowController {
   }
 
   @Get('/getAsset')
-  async getFiles(@Request() request, @Query() query) {
+  async getFiles(@Query() query) {
     try {
-      if(fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
+      if(!fs.existsSync(env.FILE_LOCAL_STORAGE_FOLDER)) {
         Logger.info('[API][/paas/api/flow/getAsset]: 文件夹不存在，创建文件夹')
         fs.mkdirSync(env.FILE_LOCAL_STORAGE_FOLDER)
       }
       const { path: filePath = './', pageNum = 1, pageSize = 20 } = query;
       const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
-  
+
       if (!rootFile.startsWith(env.FILE_LOCAL_STORAGE_FOLDER)) {
         return { code: -1, msg: '无法访问非静态文件目录' };
       }
-  
+
       const files = fs.readdirSync(rootFile);
-      const fileInfos = files
-        .map(file => {
-          const info = fs.statSync(path.join(rootFile, file));
-          (info as any).name = file;
-  
-          return info;
+      let fileInfos = []
+      files
+        .forEach(file => {
+          // 过滤根目录下的默认文件夹
+          if(filePath !== '.' || ( !file?.startsWith('__') && !file?.endsWith('__') ) ) {
+            const info = fs.statSync(path.join(rootFile, file));
+            (info as any).name = file;
+            fileInfos.push(info);
+          }
         })
-        .sort((statA, statB) => {
+        fileInfos.sort((statA, statB) => {
           if (statA.isDirectory() && !statB.isDirectory()) {
             return -1;
           }
@@ -288,14 +312,14 @@ export default class FlowController {
           if (!statA.isDirectory() && statB.isDirectory()) {
             return 1;
           }
-  
+
           return 0;
         });
-  
+
       const startIndex = pageSize * (pageNum - 1);
       let prefix = `/${env.FILE_LOCAL_STORAGE_PREFIX}${rootFile.replace(env.FILE_LOCAL_STORAGE_FOLDER, '')}`;
       prefix += prefix.endsWith('/') ? '' : '/';
-  
+
       return {
         code: 1,
         data: {
@@ -303,7 +327,7 @@ export default class FlowController {
           pageSize,
           dataSource: fileInfos.slice(startIndex, startIndex + pageSize).map(file => {
             const name = (file as any).name;
-  
+
             return {
               name: name,
               type: file.isDirectory() ? 'folder' : 'file',
@@ -321,6 +345,30 @@ export default class FlowController {
         code: -1,
         msg: e.message || '出错了'
       }
+    }
+  }
+
+  @Post('/deleteAsset')
+  async deleteAsset(@Body() body) {
+    const { path: filePath = './', name } = body;
+    const rootFile = path.join(env.FILE_LOCAL_STORAGE_FOLDER, filePath);
+
+    if (!rootFile.startsWith(env.FILE_LOCAL_STORAGE_FOLDER)) {
+      return { code: -1, msg: '无法访问非静态文件目录' };
+    }
+
+    try {
+      if (!fs.existsSync(path.join(rootFile, name))) {
+        return { code: -1, msg: '该目录下文件不存在' };
+      }
+
+      removeFile(path.join(rootFile, name));
+
+      return { code: 1, msg: '删除成功' };
+    } catch(e) {
+      Logger.info(e)
+      Logger.info(e?.stack?.toString())
+      return { code: -1, msg: '删除失败，请重试' };
     }
   }
 }
