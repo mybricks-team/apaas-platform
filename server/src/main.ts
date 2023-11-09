@@ -18,16 +18,13 @@ import init from "./init";
 import ValidationPipe from "./pipe/validationPipe";
 import { runtimeLogger } from './middleware/log.middleware';
 import { TIMEOUT_TIME } from './constants';
-require('./utils/loadBytecode.js')
-const a = require('./test')
-
+require('./utils/loadBytecode');
 const env = require('../env.js')
+const { loadModule } = require('./module-loader')
 
 async function bootstrap() {
   console.log(1111)
-  // console.log(moduleLoader)
-  // const loadedModule = {};
-  // const loadedModule = loadModule();
+  const loadedModule = loadModule();
   init();
 
   const app = await NestFactory.create<NestExpressApplication>(AppManage);
@@ -47,13 +44,13 @@ async function bootstrap() {
   });
   app.use(apiProxyMiddleWare());
   app.use(bodyParser.json({ limit: "100mb" }));
-  // app.use(runtimeLogger({
-  //   appNamespaceList: loadedModule.namespace,
-  // }));
+  app.use(runtimeLogger({
+    appNamespaceList: loadedModule.namespace,
+  }));
 
-  // enhanceApp(app, {
-  //   appNamespaceList: loadedModule.namespace,
-  // });
+  enhanceApp(app, {
+    appNamespaceList: loadedModule.namespace,
+  });
   app.useGlobalPipes(new ValidationPipe());
   app.use(checkHealthMiddleware);
 
@@ -65,19 +62,19 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // app.use(
-  //   proxyMiddleWare({
-  //     namespaceMap: loadedModule.namespaceMap,
-  //   })
-  // );
-  // loadedModule?.middleware?.forEach(m => {
-  //   app.use(m);
-  // })
-  // loadedModule?.interceptor?.forEach(i => {
-  //   app.useGlobalInterceptors(
-  //     new i(),
-  //   );
-  // })
+  app.use(
+    proxyMiddleWare({
+      namespaceMap: loadedModule.namespaceMap,
+    })
+  );
+  loadedModule?.middleware?.forEach(m => {
+    app.use(m);
+  })
+  loadedModule?.interceptor?.forEach(i => {
+    app.useGlobalInterceptors(
+      new i(),
+    );
+  })
   app.use(cookieParser());
 	app.use(xmlparser());
   app.use(timeout(TIMEOUT_TIME))

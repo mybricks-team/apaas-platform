@@ -1,11 +1,12 @@
-import * as path from "path";
-import * as fs from "fs";
-import env from './utils/env'
-import UserDao from './dao/UserDao';
-const userDao = new UserDao();
-import { Logger } from "@mybricks/rocker-commons";
+console.log('start byteCode');
+const path = require('path');
+const fs = require('fs');
+const env = require('./utils/env').default;
+const UserDaoObj = require('./dao/UserDao');
+const userDao = new UserDaoObj.default();
+const { Logger } = require('@mybricks/rocker-commons');
 
-const scanDir = (dirFullPath: string) => {
+const scanDir = (dirFullPath) => {
   const modules = [];
   const namespace = [];
   const middleware = [];
@@ -50,12 +51,12 @@ const scanDir = (dirFullPath: string) => {
   };
 };
 
-export function loadModule() {
+function loadModule() {
   let modules = [];
   let namespace = [];
   let middleware = [];
   let interceptor = [];
-  const namespaceMap: any = {}
+  const namespaceMap = {}
   try {
     const appDir = env.getAppInstallFolder()
     if (fs.existsSync(appDir)) {
@@ -94,3 +95,5 @@ export function loadModule() {
     namespaceMap
   };
 }
+
+module.exports = { loadModule };

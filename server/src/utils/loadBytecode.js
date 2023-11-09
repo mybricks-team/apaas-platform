@@ -46,7 +46,7 @@ function validateString(value, name) {
 }
 
 function makeRequireFunction(mod) {
-  const Module = mod.constructor;
+  const Module = mod.__proto__.constructor;
 
   const require = function require(path) {
     return mod.require(path);
@@ -85,7 +85,9 @@ function loadBytecode(filename) {
   const dummySource = bytesource.length === sourceLength ? bytesource : '\u200b'.repeat(sourceLength);
   const script = new vm.Script(dummySource, {
     filename: filename,
-    cachedData: byteBuffer
+    cachedData: byteBuffer,
+    lineOffset: 0,
+    displayErrors: true
   });
 
   if (script.cachedDataRejected) {
@@ -96,10 +98,16 @@ function loadBytecode(filename) {
 
 function execByteCode(filename) {
   const script = loadBytecode(filename);
-  return script.runInThisContext();
+
+  return script.runInThisContext({
+    filename: filename,
+    displayErrors: true,
+    lineOffset: 0,
+    columnOffset: 0,
+  });
 }
 
-(require('module'))._extensions['.bytecode'] = function loadModule(module, filename) {
+(require('module'))._extensions['.bytecode'] = function (module, filename) {
   const wrapperFn = execByteCode(filename);
   const require = makeRequireFunction(module);
   wrapperFn.bind(module.exports)(module.exports, require, module, filename, path.dirname(filename));
