@@ -17,7 +17,6 @@ import init from "./init";
 import ValidationPipe from "./pipe/validationPipe";
 import { runtimeLogger } from './middleware/log.middleware';
 import { TIMEOUT_TIME } from './constants';
-require('./utils/loadBytecode');
 const env = require('../env.js')
 const { loadModule } = require('./module-loader')
 

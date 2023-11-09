@@ -5,7 +5,7 @@ import Task from './task/task';
 import WorkspaceService from "./services/workspace";
 import FileDao from "./dao/FileDao";
 import FileTaskDao from "./dao/FileTaskDao";
-// import { loadModule } from "./module-loader";
+const { loadModule } = require('./module-loader')
 import FilePubDao from "./dao/filePub.dao";
 import HomeService from "./services/home";
 import ConfigDao from "./dao/config.dao";
@@ -55,7 +55,7 @@ const MethodMap = {
     AppModule,
     GPTModule,
     ScheduleModule.forRoot(),
-    // ...loadModule().modules,
+    ...loadModule().modules,
   ],
   controllers: [
     proxy,
