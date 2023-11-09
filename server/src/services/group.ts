@@ -57,11 +57,12 @@ export default class UserGroupService {
         code: 1,
         data: { id: rtn.insertId },
       };
-    } catch (ex) {
-      Logger.info(ex)
+    } catch (e) {
+      Logger.info(e.message)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
-        message: ex.message,
+        message: e.message,
       };
     }
   }

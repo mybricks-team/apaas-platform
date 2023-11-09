@@ -398,7 +398,8 @@ export default class UserController {
           try {
             userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.nick
           } catch(e) {
-            Logger.info(e)
+            Logger.info(e.message)
+            Logger.info(e?.stack?.toString())
           }
         }
       }
@@ -434,7 +435,8 @@ export default class UserController {
         };
       }
     } catch(e) {
-      Logger.info(e)
+      Logger.info(e.message)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
         msg: e.message || '获取用户态失败'

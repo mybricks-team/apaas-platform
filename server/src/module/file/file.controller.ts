@@ -90,6 +90,7 @@ export default class FileController {
 
     } catch(e) {
       Logger.info(e)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
         msg: e.message || '出错了'

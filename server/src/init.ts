@@ -9,6 +9,7 @@ export default function init() {
   process.on("unhandledRejection", (e: any) => {
     Logger.info(`[global error][unhandledRejection]: \n`);
     Logger.info(e.message)
+    Logger.info(e?.stack?.toString())
   });
 
   let dbConfig = null;

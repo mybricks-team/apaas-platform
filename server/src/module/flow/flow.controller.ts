@@ -367,6 +367,7 @@ export default class FlowController {
       return { code: 1, msg: '删除成功' };
     } catch(e) {
       Logger.info(e)
+      Logger.info(e?.stack?.toString())
       return { code: -1, msg: '删除失败，请重试' };
     }
   }

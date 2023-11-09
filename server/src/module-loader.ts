@@ -96,6 +96,7 @@ export function loadModule() {
     }
     global.MYBRICKS_PLATFORM_START_ERROR += `\n 错误详情是：${e.message}`;
     Logger.info(`模块加载失败：${e.message}`)
+    Logger.info(`${e?.stack?.toString()}`)
   }
   const res = {
     modules,

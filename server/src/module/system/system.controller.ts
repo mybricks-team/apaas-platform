@@ -210,7 +210,8 @@ export default class SystemService {
         data: totalList,
       };
     } catch (e) {
-      Logger.info(e);
+      Logger.info(e.message);
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
         data: [],
@@ -598,7 +599,8 @@ export default class SystemService {
               data: platformVersion
             }
           } catch (e) {
-            Logger.info(e)
+            Logger.info(e.message)
+            Logger.info(e?.stack?.toString())
             return {
               code: -1,
               msg: e.message
@@ -613,7 +615,8 @@ export default class SystemService {
               await lockUpgrade()
             }
           } catch(e) {
-            Logger.info(e)
+            Logger.info(e.message)
+            Logger.info(e?.stack?.toString())
             return {
               code: -1,
               msg: '当前已有升级任务，请稍后重试'
@@ -730,11 +733,12 @@ export default class SystemService {
         code: -1,
         msg: '未知指令'
       }
-    } catch(err) {
-      Logger.info(err)
+    } catch(e) {
+      Logger.info(e)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
-        msg: `[${type}]:` + err.message
+        msg: `[${type}]:` + e.message
       }
     }
   }
@@ -756,6 +760,7 @@ export default class SystemService {
       }
     } catch(e) {
       Logger.info(e)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
         msg: '当前已有升级任务，请稍后重试'

@@ -123,7 +123,8 @@ export default class AppController {
           }
         }) 
       } catch(e) {
-        Logger.info(e)
+        Logger.info(e.message)
+        Logger.info(e?.stack?.toString())
       }
 
       return {
@@ -148,7 +149,8 @@ export default class AppController {
         await lockUpgrade()
       }
     } catch(e) {
-      Logger.info(e)
+      Logger.info(e.message)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
         msg: '当前已有升级任务，请稍后重试'
@@ -176,7 +178,7 @@ export default class AppController {
         remoteApps = await this.appDao.queryLatestApp();
       }
     } catch (e) {
-      Logger.info(`获取远程应用版本失败: ${e}`);
+      Logger.info(`获取远程应用版本失败: ${e?.stack?.toString()}`);
     }
 
     if (!remoteApps.length) {
@@ -314,6 +316,7 @@ export default class AppController {
         logInfo = null;
       }
       Logger.info(e.message);
+      Logger.info(e?.stack?.toString())
     }
 
     if (logInfo) {
@@ -346,6 +349,7 @@ export default class AppController {
       }
     } catch (e) {
       Logger.info(e);
+      Logger.info(e?.stack?.toString())
     }
 
     if(systemConfig?.system?.config?.openConflictDetection) {
@@ -388,6 +392,7 @@ export default class AppController {
       }
     } catch(e) {
       Logger.info(e)
+      Logger.info(e?.stack?.toString())
       return {
         code: -1,
         msg: '当前已有升级任务，请稍后重试'
@@ -503,6 +508,7 @@ export default class AppController {
     } catch(e) {
       Logger.info('错误信息是')
       Logger.info(e.message)
+      Logger.info(e?.stack?.toString())
       fse.removeSync(tempFolder)
     }
     
@@ -545,7 +551,8 @@ export default class AppController {
       }
     } catch (e) {
       Logger.info("安装应用失败");
-      Logger.info(e);
+      Logger.info(e.message);
+      Logger.info(e?.stack?.toString())
     }
     return { code: -1, data: null, message: "安装应用失败" };
   }
