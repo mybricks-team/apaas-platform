@@ -1,4 +1,3 @@
-console.log('start byteCode');
 const path = require('path');
 const fs = require('fs');
 const env = require('./utils/env').default;
