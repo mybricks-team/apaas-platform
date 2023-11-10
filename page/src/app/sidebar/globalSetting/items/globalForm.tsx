@@ -175,6 +175,19 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
               options={appOptions}
             />
           </Form.Item>
+          <Form.Item
+            initialValue={[]}
+            label="启用文档助手"
+            name="docHelperEnabledApps"
+          >
+            <Select
+              mode="multiple"
+              allowClear
+              style={{ width: '100%' }}
+              placeholder="请选择开启的应用"
+              options={appOptions}
+            />
+          </Form.Item>
         </div>
       </Form>
       <div className={styles.btnGroups}>
