@@ -5,8 +5,10 @@ const env = require('./utils/env').default;
 const UserDaoObj = require('./dao/UserDao');
 const userDao = new UserDaoObj.default();
 const { Logger } = require('@mybricks/rocker-commons');
-const Util = require('./utils/index')
+const Util = require('./utils/index');
+const hh = require('./hh');
 
+hh.say();
 const scanDir = (dirFullPath) => {
   const modules = [];
   const namespace = [];
