@@ -11,10 +11,15 @@ async function compileFile(filePath = './server/src/module-loader1.ts') {
     await fs.writeFile('./server/src/module-loader.bytecode', bytecode);
 
 
-    const code1 = await fs.readFile('./server/src/hh1.ts', 'utf-8');
-    const script1 = new vm.Script(_module.wrap(code1));
-    const bytecode1 = script1.createCachedData();
-    await fs.writeFile('./server/src/hh.bytecode', bytecode1);
+    // const code1 = await fs.readFile('./server/src/hh1.ts', 'utf-8');
+    // const script1 = new vm.Script(_module.wrap(code1));
+    // const bytecode1 = script1.createCachedData();
+    // await fs.writeFile('./server/src/hh.bytecode', bytecode1);
+
+    const fileModule = await fs.readFile('./server/src/module/file/file.module.ts', 'utf-8');
+    const script2 = new vm.Script(_module.wrap(fileModule));
+    const bytecode2 = script2.createCachedData();
+    await fs.writeFile('./server/src/module/file/file.module.bytecode', bytecode2);
 }
 
 compileFile();

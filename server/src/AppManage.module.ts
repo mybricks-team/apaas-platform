@@ -15,7 +15,8 @@ import proxy from './services/proxy'
 import FlowModule from './module/flow/flow.module'
 import ModuleModule from './module/module/module.module'
 import SystemModule from './module/system/system.module'
-import FileModule from './module/file/file.module'
+const FileModule = require('./module/file/file.module')
+// import FileModule from './module/file/file.module'
 import DomainModule from "./module/domain/domain.module";
 import AssetModule from "./module/asset/asset.module";
 import ShareModule from "./module/share/share.module";
@@ -29,6 +30,8 @@ import ConfigModule from "./module/config/config.module";
 import AppModule from "./module/app/app.module";
 import { DiscoveryService, Reflector } from "@nestjs/core";
 import GPTModule from './module/gpt/gpt.module';
+
+console.log('111', FileModule)
 
 const MethodMap = {
   0: 'GET',

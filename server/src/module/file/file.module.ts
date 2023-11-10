@@ -1,10 +1,13 @@
-import { Module } from '@nestjs/common';
-import FileService from './file.service';
-import FileController from './file.controller';
+const FileService = require('./file.service').default
+const FileController = require('./file.controller').default
 
-@Module({
+class RealFileModule {}
+
+const FileModule = {
+  module: RealFileModule,
   controllers: [FileController],
   providers: [FileService],
   exports: [FileService],
-})
-export default class FileModule {}
+}
+
+module.exports = FileModule
