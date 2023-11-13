@@ -31,8 +31,6 @@ import AppModule from "./module/app/app.module";
 import { DiscoveryService, Reflector } from "@nestjs/core";
 import GPTModule from './module/gpt/gpt.module';
 
-console.log('111', FileModule)
-
 const MethodMap = {
   0: 'GET',
   1: 'POST',
