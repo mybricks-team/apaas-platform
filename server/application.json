@@ -51,9 +51,9 @@
       "path": "asset-center/asset/app/mybricks-app-mpsite/0.1.5/mybricks-app-mpsite.zip"
     },
     {
-      "namespace": "mybricks-app-pcspa-vue2",
-      "version": "1.1.93",
-      "type": "local"
+      "path": "mybricks-app-pcspa-vue2@1.2.15",
+      "version": "1.2.15",
+      "type": "npm"
     }
   ],
   "platformVersion": "0.0.71"
