@@ -16,6 +16,7 @@ const cp = require('child_process')
 const fs = require('fs')
 const path = require('path')
 const env = require('../../../env.js')
+import { readLastNLines } from '../../utils/logger';
 
 
 @Controller('/paas/api/log')
@@ -27,17 +28,19 @@ export default class LogsController {
   }
 
   @Post('/runtimeLog/search')
-  search(@Body('searchValue') searchValue: string, @Body('line') line: number) {
+  async search(@Body('searchValue') searchValue: string, @Body('line') line: number) {
     try {
       const LINES = line || 100
       const fileName = path.join(env.LOGS_BASE_FOLDER, './application/application.log')
       let logStr;
 
-      if (searchValue) {
-        logStr = cp.execSync(`tail -n ${LINES} ${fileName} | grep '${searchValue}' | awk '{ if (length($0) > 2000) print substr($0, 1, 2000) "..."; else print }'`, { maxBuffer: 3 * 1024 * 1024 }).toString()
-      } else {
-        logStr = cp.execSync(`tail -n ${LINES} ${fileName} | awk '{ if (length($0) > 2000) print substr($0, 1, 2000) "..."; else print }'`, { maxBuffer: 3 * 1024 * 1024 }).toString()
-      }
+      // if (searchValue) {
+      //   logStr = cp.execSync(`tail -n ${LINES} ${fileName} | grep '${searchValue}' | awk '{ if (length($0) > 2000) print substr($0, 1, 2000) "..."; else print }'`, { maxBuffer: 3 * 1024 * 1024 }).toString()
+      // } else {
+      //   logStr = cp.execSync(`tail -n ${LINES} ${fileName} | awk '{ if (length($0) > 2000) print substr($0, 1, 2000) "..."; else print }'`, { maxBuffer: 3 * 1024 * 1024 }).toString()
+      // }
+      const logStack: any = await readLastNLines(fileName, { searchValue, numLines: LINES })
+      logStr = logStack.join('\n')
 
       return {
         code: 1,
