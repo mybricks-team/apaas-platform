@@ -884,6 +884,7 @@ export default class SystemService {
       }
     } catch(e) {
       Logger.info(`诊断服务出错：${e.message}`)
+      Logger.info(`诊断服务出错：${e?.stack?.toString()}`)
       return {
         code: -1,
         msg: (e.message || '未知错误') + `\n后台服务请求域名是: ${process.env.MYBRICKS_PLATFORM_ADDRESS}`
