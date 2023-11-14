@@ -106,9 +106,12 @@ async function installApplication() {
           } else {
             srcAppDir = path.join(tempFolder, `./node_modules/${pkgName}`)
           }
+          // 删除历史版本
           if(fs.existsSync(path.join(destAppDir, './assets'))) {
-            // 删除历史版本
             fs.removeSync(path.join(destAppDir, './assets'))
+          }
+          if(fs.existsSync(path.join(destAppDir, './nodejs'))) {
+            fs.removeSync(path.join(destAppDir, './nodejs'))
           }
           fs.copySync(srcAppDir, destAppDir)
           const pkgPath = path.join(destAppDir, './package.json');
@@ -292,6 +295,13 @@ async function installApplication() {
                 })
               }, 100)
             }
+            // 删除历史版本
+            if(fs.existsSync(path.join(destAppDir, './assets'))) {
+              fs.removeSync(path.join(destAppDir, './assets'))
+            }
+            if(fs.existsSync(path.join(destAppDir, './nodejs'))) {
+              fs.removeSync(path.join(destAppDir, './nodejs'))
+            }
             fs.copySync(srcAppDir, destAppDir)
             console.log(`【install】: 依赖安装中,请稍后 ${pkgName}`)
             fs.removeSync(srcAppDir)
@@ -402,6 +412,13 @@ async function installApplication() {
                   jsPath: path.join(destAppDir, pkg.mybricks.preInstall)
                 })
               }, 100)
+            }
+            // 删除历史版本
+            if(fs.existsSync(path.join(destAppDir, './assets'))) {
+              fs.removeSync(path.join(destAppDir, './assets'))
+            }
+            if(fs.existsSync(path.join(destAppDir, './nodejs'))) {
+              fs.removeSync(path.join(destAppDir, './nodejs'))
             }
             fs.copySync(srcAppDir, destAppDir)
             console.log(`【install】: 依赖安装中,请稍后 ${pkgName}`)

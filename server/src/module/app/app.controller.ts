@@ -411,6 +411,7 @@ export default class AppController {
       childProcess.execSync(`unzip -o ${zipFilePath} -d ${tempFolder}`, {
         stdio: 'inherit' // 不inherit输出会导致 error: [Circular *1]
       })
+      console.log('进来了')
       const subFolders = fs.readdirSync(tempFolder)
       let unzipFolderSubpath = ''
       Logger.info(`[offlineUpdate]: subFolders: ${JSON.stringify(subFolders)}}`)
@@ -460,6 +461,15 @@ export default class AppController {
       const destAppDir = path.join(env.getAppInstallFolder())
       Logger.info('[offlineUpdate]: 开始复制文件')
       // fse.copySync(unzipFolderPath, destAppDir)
+      // 删除历史版本
+      if(fse.existsSync(path.join(destAppDir, pkg.name, './assets'))) {
+        Logger.info('[offlineUpdate]: 清除存量应用前端资源')
+        fse.removeSync(path.join(destAppDir, pkg.name, './assets'))
+      }
+      if(fs.existsSync(path.join(destAppDir, pkg.name, './nodejs'))) {
+        Logger.info('[offlineUpdate]: 清除存量应用后端资源')
+        fse.removeSync(path.join(destAppDir, pkg.name, './nodejs'))
+      }
       childProcess.execSync(`cp -rf ${unzipFolderPath} ${destAppDir}`)
       // copy xml
       const bePath = path.join(unzipFolderPath, './nodejs')
