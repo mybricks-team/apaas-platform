@@ -31,4 +31,28 @@
     judge = #{judge}
     where id = #{id}
   </update>
+
+  <insert id="insertDocs">
+    insert into apaas_gpt_docs
+    (
+    id,
+    category,
+    question,
+    answer,
+    reference,
+    image,
+    score
+    )
+    <foreach collection="docs" item="item" open="values " separator="," close="" index="index">
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+        #{item.id},
+        #{item.category},
+        #{item.question},
+        #{item.answer},
+        #{item.reference},
+        #{item.image},
+        #{item.score}
+      </trim>
+    </foreach>
+  </insert>
 </mapper>

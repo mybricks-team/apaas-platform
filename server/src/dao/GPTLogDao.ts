@@ -22,4 +22,8 @@ export default class GPTLogDao extends DOBase {
 	async update(params: { id: number; judge: number; suggestedAnswer: string; }) {
 		await this.exe('apaas_gpt_log:update', params);
 	}
+
+	async insertDocs(params: { docs: Array<any> }) {
+		await this.exe('apaas_gpt_log:insertDocs', params);
+	}
 }

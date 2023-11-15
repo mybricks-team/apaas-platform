@@ -116,6 +116,7 @@ export default class GPTService {
       item.fields.score = item.fields.score || 0.5;
 
       if (item.fields.img) {
+        item.fields.originContent = item.fields.content;
         item.fields.content += `<br/><img src="${item.fields.img}" alt="">`;
       }
     });
@@ -125,6 +126,20 @@ export default class GPTService {
       method: VERB,
       headers: getAuthHeaders({resource: '/v3/openapi/apps/mybricks_docs_copilot/actions/knowledge-bulk'}),
       data: body.docs,
+    });
+
+    await this.gptDao.insertDocs({
+      docs: body.docs.map(item => {
+        return {
+          id: item.fields.id,
+          category: item.fields.category ?? '',
+          question: item.fields.title ?? '',
+          answer: item.fields.originContent ?? '',
+          reference: item.fields.url ?? '',
+          image: item.fields.img ?? '',
+          score: item.fields.score ?? 0.5,
+        };
+      }),
     });
 
     if (res.data?.status !== 'OK') {
