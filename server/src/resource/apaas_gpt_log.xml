@@ -55,4 +55,20 @@
       </trim>
     </foreach>
   </insert>
+
+  <select id="getKnowledgeCategory">
+    select
+    distinct category
+    from
+    apaas_gpt_docs
+  </select>
+
+  <select id="getKnowledgeByCategory">
+    select
+    category,
+    question
+    from
+    apaas_gpt_docs
+    where category = #{category}
+  </select>
 </mapper>

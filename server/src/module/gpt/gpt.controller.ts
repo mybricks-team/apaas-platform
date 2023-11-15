@@ -1,4 +1,4 @@
-import {Body, Controller, Post, Res} from '@nestjs/common';
+import {Body, Controller, Get, Post, Query, Res} from '@nestjs/common';
 import { Response } from 'express';
 import GPTService from './gpt.service';
 
@@ -40,6 +40,22 @@ export default class GPTController {
       return { code: 1, data: null, msg: '文档推送成功' };
     } catch (e) {
       return { code: -1, msg: e.message || '文档推送失败' };
+    }
+  }
+
+  @Get('/knowledge-category')
+  async getKnowledgeCategory() {
+    return {
+      code: 1,
+      data: await this.gptService.getKnowledgeCategory(),
+    }
+  }
+
+  @Get('/knowledge-docs')
+  async getKnowledgeByCategory(@Query() query) {
+    return {
+      code: 1,
+      data: query.category ? await this.gptService.getKnowledgeByCategory(query) : [],
     }
   }
 }

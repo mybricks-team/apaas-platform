@@ -146,4 +146,12 @@ export default class GPTService {
       throw Error('文档推送失败');
     }
   }
+
+  async getKnowledgeCategory() {
+    return await this.gptDao.getKnowledgeCategory();
+  }
+
+  async getKnowledgeByCategory(query: { category: string }) {
+    return await this.gptDao.getKnowledgeByCategory(query);
+  }
 }

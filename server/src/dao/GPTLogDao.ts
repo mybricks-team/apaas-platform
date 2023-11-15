@@ -26,4 +26,12 @@ export default class GPTLogDao extends DOBase {
 	async insertDocs(params: { docs: Array<any> }) {
 		await this.exe('apaas_gpt_log:insertDocs', params);
 	}
+
+	async getKnowledgeCategory() {
+		return await this.exe('apaas_gpt_log:getKnowledgeCategory');
+	}
+
+	async getKnowledgeByCategory(query) {
+		return await this.exe('apaas_gpt_log:getKnowledgeByCategory', query);
+	}
 }
