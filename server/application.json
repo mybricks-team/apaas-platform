@@ -14,9 +14,9 @@
     },
     {
       "type": "oss",
-      "version": "0.2.1",
+      "version": "0.2.3",
       "namespace": "mybricks-material",
-      "path": "asset-center/asset/app/mybricks-material/0.2.1/mybricks-material.zip"
+      "path": "asset-center/asset/app/mybricks-material/0.2.3/mybricks-material.zip"
     },
     {
       "type": "oss",
