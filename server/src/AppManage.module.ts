@@ -1,5 +1,6 @@
 import { ScheduleModule, SchedulerRegistry } from "@nestjs/schedule";
 import { Module, OnModuleInit } from "@nestjs/common";
+import * as path from 'path';
 
 import Task from './task/task';
 import WorkspaceService from "./services/workspace";
@@ -90,14 +91,22 @@ export default class AppManageModule implements OnModuleInit {
         Object.getOwnPropertyNames(instance.instance.__proto__)
           .filter(key => key !== 'constructor')
           .forEach(key => {
-            const path = this.reflector.get('path', instance.instance[key]);
+            const routerPath = this.reflector.get('path', instance.instance[key]);
             const methodCode = this.reflector.get('method', instance.instance[key]);
 
-            if (path === undefined || methodCode === undefined) {
+            if (routerPath === undefined || methodCode === undefined) {
               return;
             }
 
-            const curPath = `${prefix}${path === '/' ? '' : path}[${MethodMap[methodCode]}]`;
+            let curPath = path.join(prefix, routerPath);
+            if (!curPath.startsWith('/')) {
+              curPath = '/' + curPath;
+            }
+            if (curPath.endsWith('/')) {
+              curPath = curPath.slice(0, -1);
+            }
+            curPath += `[${MethodMap[methodCode]}]`;
+
             const curMap = { controller: instance.name, handler: key };
 
             /** 统计重复路由 */
