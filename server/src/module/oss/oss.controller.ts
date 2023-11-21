@@ -40,7 +40,7 @@ export default class OssController {
       try {
         let { url } = await this.ossService.saveFile({
           buffer: file.buffer,
-          name: `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
+          name: body?.fileName ? body?.fileName : `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
           path: body.folderPath,
         }, configItem);
 
