@@ -93,7 +93,7 @@ function persistenceToConfig() {
       "password": UserInputConfig.database.password,
       "port": UserInputConfig.database.port,
       "database": UserInputConfig.database.databaseName,
-      "sqlPath": "."
+      "sqlPath": "./resource"
     }
   }
   fs.writeFileSync(path.join(__dirname, '../config/default.json'), JSON.stringify(data), 'utf-8')
