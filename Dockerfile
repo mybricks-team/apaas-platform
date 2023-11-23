@@ -13,7 +13,7 @@ RUN yum -y install epel-release && \
 # # CMD echo "基础依赖安装成功"
 
 # 安装Node.js
-RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash - && \
+RUN curl --silent --location https://rpm.nodesource.com/setup_14.x | bash - && \
     yum -y install nodejs
 
 # CMD echo "nodejs安装成功"
