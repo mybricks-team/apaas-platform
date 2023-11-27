@@ -118,18 +118,14 @@ export default class AuthController {
       if(sessionRes?.code === 100001) {
         return sessionRes
       }
-      const sysAdminConfig = await this._getSysAdminConfig(projectId);
-      if(sysAdminConfig) {
-        // 判断是不是超管登录
-        if(sysAdminConfig.userName === userId) {
-          // 只返回权限模块
-          const res = this._getSysAuthInfo(projectId)
-          return {
-            code: 1,
-            data: {
-              openAuth: res.openAuth,
-              角色权限: res.pcPageIdList.join(',')
-            }
+      if(sessionRes?.isSuperAdmin) {
+        // 只返回权限模块
+        const res = this._getSysAuthInfo(projectId)
+        return {
+          code: 1,
+          data: {
+            openAuth: res.openAuth,
+            角色权限: res.pcPageIdList.join(',')
           }
         }
       }

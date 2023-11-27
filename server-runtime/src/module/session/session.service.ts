@@ -44,7 +44,7 @@ export default class SessionService {
 				return conn.exe(handledSql, args);
 			};
 
-			const [session] = await _execSQL(`SELECT id, 系统用户, 凭证 FROM D_${projectId}_用户登录态_VIEW WHERE _STATUS_DELETED = 0 AND 凭证 = '${token}' ORDER BY id DESC LIMIT 1;`, { args: {} });
+			const [session] = await _execSQL(`SELECT D_${projectId}_用户登录态_VIEW.id, D_${projectId}_用户登录态_VIEW.系统用户, D_${projectId}_用户登录态_VIEW.凭证, D_${projectId}_系统用户_VIEW._STATUS_DELETED FROM D_${projectId}_用户登录态_VIEW, D_${projectId}_系统用户_VIEW WHERE D_${projectId}_用户登录态_VIEW._STATUS_DELETED = 0 AND D_${projectId}_用户登录态_VIEW.凭证 = '${token}' ORDER BY id DESC LIMIT 1;`, { args: {} });
 
 			if (!session) {
 				return {
@@ -52,7 +52,7 @@ export default class SessionService {
 					msg: '登录信息失效，请重新登录'
 				}
 			} else {
-				return { userId: session.系统用户 };
+				return { userId: session.系统用户, isSuperAdmin: session._STATUS_DELETED === 100 };
 			}
 		}
 	}
