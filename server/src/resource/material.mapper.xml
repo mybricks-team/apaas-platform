@@ -227,7 +227,7 @@
         select
         material_pub_info.*
         from
-            material_pub_info
+        material_pub_info
         where
         material_pub_info.id in
         <foreach collection="ids" item="item" open="( " separator="," close=" )" index="index">
@@ -297,6 +297,31 @@
         </if>
         and material_pub_info.material_id = material_info.id
         and material_pub_info.version = material_info.version
+    </select>
+
+    <select id="getLatestMaterialByNamespaceOfMainBranch">
+        select
+        material_info.*,
+        <if test="needContent">
+            material_pub_info.content,
+        </if>
+        material_pub_info.version as version,
+        material_pub_info.id as material_pub_id,
+        material_pub_info.material_id,
+        CAST(SUBSTRING_INDEX(material_pub_info.version, '.', 1) AS UNSIGNED) major_version,
+        CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(material_pub_info.version, '.', 2), '.', -1) AS UNSIGNED) minor_version,
+        CAST(REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(material_pub_info.version, '.', 3), '.', -1), '-beta', '') AS UNSIGNED) patch_version
+        from
+        material_info, material_pub_info
+        where
+        namespace = #{namespace}
+        <if test="status != undefined">
+            and material_pub_info.status = #{status}
+        </if>
+        and material_pub_info.material_id = material_info.id
+        and material_pub_info.version REGEXP '^([0-9]+)\\.([0-9]+)\\.([0-9]+)$'
+        order by major_version desc, minor_version desc, patch_version desc
+        limit 1;
     </select>
 
     <select id="getContentByNamespace_Version">
@@ -451,7 +476,11 @@
         material_pub_info.create_time,
         material_pub_info.id as material_pub_id,
         material_pub_info.material_id,
-        material_pub_info.commit_info
+        material_pub_info.commit_info,
+        CAST(SUBSTRING_INDEX(material_pub_info.version, '.', 1) AS UNSIGNED) major_version,
+        CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(material_pub_info.version, '.', 2), '.', -1) AS UNSIGNED) minor_version,
+        CAST(REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(material_pub_info.version, '.', 3), '.', -1), '-beta', '') AS UNSIGNED) patch_version,
+        if(material_pub_info.version like '%-beta%', CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(material_pub_info.version, '.', 4), '.', -1) AS UNSIGNED), 0) as beta_version
         from
         material_info,
         material_pub_info
@@ -465,7 +494,15 @@
         <if test="materialId">
             and material_info.id = #{materialId}
         </if>
-        order by create_time desc;
+        <choose>
+            <when test="isBranch">
+                and material_pub_info.version NOT REGEXP '^([0-9]+)\\.([0-9]+)\\.([0-9]+)$'
+            </when>
+            <otherwise>
+                and material_pub_info.version REGEXP '^([0-9]+)\\.([0-9]+)\\.([0-9]+)$'
+            </otherwise>
+        </choose>
+        order by major_version desc, minor_version desc, patch_version desc, beta_version desc;
     </select>
 
     <select id="getMaterialByNamespace">
