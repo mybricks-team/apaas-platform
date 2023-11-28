@@ -44,7 +44,7 @@ export default class SessionService {
 				return conn.exe(handledSql, args);
 			};
 
-			const [session] = await _execSQL(`SELECT D_${projectId}_用户登录态_VIEW.id, D_${projectId}_用户登录态_VIEW.系统用户, D_${projectId}_用户登录态_VIEW.凭证, D_${projectId}_系统用户_VIEW._STATUS_DELETED FROM D_${projectId}_用户登录态_VIEW, D_${projectId}_系统用户_VIEW WHERE D_${projectId}_用户登录态_VIEW._STATUS_DELETED = 0 AND D_${projectId}_用户登录态_VIEW.凭证 = '${token}' ORDER BY id DESC LIMIT 1;`, { args: {} });
+			const [session] = await _execSQL(`SELECT D_${projectId}_用户登录态_VIEW.id, D_${projectId}_用户登录态_VIEW.系统用户, D_${projectId}_用户登录态_VIEW.凭证, D_${projectId}_系统用户_VIEW._STATUS_DELETED FROM D_${projectId}_用户登录态_VIEW, D_${projectId}_系统用户_VIEW WHERE D_${projectId}_用户登录态_VIEW._STATUS_DELETED = 0 AND D_${projectId}_用户登录态_VIEW.凭证 = '${token}' AND D_${projectId}_用户登录态_VIEW.系统用户 = D_${projectId}_系统用户_VIEW.id ORDER BY id DESC LIMIT 1;`, { args: {} });
 
 			if (!session) {
 				return {
