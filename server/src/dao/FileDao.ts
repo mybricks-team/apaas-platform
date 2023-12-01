@@ -18,8 +18,8 @@ export class FileDO {
   @Column("parent_id")
   parentId;
 
-  @Column("has_icon")
-  hasIcon;
+  // @Column("has_icon")
+  // hasIcon;
   
   @Column
   uri;

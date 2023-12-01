@@ -23,12 +23,14 @@ export default class GroundService {
         code: 1,
         data: {
           list: rtn?.filter ? rtn.filter((item) => {
-            const { hasIcon } = item
-            if (hasIcon === "1") {
-              item.icon = `/paas/api/workspace/getFileIcon?fileId=${item.id}`;
-            } else if (hasIcon.startsWith('http')) {
-              item.icon = hasIcon
-            }
+            // 不需要hasIcon字段了，全部是文件了，不是base64
+            // 不需要hasIcon字段了，全部是文件了，不是base64
+            // const { hasIcon } = item
+            // if (hasIcon === "1") {
+            //   item.icon = `/paas/api/workspace/getFileIcon?fileId=${item.id}`;
+            // } else if (hasIcon.startsWith('http')) {
+            //   item.icon = hasIcon
+            // }
             return item.extName !== "component";
           }) : [],
           total
