@@ -56,8 +56,8 @@ export default class FileCooperationDao extends DOBase {
     })
 
     if (!isNumber(params.timeInterval)) {
-      /** 默认30秒没更新心跳时间为超时 */
-      params.timeInterval = 30 * 1000
+      /** 默认3分钟没更新心跳时间为超时 */
+      params.timeInterval = 60 * 1000 * 3
     }
     return await this.exe<any>(
       'apaas_file_cooperation:delete', params
