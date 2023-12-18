@@ -9,9 +9,10 @@ import {
   Request,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles
 } from '@nestjs/common';
 import { } from 'querystring'
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 const env = require('../../../env.js');
 import { getRealDomain } from '../../utils/index';
 import FlowService from './../flow/flow.service';
@@ -72,6 +73,43 @@ export default class OssController {
         code: -1,
         msg: `上传失败: ${err}`,
       };
+    }
+  }
+
+  @Post('/uploadFiles')
+  @UseInterceptors(FilesInterceptor('file'))
+  async saveFiles(@UploadedFiles() uploadedFiles) {
+    const ossConfig = await this.ossService.getOssConfig();
+    const { openOss, cdnDomain, ...configItem } = ossConfig || {}
+
+    if (openOss) {
+      const domainReg = /^(https?:\/\/)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/; 
+      try {
+        const res = await Promise.all(uploadedFiles.map(async (file) => {
+          let { url } = await this.ossService.saveFile({
+            buffer: file.buffer,
+            name: `${uuid()}-${new Date().getTime()}${path.extname(file.originalname)}`,
+          }, configItem)
+          if (cdnDomain) { // 替换正则
+            url = url.replace(domainReg, cdnDomain)
+          }
+          return {
+            url,
+            fileName: file.originalname
+          }
+        }))
+        return {
+          code: 1,
+          data: res
+        }
+      } catch (err) {
+        return { code: -1, msg: `上传失败: ${err}`, message: `上传失败: ${err}` };
+      }
+    }
+
+    return {
+      code: -1,
+      msg: '未开启OSS上传，请联系平台管理员'
     }
   }
 }
