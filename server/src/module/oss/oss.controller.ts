@@ -77,7 +77,7 @@ export default class OssController {
   }
 
   @Post('/uploadFiles')
-  @UseInterceptors(FilesInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('files'))
   async saveFiles(@UploadedFiles() uploadedFiles) {
     const ossConfig = await this.ossService.getOssConfig();
     const { openOss, cdnDomain, ...configItem } = ossConfig || {}
