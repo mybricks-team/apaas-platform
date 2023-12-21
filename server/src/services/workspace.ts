@@ -318,7 +318,8 @@ export default class WorkspaceService {
         const nextVersion = contentItem?.version ? getNextVersion(contentItem?.version) : "1.0.0"
         await this.fileContentDao.create({
           fileId,
-          content: isEncode ? decodeURIComponent(content) : content,
+          // 兼容某些场景下保存内容被防火墙拦截
+          content: isEncode ? decodeURI(content.replace(/#D#/g, '.').replace(/#DH#/g, ',').replace(/#FH#/g, ';').replace(/#ZKH#/g, '(').replace(/#YKH#/g, ')')) : content,
           version: nextVersion,
           creatorId: userId,
           creatorName: originUserId,
