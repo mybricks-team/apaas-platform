@@ -319,7 +319,7 @@ export default class WorkspaceService {
         await this.fileContentDao.create({
           fileId,
           // 兼容某些场景下保存内容被防火墙拦截
-          content: isEncode ? decodeURI(content.replace(/#D#/g, '.').replace(/#DH#/g, ',').replace(/#FH#/g, ';').replace(/#ZKH#/g, '(').replace(/#YKH#/g, ')')) : content,
+          content: isEncode ? decodeURI(content.replace(/#D#/g, '.').replace(/#DH#/g, ',').replace(/#FH#/g, ';').replace(/#ZKH#/g, '(').replace(/#YKH#/g, ')').replace(/#MH#/g, ':').replace(/#DYH#/g, "'")) : content,
           version: nextVersion,
           creatorId: userId,
           creatorName: originUserId,
