@@ -244,7 +244,7 @@ export default class WorkspaceService {
   @Post("/workspace/saveFile")
   async updateFile(@Body() body) {
     try {
-      let { userId: originUserId, fileId, shareType, name, content, icon, namespace, type } = body;
+      let { userId: originUserId, fileId, shareType, name, content, icon, namespace, type, isEncode } = body;
       const userId = await this.userService.getCurrentUserId(originUserId);
 
       if (!userId) {
@@ -318,7 +318,7 @@ export default class WorkspaceService {
         const nextVersion = contentItem?.version ? getNextVersion(contentItem?.version) : "1.0.0"
         await this.fileContentDao.create({
           fileId,
-          content,
+          content: isEncode ? decodeURIComponent(content) : content,
           version: nextVersion,
           creatorId: userId,
           creatorName: originUserId,
