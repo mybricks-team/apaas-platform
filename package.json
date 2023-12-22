@@ -1,6 +1,6 @@
 {
   "name": "mybricks-apaas-platform",
-  "version": "0.1.43",
+  "version": "0.1.44",
   "description": "",
   "scripts": {
     "docker:load": "docker load < ./mybricks-apaas.tar",

@@ -24,6 +24,9 @@
     "/paas/api/oss/uploadFile:POST": {
       "ignore": true
     },
+    "/paas/api/oss/uploadFiles:POST": {
+      "ignore": true
+    },
     "/api/pcpage/publish:POST": {
       "ignore": true
     },
