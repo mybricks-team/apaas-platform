@@ -485,7 +485,7 @@ export default class AppController {
       // 更新本地版本
       this.updateLocalAppVersion({ namespace: pkg.name, version: pkg.version, installType: 'local' })
 
-      Logger.info('平台更新成功，准备写入操作日志')
+      Logger.info('[offlineUpdate]: 平台更新成功，准备写入操作日志')
       await this.userLogDao.insertLog({ type: 9, userId: req?.query?.userId,
         logContent: JSON.stringify(
           {
@@ -508,17 +508,17 @@ export default class AppController {
         },
         (error, stdout, stderr) => {
           if (error) {
-            Logger.info(`exec error: ${error}`);
+            Logger.info(`[offlineUpdate]: exec error: ${error}`);
             return;
           }
-          Logger.info(`stdout: ${stdout}`);
-          Logger.info(`stderr: ${stderr}`);
+          Logger.info(`[offlineUpdate]: stdout: ${stdout}`);
+          Logger.info(`[offlineUpdate]: stderr: ${stderr}`);
         }
       );
     } catch(e) {
-      Logger.info('错误信息是')
-      Logger.info(e.message)
-      Logger.info(e?.stack?.toString())
+      Logger.info('[offlineUpdate]: 错误信息是')
+      Logger.info(`[offlineUpdate]: ${e.message}`)
+      Logger.info(`[offlineUpdate]: ${e?.stack?.toString()}`)
       fse.removeSync(tempFolder)
     }
     
