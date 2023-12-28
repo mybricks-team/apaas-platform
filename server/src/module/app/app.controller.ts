@@ -208,6 +208,11 @@ export default class AppController {
           installedApp = app;
           installedIndex = index;
         }
+      } else if(app.type === 'local') {
+        if (app.namespace === namespace) {
+          installedApp = app;
+          installedIndex = index;
+        }
       }
     });
 
@@ -242,18 +247,11 @@ export default class AppController {
       };
     } else {
       let preVersion = installedApp.version;
-      // 升级版本
-      if(installedApp.type === 'npm') {
-        preVersion = installedApp.path.split('@')[1];
-        installPkgName = installedApp.path.substr(0, installedApp.path.lastIndexOf('@'))
-        installedApp.path = `${installPkgName}@${version}`;
-        applications.installApps.splice(installedIndex, 1, installedApp);
-      } else if(installedApp.type === 'oss') {
-        installPkgName = installedApp.namespace
-        installedApp.version = version
-        installedApp.path = remoteAppInstallInfo.ossPath
-        applications.installApps.splice(installedIndex, 1, installedApp);
-      }
+      installedApp.type = 'oss';
+      installedApp.version = version;
+      installedApp.namespace = namespace;
+      installedApp.path = remoteAppInstallInfo.ossPath;
+      applications.installApps.splice(installedIndex, 1, installedApp);
 
       if (['npm', 'oss'].includes(installedApp.type)) {
         logInfo = {
@@ -379,7 +377,6 @@ export default class AppController {
     }
     fs.writeFileSync(path.join(process.cwd(), './application.json'), JSON.stringify(application, undefined, 2))
   }
-
 
   @Post("/offlineUpdate")
   @UseInterceptors(FileInterceptor('file'))

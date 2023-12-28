@@ -8,12 +8,6 @@
     },
     {
       "type": "oss",
-      "version": "0.4.18",
-      "namespace": "mybricks-pc-page",
-      "path": "asset-center/asset/app/mybricks-pc-page/0.4.18/mybricks-pc-page.zip"
-    },
-    {
-      "type": "oss",
       "version": "0.2.3",
       "namespace": "mybricks-material",
       "path": "asset-center/asset/app/mybricks-material/0.2.3/mybricks-material.zip"
@@ -51,9 +45,10 @@
       "path": "asset-center/asset/app/mybricks-app-mpsite/0.1.5/mybricks-app-mpsite.zip"
     },
     {
-      "path": "mybricks-app-pcspa-vue2@1.2.15",
-      "version": "1.2.15",
-      "type": "npm"
+      "namespace": "mybricks-app-pcspa",
+      "version": "1.2.49",
+      "type": "oss",
+      "path": "asset-center/asset/app/mybricks-app-pcspa/1.2.49/mybricks-app-pcspa.zip"
     }
   ],
   "platformVersion": "0.0.71"
