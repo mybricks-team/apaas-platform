@@ -362,9 +362,10 @@ export default class AppController {
     const application = require(path.join(process.cwd(), './application.json'));
     let installApp = null
     application?.installApps?.forEach(app => {
-      if(app.namespace === namespace) {
-        app.version = version
-        app.installType = installType
+      if(app.namespace === namespace || (app.type === 'npm' && app.path?.startsWith(`${namespace}@`))) {
+        app.version = version;
+        app.namespace = namespace;
+        app.type = installType;
         installApp = app
       }
     })
