@@ -283,10 +283,8 @@ export default class AppController {
       env.getAppInstallFolder(),
       `./${installPkgName}/nodejs/index.module.ts`
     );
-    if (fs.existsSync(serverModulePath)) {
-      if(!remoteAppInstallInfo?.noServiceUpdate) {
-        logInfo += ', 服务已更新'
-      }
+    if (fs.existsSync(serverModulePath) && !remoteAppInstallInfo?.noServiceUpdate && logInfo) {
+      logInfo.content += ', 服务已更新'
     }
 
     try {
