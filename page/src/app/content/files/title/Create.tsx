@@ -167,7 +167,7 @@ export function Create(): JSX.Element {
           axios({
             method: 'post',
             url: getApiUrl('/paas/api/file/createFileBaseTemplate'),
-            data: { ...params, name: fileName, templateId: chooseTemplate.fileId }
+            data: { ...params, name: fileName, templateId: chooseTemplate.fileId, dumpJSON: chooseTemplate.dumpJSON }
           }).then(async ({data}) => {
             if (data.code === 1) {
               const appReg = appCtx.APPSMap[extName]

@@ -157,7 +157,7 @@ export default class FileController {
 
   @Post("/createFileBaseTemplate")
   async createFile(@Body() body) {
-    const { userId: originUserId, name, extName, namespace, type, parentId, groupId, templateId } = body;
+    const { userId: originUserId, name, extName, namespace, type, parentId, groupId, templateId, dumpJSON } = body;
     const userId = await this.userService.getCurrentUserId(originUserId);
 
     if (!userId) {
@@ -176,7 +176,9 @@ export default class FileController {
       });
 			
 			if (rtn.id) {
-        const latestSave = await this.fileContentDao.queryLatestSave({ fileId: templateId})
+        // const latestSave = await this.fileContentDao.queryLatestSave({ fileId: templateId})
+        const latestSave = dumpJSON ? { content: JSON.stringify(dumpJSON) } : await this.fileContentDao.queryLatestSave({ fileId: templateId})
+        
         await this.fileContentDao.create({
           fileId: rtn.id,
           content: latestSave?.content,
