@@ -380,11 +380,14 @@ export default class UserController {
         const fileId = temp.query?.id
         if(fileId) {
           const fileInfo = await this.fileDao.queryById(fileId)
-          if(+fileInfo?.shareType === 10) {
+          if([10, 11].includes(+fileInfo?.shareType)) {
             Logger.info(`[signed] 命中访客模式，直接返回`);
             return {
               code: 1,
-              data: {},
+              data: {
+                name: '游客',
+                email: 'guest@mybricks.world'
+              },
             }
           }
         }

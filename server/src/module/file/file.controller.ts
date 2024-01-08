@@ -1487,16 +1487,23 @@ export default class FileController {
 
   @Post('/share/mark')
   async shareMark(@Body() body) {
-    const { id, userId }: { id: number, userId: string } = body;
+    const { id, userId, type }: { id: number, userId: string, type: string } = body;
     if (!id || !userId) {
       return {
         code: -1,
         msg: '缺少必要参数 id 或 userId'
       }
     }
+    const file = await this.fileDao.queryById(id);
+    let shareType = file?.shareType || 0;
+    if (type === 'touristVisit') {
+      shareType += 10;
+    } else {
+      shareType += 1;
+    }
     const rtn = await this.fileDao.updateShare({
       id: id,
-      shareType: 1,
+      shareType,
       updatorId: userId
     })
     return {
@@ -1508,16 +1515,23 @@ export default class FileController {
 
   @Post('/share/unmark')
   async shareUnmark(@Body() body) {
-    const { id, userId }: { id: number, userId: string } = body;
+    const { id, userId, type }: { id: number, userId: string, type: string } = body;
     if (!id || !userId) {
       return {
         code: -1,
         msg: '缺少必要参数 id 或 userId'
       }
     }
+    const file = await this.fileDao.queryById(id);
+    let shareType = file?.shareType || 0;
+    if (type === 'touristVisit') {
+      shareType -= 10;
+    } else {
+      shareType -= 1;
+    }
     const rtn = await this.fileDao.updateShare({
       id: id,
-      shareType: null,
+      shareType,
       updatorId: userId,
       updatorName: userId
     })
