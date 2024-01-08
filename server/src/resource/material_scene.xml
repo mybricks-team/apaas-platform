@@ -41,7 +41,6 @@
             #{item}
         </foreach>
         and material_tag_relation.tag_id = material_tag.id
-        and material_tag.parent_id is not null
         <if test="needOnline">
             and material_tag.status = 1
         </if>
@@ -375,4 +374,9 @@
             </trim>
         </foreach>
     </insert>
+
+    <select id="getSceneById">
+        select * from material_scene
+        where id = #{id} and status = 1
+    </select>
 </mapper>
