@@ -375,7 +375,20 @@ export default class UserController {
     try {
       const { fileId, HAINIU_UserInfo } = body;
       let userEmail;
-
+      if(request?.headers?.referer?.indexOf('.html') > -1 && request?.headers?.referer?.indexOf('id=') > -1) {
+        const temp = require('url').parse(request?.headers?.referer, true)
+        const fileId = temp.query?.id
+        if(fileId) {
+          const fileInfo = await this.fileDao.queryById(fileId)
+          if(+fileInfo?.shareType === 10) {
+            Logger.info(`[signed] 命中访客模式，直接返回`);
+            return {
+              code: 1,
+              data: {},
+            }
+          }
+        }
+      }
       if(us) {
         userEmail = `${us}@kuaishou.com`;
       } else {
