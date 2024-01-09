@@ -77,7 +77,7 @@ const CommonTemplateChooseModal = props => {
   const [dynamicTemplateModalInfo, setDynamicTemplateModalInfo] = useState(null)
 
   function handleDynamicTemplateMessage(event) {
-    if (event.source === iframeRef.current?.contentWindow) {
+    if (iframeRef.current?.contentWindow && (event.source === iframeRef.current?.contentWindow) && event.data?.content) {
       iframeListener = false
       window.removeEventListener('message', handleDynamicTemplateMessage);
       onChoose({dumpJSON: event.data, ...dynamicTemplateModalInfo})
