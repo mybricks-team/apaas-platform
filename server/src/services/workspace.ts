@@ -711,10 +711,11 @@ export default class WorkspaceService {
         return { code: 0, message: "保存记录不存在" };
       }
 
+      const latestFileContent = await this.fileContentDao.queryLatestByFileId<{ version: string }>(fileContent.fileId);
       await this.fileContentDao.create({
         fileId: fileContent.fileId,
         content: fileContent.content,
-        version: getNextVersion(fileContent?.version || "1.0.0"),
+        version: getNextVersion(latestFileContent?.version || fileContent?.version || "1.0.0"),
         creatorId: userId,
         creatorName: user?.name || user?.email || userId,
       });
