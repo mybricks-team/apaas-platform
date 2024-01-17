@@ -161,4 +161,24 @@ export default class LogsController {
       }
     }
   }
+
+  @Post('/ai/chatToPage')
+  async chatToPage(
+    @Body('content') content: string, 
+    @Body('userId') userId: string
+  ) {
+    try {
+      await this.logService.chatToPage({ content, userId })
+      return {
+        code: 1,
+        msg: '插入成功'
+      }
+    } catch(e) {
+      Logger.info(`[chatToPage]: 日志分析失败: ${e.message}`)
+      return {
+        code: -1,
+        msg: e.message || '分析失败'
+      }
+    }
+  }
 }

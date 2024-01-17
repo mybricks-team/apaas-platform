@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import UserLogDao from '../../dao/UserLogDao';
 import { Logger } from '@mybricks/rocker-commons';
+import { USER_LOG_TYPE } from '../../constants';
 const fs = require('fs');
 const path = require('path');
 const child_process = require('child_process')
@@ -13,6 +14,15 @@ export default class LogService {
 
   constructor() {
     this.userLogDao = new UserLogDao()
+  }
+
+  async chatToPage(param: { content: string, userId: string }) {
+    const res = this.userLogDao.insertLog({ 
+      type: USER_LOG_TYPE.AI_CHATTOPAGE_LOG as number,
+      logContent: param.content,
+      userId: param.userId
+     })
+     return res
   }
 
   async getOperateLog(param: { limit: number, offset: number }) {

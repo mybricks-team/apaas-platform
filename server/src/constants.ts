@@ -62,4 +62,10 @@ export const USER_ROLE = {
   ADMIN: 10 // 超管
 }
 
+export const USER_LOG_TYPE = {
+  APPS_INSTALL_LOG: 9, // 应用安装日志
+  PLATOFRM_INSTALL_LOG: 10, // 平台安装日志
+  AI_CHATTOPAGE_LOG: 20, // AI生成页面日志
+}
+
 export const TIMEOUT_TIME = 60 * 1000;

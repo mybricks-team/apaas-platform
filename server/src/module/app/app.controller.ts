@@ -11,6 +11,7 @@ import UserLogDao from '../../dao/UserLogDao';
 import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
 import AppService from './app.service';
+import { USER_LOG_TYPE } from '../../constants'
 const fse = require('fs-extra');
 const parse5 = require('parse5');
 const { getAppThreadName } = require('../../../env.js')
@@ -318,13 +319,13 @@ export default class AppController {
           cwd: path.join(process.cwd()) // 不能inherit输出
         });
         if (logInfo) {
-          await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
+          await this.userLogDao.insertLog({ type: USER_LOG_TYPE.APPS_INSTALL_LOG, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
         }
         return { code: -1, message: logStr.toString() };
       }
     } catch (e) {
       if (logInfo) {
-        await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
+        await this.userLogDao.insertLog({ type: USER_LOG_TYPE.APPS_INSTALL_LOG, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
         logInfo = null;
       }
       Logger.info(logPrefix + e.message);
@@ -332,7 +333,7 @@ export default class AppController {
     }
 
     if (logInfo) {
-      await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'success' }) });
+      await this.userLogDao.insertLog({ type: USER_LOG_TYPE.APPS_INSTALL_LOG, userId, logContent: JSON.stringify({ ...logInfo, status: 'success' }) });
     }
     try {
       if (fs.existsSync(serverModulePath)) {
@@ -498,7 +499,7 @@ export default class AppController {
       this.updateLocalAppVersion({ namespace: pkg.name, version: pkg.version, installType: 'local' })
 
       Logger.info('[offlineUpdate]: 平台更新成功，准备写入操作日志')
-      await this.userLogDao.insertLog({ type: 9, userId: req?.query?.userId,
+      await this.userLogDao.insertLog({ type: USER_LOG_TYPE.APPS_INSTALL_LOG, userId: req?.query?.userId,
         logContent: JSON.stringify(
           {
             action: 'install',
@@ -620,7 +621,7 @@ export default class AppController {
 
     await this.appDao.insertApp({ ...body, install_type, type, create_time: Date.now() });
     await this.userLogDao.insertLog({
-      type: 9,
+      type: USER_LOG_TYPE.APPS_INSTALL_LOG,
       userEmail: creator_name,
       userId: user_id,
       logContent: JSON.stringify({
