@@ -104,18 +104,30 @@ function persistenceToConfig() {
 function injectPLatformConfig() {
   const config = require(path.join(__dirname, '../ecosystem.config.js'))
   if(UserInputConfig.platformDomain) {
-    config.apps[0].env.MYBRICKS_PLATFORM_ADDRESS = UserInputConfig.platformDomain
-    config.apps[0].env.EXTERNAL_FILE_STORAGE = EXTERNAL_FILE_STORAGE
-    config.apps[0].env.MYBRICKS_RUN_MODE = 'docker'
-    config.apps[0].env.TZ = 'Asia/Shanghai'
+    config.apps[0].env.MYBRICKS_PLATFORM_ADDRESS = UserInputConfig.platformDomain;
+    config.apps[0].env.EXTERNAL_FILE_STORAGE = EXTERNAL_FILE_STORAGE;
+    config.apps[0].env.MYBRICKS_RUN_MODE = 'docker';
+    config.apps[0].env.TZ = 'Asia/Shanghai';
+    config.apps[1].env.MYBRICKS_PLATFORM_ADDRESS = UserInputConfig.platformDomain;
+    config.apps[1].env.EXTERNAL_FILE_STORAGE = EXTERNAL_FILE_STORAGE;
+    config.apps[1].env.MYBRICKS_RUN_MODE = 'docker';
+    config.apps[1].env.TZ = 'Asia/Shanghai';
   }
   if(UserInputConfig.platformPort) {
-    config.apps[0].env.MYBRICKS_PLATFORM_PORT = UserInputConfig.platformPort
+    config.apps[0].env.MYBRICKS_PLATFORM_PORT = UserInputConfig.platformPort;
+    config.apps[1].env.MYBRICKS_PLATFORM_PORT = +UserInputConfig.platformPort + 1;
   }
   if(UserInputConfig.platformAppName) {
-    config.apps[0].name = UserInputConfig.platformAppName
+    config.apps[0].name = UserInputConfig.platformAppName + '_master';
+    config.apps[1].name = UserInputConfig.platformAppName;
   }
-  fs.writeFileSync(path.join(__dirname, '../ecosystem.config.js'), `module.exports = ${JSON.stringify(config)}`, 'utf-8')
+
+  const backupConfig = JSON.parse(JSON.stringify(config));
+  config.apps[1].env.MYBRICKS_PLATFORM_PORT = +config.apps[1].env.MYBRICKS_PLATFORM_PORT + 1;
+  config.apps[1].env.MYBRICKS_NODE_MODE = 'backup';
+  backupConfig.apps.splice(0, 1);
+  fs.writeFileSync(path.join(__dirname, '../ecosystem.config.js'), `module.exports = ${JSON.stringify(config)}`, 'utf-8');
+  fs.writeFileSync(path.join(__dirname, '../ecosystem.config.backup.js'), `module.exports = ${JSON.stringify(backupConfig)}`, 'utf-8');
   console.log(`【install】: 初始化平台域名成功`)
 }
 

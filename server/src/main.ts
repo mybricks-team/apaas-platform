@@ -85,7 +85,7 @@ async function bootstrap() {
 	app.use(xmlparser());
   app.use(timeout(TIMEOUT_TIME))
 
-  await app.listen(process.env?.MYBRICKS_PLATFORM_PORT || 3100);
+  await app.listen(process.env?.MYBRICKS_PLATFORM_SLAVE_PORT || 3101);
 }
 
 bootstrap();
