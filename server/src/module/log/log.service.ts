@@ -25,10 +25,61 @@ export default class LogService {
      return res
   }
 
+  async getChatLogList(param: { content: string, userId: string }) {
+    const res = this.userLogDao.insertLog({ 
+      type: USER_LOG_TYPE.AI_CHATTOPAGE_LOG as number,
+      logContent: param.content,
+      userId: param.userId
+     })
+     return res
+  }
+
+  async getChatCount(param: { date: string }) {
+    const date = new Date(param.date);
+    // 获取当天零点的时间戳
+    const startTimestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    // 获取当天的23:59:59的时间戳
+    const endTimestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59).getTime();
+    if(!date) {
+      return await this.userLogDao.queryChatCount({
+        type: [USER_LOG_TYPE.AI_CHATTOPAGE_LOG]
+      })
+    } else {
+      return await this.userLogDao.queryChatCount({
+        startTime: startTimestamp,
+        endTime: endTimestamp,
+        type: [USER_LOG_TYPE.AI_CHATTOPAGE_LOG]
+      })
+    }
+  }
+
+  async getChatList(param: { limit: number, offset: number, date: string }) {
+    const date = new Date(param.date);
+    // 获取当天零点的时间戳
+    const startTimestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    // 获取当天的23:59:59的时间戳
+    const endTimestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59).getTime();
+    if(!date) {
+      return await this.userLogDao.queryDetailByTime({
+        type: [USER_LOG_TYPE.AI_CHATTOPAGE_LOG],
+        limit: param.limit,
+        offset: param.offset
+      })
+    } else {
+      return await this.userLogDao.queryDetailByTime({
+        startTime: startTimestamp,
+        endTime: endTimestamp,
+        limit: param.limit,
+        offset: param.offset,
+        type: [USER_LOG_TYPE.AI_CHATTOPAGE_LOG]
+      })
+    }
+  }
+
   async getOperateLog(param: { limit: number, offset: number }) {
     const [total, list] = await Promise.all([
-      this.userLogDao.queryTotalOfAll(),
-      this.userLogDao.queryDetailOfAll(param)
+      this.userLogDao.queryTotalOfAll({ type: [USER_LOG_TYPE.APPS_INSTALL_LOG, USER_LOG_TYPE.PLATOFRM_INSTALL_LOG] }),
+      this.userLogDao.queryDetailOfAll({...param, type: [USER_LOG_TYPE.APPS_INSTALL_LOG, USER_LOG_TYPE.PLATOFRM_INSTALL_LOG]})
     ]);
     return {
       total,

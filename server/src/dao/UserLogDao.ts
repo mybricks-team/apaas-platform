@@ -69,6 +69,16 @@ export default class UserLogDao extends DOBase {
     return result.insertId;
   }
 
+  public async queryChatCount(params: { startTime?: number, endTime?: number, type: number[] }): Promise<number> {
+    const res = await this.exe<any>('apaas_user_log:queryChatCount', params);
+    return res ? res[0].total : 0;
+  }
+
+  @Mapping(UserLogDO)
+  async queryDetailByTime(params: { startTime?: number, endTime?: number, limit: number, offset: number, type: number[] }) {
+    return await this.exe<UserLogDO[]>('apaas_user_log:queryDetailByTime', params);
+  }
+
   public async createUpgradeLog(params: {
     userId: string,
     userEmail: string
@@ -91,12 +101,12 @@ export default class UserLogDao extends DOBase {
     return result.insertId
   }
 
-  async queryDetailOfAll(params: { limit: number; offset: number }) {
+  async queryDetailOfAll(params: { limit: number; offset: number, type: number[] }) {
     return await this.exe('apaas_user_log:queryDetailOfAll', params);
   }
 
-  async queryTotalOfAll() {
-    const res = await this.exe<Array<{ total: number }>>('apaas_user_log:queryTotalOfAll');
+  async queryTotalOfAll(params: { type: number[] }) {
+    const res = await this.exe<Array<{ total: number }>>('apaas_user_log:queryTotalOfAll', params);
     return res ? res[0].total : 0;
   }
 }

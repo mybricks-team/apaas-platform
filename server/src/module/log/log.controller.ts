@@ -181,4 +181,31 @@ export default class LogsController {
       }
     }
   }
+
+  @Post('/ai/getChatLogList')
+  async getChatLogList(
+    @Body('pageSize') pageSize: string, 
+    @Body('pageNum') pageNum: string,
+    @Body('date') date: string // wg: 2023-01-01
+  ) {
+    try {
+      const curPageNum = pageNum ? Number(pageNum) : 1;
+      const curPageSize = pageSize ? Number(pageSize) : 20;
+      const list = await this.logService.getChatList({ limit: curPageSize, offset: curPageSize * (curPageNum - 1), date })
+      const total = await this.logService.getChatCount({ date })
+      return {
+        code: 1,
+        data: {
+          list,
+          total
+        }
+      }
+    } catch(e) {
+      Logger.info(`[getChatLogList]: 获取内容失败: ${e.message}`)
+      return {
+        code: -1,
+        msg: e.message || '获取失败'
+      }
+    }
+  }
 }
