@@ -350,7 +350,7 @@ function Projects() {
                 {
                   alreadyShared || touristVisit ? (
                     <div className={css.share}>
-                      <SharerdIcon width={14} height={14} />
+                      <SharerdIcon width={16} height={16} />
                     </div>
                   ) : null
                 }
