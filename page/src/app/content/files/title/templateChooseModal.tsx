@@ -107,6 +107,8 @@ const CommonTemplateChooseModal = props => {
         onCancel={() => setDynamicTemplateModalInfo(null)}
         footer={null}
         mask={false}
+        maskClosable={false}
+        keyboard={false}
       >
         <div style={{height: 769}}>
           <iframe
