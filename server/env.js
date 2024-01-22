@@ -18,7 +18,7 @@ const FILE_UPGRADE_LOCK_FILE = path.join(FILE_LOCAL_STORAGE_FOLDER, '_lock_.lock
 const FILE_LOCAL_STORAGE_PREFIX = 'mfs'
 const FILE_LOCAL_STORAGE_PREFIX_RUNTIME = 'runtime/mfs'
 
-const NPM_REGISTRY = process.env.MYBRICKS_NPM_REGISTRY ? process.env.MYBRICKS_NPM_REGISTRY : (process.env.PLATFORM_HOSTNAME === 'FANGZHOU') ? decodeURIComponent(Buffer.from('aHR0cHMlM0EvL25wbS5jb3JwLmt1YWlzaG91LmNvbS8=', 'base64').toString('utf-8')) : 'https://registry.npm.taobao.org'
+const NPM_REGISTRY = process.env.MYBRICKS_NPM_REGISTRY ? process.env.MYBRICKS_NPM_REGISTRY : (process.env.PLATFORM_HOSTNAME === 'FANGZHOU') ? decodeURIComponent(Buffer.from('aHR0cHMlM0EvL25wbS5jb3JwLmt1YWlzaG91LmNvbS8=', 'base64').toString('utf-8')) : 'https://registry.npmmirror.com'
 
 
 const getAppThreadName = () => {
