@@ -20,7 +20,7 @@ export default class LogService {
     const res = this.userLogDao.insertLog({ 
       type: USER_LOG_TYPE.AI_CHATTOPAGE_LOG as number,
       logContent: param.content,
-      userId: param.userId
+      userId: param.userId || '0'
      })
      return res
   }
@@ -29,7 +29,7 @@ export default class LogService {
     const res = this.userLogDao.insertLog({ 
       type: USER_LOG_TYPE.AI_CHATTOPAGE_LOG as number,
       logContent: param.content,
-      userId: param.userId
+      userId: param.userId || '0'
      })
      return res
   }
