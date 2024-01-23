@@ -724,6 +724,8 @@ function NewUserConfigModal({open, onCancel}) {
         title: 'ID',
         dataIndex: 'id',
         key: 'id',
+        width: 160,
+        ellipsis: true,
         render: (id) => {
           return <span className={css.copy} onClick={() => copy(id)}>{id}</span>
         }
@@ -733,6 +735,7 @@ function NewUserConfigModal({open, onCancel}) {
         dataIndex: 'name',
         key: 'name',
         width: 90,
+        ellipsis: true,
         render: (name) => {
           const finalName = name || '-'
           return <span className={css.copy} onClick={() => copy(finalName)}>{finalName}</span>
@@ -742,6 +745,7 @@ function NewUserConfigModal({open, onCancel}) {
         title: 'account',
         dataIndex: 'email',
         key: 'email',
+        ellipsis: true,
         render: (email) => {
           return <span className={css.copy} onClick={() => copy(email)}>{email}</span>
         }
@@ -958,7 +962,6 @@ function AddUserForm({open, onOk, onCancel}) {
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 20 }}
         form={form}
-        style={{height: 166}}
       >
         <AntdForm.Item
           label='权限'

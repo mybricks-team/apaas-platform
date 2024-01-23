@@ -157,7 +157,7 @@ export default class FileController {
 
   @Post("/createFileBaseTemplate")
   async createFile(@Body() body) {
-    const { userId: originUserId, name, extName, namespace, type, parentId, groupId, templateId } = body;
+    const { userId: originUserId, name, extName, namespace, type, parentId, groupId, templateId, dumpJSON } = body;
     const userId = await this.userService.getCurrentUserId(originUserId);
 
     if (!userId) {
@@ -176,7 +176,9 @@ export default class FileController {
       });
 			
 			if (rtn.id) {
-        const latestSave = await this.fileContentDao.queryLatestSave({ fileId: templateId})
+        // const latestSave = await this.fileContentDao.queryLatestSave({ fileId: templateId})
+        const latestSave = dumpJSON ? { content: JSON.stringify(dumpJSON) } : await this.fileContentDao.queryLatestSave({ fileId: templateId})
+        
         await this.fileContentDao.create({
           fileId: rtn.id,
           content: latestSave?.content,
@@ -1485,16 +1487,23 @@ export default class FileController {
 
   @Post('/share/mark')
   async shareMark(@Body() body) {
-    const { id, userId }: { id: number, userId: string } = body;
+    const { id, userId, type }: { id: number, userId: string, type: string } = body;
     if (!id || !userId) {
       return {
         code: -1,
         msg: '缺少必要参数 id 或 userId'
       }
     }
+    const file = await this.fileDao.queryById(id);
+    let shareType = file?.shareType || 0;
+    if (type === 'touristVisit') {
+      shareType += 10;
+    } else {
+      shareType += 1;
+    }
     const rtn = await this.fileDao.updateShare({
       id: id,
-      shareType: 1,
+      shareType,
       updatorId: userId
     })
     return {
@@ -1506,16 +1515,23 @@ export default class FileController {
 
   @Post('/share/unmark')
   async shareUnmark(@Body() body) {
-    const { id, userId }: { id: number, userId: string } = body;
+    const { id, userId, type }: { id: number, userId: string, type: string } = body;
     if (!id || !userId) {
       return {
         code: -1,
         msg: '缺少必要参数 id 或 userId'
       }
     }
+    const file = await this.fileDao.queryById(id);
+    let shareType = file?.shareType || 0;
+    if (type === 'touristVisit') {
+      shareType -= 10;
+    } else {
+      shareType -= 1;
+    }
     const rtn = await this.fileDao.updateShare({
       id: id,
-      shareType: null,
+      shareType,
       updatorId: userId,
       updatorName: userId
     })

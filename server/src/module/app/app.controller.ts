@@ -11,6 +11,7 @@ import UserLogDao from '../../dao/UserLogDao';
 import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
 import AppService from './app.service';
+import { USER_LOG_TYPE } from '../../constants'
 const fse = require('fs-extra');
 const parse5 = require('parse5');
 const { getAppThreadName } = require('../../../env.js')
@@ -142,22 +143,22 @@ export default class AppController {
 
   @Post("/update")
   async appUpdate(@Body() body, @Req() req) {
+    const { namespace, version, isFromCentral, userId } = body;
+    const logPrefix = `[安装应用 ${namespace}@${version}]：`;
     const systemConfig = await this.configService.getConfigByScope(['system'])
     try {
       if(systemConfig?.system?.config?.openConflictDetection) {
-        Logger.info('开启了冲突检测')
+        Logger.info(logPrefix + '开启了冲突检测')
         await lockUpgrade()
       }
     } catch(e) {
-      Logger.info(e.message)
-      Logger.info(e?.stack?.toString())
+      Logger.info(logPrefix + e.message)
+      Logger.info(logPrefix + e?.stack?.toString())
       return {
         code: -1,
         msg: '当前已有升级任务，请稍后重试'
       }
     }
-
-    const { namespace, version, isFromCentral, userId } = body;
     const applications = require(path.join(process.cwd(), './application.json'));
 
     let remoteApps = [];
@@ -178,7 +179,7 @@ export default class AppController {
         remoteApps = await this.appDao.queryLatestApp();
       }
     } catch (e) {
-      Logger.info(`获取远程应用版本失败: ${e?.stack?.toString()}`);
+      Logger.info(`${logPrefix}获取远程应用版本失败: ${e?.stack?.toString()}`);
     }
 
     if (!remoteApps.length) {
@@ -191,12 +192,14 @@ export default class AppController {
     if (!remoteApp) {
       return { code: 0, message: "升级失败，不存在此应用" };
     }
+    Logger.info(`${logPrefix} 安装应用的最新版本：${remoteApp.version}`);
     const remoteAppInstallInfo = JSON.parse(remoteApp.installInfo || "{}");
     /** 已安装应用 */
     let installedApp = null;
     let installedIndex = null;
     let installPkgName = "";
     let logInfo = null;
+    let needServiceUpdate = !remoteAppInstallInfo?.noServiceUpdate;
     applications.installApps.forEach((app, index) => {
       if(app.type === 'npm') {
         if (app.path?.indexOf(`${namespace}@`) !== -1) {
@@ -208,10 +211,16 @@ export default class AppController {
           installedApp = app;
           installedIndex = index;
         }
+      } else if(app.type === 'local') {
+        if (app.namespace === namespace) {
+          installedApp = app;
+          installedIndex = index;
+        }
       }
     });
 
     if (!installedApp) {
+      needServiceUpdate = true;
       /** 新加应用 */
       installPkgName = remoteApp.namespace;
       if(remoteApp.installType === 'oss') {
@@ -226,7 +235,7 @@ export default class AppController {
           type: "npm",
           version: version,
           namespace: installPkgName,
-          path: `${installPkgName}@${version}`,
+          path: `${installPkgName}@${remoteApp.version}`,
         });
       }
 
@@ -235,24 +244,30 @@ export default class AppController {
         type: 'application',
         installType: remoteApp.installType || 'npm',
         preVersion: '',
-        version,
+        version: remoteApp.version,
         namespace: installPkgName,
         name: remoteApp.name || installPkgName,
         content: '安装新应用：' + (remoteApp.name || installPkgName) + '，版本号：' + version,
       };
     } else {
+      installPkgName = remoteApp.namespace;
       let preVersion = installedApp.version;
-      // 升级版本
-      if(installedApp.type === 'npm') {
-        preVersion = installedApp.path.split('@')[1];
-        installPkgName = installedApp.path.substr(0, installedApp.path.lastIndexOf('@'))
-        installedApp.path = `${installPkgName}@${version}`;
-        applications.installApps.splice(installedIndex, 1, installedApp);
-      } else if(installedApp.type === 'oss') {
-        installPkgName = installedApp.namespace
-        installedApp.version = version
-        installedApp.path = remoteAppInstallInfo.ossPath
-        applications.installApps.splice(installedIndex, 1, installedApp);
+      installedApp.type = 'oss';
+      installedApp.version = remoteApp.version;
+      installedApp.namespace = namespace;
+      installedApp.path = remoteAppInstallInfo.ossPath;
+      applications.installApps.splice(installedIndex, 1, installedApp);
+      if (!needServiceUpdate) {
+        const temp = (await (axios as any).post(
+          "https://my.mybricks.world/central/api/channel/gateway",
+          {
+            action: 'app_checkServiceUpdateByNamespaceAndVersion',
+            payload: JSON.stringify({ namespace, version: preVersion, nextVersion: remoteApp.version }),
+          }
+        )).data;
+        if(temp.code === 1) {
+          needServiceUpdate = temp.data?.needServiceUpdate;
+        }
       }
 
       if (['npm', 'oss'].includes(installedApp.type)) {
@@ -264,14 +279,14 @@ export default class AppController {
           version,
           namespace: installPkgName,
           name: remoteApp.name || installPkgName,
-          content: `更新应用：${remoteApp.name || installPkgName}，版本从 ${preVersion} 到 ${version}`,
+          content: `更新应用：${remoteApp.name || installPkgName}，版本从 ${preVersion} 到 ${remoteApp.version}`,
         };
       }
 
-      Logger.info('更新版本', installedApp)
+      Logger.info(logPrefix + '更新版本', installedApp)
     }
     const rawApplicationStr = fs.readFileSync(
-      path.join(process.cwd(), "./application.json"),
+      path.join(process.cwd(), './application.json'),
       "utf-8"
     );
     fs.writeFileSync(
@@ -279,23 +294,21 @@ export default class AppController {
       JSON.stringify(applications, undefined, 2)
     );
 
-    Logger.info("准备应用成功, 开始安装应用");
+    Logger.info(logPrefix + "准备应用成功, 开始安装应用");
 
     const serverModulePath = path.join(
       env.getAppInstallFolder(),
       `./${installPkgName}/nodejs/index.module.ts`
     );
-    if (fs.existsSync(serverModulePath)) {
-      if(!remoteAppInstallInfo?.noServiceUpdate) {
-        logInfo += ', 服务已更新'
-      }
+    if (fs.existsSync(serverModulePath) && needServiceUpdate && logInfo) {
+      logInfo.content += ', 服务已更新'
     }
 
     try {
       const logStr = childProcess.execSync("node installApplication.js", {
         cwd: path.join(process.cwd()) // 不能inherit输出
       });
-      Logger.info(`安装应用日志是: ${logStr}`)
+      Logger.info(`${logPrefix}安装应用日志是: ${logStr}`)
       if (logStr?.indexOf("npm ERR") !== -1) {
         fs.writeFileSync(
           path.join(process.cwd(), "./application.json"),
@@ -306,28 +319,28 @@ export default class AppController {
           cwd: path.join(process.cwd()) // 不能inherit输出
         });
         if (logInfo) {
-          await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
+          await this.userLogDao.insertLog({ type: USER_LOG_TYPE.APPS_INSTALL_LOG, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
         }
         return { code: -1, message: logStr.toString() };
       }
     } catch (e) {
       if (logInfo) {
-        await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
+        await this.userLogDao.insertLog({ type: USER_LOG_TYPE.APPS_INSTALL_LOG, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
         logInfo = null;
       }
-      Logger.info(e.message);
-      Logger.info(e?.stack?.toString())
+      Logger.info(logPrefix + e.message);
+      Logger.info(logPrefix + e?.stack?.toString())
     }
 
     if (logInfo) {
-      await this.userLogDao.insertLog({ type: 9, userId, logContent: JSON.stringify({ ...logInfo, status: 'success' }) });
+      await this.userLogDao.insertLog({ type: USER_LOG_TYPE.APPS_INSTALL_LOG, userId, logContent: JSON.stringify({ ...logInfo, status: 'success' }) });
     }
     try {
       if (fs.existsSync(serverModulePath)) {
-        if(remoteAppInstallInfo?.noServiceUpdate) {
-          Logger.info("有service，但是未更新服务端，无需重启");
+        if(!needServiceUpdate) {
+          Logger.info(logPrefix + "有service，但是未更新服务端，无需重启");
         } else {
-          Logger.info("有service，即将重启服务");
+          Logger.info(logPrefix + "有service，即将重启服务");
           childProcess.exec(
             `npx pm2 reload ${getAppThreadName()}`,
             {
@@ -335,25 +348,25 @@ export default class AppController {
             },
             (error, stdout, stderr) => {
               if (error) {
-                Logger.info(`exec error: ${error}`);
+                Logger.info(logPrefix + `exec error: ${error}`);
                 return;
               }
-              Logger.info(`stdout: ${stdout}`);
-              Logger.info(`stderr: ${stderr}`);
+              Logger.info(logPrefix + `stdout: ${stdout}`);
+              Logger.info(logPrefix + `stderr: ${stderr}`);
             }
           );
         }
 
       } else {
-        Logger.info("无service，无需重启");
+        Logger.info(logPrefix + "无service，无需重启");
       }
     } catch (e) {
-      Logger.info(e);
-      Logger.info(e?.stack?.toString())
+      Logger.info(logPrefix + e.message);
+      Logger.info(logPrefix + e?.stack?.toString())
     }
 
     if(systemConfig?.system?.config?.openConflictDetection) {
-      Logger.info("解锁成功，可继续升级应用");
+      Logger.info(logPrefix + "解锁成功，可继续升级应用");
       // 解锁
       await unLockUpgrade({ force: true })
     }
@@ -364,9 +377,10 @@ export default class AppController {
     const application = require(path.join(process.cwd(), './application.json'));
     let installApp = null
     application?.installApps?.forEach(app => {
-      if(app.namespace === namespace) {
-        app.version = version
-        app.installType = installType
+      if(app.namespace === namespace || (app.type === 'npm' && app.path?.startsWith(`${namespace}@`))) {
+        app.version = version;
+        app.namespace = namespace;
+        app.type = installType;
         installApp = app
       }
     })
@@ -379,7 +393,6 @@ export default class AppController {
     }
     fs.writeFileSync(path.join(process.cwd(), './application.json'), JSON.stringify(application, undefined, 2))
   }
-
 
   @Post("/offlineUpdate")
   @UseInterceptors(FileInterceptor('file'))
@@ -485,8 +498,8 @@ export default class AppController {
       // 更新本地版本
       this.updateLocalAppVersion({ namespace: pkg.name, version: pkg.version, installType: 'local' })
 
-      Logger.info('平台更新成功，准备写入操作日志')
-      await this.userLogDao.insertLog({ type: 9, userId: req?.query?.userId,
+      Logger.info('[offlineUpdate]: 平台更新成功，准备写入操作日志')
+      await this.userLogDao.insertLog({ type: USER_LOG_TYPE.APPS_INSTALL_LOG, userId: req?.query?.userId,
         logContent: JSON.stringify(
           {
             action: 'install',
@@ -508,17 +521,17 @@ export default class AppController {
         },
         (error, stdout, stderr) => {
           if (error) {
-            Logger.info(`exec error: ${error}`);
+            Logger.info(`[offlineUpdate]: exec error: ${error}`);
             return;
           }
-          Logger.info(`stdout: ${stdout}`);
-          Logger.info(`stderr: ${stderr}`);
+          Logger.info(`[offlineUpdate]: stdout: ${stdout}`);
+          Logger.info(`[offlineUpdate]: stderr: ${stderr}`);
         }
       );
     } catch(e) {
-      Logger.info('错误信息是')
-      Logger.info(e.message)
-      Logger.info(e?.stack?.toString())
+      Logger.info('[offlineUpdate]: 错误信息是')
+      Logger.info(`[offlineUpdate]: ${e.message}`)
+      Logger.info(`[offlineUpdate]: ${e?.stack?.toString()}`)
       fse.removeSync(tempFolder)
     }
     
@@ -608,7 +621,7 @@ export default class AppController {
 
     await this.appDao.insertApp({ ...body, install_type, type, create_time: Date.now() });
     await this.userLogDao.insertLog({
-      type: 9,
+      type: USER_LOG_TYPE.APPS_INSTALL_LOG,
       userEmail: creator_name,
       userId: user_id,
       logContent: JSON.stringify({

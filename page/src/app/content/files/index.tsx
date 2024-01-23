@@ -27,7 +27,8 @@ import {
   SelectOutlined,
   ShareAltOutlined,
   ExportOutlined,
-  ExclamationCircleFilled
+  ExclamationCircleFilled,
+  UserOutlined
 } from '@ant-design/icons'
 
 import {
@@ -229,7 +230,7 @@ function Projects() {
               axios({
                 method: "post",
                 url: clickShare ? getApiUrl('/paas/api/file/share/mark') : getApiUrl('/paas/api/file/share/unmark'),
-                data: {id: project.id, userId: appCtx.user.id}
+                data: {id: project.id, userId: appCtx.user.id, type: 'share'}
               }).then(async ({data}) => {
                 if (data.code === 1) {
                   ctx.getAll(getUrlQuery());
@@ -237,6 +238,39 @@ function Projects() {
                     await appCtx.refreshSidebar();
                   }
                   message.success(clickShare ? `分享成功` : '取消分享成功');
+                } else {
+                  message.error(`${data.msg}`);
+                }
+                resolve(true)
+              });
+            })
+          },
+          onCancel() {},
+        })
+        break
+      }
+      case 'touristVisit':
+      case 'unTouristVisit': {
+        const needTouristVisit = type === 'touristVisit';
+        confirm({
+          title: needTouristVisit ? `即将开放"${name}"的游客可访问权限` : `即将取消"${name}"的游客可访问权限`,
+          icon: <ExclamationCircleFilled />,
+          centered: true,
+          okText: '确认',
+          cancelText: '取消',
+          onOk() {
+            return new Promise((resolve) => {
+              axios({
+                method: "post",
+                url: needTouristVisit ? getApiUrl('/paas/api/file/share/mark') : getApiUrl('/paas/api/file/share/unmark'),
+                data: {id: project.id, userId: appCtx.user.id, type: 'touristVisit'}
+              }).then(async ({data}) => {
+                if (data.code === 1) {
+                  ctx.getAll(getUrlQuery());
+                  if (folderExtnames.includes(extName)) {
+                    await appCtx.refreshSidebar();
+                  }
+                  message.success(needTouristVisit ? `开放游客访问权限成功` : '取消游客访问权限成功');
                 } else {
                   message.error(`${data.msg}`);
                 }
@@ -305,15 +339,18 @@ function Projects() {
           const bigIcon = folderExtnames.includes(extName) || project.icon
           /** 创建人和拥有管理、编辑权限的用户可见操作按钮 */
           const showOperate = (project.creatorId == userId) || [1, 2].includes(roleDescription)
-          const alreadyShared = project.shareType === 1
+          /** 是否已分享 */
+          const alreadyShared = [1, 11].includes(project.shareType);
+          /** 是否支持游客直接访问 */
+          const touristVisit = [10, 11].includes(project.shareType);
 
           return (
             <DragFile key={project.id} item={project} canDrag={showOperate} drag={moveModalOk}>
               <div className={css.file} onClick={() => operate('open', {project})} onDragEnter={(e) => e.preventDefault()}>
                 {
-                  alreadyShared ? (
+                  alreadyShared || touristVisit ? (
                     <div className={css.share}>
-                      <SharerdIcon width={14} height={14} />
+                      <SharerdIcon width={16} height={16} />
                     </div>
                   ) : null
                 }
@@ -660,7 +697,9 @@ function RenderOperate({project, operate, size = 28, iconSize = 18, appMeta}) {
   /** 非文件夹，可分享 */
   const isFolder = folderExtnames.includes(extName)
   /** 是否已分享 */
-  const alreadyShared = project.shareType === 1
+  const alreadyShared = [1, 11].includes(project.shareType);
+  /** 是否支持游客直接访问 */
+  const touristVisit = [10, 11].includes(project.shareType);
 
   let dropdownMenus = [
     isFolder ? undefined : {
@@ -675,6 +714,21 @@ function RenderOperate({project, operate, size = 28, iconSize = 18, appMeta}) {
         }}>
           <ShareAltOutlined width={16} height={16}/>
           <div className={css.label}>{ alreadyShared ? '取消分享' : '分享'}</div>
+        </div>
+      )
+    },
+    isFolder ? undefined : {
+      key: 'touristVisit',
+      label: (
+        <div className={css.operateItem} onClick={() => {
+          if(touristVisit) {
+            operate('unTouristVisit', { project })
+          } else {
+            operate('touristVisit', { project })
+          }
+        }}>
+          <UserOutlined width={16} height={16} />
+          <div className={css.label}>{ touristVisit ? '取消游客可访问' : '游客访问'}</div>
         </div>
       )
     },

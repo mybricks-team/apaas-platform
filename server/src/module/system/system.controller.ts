@@ -19,7 +19,7 @@ import * as axios from "axios";
 import platformEnvUtils from '../../utils/env'
 import UserLogDao from "../../dao/UserLogDao";
 import SessionService from './session.service';
-import { STATUS_CODE } from '../../constants'
+import { STATUS_CODE, USER_LOG_TYPE } from '../../constants'
 import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
 import TransformSuccessCodeInterceptor from '../../middleware/transformSuccessCode.interceptor'
@@ -645,7 +645,7 @@ export default class SystemService {
             });
             Logger.info('平台更新成功，准备写入操作日志')
             await this.userLogDao.insertLog({
-              type: 10,
+              type: USER_LOG_TYPE.PLATOFRM_INSTALL_LOG,
               userId,
               logContent: JSON.stringify({
                 type: 'platform',
@@ -805,7 +805,7 @@ export default class SystemService {
 
       Logger.info('平台更新成功，准备写入操作日志')
       await this.userLogDao.insertLog({
-        type: 10,
+        type: USER_LOG_TYPE.PLATOFRM_INSTALL_LOG,
         userId: req?.query?.userId,
         logContent: JSON.stringify({
           type: 'platform',

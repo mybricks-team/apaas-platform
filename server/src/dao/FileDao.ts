@@ -310,7 +310,7 @@ export default class FileDao extends DOBase {
     version?: string
   }): Promise<{ id: number | null }> {
     if (!query.version) {
-      query.version = '1.0.0'
+      query.version = null
     }
     if (!query.parentId) {
       query.parentId = null
