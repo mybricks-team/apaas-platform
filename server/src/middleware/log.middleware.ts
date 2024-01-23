@@ -1,7 +1,8 @@
 import { NextFunction, Request } from "express";
 import { Logger } from '@mybricks/rocker-commons';
 import { maxLogRowContent, maxAboutWord } from '../constants';
-import { getStringBytes } from '../utils/logger'
+import { getStringBytes } from '../utils/logger';
+import { formatBodyData } from "../utils/traverse";
 interface Option {
   appNamespaceList?: string[];
 }
@@ -14,11 +15,8 @@ export function runtimeLogger(option: Option = {}) {
     const application = appNamespaceList.find(namespace => req.path?.startsWith?.(`/${namespace}`)) || 'platform';
 
     if (req.method !== 'GET' && req.method !== 'DELETE') {
-      params = JSON.stringify(req.body || null);
-    }
-    // TODO:这里加了判断达到一定长度后，再看占用多少字节，看下是否需要
-    if(params.length > maxAboutWord && getStringBytes(params) > maxLogRowContent) {
-      params = '参数过长，无法展示'
+      let formattedData = formatBodyData(req.body)
+      params = JSON.stringify(req.body ? formattedData : null);
     }
 
     res.on('close', () => {
