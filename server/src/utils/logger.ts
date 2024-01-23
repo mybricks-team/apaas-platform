@@ -1,6 +1,7 @@
 import { init } from '@mybricks/rocker-commons';
 
 import { MidLog } from 'mybricks-midlog';
+import { maxAboutWord, maxLogRowContent } from '../constants';
 const path = require('path');
 const env = require('../../env.js')
 const fs = require('fs');
@@ -66,6 +67,10 @@ export function readLastNLines(filePath, {searchValue, numLines}: { searchValue?
     const rl = readline.createInterface({ input: fileStream });
 
     rl.on('line', (line) => {
+      // 这一行字符长度大于10000时，再去判断，内容大于24kb
+      if(line.length > maxAboutWord && getStringBytes(line) > maxLogRowContent) {
+        return
+      }
       if(searchValue) {
         if(line.indexOf(searchValue) > -1) {
           lines.push(line);
@@ -75,6 +80,9 @@ export function readLastNLines(filePath, {searchValue, numLines}: { searchValue?
       }
       if (lines.length > numLines) {
         lines.shift();
+        rl.close()
+        fileStream.close()
+        rl.removeAllListeners()
       }
     });
 
@@ -91,3 +99,11 @@ export function readLastNLines(filePath, {searchValue, numLines}: { searchValue?
     });
   });
 }
+
+
+/** 返回字节数 */
+export function getStringBytes(str: string, encoding: BufferEncoding = 'utf-8'): number {
+  const byteLengthUtf16 = Buffer.byteLength(str, encoding);
+  return byteLengthUtf16
+}
+
