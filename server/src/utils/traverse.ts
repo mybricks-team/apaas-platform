@@ -40,8 +40,8 @@ export function traverseFirstLevel(
 
 
 
-/** 处理请求body数据，对于过长的进行处理 */
-export function formatBodyData(data: Record<string, any>) {
+/** 处理请求body 或 params 数据，对于过长的进行处理 */
+export function formatBodyOrParamsData(data: Record<string, any>) {
   traverseFirstLevel(data, [])
   return data
 }

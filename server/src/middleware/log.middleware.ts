@@ -1,8 +1,6 @@
 import { NextFunction, Request } from "express";
 import { Logger } from '@mybricks/rocker-commons';
-import { maxLogRowContent, maxAboutWord } from '../constants';
-import { getStringBytes } from '../utils/logger';
-import { formatBodyData } from "../utils/traverse";
+import { formatBodyOrParamsData } from "../utils/traverse";
 interface Option {
   appNamespaceList?: string[];
 }
@@ -11,12 +9,24 @@ export function runtimeLogger(option: Option = {}) {
   const { appNamespaceList = [] } = option;
 
   return async (req: Request, res, next: NextFunction) => {
-    let params = JSON.stringify(req.query || null);
+    let params;
+    let formattedParams = req.query;
+    try {
+      formattedParams = formatBodyOrParamsData(req.query);
+    } catch (err) {
+      formattedParams = req.query;
+    }
+    params = JSON.stringify(formattedParams || null);
     const application = appNamespaceList.find(namespace => req.path?.startsWith?.(`/${namespace}`)) || 'platform';
 
     if (req.method !== 'GET' && req.method !== 'DELETE') {
-      let formattedData = formatBodyData(req.body)
-      params = JSON.stringify(req.body ? formattedData : null);
+      let formattedData = req.body;
+      try {
+        formattedData = formatBodyOrParamsData(req.body);
+      } catch (err) {
+        formattedData = req.body;
+      }
+      params = JSON.stringify(formattedData || null);
     }
 
     res.on('close', () => {
