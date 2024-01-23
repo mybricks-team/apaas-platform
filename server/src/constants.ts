@@ -63,3 +63,10 @@ export const USER_ROLE = {
 }
 
 export const TIMEOUT_TIME = 60 * 1000;
+
+
+/** 最大日志内容 ，24kb */
+export const maxLogRowContent = 1024 * 24
+
+/** 最大近似中文数 */
+export const maxAboutWord = 10000 // 使用  maxLogRowContent / 2
