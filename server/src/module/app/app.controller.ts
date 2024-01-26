@@ -341,7 +341,7 @@ export default class AppController {
         } else {
           Logger.info(logPrefix + "有service，即将重启服务");
           global.WEB_SOCKET_CLIENT?.send(JSON.stringify({
-            mode: process.env?.MYBRICKS_NODE_MODE ?? 'index_slave',
+            mode: process.env.MYBRICKS_NODE_MODE,
             code: 'will_upgrade'
           }));
           // childProcess.exec(
@@ -517,7 +517,7 @@ export default class AppController {
 
       Logger.info('[offlineUpdate]: 开始重启服务');
       global.WEB_SOCKET_CLIENT?.send(JSON.stringify({
-        mode: process.env?.MYBRICKS_NODE_MODE ?? 'index_slave',
+        mode: process.env.MYBRICKS_NODE_MODE,
         code: 'will_upgrade'
       }));
       // 重启服务

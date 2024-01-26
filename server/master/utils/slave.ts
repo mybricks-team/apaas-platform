@@ -8,7 +8,7 @@ export const startSlaveServer = async (isSlaveBackup?: boolean) => {
 		if (isProd) {
 			const config = require(path.join(process.cwd(), `./ecosystem.config.slave${isSlaveBackup ? '_backup' : ''}.json`));
 			pm2.start(config.apps[0], (err, proc) => {
-				const processName = isSlaveBackup ? 'index_slave_backup' : 'index_slave';
+				const processName = process.env.masterProcessName + (isSlaveBackup ? '_slave_backup' : '_slave');
 				if (err) {
 					Logger.error(`子服务 ${processName} 启动失败，错误是：${err}`);
 					console.error(`子服务 ${processName} 启动失败，错误是：${err}`);
@@ -30,7 +30,7 @@ export const startSlaveServer = async (isSlaveBackup?: boolean) => {
 export const stopSlaveServer = async (isSlaveBackup?: boolean) => {
 	return new Promise((resolve, reject) => {
 		if (isProd) {
-			const processName = isSlaveBackup ? 'index_slave_backup' : 'index_slave';
+			const processName = process.env.masterProcessName + (isSlaveBackup ? '_slave_backup' : '_slave');
 			pm2.stop(processName, (err, proc) => {
 				if (err) {
 					Logger.error(`子服务 ${processName} 停止失败，错误是：${err}`);

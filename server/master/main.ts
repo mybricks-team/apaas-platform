@@ -48,7 +48,7 @@ async function bootstrap() {
         console.log(`【主服务】 接收来自${slaveName}数据：${data}`);
         Logger.info(`【主服务】 接收来自${slaveName}数据：${data}`);
         const parsedData = safeParse(data);
-        slaveName = parsedData.mode === 'index_slave_backup' ? '备份子服务' : '子服务';
+        slaveName = parsedData.mode?.endsWith('_slave_backup') ? '备份子服务' : '子服务';
 
         if (parsedData.code === 'ready') {
           slaveSocketMap[parsedData.mode] = socket;
@@ -60,7 +60,7 @@ async function bootstrap() {
             process.env.proxyPort = process.env.slavePort;
             console.log(`【主服务】 当前代理端口：${process.env.proxyPort}`);
             Logger.info(`【主服务】 当前代理端口：${process.env.proxyPort}`);
-            await stopSlaveServer(process.env.slaveName === 'index_slave_backup');
+            await stopSlaveServer(process.env.slaveName.endsWith('_slave_backup'));
             process.env.slaveName = parsedData.mode;
           }
         } else if (parsedData.code === 'will_upgrade') {
@@ -72,7 +72,8 @@ async function bootstrap() {
             }
             curUpgradeInfo = parsedData.upgradeInfo;
             const availablePort = await getAvailablePort(basePort + 1);
-            const willUpgradeIsSlaveBackup = parsedData.mode !== 'index_slave_backup';
+            /** 原有服务是 slave_backup，这新启动的服务是 slave，反之亦然 */
+            const willUpgradeIsSlaveBackup = !parsedData.mode?.endsWith('_slave_backup');
             /** 启动备份服务 */
             await initSlaveConfig({
               port: availablePort,
@@ -92,8 +93,8 @@ async function bootstrap() {
 
       /** 监听的是由客户端发起的关闭的事件 */
       socket.on('close', (code, reason) => {
-        console.log(`【主服务】 连接已被${slaveName}(${slaveName === '子服务' ? 'index_slave' : 'index_slave_backup'})关闭，code: ${code} reason: ${reason}`);
-        Logger.info(`【主服务】 连接已被${slaveName}(${slaveName === '子服务' ? 'index_slave' : 'index_slave_backup'})关闭，code: ${code} reason: ${reason}`);
+        console.log(`【主服务】 连接已被${slaveName}(${process.env.masterProcessName}${slaveName === '子服务' ? '_slave' : '_slave_backup'})关闭，code: ${code} reason: ${reason}`);
+        Logger.info(`【主服务】 连接已被${slaveName}(${process.env.masterProcessName}${slaveName === '子服务' ? '_slave' : '_slave_backup'})关闭，code: ${code} reason: ${reason}`);
       });
 
       /** 监听的是，WebSocket 通信过程中出错的事件 */

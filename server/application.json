@@ -8,9 +8,9 @@
     },
     {
       "type": "oss",
-      "version": "0.2.15",
+      "version": "0.2.18",
       "namespace": "mybricks-material",
-      "path": "asset-center/asset/app/mybricks-material/0.2.15/mybricks-material.zip"
+      "path": "asset-center/asset/app/mybricks-material/0.2.18/mybricks-material.zip"
     },
     {
       "type": "oss",
@@ -26,9 +26,9 @@
     },
     {
       "type": "oss",
-      "version": "0.1.29",
+      "version": "0.1.36",
       "namespace": "mybricks-app-website",
-      "path": "asset-center/asset/app/mybricks-app-website/0.1.24/mybricks-app-website.zip"
+      "path": "asset-center/asset/app/mybricks-app-website/0.1.36/mybricks-app-website.zip"
     },
     {
       "type": "npm",
@@ -46,9 +46,9 @@
     },
     {
       "namespace": "mybricks-app-pcspa",
-      "version": "1.2.67",
+      "version": "1.2.69",
       "type": "oss",
-      "path": "asset-center/asset/app/mybricks-app-pcspa/1.2.67/mybricks-app-pcspa.zip"
+      "path": "asset-center/asset/app/mybricks-app-pcspa/1.2.69/mybricks-app-pcspa.zip"
     }
   ],
   "platformVersion": "0.0.71"

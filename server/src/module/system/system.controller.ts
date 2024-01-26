@@ -685,7 +685,7 @@ export default class SystemService {
             // childProcess.exec(`npx pm2 reload all`)
             /** 通知主服务重启服务 */
             global.WEB_SOCKET_CLIENT?.send(JSON.stringify({
-              mode: process.env?.MYBRICKS_NODE_MODE ?? 'index_slave',
+              mode: process.env.MYBRICKS_NODE_MODE,
               code: 'will_upgrade'
             }));
             return {
@@ -822,7 +822,7 @@ export default class SystemService {
       Logger.info('开始重启服务');
       /** 通知主服务重启服务 */
       global.WEB_SOCKET_CLIENT?.send(JSON.stringify({
-        mode: process.env?.MYBRICKS_NODE_MODE ?? 'index_slave',
+        mode: process.env.MYBRICKS_NODE_MODE,
         code: 'will_upgrade'
       }));
       // childProcess.exec(

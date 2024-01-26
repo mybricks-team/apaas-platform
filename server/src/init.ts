@@ -32,8 +32,14 @@ export default function init() {
       bootstrapPath: __dirname
     },
   ]);
+  if (!process.env?.MYBRICKS_PLATFORM_MASTER_NAME) {
+    process.env.MYBRICKS_PLATFORM_MASTER_NAME = 'index';
+  }
+  if (!process.env?.MYBRICKS_NODE_MODE) {
+    process.env.MYBRICKS_NODE_MODE = process.env.MYBRICKS_PLATFORM_MASTER_NAME + '_slave';
+  }
 
-  const slaveName = process.env?.MYBRICKS_NODE_MODE === 'index_slave_backup' ? '备份子服务' : '子服务';
+  const slaveName = process.env?.MYBRICKS_NODE_MODE?.endsWith('_slave_backup') ? '备份子服务' : '子服务';
 
   try {
     const webSocketClient = new ws(`ws://127.0.0.1:${process.env?.MYBRICKS_PLATFORM_MASTER_WS_PORT || 3099}`);
@@ -42,7 +48,7 @@ export default function init() {
       console.log(`【${slaveName}】 已连接到主服务`);
       Logger.info(`【${slaveName}】 已连接到主服务`);
 
-      webSocketClient.send(JSON.stringify({ mode: process.env?.MYBRICKS_NODE_MODE ?? 'index_slave', code: 'ready' }));
+      webSocketClient.send(JSON.stringify({ mode: process.env.MYBRICKS_NODE_MODE, code: 'ready' }));
       global.WEB_SOCKET_CLIENT = webSocketClient;
     });
 

@@ -76,18 +76,22 @@ export const initSlaveConfig = async (option: { port: number; masterPort: number
 	console.log(`【主服务】 写入 ecosystem.config，端口是 ${option.port}`);
 	Logger.info(`【主服务】 写入 ecosystem.config，端口是 ${option.port}`);
 	const indexEntryString = fs.readFileSync(path.join(__dirname, '../index.js'), 'utf8');
-	const pm2Config = require('../ecosystem.config');
+	const pm2Config = JSON.parse(JSON.stringify(require('../ecosystem.config.js')));
+
+	process.env.masterProcessName = pm2Config.apps?.[0]?.name || 'index';
 	fs.writeFileSync(path.join(__dirname, '../index_slave.js'), indexEntryString.replace('/master/main', '/src/main'));
+	const name = process.env.masterProcessName + (option.isSlaveBackup ? '_slave_backup' : '_slave');
 
 	pm2Config.apps[0] = {
 		...pm2Config.apps[0],
-		name: option.isSlaveBackup ? 'index_slave_backup' : 'index_slave',
+		name: name,
 		script: './index_slave.js',
 		env: {
 			...pm2Config.apps[0].env,
-			MYBRICKS_NODE_MODE: option.isSlaveBackup ? 'index_slave_backup' : 'index_slave',
+			MYBRICKS_NODE_MODE: name,
 			MYBRICKS_PLATFORM_SLAVE_PORT: option.port,
 			MYBRICKS_PLATFORM_MASTER_PORT: option.masterPort,
+			MYBRICKS_PLATFORM_MASTER_NAME: process.env.masterProcessName,
 			MYBRICKS_PLATFORM_MASTER_WS_PORT: option.socketPort
 		}
 	}
