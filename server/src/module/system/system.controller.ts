@@ -9,7 +9,7 @@ import { Response } from 'express';
 import FileDao from '../../dao/FileDao';
 import FilePubDao from '../../dao/filePub.dao';
 import AppDao from '../../dao/AppDao';
-import { getOSInfo, getPlatformFingerPrint, uuid } from '../../utils/index';
+import { getOSInfo, getPlatformFingerPrint } from '../../utils/index';
 import { getConnection } from '@mybricks/rocker-dao';
 import { Logger } from '@mybricks/rocker-commons';
 // @ts-ignore
@@ -28,7 +28,6 @@ const childProcess = require('child_process');
 const path = require('path')
 const fs = require('fs')
 const fse = require('fs-extra');
-const { getAppThreadName } = require('../../../env')
 
 @Controller('/paas/api')
 export default class SystemService {
@@ -683,7 +682,12 @@ export default class SystemService {
             let appJSON = JSON.parse(appJSONStr)
             appJSON.platformVersion = version
             fs.writeFileSync(path.join(__dirname, '../../../application.json'), JSON.stringify(appJSON, null, 2))
-            childProcess.exec(`npx pm2 reload all`)
+            // childProcess.exec(`npx pm2 reload all`)
+            /** 通知主服务重启服务 */
+            global.WEB_SOCKET_CLIENT?.send(JSON.stringify({
+              mode: process.env?.MYBRICKS_NODE_MODE ?? 'index_slave',
+              code: 'will_upgrade'
+            }));
             return {
               code: 1,
             };
@@ -815,22 +819,26 @@ export default class SystemService {
         })
       });
 
-      Logger.info('开始重启服务')
-      // 重启服务
-      childProcess.exec(
-        `npx pm2 reload ${getAppThreadName()}`,
-        {
-          cwd: path.join(process.cwd()),
-        },
-        (error, stdout, stderr) => {
-          if (error) {
-            Logger.info(`exec error: ${error}`);
-            return;
-          }
-          Logger.info(`stdout: ${stdout}`);
-          Logger.info(`stderr: ${stderr}`);
-        }
-      );
+      Logger.info('开始重启服务');
+      /** 通知主服务重启服务 */
+      global.WEB_SOCKET_CLIENT?.send(JSON.stringify({
+        mode: process.env?.MYBRICKS_NODE_MODE ?? 'index_slave',
+        code: 'will_upgrade'
+      }));
+      // childProcess.exec(
+      //   `npx pm2 reload ${getAppThreadName()}`,
+      //   {
+      //     cwd: path.join(process.cwd()),
+      //   },
+      //   (error, stdout, stderr) => {
+      //     if (error) {
+      //       Logger.info(`exec error: ${error}`);
+      //       return;
+      //     }
+      //     Logger.info(`stdout: ${stdout}`);
+      //     Logger.info(`stderr: ${stderr}`);
+      //   }
+      // );
     } catch(e) {
       Logger.info('错误信息是')
       Logger.info(e.message)

@@ -14,7 +14,6 @@ import AppService from './app.service';
 import { USER_LOG_TYPE } from '../../constants'
 const fse = require('fs-extra');
 const parse5 = require('parse5');
-const { getAppThreadName } = require('../../../env.js')
 const { injectAjaxScript, travelDom, injectAppConfigScript } = require('../../../util');
 
 @Controller("/paas/api/apps")
@@ -197,7 +196,7 @@ export default class AppController {
     /** 已安装应用 */
     let installedApp = null;
     let installedIndex = null;
-    let installPkgName = "";
+    let installPkgName;
     let logInfo = null;
     let needServiceUpdate = !remoteAppInstallInfo?.noServiceUpdate;
     applications.installApps.forEach((app, index) => {
