@@ -22,4 +22,6 @@ logs
 mybricks-apaas.tar
 docker_logs
 !_localstorage/editor_assets
+ecosystem.config.slave_backup.json
+ecosystem.config.slave.json
 application_for_bugu.json
