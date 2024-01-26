@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "index_master",
+      name: "index",
       script: "./index.js",
       instances: 1,
       exec_mode: "fork",
