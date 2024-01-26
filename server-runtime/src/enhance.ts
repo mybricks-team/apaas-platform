@@ -10,7 +10,7 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
       index: false,
       setHeaders: (res, path, stat) => {
         res.set('Access-Control-Allow-Origin', '*');
-        res.set('Cache-Control', 'max-age=86400000') // 1d
+        res.set('Cache-Control', 'no-cache') // 1d
       },
       etag: true
     });
@@ -20,7 +20,7 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
       index: false,
       setHeaders: (res, path, stat) => {
         res.set('Access-Control-Allow-Origin', '*');
-        res.set('Cache-Control', 'max-age=86400000') // 1d
+        res.set('Cache-Control', 'no-cache') // 1d
       },
       etag: true
     });

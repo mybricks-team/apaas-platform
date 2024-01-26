@@ -12,7 +12,7 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
         setHeaders: (res, path, stat) => {
           res.set('Access-Control-Allow-Origin', '*');
           if(path?.indexOf('.html') === -1){
-            res.set('Cache-Control', 'max-age=86400000') // 1d
+            res.set('Cache-Control', 'no-cache') // 1d
           }
         },
         etag: true,
@@ -24,7 +24,7 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
         index: false,
         setHeaders: (res, path, stat) => {
           if(path?.indexOf('.html') === -1){
-            res.set('Cache-Control', 'max-age=86400000') // 1d
+            res.set('Cache-Control', 'no-cache') // 1d
           }
           res.set('Access-Control-Allow-Origin', '*');
         },
@@ -39,7 +39,7 @@ export function enhanceApp(app: any, config: { appNamespaceList: string[] }) {
       setHeaders: (res, path, stat) => {
         res.set('Access-Control-Allow-Origin', '*');
         if(path?.indexOf('.html') === -1) {
-          res.set('Cache-Control', 'max-age=86400000') // 1d
+          res.set('Cache-Control', 'no-cache') // 1d
         }
       },
       etag: true,
