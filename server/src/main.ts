@@ -1,24 +1,23 @@
-import { NestFactory } from "@nestjs/core";
-import AppManage from "./AppManage.module";
-import { NestExpressApplication } from "@nestjs/platform-express";
+import { NestFactory } from '@nestjs/core';
+import AppManage from './AppManage.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
-import * as path from "path";
-import * as cookieParser from "cookie-parser";
-import * as bodyParser from "body-parser";
+import * as path from 'path';
+import * as cookieParser from 'cookie-parser';
+import * as bodyParser from 'body-parser';
 import * as xmlparser from 'express-xml-bodyparser';
 
-import { proxyMiddleWare } from "./middleware/proxy.middleware";
+import { proxyMiddleWare } from './middleware/proxy.middleware';
 import { apiProxy as apiProxyMiddleWare } from './middleware/api.proxy.middleware';
-import { timeout } from "./middleware/requestTimeout.middleware";
+import { timeout } from './middleware/requestTimeout.middleware';
 import { checkHealthMiddleware } from './middleware/checkHealth.middleware';
 
-import { loadModule } from "./module-loader";
-import { enhanceApp } from "./enhance";
-import init from "./init";
-import ValidationPipe from "./pipe/validationPipe";
+import { loadModule } from './module-loader';
+import { enhanceApp } from './enhance';
+import init from './init';
+import ValidationPipe from './pipe/validationPipe';
 import { runtimeLogger } from './middleware/log.middleware';
 import { TIMEOUT_TIME } from './constants';
-
 const env = require('../env.js')
 
 async function bootstrap() {
@@ -29,7 +28,7 @@ async function bootstrap() {
   app.useStaticAssets(path.join(__dirname, "../_assets/"), {
     prefix: "/",
     index: false,
-    setHeaders: (res, path, stat) => {
+    setHeaders: (res, path) => {
       res.set('Access-Control-Allow-Origin', '*');
       if(path?.indexOf('.js') > -1){
         res.set('Cache-Control', 'no-cache') // 1d
@@ -41,12 +40,9 @@ async function bootstrap() {
   app.useStaticAssets(env.FILE_LOCAL_STORAGE_FOLDER, {
     prefix: `/${env.FILE_LOCAL_STORAGE_PREFIX}`,
     index: false,
-    setHeaders: (res, path, stat) => {
+    setHeaders: (res) => {
       res.set('Access-Control-Allow-Origin', '*');
-      // res.set('Cache-Control', 'max-age=86400000') // 1d
     },
-    // etag: true,
-    // lastModified: true,
   });
   app.use(apiProxyMiddleWare());
   app.use(bodyParser.json({ limit: "100mb" }));

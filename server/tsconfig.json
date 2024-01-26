@@ -22,5 +22,5 @@
     "swc": true,
   },
   "exclude": ["node_modules", "page"],
-  "include": ["./src"],
+  "include": ["./src", "./master"],
 }

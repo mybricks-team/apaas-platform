@@ -14,15 +14,15 @@
     },
     {
       "type": "oss",
-      "version": "0.0.94",
+      "version": "0.1.8",
       "namespace": "mybricks-cloud-com",
-      "path": "asset-center/asset/app/mybricks-cloud-com/0.0.94/mybricks-cloud-com.zip"
+      "path": "asset-center/asset/app/mybricks-cloud-com/0.1.8/mybricks-cloud-com.zip"
     },
     {
       "type": "oss",
-      "version": "0.2.88",
+      "version": "0.2.89",
       "namespace": "mybricks-domain",
-      "path": "asset-center/asset/app/mybricks-domain/0.2.88/mybricks-domain.zip"
+      "path": "asset-center/asset/app/mybricks-domain/0.2.89/mybricks-domain.zip"
     },
     {
       "type": "oss",
@@ -46,9 +46,9 @@
     },
     {
       "namespace": "mybricks-app-pcspa",
-      "version": "1.2.53",
+      "version": "1.2.67",
       "type": "oss",
-      "path": "asset-center/asset/app/mybricks-app-pcspa/1.2.53/mybricks-app-pcspa.zip"
+      "path": "asset-center/asset/app/mybricks-app-pcspa/1.2.67/mybricks-app-pcspa.zip"
     }
   ],
   "platformVersion": "0.0.71"

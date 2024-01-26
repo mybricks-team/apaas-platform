@@ -1,3 +1,3 @@
 // 管理基座入口
 require('ts-node/register/transpile-only')
-require('./master/main');
+require('./src/main');

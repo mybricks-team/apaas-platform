@@ -341,20 +341,24 @@ export default class AppController {
           Logger.info(logPrefix + "有service，但是未更新服务端，无需重启");
         } else {
           Logger.info(logPrefix + "有service，即将重启服务");
-          childProcess.exec(
-            `npx pm2 reload ${getAppThreadName()}`,
-            {
-              cwd: path.join(process.cwd()),
-            },
-            (error, stdout, stderr) => {
-              if (error) {
-                Logger.info(logPrefix + `exec error: ${error}`);
-                return;
-              }
-              Logger.info(logPrefix + `stdout: ${stdout}`);
-              Logger.info(logPrefix + `stderr: ${stderr}`);
-            }
-          );
+          global.WEB_SOCKET_CLIENT?.send(JSON.stringify({
+            mode: process.env?.MYBRICKS_NODE_MODE ?? 'index_slave',
+            code: 'will_upgrade'
+          }));
+          // childProcess.exec(
+          //   `npx pm2 reload ${getAppThreadName()}`,
+          //   {
+          //     cwd: path.join(process.cwd()),
+          //   },
+          //   (error, stdout, stderr) => {
+          //     if (error) {
+          //       Logger.info(logPrefix + `exec error: ${error}`);
+          //       return;
+          //     }
+          //     Logger.info(logPrefix + `stdout: ${stdout}`);
+          //     Logger.info(logPrefix + `stderr: ${stderr}`);
+          //   }
+          // );
         }
 
       } else {
@@ -512,22 +516,26 @@ export default class AppController {
         )
       });
 
-      Logger.info('[offlineUpdate]: 开始重启服务')
+      Logger.info('[offlineUpdate]: 开始重启服务');
+      global.WEB_SOCKET_CLIENT?.send(JSON.stringify({
+        mode: process.env?.MYBRICKS_NODE_MODE ?? 'index_slave',
+        code: 'will_upgrade'
+      }));
       // 重启服务
-      childProcess.exec(
-        `npx pm2 reload ${getAppThreadName()}`,
-        {
-          cwd: path.join(process.cwd()),
-        },
-        (error, stdout, stderr) => {
-          if (error) {
-            Logger.info(`[offlineUpdate]: exec error: ${error}`);
-            return;
-          }
-          Logger.info(`[offlineUpdate]: stdout: ${stdout}`);
-          Logger.info(`[offlineUpdate]: stderr: ${stderr}`);
-        }
-      );
+      // childProcess.exec(
+      //   `npx pm2 reload ${getAppThreadName()}`,
+      //   {
+      //     cwd: path.join(process.cwd()),
+      //   },
+      //   (error, stdout, stderr) => {
+      //     if (error) {
+      //       Logger.info(`[offlineUpdate]: exec error: ${error}`);
+      //       return;
+      //     }
+      //     Logger.info(`[offlineUpdate]: stdout: ${stdout}`);
+      //     Logger.info(`[offlineUpdate]: stderr: ${stderr}`);
+      //   }
+      // );
     } catch(e) {
       Logger.info('[offlineUpdate]: 错误信息是')
       Logger.info(`[offlineUpdate]: ${e.message}`)

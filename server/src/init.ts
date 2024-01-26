@@ -1,22 +1,23 @@
-import env from "./utils/env";
-import { start as startDB } from "@mybricks/rocker-dao";
-import { initLogger } from './utils/logger';
 import { Logger } from '@mybricks/rocker-commons'
+import { start as startDB } from '@mybricks/rocker-dao';
+import env from './utils/env';
+import { initLogger } from './utils/logger';
+const ws = require('ws');
 
 
 export default function init() {
   initLogger()
-  process.on("unhandledRejection", (e: any) => {
+  process.on('unhandledRejection', (e: any) => {
     Logger.info(`[global error][unhandledRejection]: \n`);
     Logger.info(e.message)
     Logger.info(e?.stack?.toString())
   });
 
-  let dbConfig = null;
+  let dbConfig;
   if (env.isProd()) {
-    dbConfig = require("../config/default.json");
+    dbConfig = require('../config/default.json');
   } else {
-    dbConfig = require("../config/development.json");
+    dbConfig = require('../config/development.json');
   }
   startDB([
     {
@@ -31,4 +32,36 @@ export default function init() {
       bootstrapPath: __dirname
     },
   ]);
+
+  const slaveName = process.env?.MYBRICKS_NODE_MODE === 'index_slave_backup' ? '备份子服务' : '子服务';
+
+  try {
+    const webSocketClient = new ws(`ws://127.0.0.1:${process.env?.MYBRICKS_PLATFORM_MASTER_WS_PORT || 3099}`);
+
+    webSocketClient.on('open', () => {
+      console.log(`【${slaveName}】 已连接到主服务`);
+      Logger.info(`【${slaveName}】 已连接到主服务`);
+
+      webSocketClient.send(JSON.stringify({ mode: process.env?.MYBRICKS_NODE_MODE ?? 'index_slave', code: 'ready' }));
+      global.WEB_SOCKET_CLIENT = webSocketClient;
+    });
+
+    webSocketClient.on('message', (data) => {
+      console.log(`【${slaveName}】 接收来自主服务数据：${data}`);
+      Logger.info(`【${slaveName}】 接收来自主服务数据：${data}`);
+    });
+
+    webSocketClient.on('error', (error: Error) => {
+      console.log(`【${slaveName}】 通信过程错误：${error}`);
+      Logger.info(`【${slaveName}】 通信过程错误：${error}`);
+    });
+
+    webSocketClient.on('close', () => {
+      console.log(`【${slaveName}】 连接已被主服务关闭`);
+      Logger.info(`【${slaveName}】 连接已被主服务关闭`);
+    });
+  } catch (e) {
+    console.log(`【${slaveName}】 连接过程中出错，错误是：${e}`);
+    Logger.info(`【${slaveName}】 连接过程中出错，错误是：${e}`);
+  }
 }
