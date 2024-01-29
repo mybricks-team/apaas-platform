@@ -106,6 +106,9 @@ export default class AppManageModule implements OnModuleInit {
               curPath = curPath.slice(0, -1);
             }
             curPath += `[${MethodMap[methodCode]}]`;
+            /** 兼容 windows */
+            curPath = curPath.replace(/\\/g, '/').replace(/^\/\//, '/');
+
 
             const curMap = { controller: instance.name, handler: key };
 

@@ -69,6 +69,11 @@ export default class ConfigService {
       });
     }
 
+    if (namespace === 'system') {
+      /** 全局标识是否离线模式 */
+      global.IS_PURE_INTRANET = config.isPureIntranet;
+    }
+
     return { code: 1 };
   }
 }

@@ -17,21 +17,24 @@ import { enhanceApp } from "./enhance";
 import init from "./init";
 import ValidationPipe from "./pipe/validationPipe";
 import { runtimeLogger } from './middleware/log.middleware';
+import { assetAdapterMiddleware } from './middleware/asset.middleware';
 import { TIMEOUT_TIME } from './constants';
 
 const env = require('../env.js')
 
 async function bootstrap() {
   const loadedModule = loadModule();
+  global.LOADED_MODULE = loadedModule;
   init();
 
   const app = await NestFactory.create<NestExpressApplication>(AppManage);
+  app.use(assetAdapterMiddleware);
   app.useStaticAssets(path.join(__dirname, "../_assets/"), {
     prefix: "/",
     index: false,
     setHeaders: (res, path, stat) => {
       res.set('Access-Control-Allow-Origin', '*');
-      if(path?.indexOf('.js') > -1){
+      if (path?.indexOf('.js') > -1 || path?.indexOf('.css') > -1) {
         res.set('Cache-Control', 'no-cache') // 1d
       }
     },
