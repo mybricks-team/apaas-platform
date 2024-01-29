@@ -22,3 +22,4 @@ logs
 mybricks-apaas.tar
 docker_logs
 !_localstorage/editor_assets
+application_for_bugu.json

@@ -17,9 +17,9 @@ echo "开始执行安装操作..."
 echo "开始拉取代码"
 if [ "$1" = "" ]; 
 then
-npm i --registry=https://registry.npm.taobao.org mybricks-apaas-platform@latest
+npm i --registry=https://registry.npmmirror.com mybricks-apaas-platform@latest
 else
-npm i --registry=https://registry.npm.taobao.org "mybricks-apaas-platform@$1"
+npm i --registry=https://registry.npmmirror.com "mybricks-apaas-platform@$1"
 fi
 tmpPlatformFolder=$tmpFolderBase/node_modules/mybricks-apaas-platform
 cd "./node_modules/mybricks-apaas-platform"
@@ -50,9 +50,9 @@ echo "覆盖完毕"
 echo "开始执行安装依赖操作"
 cd $tmpFolderBase
 cd "../server"
-npm i --registry=https://registry.npm.taobao.org 
+npm i --registry=https://registry.npmmirror.com
 cd "../server-runtime"
-npm i --registry=https://registry.npm.taobao.org 
+npm i --registry=https://registry.npmmirror.com
 echo "依赖安装完毕"
 
 # echo "开始重启服务"

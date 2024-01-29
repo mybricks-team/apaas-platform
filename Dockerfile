@@ -39,7 +39,7 @@ RUN yum -y clean all
 # # 添加自定义的Nginx配置
 # # ADD nginx.conf /etc/nginx/
 
-RUN /bin/bash -c 'npm config set registry https://registry.npm.taobao.org'
+RUN /bin/bash -c 'npm config set registry https://registry.npmmirror.com'
 
 WORKDIR /home/apaas
 
@@ -52,7 +52,7 @@ RUN mkdir -p /home/apaas/apps
 
 WORKDIR /home/apaas/server
 
-RUN /bin/bash -c 'npm i --registry https://registry.npm.taobao.org --legacy-peer-deps'
+RUN /bin/bash -c 'npm i --registry https://registry.npmmirror.com --legacy-peer-deps'
 
 WORKDIR /home/apaas/server/_deployment
 

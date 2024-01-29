@@ -11,6 +11,6 @@ else
   echo "升级失败，请手动复制原文件夹下的config文件夹到本目录下！"
   exit
 fi
-npm install --registry=https://registry.npm.taobao.org
+npm install --registry=https://registry.npmmirror.com
 npx pm2 kill
 npx pm2 start index.js

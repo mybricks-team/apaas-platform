@@ -15,16 +15,6 @@
     "email": "admin@mybricks.com",
     "password": "123456"
   },
-  "installApps": [
-    {
-      "type": "oss",
-      "version": "1.0.82",
-      "namespace": "mybricks-app-pcspa"
-    },
-    {
-      "type": "npm",
-      "path": "mybricks-app-login@0.0.5"
-    }
-  ],
+  "installApps": [],
   "platformDomain": "http://testweb.manateeai.com/"
 }
