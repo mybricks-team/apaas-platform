@@ -168,8 +168,8 @@ export default class AppController {
           // "http://localhost:4100/central/api/channel/gateway", 
           "https://my.mybricks.world/central/api/channel/gateway", 
           {
-            action: 'app_checkLatestVersion',
-            payload: { namespace }
+            action: 'app_getAppByNamespace_Version',
+            payload: { namespace, version }
           }
         )).data;
         if(temp.code === 1) {
