@@ -1,15 +1,8 @@
-import React, {
-	FC,
-	useMemo,
-	useState,
-	useCallback,
-	useEffect
-} from 'react'
-
+import React, { FC, useMemo, useState, useCallback } from 'react'
 import axios from 'axios'
-import { Button, message, Typography, Popover } from 'antd'
+import { Button, message, Typography, Popover, Dropdown, Menu } from 'antd'
 
-import {T_App} from '../../../../AppCtx'
+import { T_App } from '../../../../AppCtx'
 
 import styles from './index.less'
 
@@ -55,14 +48,14 @@ const AppCard: FC<AppCardProps> = props => {
 	}, [])
 	
 	/** 轮询判断应用安装状态 */
-	const checkUpgradeStatus = useCallback((appInfo, immediate = false) => {
+	const checkUpgradeStatus = useCallback((appInfo, immediate = false, action = 'update') => {
 		const { namespace, version } = appInfo
 		
 		setTimeout(() => {
 			axios({
 				method: 'get',
 				url: '/paas/api/apps/update/status',
-				params: { namespace, version },
+				params: { namespace, version, action },
 				// timeout: 3000,
 			}).then(res => {
 				if (res.data.code === 1) {
@@ -144,7 +137,52 @@ const AppCard: FC<AppCardProps> = props => {
 				duration: 3,
 			})
 		})
-	}, [app, setCurrentUpgrade, userId])
+	}, [app, setCurrentUpgrade, userId]);
+
+	const uninstall = useCallback(() => {
+		setLoading(true)
+		setCurrentUpgrade(app.namespace)
+		message.open({
+			type: 'loading',
+			content: '应用卸载中...',
+			duration: 0,
+			key: LOADING_KEY,
+		});
+
+		axios({
+			method: 'post',
+			url: '/paas/api/apps/uninstall',
+			data: { userId, namespace: app.namespace, name: app.title },
+			// timeout: 30000,
+		}).then(res => {
+			if (res.data.code === 1) {
+				checkUpgradeStatus(app, false, 'uninstall')
+			} else {
+				reset()
+
+				message.open({
+					type: 'error',
+					content: res.data.msg || '应用卸载失败',
+					key: LOADING_KEY,
+					duration: 3,
+				})
+			}
+		}).catch(error => {
+			console.log(error)
+			reset()
+			if(error?.code === "ERR_BAD_RESPONSE") {
+				checkUpgradeStatus(app, false, 'uninstall')
+				return
+			}
+
+			message.open({
+				type: 'error',
+				content: error.message || '应用卸载失败',
+				key: LOADING_KEY,
+				duration: 3,
+			})
+		})
+	}, [app, setCurrentUpgrade, userId]);
 
 	const _renderRollbackContent = useCallback(() => {
 		return (
@@ -159,7 +197,6 @@ const AppCard: FC<AppCardProps> = props => {
 				{
 					app?.previousList?.map((item, index) => {
 						return (
-
 							<p data-index={index} style={ loading ? {marginTop: 8, color: 'gray', cursor: 'not-allowed'} : {marginTop: 8, color: '#ff4d4f', cursor: 'pointer'}}>回滚到：{item.version} 版本</p>
 						)
 					})
@@ -197,24 +234,44 @@ const AppCard: FC<AppCardProps> = props => {
 							  {operateText}
 						</Button>
 					 ) : null}
-					{ app?.previousList?.length ?	(<Popover 
-						content={_renderRollbackContent()} 
-						title="历史版本" 
-						trigger="click"
-						open={popoverOpen}
-						onOpenChange={(newOpen) => {
-							setPopoverOpen(newOpen)
-						}}
-					>
-						<Button
-								disabled={disabled || loading}
-								type="link"
-								size="small"
-								style={{ marginLeft: 10 }}
+					{
+						app?.previousList?.length ?	(
+							<Popover
+								content={_renderRollbackContent()}
+								title="历史版本"
+								trigger="click"
+								open={popoverOpen}
+								onOpenChange={(newOpen) => setPopoverOpen(newOpen)}
 							>
-								历史版本
-						</Button>
-					</Popover>) : null }
+								<Button
+									disabled={disabled || loading}
+									type="link"
+									size="small"
+									style={{ marginLeft: 10 }}
+								>
+									历史版本
+								</Button>
+							</Popover>
+						) : null
+					}
+				  <div className={styles.moreIcon}>
+					  <Dropdown
+						  placement="bottomCenter"
+						  overlay={(
+							  <Menu>
+								  <Menu.Item>
+									  <Button danger size="small" type="text" ghost style={{ width: '100%' }} onClick={uninstall}>卸载</Button>
+								  </Menu.Item>
+							  </Menu>
+						  )}
+					  >
+						  <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+							  <path d="M243.2 512m-83.2 0a1.3 1.3 0 1 0 166.4 0 1.3 1.3 0 1 0-166.4 0Z"></path>
+							  <path d="M512 512m-83.2 0a1.3 1.3 0 1 0 166.4 0 1.3 1.3 0 1 0-166.4 0Z"></path>
+							  <path d="M780.8 512m-83.2 0a1.3 1.3 0 1 0 166.4 0 1.3 1.3 0 1 0-166.4 0Z"></path>
+						  </svg>
+					  </Dropdown>
+				  </div>
 			  </div>
 		  </div>
 		  <div className={styles.description}>
