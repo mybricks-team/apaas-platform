@@ -2,6 +2,7 @@ import { Logger } from '@mybricks/rocker-commons'
 import { start as startDB } from '@mybricks/rocker-dao';
 import env from './utils/env';
 import { initLogger } from './utils/logger';
+import ConfigDao from './dao/config.dao';
 const ws = require('ws');
 
 
@@ -70,4 +71,13 @@ export default function init() {
     console.log(`【${slaveName}】 连接过程中出错，错误是：${e}`);
     Logger.info(`【${slaveName}】 连接过程中出错，错误是：${e}`);
   }
+
+  const configDao = new ConfigDao();
+  configDao.getConfig({ namespace: ['system'] })
+    .then(systemConfig => {
+      const [system] = systemConfig;
+
+      /** 初始化离线判断标识 */
+      global.IS_PURE_INTRANET = (system.config as any)?.isPureIntranet;
+    });
 }

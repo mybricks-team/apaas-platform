@@ -14,6 +14,7 @@ import AppService from './app.service';
 import { USER_LOG_TYPE } from '../../constants'
 const fse = require('fs-extra');
 const parse5 = require('parse5');
+const { APPS_BASE_FOLDER } = require('../../../env.js')
 const { injectAjaxScript, travelDom, injectAppConfigScript } = require('../../../util');
 
 @Controller("/paas/api/apps")
@@ -376,6 +377,95 @@ export default class AppController {
     return { code: 1, data: null, message: "安装成功" };
   }
 
+  @Post("/uninstall")
+  async uninstallApp(@Body() body, @Req() req) {
+    const { namespace, userId, name } = body;
+    const logPrefix = `[卸载应用 ${namespace}]：`;
+    const systemConfig = await this.configService.getConfigByScope(['system'])
+    try {
+      if(systemConfig?.system?.config?.openConflictDetection) {
+        Logger.info(logPrefix + '开启了冲突检测')
+        await lockUpgrade()
+      }
+    } catch(e) {
+      Logger.info(logPrefix + e.message)
+      Logger.info(logPrefix + e?.stack?.toString())
+      return {
+        code: -1,
+        msg: '当前已有系统任务，请稍后重试'
+      }
+    }
+    const applications = require(path.join(process.cwd(), './application.json'));
+    const originApplications = JSON.parse(JSON.stringify(applications));
+
+    /** 应用中心是否存在此应用 */
+    const curInstallAppIndex = applications.installApps.findIndex((app) => {
+      return app.namespace === namespace || (app.type === 'npm' && app.path?.startsWith(`${namespace}@`));
+    });
+    const curInstallApp = applications.installApps[curInstallAppIndex];
+
+    /** 不存在返回错误 */
+    if (curInstallAppIndex < 0 || !curInstallApp) {
+      return { code: 0, message: "卸载失败，不存在此应用" };
+    }
+
+    Logger.info(`${logPrefix} 版本号：${curInstallApp.version}`);
+    const logInfo = {
+      action: 'uninstall',
+      type: 'application',
+      installType: curInstallApp.installType,
+      preVersion: curInstallApp.version,
+      version: curInstallApp.version,
+      namespace,
+      name: name || namespace,
+      content: `卸载应用：${name || namespace}，版本号：${curInstallApp.version}`,
+    };
+    applications.installApps.splice(curInstallAppIndex, 1);
+
+    try {
+      fse.removeSync(path.join(APPS_BASE_FOLDER, namespace));
+      fs.writeFileSync(path.join(process.cwd(), './application.json'), JSON.stringify(applications, undefined, 2));
+      await this.userLogDao.insertLog({ type: USER_LOG_TYPE.APPS_UNINSTALL_LOG, userId, logContent: JSON.stringify({ ...logInfo, status: 'success' }) });
+    } catch (e) {
+      await this.userLogDao.insertLog({ type: USER_LOG_TYPE.APPS_UNINSTALL_LOG, userId, logContent: JSON.stringify({ ...logInfo, status: 'error' }) });
+      fs.writeFileSync(path.join(process.cwd(), './application.json'), JSON.stringify(originApplications, undefined, 2));
+
+      Logger.info(logPrefix + e.message);
+      Logger.info(logPrefix + e?.stack?.toString())
+    }
+
+    try {
+      Logger.info(logPrefix + "卸载应用，即将重启服务");
+      global.WEB_SOCKET_CLIENT?.send(JSON.stringify({
+        mode: process.env.MYBRICKS_NODE_MODE,
+        code: 'will_upgrade'
+      }));
+      // childProcess.exec(
+      //   `npx pm2 reload ${getAppThreadName()}`,
+      //   { cwd: path.join(process.cwd()) },
+      //   (error, stdout, stderr) => {
+      //     if (error) {
+      //       Logger.info(logPrefix + `exec error: ${error}`);
+      //       return;
+      //     }
+      //     Logger.info(logPrefix + `stdout: ${stdout}`);
+      //     Logger.info(logPrefix + `stderr: ${stderr}`);
+      //   }
+      // );
+    } catch (e) {
+      Logger.info(logPrefix + e.message);
+      Logger.info(logPrefix + e?.stack?.toString())
+    }
+
+    if(systemConfig?.system?.config?.openConflictDetection) {
+      Logger.info(logPrefix + "解锁成功，可继续处理系统任务");
+      // 解锁
+      await unLockUpgrade({ force: true })
+    }
+
+    return { code: 1, data: null, message: '卸载成功' };
+  }
+
   updateLocalAppVersion({ namespace, version, installType }) {
     const application = require(path.join(process.cwd(), './application.json'));
     let installApp = null
@@ -553,7 +643,8 @@ export default class AppController {
   @Get("/update/status")
   async checkAppUpdateStatus(
     @Query("namespace") namespace: string,
-    @Query("version") version: string
+    @Query("version") version: string,
+    @Query("action") action: string
   ) {
     // 重启服务
     try {
@@ -573,11 +664,8 @@ export default class AppController {
           return pkgName === namespace && version === pkgVersion;
         }
       });
-      if (app) {
-        return {
-          code: 1,
-          message: "重启成功",
-        };
+      if (app || (action === 'uninstall' && !app)) {
+        return { code: 1, message: '重启成功' };
       }
     } catch (e) {
       Logger.info("安装应用失败");

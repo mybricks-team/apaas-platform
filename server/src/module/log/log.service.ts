@@ -78,8 +78,8 @@ export default class LogService {
 
   async getOperateLog(param: { limit: number, offset: number }) {
     const [total, list] = await Promise.all([
-      this.userLogDao.queryTotalOfAll({ type: [USER_LOG_TYPE.APPS_INSTALL_LOG, USER_LOG_TYPE.PLATOFRM_INSTALL_LOG] }),
-      this.userLogDao.queryDetailOfAll({...param, type: [USER_LOG_TYPE.APPS_INSTALL_LOG, USER_LOG_TYPE.PLATOFRM_INSTALL_LOG]})
+      this.userLogDao.queryTotalOfAll({ type: [USER_LOG_TYPE.APPS_INSTALL_LOG, USER_LOG_TYPE.PLATOFRM_INSTALL_LOG, USER_LOG_TYPE.APPS_UNINSTALL_LOG] }),
+      this.userLogDao.queryDetailOfAll({...param, type: [USER_LOG_TYPE.APPS_INSTALL_LOG, USER_LOG_TYPE.PLATOFRM_INSTALL_LOG, USER_LOG_TYPE.APPS_UNINSTALL_LOG]})
     ]);
     return {
       total,

@@ -20,7 +20,7 @@ const OperateLog: FC = () => {
         render(_, item) {
           if (item.type === 10) {
             return '平台';
-          } else if (item.type === 9) {
+          } else if (item.type === 9 || item.type === 30) {
             return '应用(' + (item.logContent?.name || item.logContent?.namespace || '-') + ')';
           }
 
@@ -36,6 +36,8 @@ const OperateLog: FC = () => {
             return '更新平台';
           } else if (item.type === 9) {
             return item.logContent?.preVersion ? '更新应用' : '安装新应用';
+          } else if (item.type === 30) {
+            return '卸载应用';
           }
 
           return '-';
@@ -103,7 +105,7 @@ const OperateLog: FC = () => {
   return (
     <div className={style.operateLogModal}>
       <Table 
-        columns={columns} 
+        columns={columns as any}
         scroll={{ x: 1000 }}
         dataSource={dataSource}
         onChange={(_pagination) => {

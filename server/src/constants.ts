@@ -64,6 +64,7 @@ export const USER_ROLE = {
 
 export const USER_LOG_TYPE = {
   APPS_INSTALL_LOG: 9, // 应用安装日志
+  APPS_UNINSTALL_LOG: 30, // 应用卸载日志
   PLATOFRM_INSTALL_LOG: 10, // 平台安装日志
   AI_CHATTOPAGE_LOG: 20, // AI生成页面日志
 }
