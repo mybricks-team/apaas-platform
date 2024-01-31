@@ -1,4 +1,4 @@
-import { NextFunction, Request } from "express";
+import { NextFunction, Request } from 'express';
 import { TIMEOUT_TIME } from '../constants';
 const proxy = require('express-http-proxy');
 const URL = require('url');
