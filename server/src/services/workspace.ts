@@ -637,6 +637,28 @@ export default class WorkspaceService {
     return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total };
   }
 
+  @Get("/workspace/save/version/operations")
+  async getSaveVersionOperations(@Query() query) {
+    const { id, } = query;
+    const data = await this.fileContentDao.queryById({
+      id,
+    });
+
+    let content = null;
+    if (Array.isArray(data)) {
+      content = data[0].content;
+    }
+
+    let operationList = [];
+    try {
+      operationList = JSON.parse(content).operationList
+    } catch {
+      return { code: -1, msg: '未查询到保存版本的信息' };
+    }
+
+    return { code: 1, data: operationList };
+  }
+
   @Get("/workspace/publish/versions")
   async getPublishVersions(@Query() query) {
     const { fileId, pageIndex, pageSize, type } = query;
