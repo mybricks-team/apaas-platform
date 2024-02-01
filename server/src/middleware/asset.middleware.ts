@@ -16,10 +16,11 @@ export function assetAdapterMiddleware(req: Request, res: Response, next: NextFu
           APPS_BASE_FOLDER,
           req.path.replace(encodeNamespace, `${encodeNamespace}/assets`)
             .replace(`/${app}`, `/${app}/assets`)
+            .replace('.html', '.offline.html')
         )
       );
     } else {
-      hasOffline = fs.existsSync(path.join(process.cwd(), '_assets', req.path));
+      hasOffline = fs.existsSync(path.join(process.cwd(), '_assets', req.path.replace('.html', '.offline.html')));
     }
 
     if (hasOffline) {
