@@ -30,13 +30,13 @@ const formatFileSize = size => {
 		return '-';
 	} else if (size >= 0 && size < MB_SIZE_GAP) {
 		return (size / 1024).toFixed(2)
-			.replace('.00', '')
-			.replace('.0', '')
+			.replace(/\.00$/, '')
+			.replace(/\.0$/, '')
 			+ 'KB';
 	} else {
 		return (size / MB_SIZE_GAP).toFixed(2)
-			.replace('.00', '')
-			.replace('.0', '')
+			.replace(/\.00$/, '')
+			.replace(/\.0$/, '')
 			+ 'MB';
 	}
 };
