@@ -16,7 +16,7 @@ const cp = require('child_process')
 const fs = require('fs')
 const path = require('path')
 const env = require('../../../env.js')
-import { readLastNLines } from '../../utils/logger';
+import { readLastNLinesOfFile } from '../../utils/logger';
 
 
 @Controller('/paas/api/log')
@@ -39,7 +39,7 @@ export default class LogsController {
       // } else {
       //   logStr = cp.execSync(`tail -n ${LINES} ${fileName} | awk '{ if (length($0) > 2000) print substr($0, 1, 2000) "..."; else print }'`, { maxBuffer: 3 * 1024 * 1024 }).toString()
       // }
-      const logStack: any = await readLastNLines(fileName, { searchValue, numLines: LINES })
+      const logStack: any = await readLastNLinesOfFile(fileName, { searchValue, numLines: LINES })
       logStr = logStack.join('\n')
 
       return {
