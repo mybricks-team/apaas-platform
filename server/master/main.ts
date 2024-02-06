@@ -57,7 +57,7 @@ async function bootstrap() {
             process.env.slaveName = parsedData.mode;
           } else {
             /** 代理端口切换到备份服务端口 */
-            process.env.proxyPort = process.env.slavePort;
+            process.env.proxyPort = parsedData.port || process.env.slavePort;
             console.log(`【主服务】 当前代理端口：${process.env.proxyPort}`);
             Logger.info(`【主服务】 当前代理端口：${process.env.proxyPort}`);
             await stopSlaveServer(process.env.slaveName.endsWith('_slave_backup'));

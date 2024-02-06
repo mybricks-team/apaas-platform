@@ -49,7 +49,11 @@ export default function init() {
       console.log(`【${slaveName}】 已连接到主服务`);
       Logger.info(`【${slaveName}】 已连接到主服务`);
 
-      webSocketClient.send(JSON.stringify({ mode: process.env.MYBRICKS_NODE_MODE, code: 'ready' }));
+      webSocketClient.send(JSON.stringify({
+        mode: process.env.MYBRICKS_NODE_MODE,
+        code: 'ready',
+        port: process.env?.MYBRICKS_PLATFORM_SLAVE_PORT || 3101
+      }));
       global.WEB_SOCKET_CLIENT = webSocketClient;
     });
 
