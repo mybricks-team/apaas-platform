@@ -88,7 +88,12 @@ function My() {
               parentId
             }
           }).then(({data}) => {
-            resolve(fileSort(data.data))
+            if(data.code === 1) {
+              resolve(fileSort(data.data))
+            } else {
+              message.error(data.msg)
+              resolve([])
+            }
           })
         })
       }}
@@ -151,7 +156,9 @@ function Group() {
                   groupId
                 }
               }).then(({ data }) => {
-                resolve(fileSort(data.data))
+                if(data.code === 1) {
+                  resolve(fileSort(data.data))
+                }
               })
             } else {
               // 查协作组
@@ -202,7 +209,9 @@ function Group() {
                   groupId
                 }
               }).then(({ data }) => {
-                resolve(fileSort(data.data))
+                if(data.code === 1) {
+                  resolve(fileSort(data.data))
+                }
               })
             } else {
               // 查协作组

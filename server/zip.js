@@ -36,6 +36,9 @@ const filterFileName = [
   'application_bugu.json',
   'application_fangzhou.json',
   'application_qingchenghui.json',
+  'license-private.pem',
+  'license-public.pem',
+  'license.js',
   'zip.js'
 ];
 const files = fs.readdirSync(zipDirPath).filter(filename => {

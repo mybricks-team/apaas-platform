@@ -80,16 +80,20 @@ export default function Files() {
           method: "get",
           url: getApiUrl('/paas/api/file/getFilePath'),
           params: {fileId: parentId, groupId}
-        }).then(({data: {data}}) => {
-          if (data.length) {
-            if (data[0]) {
-              path.push(...data)
-            } else {
-              history.pushState(null, '', `?appId=files`)
-              return
+        }).then(({data}) => {
+          if(data.code === 1) {
+            if (data.data.length) {
+              if (data.data[0]) {
+                path.push(...data.data)
+              } else {
+                history.pushState(null, '', `?appId=files`)
+                return
+              }
             }
+            ctx.path = path
+          } else {
+            message.error(data.msg)
           }
-          ctx.path = path
         })
         ctx.getAll({parentId, groupId})
         ctx.parentId = parentId
@@ -105,29 +109,38 @@ export default function Files() {
               parentId
             }
           }).then(({data}) => {
-            ctx.projectList = fileSort(data.data)
+            if(data.code === 1) {
+              ctx.projectList = fileSort(data.data)
               .filter(item => APPSMap[item.extName])
               .map(item => ({
                 ...item,
                 homepage: APPSMap[item.extName].homepage
               }))
+            } else {
+              message.error(data.msg)
+            }
+            
           })
         } else {
           axios({
             method: 'get',
-            url: getApiUrl('/api/file/getGroupFiles'),
+            url: getApiUrl('/paas/api/file/getGroupFiles'),
             params: {
               userId: appCtx.user.id,
               parentId,
               groupId
             }
           }).then(({data}) => {
-            ctx.projectList = fileSort(data.data)
-              .filter(item => APPSMap[item.extName])
-              .map(item => ({
-                ...item,
-                homepage: APPSMap[item.extName].homepage
-              }))
+            if(data.code === 1) {
+              ctx.projectList = fileSort(data.data)
+                .filter(item => APPSMap[item.extName])
+                .map(item => ({
+                  ...item,
+                  homepage: APPSMap[item.extName].homepage
+                }))
+            } else {
+              // message.error(data.msg)
+            }
           })
         }
       }
@@ -988,8 +1001,10 @@ function MoveFileModal({app, onOk, onCancel}) {
                 url: getApiUrl('/paas/api/file/getGroupFiles'),
                 params
               }).then(({ data: { data } }) => {
-                item.dataSource = fileSort(data.filter((item) => item.id !== app.id))
-                item.open = true
+                if(data.code === 1) {
+                  item.dataSource = fileSort(data.data.filter((item) => item.id !== app.id))
+                  item.open = true
+                }
                 item.loading = false
               })
             }
@@ -1015,11 +1030,13 @@ function MoveFileModal({app, onOk, onCancel}) {
 
               axios({
                 method: 'get',
-                url: getApiUrl('/api/file/getGroupFiles'),
+                url: getApiUrl('/paas/api/file/getGroupFiles'),
                 params
-              }).then(({ data: { data } }) => {
-                item.dataSource = fileSort(data.filter((item) => item.id !== app.id))
-                item.open = true
+              }).then(({ data }) => {
+                if(data.code === 1) {
+                  item.dataSource = fileSort(data.data.filter((item) => item.id !== app.id))
+                  item.open = true
+                }
                 item.loading = false
               })
             }

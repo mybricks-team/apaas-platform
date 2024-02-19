@@ -10,7 +10,7 @@ import {
 } from 'antd'
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
-import {SettingOutlined, LeftOutlined, InfoCircleOutlined} from '@ant-design/icons'
+import {SettingOutlined, LeftOutlined, EllipsisOutlined } from '@ant-design/icons'
 
 
 import {getApiUrl} from '../../../utils'
@@ -48,7 +48,7 @@ const SystemConfigItems = [
   { title: '资源存储', namespace: 'mybricks-oss-config', icon: <OssIcon />},
   { title: '运行日志', namespace: 'mybricks-log', icon: <LogIcon />},
   { title: '系统诊断', namespace: 'mybricks-diagnostics', icon: <DiagnosticsIcon /> },
-  { title: '关于', namespace: 'about', icon: <InfoCircleOutlined /> }
+  { title: '更多', namespace: 'about', icon: <EllipsisOutlined /> }
 ]
 if(location.href.indexOf('mybricks.world') !== -1 || location.href.indexOf('localhost') !== -1) {
   SystemConfigItems.splice(SystemConfigItems.length - 1, 0, { title: '监控与统计', namespace: 'mybricks-monitor', icon: <MonitorIcon />})

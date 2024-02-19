@@ -1,16 +1,19 @@
 import React, {
   useState,
-  useCallback
+  useCallback,
+  useEffect
 } from 'react'
 import compareVersion from 'compare-version'
 import axios from 'axios'
 import {observe} from '@mybricks/rxui'
-import {QuestionCircleOutlined, InboxOutlined, GlobalOutlined, ThunderboltOutlined} from '@ant-design/icons'
+import {QuestionCircleOutlined, InboxOutlined, GlobalOutlined, ThunderboltOutlined, MessageOutlined, EnterOutlined, LoadingOutlined } from '@ant-design/icons'
 import {
   Button,
   message,
   Popover,
-  Upload
+  Upload,
+  Input,
+  Tabs,
 } from 'antd'
 import { APaaS } from '../../../noaccess/Icons'
 import AppCtx from '../../../AppCtx'
@@ -19,12 +22,30 @@ import styles from '../index.less'
 
 const { Dragger } = Upload;
 
-const AboutForm = ({ currentPlatformVersion }) => {
-  const appCtx = observe(AppCtx, {from: 'parents'})
+const AboutTab = ({ currentPlatformVersion }) => {
+  return (
+    <>
+      <p style={{textAlign: 'center', fontSize: 32, fontWeight: 700, display: 'flex', alignItems:'center', justifyContent: 'center'}}> 
+      <span style={{ marginRight: 8 }}>
+        { APaaS }
+      </span>
+       Platform</p>
+       <div style={{display: 'flex', alignItems: 'center', flexDirection: 'column', padding: '10px 0', height: 100, justifyContent: 'space-around'}}>
+        <p style={{textAlign: 'center'}}>当前版本是： <span style={{color: 'rgb(22, 119, 255)'}}>{currentPlatformVersion}</span></p>
+        <p style={{ textAlign: 'center', color: '#777' }}>开源、开放、免费的企业级通用无代码aPaaS平台</p>
+        <div>
+          <a href="https://github.com/mybricks" target="_blank">@2020 板砖团队</a>
+        </div>
+       </div>
+    </>
+  )
+}
+
+const UpgradeTab = ({ currentPlatformVersion, appCtx }) => {
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [checkLoading, setCheckLoading] = useState(false)
   const [versionCompareResult, setVersionCompareResult] = useState(null);
   const [upgradeInfo, setUpgradeInfo] = useState(null)
-  const [checkLoading, setCheckLoading] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   let upgradeContainer = null;
 
@@ -35,7 +56,6 @@ const AboutForm = ({ currentPlatformVersion }) => {
 		action: getApiUrl(`/paas/api/system/offlineUpdate?userId=${appCtx.user?.id}`),
 		onChange(info) {
 			const { status } = info.file;
-			console.log(info)
 			if (status === 'done') {
 				message.destroy()
 				message.success(`上传成功，正在安装中, 请稍后(大概10s)`, 10);
@@ -152,12 +172,6 @@ const AboutForm = ({ currentPlatformVersion }) => {
   }
   return (
     <div>
-      <p style={{textAlign: 'center', fontSize: 32, fontWeight: 700, display: 'flex', alignItems:'center', justifyContent: 'center'}}> 
-      <span style={{ marginRight: 8 }}>
-        { APaaS }
-      </span>
-       Platform</p>
-      <p style={{textAlign: 'center'}}>当前版本是： <span style={{color: 'rgb(22, 119, 255)'}}>{currentPlatformVersion}</span></p>
 			<p style={{height: 32, fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginTop: 10}}>
 				在线更新&nbsp;
 				<Popover
@@ -178,7 +192,6 @@ const AboutForm = ({ currentPlatformVersion }) => {
               type: "checkLatestPlatformVersion",
               userId: appCtx.user?.id,
             }).then(({ data }) => {
-              console.log('最新版本', data)
               if(data.code === 1) {
                 const temp = compareVersion(data.data.version, currentPlatformVersion)
                 setVersionCompareResult(temp)
@@ -229,6 +242,126 @@ const AboutForm = ({ currentPlatformVersion }) => {
 				<p className="ant-upload-hint">
 				</p>
 			</Dragger>
+    </div>
+  )
+}
+
+const LicenseTab = ({ appCtx }) => {
+  const [activateInfoLoading, setActivateInfoLoading] = useState(false)
+  const [isActivated, setIsActivated] = useState(false)
+  const [activateInfo, setActivateInfo] = useState({} as any)
+  const [licenseCode, setLicenseCode] = useState('')
+
+  const _getLicenseInfo = useCallback(async () => {
+    setActivateInfoLoading(true)
+    axios({
+      method: 'post',
+      url: getApiUrl('/paas/api/license/getActivateInfo'),
+    }).then(({ data }) => {
+      if(data.code === 1) {
+        setActivateInfo(data.data)
+        setIsActivated(true)
+      } else {
+        setIsActivated(false)
+      }
+    }).finally(() => {
+      setActivateInfoLoading(false)
+    })
+  }, [])
+
+  useEffect(() => {
+    _getLicenseInfo()
+  }, [])
+
+  const submitLicense = useCallback(async () => {
+    const res: any = await axios({
+      method: 'post',
+      url: getApiUrl('/paas/api/license/activate'),
+      data: {
+        userId: appCtx.user.id,
+        licenseCode: licenseCode,
+      },
+    })
+
+    const { code, msg } = res?.data || {}
+    if (code === 1) {
+      message.success(msg || '激活成功')
+    } else {
+      message.error(msg)
+    }
+    await _getLicenseInfo()
+  }, [licenseCode])
+
+  if(activateInfoLoading) {
+    return (
+      <div>
+        <p>查询中，请稍后... <LoadingOutlined /></p>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {
+        isActivated ? (
+          <div>
+            <p style={{textAlign: 'center', fontSize: '20px', fontWeight: 'bold', marginBottom: '6px'}}>{activateInfo.status}</p>
+            <p style={{textAlign: 'center'}}>您当前使用的版本为：<span style={{ fontWeight: 'bold', fontSize: 18 }}>{activateInfo.type}</span>，有效期至 <span style={{ fontWeight: 'bold', fontSize: 18 }}>{activateInfo.expiredDate}</span></p>
+            <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
+              <Button icon={<EnterOutlined />} type="primary" onClick={() => {
+                setIsActivated(false)
+              }} >重新激活</Button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <p style={{textAlign: 'center', fontSize: '20px', fontWeight: 'bold', marginBottom: '6px'}}>未激活</p>
+            <Input.TextArea 
+              rows={8} 
+              value={licenseCode} 
+              onChange={(e) => {
+                // console.log(e.target.value); 
+                setLicenseCode(e.target.value)
+                console.log(licenseCode)
+              }} 
+              placeholder='请输入秘钥'
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
+              <Button icon={<MessageOutlined />}>联系客服获取秘钥</Button>
+              <Button icon={<EnterOutlined />} type="primary" onClick={submitLicense} >激活</Button>
+            </div>
+          </div>
+        )
+      }
+    </div>
+  )
+
+}
+
+const AboutForm = ({ currentPlatformVersion }) => {
+  const appCtx = observe(AppCtx, {from: 'parents'})
+
+  const items = [
+    {
+      key: 'about',
+      label: '关于',
+      children: <AboutTab currentPlatformVersion={currentPlatformVersion}/>
+    },
+    {
+      key: 'upgrade',
+      label: '升级',
+      children: <UpgradeTab currentPlatformVersion={currentPlatformVersion} appCtx={appCtx} />
+    },
+    {
+      key: 'license',
+      label: '我的许可',
+      children: <LicenseTab appCtx={appCtx} />,
+    }
+  ];
+
+  return (
+    <div>
+      <Tabs defaultActiveKey="upgrade" destroyInactiveTabPane={true} items={items} onChange={() => {}} />
     </div>
   )
 }
