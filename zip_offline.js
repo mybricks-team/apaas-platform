@@ -61,6 +61,8 @@ const filterFileName = [
   'PlatformConfig_hainiu.json',
   'PlatformConfig_mybricks.json',
   'ecosystem.config.js',
+  'license-private.pem',
+  'license.js',
   'zip_update.js',
   'zip_offline.js',
   'zip_deploy.js'

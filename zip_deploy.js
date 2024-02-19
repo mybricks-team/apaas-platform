@@ -56,6 +56,8 @@ const filterFileName = [
   'PlatformConfig_demo.json',
   'PlatformConfig_hainiu.json',
   'PlatformConfig_mybricks.json',
+  'license-private.pem',
+  'license.js',
   'zip.js',
   'zip_deploy.js'
 ];
