@@ -2,19 +2,28 @@
   "database": {
     "host": "127.0.0.1",
     "user": "root",
-    "password": "123456",
+    "password": "12345678",
     "port": 3306,
-    "databaseName": "123456"
+    "databaseName": "test"
   },
+  "platformDomain": "http://127.0.0.1:3100",
+  "platformPort": 3100,
   "platformConfig": {
-    "logo": "https://f2.eckwai.com/kos/nlav12333/chrome-plugin-upload/2023-07-10/1688984026717.0849c8283f24ed53.svg",
-    "title": "前端 | 工作台",
-    "favicon": "https://f2.eckwai.com/kos/nlav12333/chrome-plugin-upload/2023-07-10/1688985105204.c0703a1463af6ad6.ico"
+    "title": "MyBricks aPaaS Platform"
   },
   "adminUser": {
-    "email": "admin@mybricks.com",
+    "email": "admin@mybricks.world",
     "password": "123456"
   },
-  "installApps": [],
-  "platformDomain": "http://testweb.manateeai.com/"
+  "installApps": [
+    {
+      "type": "oss",
+      "version": "1.2.74",
+      "namespace": "mybricks-app-pcspa"
+    },
+    {
+      "type": "npm",
+      "path": "mybricks-app-login@0.0.5"
+    }
+  ]
 }

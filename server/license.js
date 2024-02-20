@@ -52,8 +52,8 @@ function decrypt(encryptedData) {
   return crypto.publicDecrypt(publicKey, Buffer.from(encryptedData, 'base64')).toString();
 }
 
-// console.log(encrypt(JSON.stringify({
-//   clientName: 'mybricks测试环境',
-//   type: 'personal',
-//   expiredDate: '2099-12-31 23:59:59'
-// })))
+console.log(encrypt(JSON.stringify({
+  clientName: 'mybricks测试环境',
+  type: 'personal',
+  expiredDate: '2023-12-31 23:59:59'
+})))
