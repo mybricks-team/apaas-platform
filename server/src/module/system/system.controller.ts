@@ -31,7 +31,7 @@ const fse = require('fs-extra');
 const { getAppThreadName } = require('../../../env')
 
 @Controller('/paas/api')
-export default class SystemService {
+export default class SystemController {
   fileDao: FileDao;
 
   filePubDao: FilePubDao;

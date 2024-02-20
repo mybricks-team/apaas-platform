@@ -3,7 +3,7 @@ import ConfigDao from "../../dao/config.dao";
 import UserService from '../user/user.service';
 
 @Controller("/paas/api")
-export default class ConfigService {
+export default class ConfigController {
   configDao: ConfigDao;
   userService: UserService;
 

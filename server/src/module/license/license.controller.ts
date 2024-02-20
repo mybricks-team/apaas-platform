@@ -4,7 +4,7 @@ import UserService from '../user/user.service';
 import { getDecryptLicense } from './util'
 
 @Controller("/paas/api/license")
-export default class ConfigService {
+export default class LicenseController {
   configDao: ConfigDao;
   userService: UserService;
 

@@ -3,7 +3,7 @@ import { Response } from "express";
 import FileService from "../file/file.service";
 
 @Controller("/paas/api/share")
-export default class GroundService {
+export default class ShareController {
   fileService: FileService;
 
   constructor() {

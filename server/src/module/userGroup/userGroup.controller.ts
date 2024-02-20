@@ -4,7 +4,7 @@ import UserGroupRelationDao from '../../dao/UserGroupRelationDao';
 import UserService from '../user/user.service';
 
 @Controller("/paas/api/userGroup")
-export default class GroundService {
+export default class UserGroupService {
   userGroupDao: UserGroupDao;
   userGroupRelationDao: UserGroupRelationDao;
   userService: UserService;
