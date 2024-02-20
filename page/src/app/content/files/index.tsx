@@ -139,6 +139,8 @@ export default function Files() {
                   homepage: APPSMap[item.extName].homepage
                 }))
             } else {
+              // 恶心的兼容代码，如果拉取失败，则展示空的列表，避免一直显示加载中
+              ctx.projectList = []
               // message.error(data.msg)
             }
           })
@@ -341,6 +343,7 @@ function Projects() {
   const Render: JSX.Element | JSX.Element[] = useComputed(() => {
     let JSX: JSX.Element | JSX.Element[] = <></>;
     const userId = appCtx.user.id
+    console.log(ctx.projectList, 'ctx.projectList')
     if (Array.isArray(ctx.projectList)) {
       if (ctx.projectList.length) {
         const {APPSMap} = appCtx;
@@ -1000,7 +1003,7 @@ function MoveFileModal({app, onOk, onCancel}) {
                 method: 'get',
                 url: getApiUrl('/paas/api/file/getGroupFiles'),
                 params
-              }).then(({ data: { data } }) => {
+              }).then(({ data }) => {
                 if(data.code === 1) {
                   item.dataSource = fileSort(data.data.filter((item) => item.id !== app.id))
                   item.open = true

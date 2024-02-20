@@ -158,6 +158,8 @@ function Group() {
               }).then(({ data }) => {
                 if(data.code === 1) {
                   resolve(fileSort(data.data))
+                } else {
+                  resolve([])
                 }
               })
             } else {
@@ -168,8 +170,8 @@ function Group() {
                 params: {
                   userId: appCtx.user.id
                 }
-              }).then(({ data: { data } }) => {
-                resolve(data)
+              }).then(({ data }) => {
+                resolve(data.data)
               })
             }
           })
@@ -211,6 +213,8 @@ function Group() {
               }).then(({ data }) => {
                 if(data.code === 1) {
                   resolve(fileSort(data.data))
+                } else {
+                  resolve([])
                 }
               })
             } else {
