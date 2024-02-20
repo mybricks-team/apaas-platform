@@ -327,7 +327,7 @@ const LicenseTab = ({ appCtx }) => {
               placeholder='请输入秘钥'
             />
             <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
-              <Button icon={<MessageOutlined />}>联系客服获取秘钥</Button>
+              <Button target='blank' type='link' href='https://www.mybricks.world/' icon={<MessageOutlined />}>联系客服获取秘钥</Button>
               <Button icon={<EnterOutlined />} type="primary" onClick={submitLicense} >激活</Button>
             </div>
           </div>
