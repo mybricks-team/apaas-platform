@@ -13,33 +13,32 @@
 ```
 {
   "database": {
-    "host": "",
-    "user": "",
-    "password": "",
-    "port": ,
-    "databaseName": ""
+    "host": "请填写",
+    "user": "请填写",
+    "password": "请填写",
+    "port": 请填写,
+    "databaseName": "请填写"
   },
+  "platformDomain": "请填写。（这是部署后的访问地址，例如：http://127.0.0.1:3100或https://my.mybricks.world/等等）",
+  "platformPort": 3100,
   "platformConfig": {
-    "logo": "cdn地址",
-    "title": "前端 | 工作台",
-    "favicon": "cdn地址"
+    "title": "MyBricks aPaaS Platform"
   },
   "adminUser": {
-    "email": "这里是初始化的管理员邮箱",
-    "password": "这里是初始化的管理员密码"
+    "email": "admin@mybricks.world",
+    "password": "123456"
   },
   "installApps": [
     {
       "type": "oss",
-      "version": "1.0.82",
+      "version": "1.2.74",
       "namespace": "mybricks-app-pcspa"
     },
     {
       "type": "npm",
-      "path": "mybricks-hainiu-login@0.0.4"
+      "path": "mybricks-app-login@0.0.5"
     }
-  ],
-  "platformDomain": "这里是部署后的平台域名"
+  ]
 }
 ```
 目录如下：
@@ -62,7 +61,7 @@ sudo bash ./deploy.sh
 server
 {
 
-    client_max_body_size 100m; # 勿忘！限制上传大小为 100MB
+    client_max_body_size 200m; # 勿忘！限制上传大小为 200MB
 
     location / {
         proxy_pass http://127.0.0.1:3100;
@@ -73,6 +72,7 @@ server
         add_header X-Cache $upstream_cache_status;
         proxy_set_header X-Host $host:$server_port;
         proxy_set_header X-Scheme $scheme;
+        proxy_cache off;
         proxy_connect_timeout 30s;
         proxy_read_timeout 86400s;
         proxy_send_timeout 30s;
@@ -91,33 +91,32 @@ server
 ```
 {
   "database": {
-    "host": "",
-    "user": "",
-    "password": "",
-    "port": 3306,
-    "databaseName": ""
+    "host": "请填写",
+    "user": "请填写",
+    "password": "请填写",
+    "port": 请填写,
+    "databaseName": "请填写"
   },
+  "platformDomain": "请填写。（这是部署后的访问地址，例如：http://127.0.0.1:3100或https://my.mybricks.world/等等）",
+  "platformPort": 3100,
   "platformConfig": {
-    "logo": "cdn地址",
-    "title": "前端 | 工作台",
-    "favicon": "cdn地址"
+    "title": "MyBricks aPaaS Platform"
   },
   "adminUser": {
-    "email": "这里是初始化的管理员邮箱",
-    "password": "这里是初始化的管理员密码"
+    "email": "admin@mybricks.world",
+    "password": "123456"
   },
   "installApps": [
     {
       "type": "oss",
-      "version": "1.0.82",
+      "version": "1.2.74",
       "namespace": "mybricks-app-pcspa"
     },
     {
       "type": "npm",
-      "path": "mybricks-hainiu-login@0.0.3"
+      "path": "mybricks-app-login@0.0.5"
     }
-  ],
-  "platformDomain": "这里是部署后的平台域名"
+  ]
 }
 ```
 3. 将其 `解压` 到文件夹，并`进入 server 文件夹`
