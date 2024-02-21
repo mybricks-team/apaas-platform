@@ -89,6 +89,7 @@ exports.buildCanonicalString = function canonicalString(method, resourcePath, re
  */
 exports.computeSignature = function computeSignature(accessKeySecret, canonicalString, headerEncoding = 'utf-8') {
   const signature = crypto.createHmac('sha1', accessKeySecret);
+  // @ts-ignore
   return signature.update(Buffer.from(canonicalString, headerEncoding)).digest('base64');
 };
 

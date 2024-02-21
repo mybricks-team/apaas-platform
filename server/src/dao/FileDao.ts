@@ -379,7 +379,7 @@ export default class FileDao extends DOBase {
    */
   public async deleteFile(query: {
     id?: number
-    updatorId: string
+    updatorId: string | number
     updatorName?: string
   }): Promise<{ id: number | null }> {
     query = Object.assign(query, {

@@ -118,7 +118,7 @@ export default class FileController {
           msg: '删除失败，您没有此文件权限'
         }
       }
-      const res = await this.fileDao.deleteFile({ id: fileId, updatorId, updatorName: originUpdatorId })
+      const res = await this.fileDao.deleteFile({ id: fileId, updatorId, updatorName: originUpdatorId as any })
       return {
         code: 1,
         data: res
@@ -337,7 +337,7 @@ export default class FileController {
     /** 把当前用户提前 */
     cooperationUsers[0] = cooperationUsers.splice(curUserIndex, 1, cooperationUsers[0])[0]
 
-    const userIds = cooperationUsers.map((cooperationUser) => cooperationUser.userId)
+    const userIds: any = cooperationUsers.map((cooperationUser) => cooperationUser.userId)
     /** 查询用户信息 */
     const users = await this.userDao.queryByIds({ ids: userIds })
 
@@ -473,7 +473,7 @@ export default class FileController {
         }
       }
 
-      let roleDescription = 3
+      let roleDescription: any = 3
       const { groupId, creatorId } = file
 
       if (creatorId == userId) {
@@ -1265,7 +1265,9 @@ export default class FileController {
           comlibList = window['__comlibs_edit_'] = [];
         }
       `
+      // @ts-ignore
       res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+      // @ts-ignore
       res.status(200).send(editJS).end();
       return;
     }
@@ -1285,8 +1287,10 @@ export default class FileController {
           version: version
         })
 
+        // @ts-ignore
         if (cdms?.length) {
           let comsStr = ''
+          // @ts-ignore
           cdms.forEach((cdm) => {
             const content = JSON.parse(cdm.content)
 
@@ -1339,7 +1343,9 @@ export default class FileController {
         comlibList.push(newComlib);
       `
 
+    // @ts-ignore
     res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+    // @ts-ignore
     res.status(200).send(editJS).end();
   }
 
@@ -1368,7 +1374,9 @@ export default class FileController {
             version: version
           })
 
+          // @ts-ignore
           if (cdms?.length) {
+            // @ts-ignore
             cdms.forEach((cdm) => {
               result.push(JSON.parse(cdm.content))
             })

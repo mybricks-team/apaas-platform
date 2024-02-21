@@ -39,6 +39,7 @@ export default class ModuleService {
     version: string,
 		extNameList: string[]
   }) {
+		// @ts-ignore
     const { id } = await this.modulePubDao.queryPubInfo(params)
     return id
   }
@@ -109,6 +110,7 @@ export default class ModuleService {
 						service.code = service.code.replace(/--slot-project-id--/g, projectId);
 						latestServiceIdMap[service.id] = service.id
 					});
+					// @ts-ignore
 					await this.domainService.batchCreateService({ fileId: pub.file_id, projectId, serviceContentList: info.serviceAry }, { domainName });
 					// 当前流量容器正在生效的服务
 					const onlineServiceFiles = await this.flowService.getOnlineServiceOfProjectAndFile({
@@ -140,6 +142,7 @@ export default class ModuleService {
 	
 
 		if(htmlStaticFile.length) {
+      // @ts-ignore
 			htmlStaticFileRes = await this.flowService.batchCreateProjectFile({ codeStrList: htmlStaticFile, projectId }, { domainName });
 		}
 		// 讲搭建的文件等信息发布到运行容器中
