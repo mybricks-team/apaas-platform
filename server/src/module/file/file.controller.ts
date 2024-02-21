@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import FileContentDao from "../../dao/FileContentDao";
 import FileDao from "../../dao/FileDao";
 import UserDao from '../../dao/UserDao';
@@ -1265,9 +1266,7 @@ export default class FileController {
           comlibList = window['__comlibs_edit_'] = [];
         }
       `
-      // @ts-ignore
       res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
-      // @ts-ignore
       res.status(200).send(editJS).end();
       return;
     }

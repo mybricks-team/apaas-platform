@@ -13,7 +13,7 @@
     "dev:flow": "nodemon --ext js,ts --exec 'node index_flow.js'",
     "publishToNpm": "npm publish --registry=https://registry.npmjs.org",
     "zip": "node zip.js",
-    "compile": "tsc -p tsconfig.json"
+    "build": "nest build"
   },
   "author": "",
   "license": "ISC",
