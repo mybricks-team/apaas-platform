@@ -728,7 +728,7 @@ export default class WorkspaceService {
     } else {
       return {
         code: -1,
-        message: '资源不存在'
+        msg: '资源不存在'
       }
     }
   }
