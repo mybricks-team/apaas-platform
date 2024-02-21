@@ -717,7 +717,7 @@ export default class WorkspaceService {
   @Post("/workspace/publish/getPubAsset")
   async getPublishAssets(@Body() body) {
     const { fileId, envType, version } = body;
-    const assetPath = path.join(`./${env.FILE_LOCAL_STORAGE_PREFIX}/${env.FILE_APP_PRODUCTS_FOLDER_PREFIX}`, `./${fileId}/${envType}/${version}/${fileId}.zip`)
+    const assetPath = path.join(env.FILE_APP_PRODUCTS_FOLDER, `./${fileId}/${envType}/${version}/${fileId}.zip`)
     if(fs.existsSync(assetPath)) {
       return {
         code: 1,
