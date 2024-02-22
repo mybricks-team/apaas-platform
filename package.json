@@ -19,7 +19,7 @@
     "kube:deleteAll": "kubectl delete deployments,services,pods --all",
     "build:page": "cd page && npm install && npm run build",
     "build:server": "cd server && npm install && rm -rf ./dist && npm run build",
-    "zip:update": "npm run build:page && node ./zip_update.js",
+    "zip:update": "npm run build:page && npm run build:server && node ./obfuscator.js && node ./zip_update.js",
     "zip:deploy": "npm run build:page && node ./zip_deploy.js",
     "zip:offline": "npm run build:page && npm run build:server && node ./obfuscator.js && node ./zip_offline.js",
     "deploy:fangzhou": "bash deploy_fangzhou.sh",
