@@ -14,7 +14,6 @@ function traverseDirectory(dirPath) {
       traverseDirectory(fullPath);
     } else {
       if(fullPath.endsWith('.js')) {
-        console.log('是js开始混淆', fullPath)
         let obfuscationResult = JavaScriptObfuscator.obfuscate(
           fs.readFileSync(fullPath, 'utf8'),
           {
@@ -35,10 +34,8 @@ function traverseDirectory(dirPath) {
     }
   });
 }
-
-// 使用示例
-traverseDirectory('/Users/andyzou/Work/registry/mybricks-team/apaas-platform/server/dist');
-
-
-
-// console.log();
+if(fs.existsSync(path.join(__dirname, './server/dist'))) {
+  traverseDirectory(path.join(__dirname, './server/dist'));
+} else {
+  console.log('未构建，跳过！')
+}

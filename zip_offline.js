@@ -1,6 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const JSZip = require('jszip');
+const childProcess = require('child_process');
+
+childProcess.execSync('mv ./server/src ./server/temp')
+childProcess.execSync('mv ./server/dist ./server/src')
 
 const zip = new JSZip();
 /** 根目录 */
@@ -46,7 +50,6 @@ const filterFileName = [
   '.npmignore', 
   '.eslintrc.js', 
   '.prettierrc', 
-  '_temp_',
   'package-lock.json', 
   'nest-cli.json',
   'application_bugu.json',
@@ -63,6 +66,8 @@ const filterFileName = [
   'ecosystem.config.js',
   'license-private.pem',
   'license.js',
+  'dist',
+  'temp',
   'zip_update.js',
   'zip_offline.js',
   'zip_deploy.js'
@@ -96,4 +101,6 @@ zip.generateAsync({
   }
 }).then((content) => {
   fs.writeFileSync(path.join(__dirname, './mybricks-apaas-offline.zip'), content, 'utf-8');
+  childProcess.execSync('rm -rf ./server/src')
+  childProcess.execSync('mv ./server/temp ./server/src')
 });
