@@ -6,6 +6,8 @@ const zip = new JSZip();
 /** 根目录 */
 const zipRootFolder = zip.folder('mybricks-apaas');
 const targetConfig = process.argv[2] ? process.argv[2] : null;
+childProcess.execSync('mv ./server/src ./server/temp')
+childProcess.execSync('mv ./server/dist ./server/src')
 
 
 /** 遍历文件 */
@@ -56,6 +58,8 @@ const filterFileName = [
   'PlatformConfig_demo.json',
   'PlatformConfig_hainiu.json',
   'PlatformConfig_mybricks.json',
+  'dist',
+  'temp',
   'license-private.pem',
   'license.js',
   'zip.js',
@@ -96,4 +100,6 @@ zip.generateAsync({
   }
 }).then((content) => {
   fs.writeFileSync(path.join(__dirname, './mybricks-apaas-deploy.zip'), content, 'utf-8');
+  childProcess.execSync('rm -rf ./server/src')
+  childProcess.execSync('mv ./server/temp ./server/src')
 });
