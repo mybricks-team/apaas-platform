@@ -714,6 +714,25 @@ export default class WorkspaceService {
     return { code: 1, data: data ?? null };
   }
 
+  @Post("/workspace/publish/getPubAsset")
+  async getPublishAssets(@Body() body) {
+    const { fileId, envType, version } = body;
+    const assetPath = path.join(env.FILE_APP_PRODUCTS_FOLDER, `./${fileId}/${envType}/${version}/${fileId}.zip`)
+    if(fs.existsSync(assetPath)) {
+      return {
+        code: 1,
+        data: {
+          assetPath
+        }
+      }
+    } else {
+      return {
+        code: -1,
+        msg: '资源不存在'
+      }
+    }
+  }
+
   @Post("/workspace/file/revert")
   async revertFile(@Body() body) {
     const { fileContentId, filePubId, userId: originUserId } = body;
