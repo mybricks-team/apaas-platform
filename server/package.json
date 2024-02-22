@@ -12,7 +12,6 @@
     "start:watch": "NODE_ENV=development MYBRICKS_NODE_MODE=master nodemon --ext ts --exec 'node index.js'",
     "dev:flow": "nodemon --ext js,ts --exec 'node index_flow.js'",
     "publishToNpm": "npm publish --registry=https://registry.npmjs.org",
-    "zip": "node zip.js",
     "build": "nest build"
   },
   "author": "",
