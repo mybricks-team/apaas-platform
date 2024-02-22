@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const JSZip = require('jszip');
+const childProcess = require('child_process');
 
 const zip = new JSZip();
 /** 根目录 */
