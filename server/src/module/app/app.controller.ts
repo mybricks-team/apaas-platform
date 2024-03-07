@@ -684,8 +684,7 @@ export default class AppController {
       !icon ||
       !description ||
       !install_info ||
-      !version ||
-      !user_id
+      !version
     ) {
       return {
         code: 0,
@@ -704,20 +703,22 @@ export default class AppController {
     }
 
     await this.appDao.insertApp({ ...body, install_type, type, create_time: Date.now() });
-    await this.userLogDao.insertLog({
-      type: USER_LOG_TYPE.APPS_INSTALL_LOG,
-      userEmail: creator_name,
-      userId: user_id,
-      logContent: JSON.stringify({
-        type: 'application',
-        action: 'register',
-        namespace,
-        name,
-        version,
-        content: `注册应用：${name || namespace} 版本号：${version}`,
-      })
-    });
-
+    if(user_id) {
+      await this.userLogDao.insertLog({
+        type: USER_LOG_TYPE.APPS_INSTALL_LOG,
+        userEmail: creator_name,
+        userId: user_id,
+        logContent: JSON.stringify({
+          type: 'application',
+          action: 'register',
+          namespace,
+          name,
+          version,
+          content: `注册应用：${name || namespace} 版本号：${version}`,
+        })
+      });
+    }
+    
     return {
       code: 1,
       msg: "发布成功",
