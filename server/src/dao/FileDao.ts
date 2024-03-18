@@ -179,7 +179,7 @@ export default class FileDao extends DOBase {
   public async getAllShareFiles(query?: {
     page: number;
     pageSize: number;
-    shareType: number;
+    shareTypes: number[];
     extName?: string;
   }): Promise<any> {
     query = Object.assign({}, query)

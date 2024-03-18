@@ -101,7 +101,10 @@
         id,parent_id,group_id,name,namespace,version,ext_name,uri,creator_id,creator_name,create_time,update_time,updator_id,updator_name,description,type,share_type,status, icon
         from apaas_file
         where
-        share_type = #{shareType} and
+        share_type in
+        <foreach collection="shareTypes" open="(" close=")" separator="," item="shareType" index="i">
+            #{shareType}
+        </foreach> and
         <if test="extName">
             ext_name = #{extName} and
         </if>
@@ -707,11 +710,11 @@
     <select id="globalSearch">
         SELECT * FROM (
         SELECT A.id,A.name,A.creator_id,A.creator_name,A.update_time,A.ext_name,A.group_id,A.parent_id,A.share_type,null FROM apaas_file AS A
-        JOIN apaas_user_group_relation AS B ON IF(
+        JOIN apaas_user_group_relation AS B ON A.status = 1 AND (IF(
             A.group_id is NULL,
             A.creator_id = #{userId},
             A.group_id = B.user_group_id AND B.user_id = #{userId} AND B.status = 1
-        ) OR A.share_type = 1
+        ) OR A.share_type = 1)
         
         UNION
 

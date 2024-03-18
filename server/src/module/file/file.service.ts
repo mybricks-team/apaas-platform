@@ -20,7 +20,7 @@ export default class FileService {
     return await this.fileDao.getAllShareFiles({
       pageSize,
       page,
-      shareType: 1,
+      shareTypes: [1, 11],
       extName
     })
   }
