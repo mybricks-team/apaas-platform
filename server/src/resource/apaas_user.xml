@@ -50,7 +50,7 @@
             status,
             update_time 
         from apaas_user
-        where status = 1 and email like '%${keyword}%' or name like '%${keyword}%'
+        where status = 1 and email like '%${keyword}%' or name like '%${keyword}%' limit 10
     </select>
 
     <select id="queryById">
