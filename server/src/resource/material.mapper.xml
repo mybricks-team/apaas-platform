@@ -472,7 +472,7 @@
         material_info.type,
         material_pub_info.version,
         material_pub_info.creator_id,
-        if(apaas_user.name is null, material_pub_info.creator_name, apaas_user.name) as creator_name,
+        if(apaas_user.name is null, apaas_user.email, apaas_user.name) as creator_name,
         material_pub_info.create_time,
         material_pub_info.id as material_pub_id,
         material_pub_info.material_id,
