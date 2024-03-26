@@ -81,7 +81,8 @@ export default class UserController {
   }
 
   @Post('/searchByKeyword')
-  async searchByKeyword(@Body('keyword') keyword: string) {
+  async searchByKeyword(@Body() body: {keyword: string}) {
+    const { keyword } = body
     if (keyword) {
       const list: any = await this.userDao.searchByKeyword({ keyword });
 
