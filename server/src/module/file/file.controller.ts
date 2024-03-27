@@ -229,7 +229,6 @@ export default class FileController {
           content: latestSave?.content,
           version: '1.0.0',
           creatorId: userId,
-          creatorName: originUserId,
         });
 			} else {
         return { code: -1, msg: '新建失败，请重试' };

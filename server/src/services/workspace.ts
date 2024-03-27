@@ -205,8 +205,7 @@ export default class WorkspaceService {
             fileId: rtn.id,
             content: JSON.stringify({ fileType: type, componentType }),
             version: '1.0.0',
-            creatorId: userId,
-            creatorName: userId,
+            creatorId: userId
           });
         } else if(['folder-project'].includes(extName)) {
           // 初始化系统超级管理员
@@ -322,8 +321,7 @@ export default class WorkspaceService {
           content: isEncode ? decodeURIComponent(Buffer.from(content, 'base64').toString()) : content,
           // content: isEncode ? decodeURI(content.replace(/#D#/g, '.').replace(/#DH#/g, ',').replace(/#FH#/g, ';').replace(/#ZKH#/g, '(').replace(/#YKH#/g, ')').replace(/#MH#/g, ':').replace(/#DYH#/g, "'")) : content,
           version: nextVersion,
-          creatorId: userId,
-          creatorName: originUserId,
+          creatorId: userId
         });
 
         data.version = nextVersion
@@ -415,8 +413,7 @@ export default class WorkspaceService {
           fileId: page?.fileId ?? createMap[page.id],
           content: JSON.stringify(page),
           version: getNextVersion(fileContentVersion || "1.0.0"),
-          creatorId: userId,
-          creatorName: userId,
+          creatorId: userId
         }).then(({ id: fileContentId }) => {
           updateMap[page.id] = {
             fileId: page?.fileId ?? createMap[page.id],
@@ -757,8 +754,7 @@ export default class WorkspaceService {
         fileId: fileContent.fileId,
         content: fileContent.content,
         version: getNextVersion(latestFileContent?.version || fileContent?.version || "1.0.0"),
-        creatorId: userId,
-        creatorName: user?.name || user?.email || userId,
+        creatorId: userId
       });
     } else if (filePubId) {
       const [filePub] = await this.filePubDao.getPublishByFileId(filePubId);
