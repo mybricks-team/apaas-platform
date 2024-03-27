@@ -165,7 +165,6 @@ export default class FileContentDao extends DOBase {
     fileId: number
     creatorId: string
     version: string
-    creatorName: string
     content: string
   }): Promise<{ id: number }> {
     const result = await this.exe<any>(

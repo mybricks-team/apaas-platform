@@ -24,6 +24,7 @@ import {
 } from '@mybricks/rxui'
 import {
   EditOutlined,
+  CopyOutlined,
   SelectOutlined,
   ShareAltOutlined,
   ExportOutlined,
@@ -185,6 +186,8 @@ function Projects() {
   const ctx = observe(Ctx, {from: "parents"})
   const [createApp, setCreateApp] = useState(null)
   const [moveApp, setMoveApp] = useState(null)
+  const [copyApp, setCopyApp] = useState(null)
+  
 
   /** 各种操作 */
   const operate = useCallback((type, {project, appMeta}) => {
@@ -301,6 +304,10 @@ function Projects() {
         setMoveApp(project)
         break;
       }
+      case 'copy': {
+        setCopyApp({ ...project, name: `${project.name}(副本)` })
+        break
+      }
       case 'exportSnapshot': {
         axios.post(getApiUrl(appMeta.snapshot.export), {
           fileId: id,
@@ -343,7 +350,7 @@ function Projects() {
   const Render: JSX.Element | JSX.Element[] = useComputed(() => {
     let JSX: JSX.Element | JSX.Element[] = <></>;
     const userId = appCtx.user.id
-    console.log(ctx.projectList, 'ctx.projectList')
+    // console.log(ctx.projectList, 'ctx.projectList')
     if (Array.isArray(ctx.projectList)) {
       if (ctx.projectList.length) {
         const {APPSMap} = appCtx;
@@ -552,6 +559,35 @@ function Projects() {
     })
   }, [])
 
+  const copyModalOk = useCallback((values, app) => {
+    return new Promise(async (resolve, reject) => {
+      const { name } = values
+      const { extName } = app
+      
+      axios({
+        method: 'post',
+        url: getApiUrl('/paas/api/file/copy'),
+        data: {
+          id: app.id,
+          name,
+          userId: appCtx.user.id
+        }
+      }).then(async ({data}) => {
+        if (data.code === 1) {
+          ctx.getAll(getUrlQuery())
+
+          if (folderExtnames.includes(extName)) {
+            await appCtx.refreshSidebar()
+          }
+
+          resolve('创建副本成功！')
+        } else {
+          reject(`重命名错误：${data.message}`)
+        }
+      })
+    })
+  }, [])
+
   const modalCancel = useCallback(() => {
     setCreateApp(null)
   }, [])
@@ -566,6 +602,16 @@ function Projects() {
     )
   }, [createApp])
 
+  const RenderCopyFileModal = useMemo(() => {
+    return (
+      <CopyFileModal
+        app={copyApp}
+        onOk={copyModalOk}
+        onCancel={() => { setCopyApp(null) }}
+      />
+    )
+  }, [copyApp])
+
   const RenderMoveFileModal = useMemo(() => {
     return (
       <MoveFileModal
@@ -579,6 +625,7 @@ function Projects() {
   return (
     <>
       {ctx.viewType === 'card' ? Render : RenderList}
+      {RenderCopyFileModal}
       {RenderRenameFileModal}
       {RenderMoveFileModal}
     </>
@@ -766,6 +813,15 @@ function RenderOperate({project, operate, size = 28, iconSize = 18, appMeta}) {
         </div>
       )
     },
+   !isFolder ? {
+      key: 'copy',
+      label: (
+        <div className={css.operateItem} onClick={() => operate('copy', {project})}>
+          <CopyOutlined width={16} height={16}/>
+          <div className={css.label}>创建副本</div>
+        </div>
+      )
+    } : null,
     appMeta?.snapshot?.export ? {
       key: 'exportSnapshot',
       label: (
@@ -856,6 +912,94 @@ function RenameFileModal({app, onOk, onCancel}) {
     <Modal
       open={!!app}
       title={'重命名'}
+      okText={btnLoading ? '校验中...' : '确认'}
+      cancelText={'取消'}
+      centered={true}
+      onOk={ok}
+      onCancel={cancel}
+      confirmLoading={btnLoading}
+      bodyStyle={{
+        minHeight: 104
+      }}
+    >
+      <Form
+        labelCol={{ span: 3 }}
+        wrapperCol={{ span: 21 }}
+        form={form}
+      >
+        <Form.Item
+          label='名称'
+          name='name'
+          rules={[{ required: true, message: '请输入新的名称', validator(rule, value) {
+            return new Promise((resolve, reject) => {
+              if (!value.trim()) {
+                reject(rule.message)
+              } else [
+                resolve(true)
+              ]
+            })
+          }}]}
+        >
+          <Input
+            onCompositionStart={() => {
+              context.submittable = false
+            }}
+            onCompositionEnd={() => {
+              context.submittable = true
+            }}
+            ref={ref}
+            placeholder='请输入新的名称'
+            autoFocus
+            onPressEnter={() => context.submittable && ok()}
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
+  )
+}
+
+function CopyFileModal({app, onOk, onCancel}) {
+  const [context] = useState({
+    submittable: true
+  })
+  const [form] = Form.useForm()
+  const [btnLoading, setBtnLoading] = useState(false)
+  const ref = useRef()
+
+  const { run: ok } = useDebounceFn(() => {
+    form.validateFields().then((values) => {
+      setBtnLoading(true)
+      onOk(values, app).then((msg) => {
+        message.success(msg)
+        cancel()
+      }).catch((e) => {
+        setBtnLoading(false)
+        message.warn(e)
+      })
+    })
+  }, {wait: 200});
+
+  const cancel = useCallback(() => {
+    onCancel()
+    setBtnLoading(false)
+    form.resetFields()
+  }, [])
+
+  useEffect(() => {
+		if (app) {
+			form.setFieldsValue({ name: app.name });
+		}
+    if (app && ref.current) {
+      setTimeout(() => {
+        (ref.current as any).focus()
+      }, 100)
+    }
+  }, [app])
+
+  return (
+    <Modal
+      open={!!app}
+      title={'创建副本'}
       okText={btnLoading ? '校验中...' : '确认'}
       cancelText={'取消'}
       centered={true}

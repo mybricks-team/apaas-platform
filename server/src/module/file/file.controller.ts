@@ -156,6 +156,50 @@ export default class FileController {
     }
   }
 
+  @Post("/copy")
+  async copy(@Body() body) {
+    const { name, id, userId } = body;
+
+    if(!name || !id || !userId) {
+      return { code: -1, msg: '参数不合法' };
+    }
+
+    
+
+    try {
+
+      const [[fileInfo], fileContent] = await Promise.all([
+        this.fileDao.pureQuery({ id }),
+        this.fileContentDao.queryLatestSave({ fileId: id })
+      ])
+      const createFileParam = {
+        parentId: fileInfo.parentId, 
+        groupId: fileInfo.groupId,
+        name, 
+        extName: fileInfo.extName, 
+        icon: fileInfo.icon, 
+        creatorId: userId,
+      }
+      const res1 = await this.fileDao.createFile(createFileParam)
+      const createFileContentParams = {
+        fileId: res1.id,
+        creatorId: userId,
+        version: '1.0.0',
+        content: fileContent.content
+      }
+      const res2 = await this.fileContentDao.create(createFileContentParams)
+      return {
+        code: 1,
+        data: res2
+      }
+    } catch(e) {
+      return {
+        code: -1,
+        msg: e.message || '创建出错'
+      }
+    }
+  }
+
   @Post("/createFileBaseTemplate")
   async createFile(@Body() body) {
     const { userId: originUserId, name, extName, namespace, type, parentId, groupId, templateId, dumpJSON } = body;
