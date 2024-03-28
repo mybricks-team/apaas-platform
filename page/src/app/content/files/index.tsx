@@ -582,7 +582,7 @@ function Projects() {
 
           resolve('创建副本成功！')
         } else {
-          reject(`重命名错误：${data.message}`)
+          reject(`创建副本失败：${data.message}`)
         }
       })
     })

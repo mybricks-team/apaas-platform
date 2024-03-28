@@ -181,16 +181,19 @@ export default class FileController {
         creatorId: userId,
       }
       const res1 = await this.fileDao.createFile(createFileParam)
-      const createFileContentParams = {
-        fileId: res1.id,
-        creatorId: userId,
-        version: '1.0.0',
-        content: fileContent.content
+      let result = null
+      if(fileContent?.content) {
+        const createFileContentParams = {
+          fileId: res1.id,
+          creatorId: userId,
+          version: '1.0.0',
+          content: fileContent.content
+        }
+        result = await this.fileContentDao.create(createFileContentParams)
       }
-      const res2 = await this.fileContentDao.create(createFileContentParams)
       return {
         code: 1,
-        data: res2
+        data: result
       }
     } catch(e) {
       return {
