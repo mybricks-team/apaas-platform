@@ -14,35 +14,11 @@
     },
     {
       "type": "npm",
-      "path": "mybricks-cloud-com@0.0.92"
-    },
-    {
-      "type": "npm",
-      "path": "mybricks-app-workflow@0.0.46"
-    },
-    {
-      "type": "npm",
       "path": "mybricks-domain@0.2.3"
     },
     {
       "type": "npm",
-      "path": "mybricks-styled-com@0.0.7"
-    },
-    {
-      "type": "npm",
-      "path": "mybricks-styled-com@0.0.7"
-    },
-    {
-      "type": "npm",
-      "path": "mybricks-app-website-fangzhou@0.0.13"
-    },
-    {
-      "type": "npm",
       "path": "fangzhou-sso-login@0.0.3"
-    },
-    {
-      "type": "npm",
-      "path": "mybricks-app-codegen@1.0.21"
     },
     {
       "type": "npm",
@@ -54,7 +30,7 @@
     },
     {
       "type": "npm",
-      "path": "@ks-lfe/locallife-eevee-page@0.0.2-alpha.0"
+      "path": "@ks-lfe/locallife-eevee-page@0.0.7"
     }
   ]
 }
