@@ -50,6 +50,10 @@
     },
     {
       "type": "npm",
+      "path": "mybricks-app-layout-pc@1.0.0"
+    },
+    {
+      "type": "npm",
       "path": "@ks-lfe/locallife-eevee-page@0.0.2-alpha.0"
     }
   ]
