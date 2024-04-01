@@ -20,7 +20,7 @@
             </foreach>
         </if> 
         order by apaas_user_log.id desc
-        LIMIT ${offset},${limit}
+        LIMIT #{offset},#{limit}
     </select>
 
     <select id="queryTotalOfAll">
@@ -61,7 +61,7 @@
             and create_time between #{startTime} and #{endTime} 
         </if>
         order by apaas_user_log.id desc
-        LIMIT ${offset},${limit}
+        LIMIT #{offset},#{limit}
     </select>
 
     <insert id="insert">

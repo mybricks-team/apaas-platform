@@ -19,10 +19,10 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [openLogoutSwitch, setOpenLogoutSwitch] = useState(initialValues?.openLogout)
   const [openUserInfoSettingSwitch, setOpenUserInfoSettingSwitch] = useState(initialValues?.openUserInfoSetting)
   const [openConflictDetectionSwitch, setOpenConflictDetectionSwitch] = useState(initialValues?.openConflictDetection)
+  const [closeOfflineUpdate, setCloseOfflineUpdate] = useState(initialValues?.closeOfflineUpdate)
   const [isPureIntranet, setIsPureIntranet] = useState(initialValues?.isPureIntranet)
   const appCtx = observe(AppCtx, {from: 'parents'})
   const [appOptions, setAppOptions] = useState([])
-
   useEffect(() => {
     if (!initialValues) {
       return
@@ -79,7 +79,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
             <Form.Item
               style={{ minWidth: '50%' }}
               initialValue=''
-              labelCol={{ span: 6 }}
+              labelCol={{ span: 8 }}
               wrapperCol={{ span: 6 }}
               label="离线模式"
               name="isPureIntranet"
@@ -90,7 +90,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
             </Form.Item>
             <Form.Item
               style={{ minWidth: '50%' }}
-              labelCol={{ span: 6 }}
+              labelCol={{ span: 8 }}
               wrapperCol={{ span: 6 }}
               initialValue=''
               label="系统白名单"
@@ -102,7 +102,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
             </Form.Item>
             <Form.Item
               style={{ minWidth: '50%' }}
-              labelCol={{ span: 6 }}
+              labelCol={{ span: 8 }}
               wrapperCol={{ span: 6 }}
               initialValue=''
               label="退出登录"
@@ -114,7 +114,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
             </Form.Item>
             <Form.Item
               style={{ minWidth: '50%' }}
-              labelCol={{ span: 6 }}
+              labelCol={{ span: 8 }}
               wrapperCol={{ span: 6 }}
               initialValue=''
               label="个人资料设置"
@@ -126,7 +126,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
             </Form.Item>
             <Form.Item
               style={{ minWidth: '50%' }}
-              labelCol={{ span: 6 }}
+              labelCol={{ span: 8 }}
               wrapperCol={{ span: 6 }}
               initialValue=''
               label="升级冲突检测"
@@ -134,6 +134,18 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
             >
               <Switch checked={openConflictDetectionSwitch} onChange={() => {
                 setOpenConflictDetectionSwitch(!openConflictDetectionSwitch)
+              }} />
+            </Form.Item>
+            <Form.Item
+              style={{ minWidth: '50%' }}
+              labelCol={{ span: 8 }}
+              wrapperCol={{ span: 6 }}
+              initialValue=''
+              label="关闭离线更新"
+              name="closeOfflineUpdate"
+            >
+              <Switch checked={closeOfflineUpdate} onChange={() => {
+                setCloseOfflineUpdate(!closeOfflineUpdate)
               }} />
             </Form.Item>
             {/* <Form.Item

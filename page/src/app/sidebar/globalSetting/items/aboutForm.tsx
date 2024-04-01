@@ -223,25 +223,31 @@ const UpgradeTab = ({ currentPlatformVersion, appCtx }) => {
           </Button>
       </div>
       {upgradeContainer}
-      <p style={{height: 32, fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginTop: 10}}>
-        离线更新&nbsp;
-        <Popover
-          content={'不需要能够访问公网环境，拖入平台安装包即可上传进行平台更新'}
-          trigger="hover"
-        >
-          <QuestionCircleOutlined />
-        </Popover>
-      </p>
-      <Dragger 
-				{...uploadProps}
-			>
-				<p className="ant-upload-drag-icon">
-					<InboxOutlined />
-				</p>
-				<p className="ant-upload-text">拖拽 平台安装包 至此</p>
-				<p className="ant-upload-hint">
-				</p>
-			</Dragger>
+      {
+        !appCtx?.systemConfig?.closeOfflineUpdate ? (
+          <>
+            <p style={{height: 32, fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginTop: 10}}>
+              离线更新&nbsp;
+              <Popover
+                content={'不需要能够访问公网环境，拖入平台安装包即可上传进行平台更新'}
+                trigger="hover"
+              >
+                <QuestionCircleOutlined />
+              </Popover>
+            </p>
+            <Dragger 
+              {...uploadProps}
+            >
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">拖拽 平台安装包 至此</p>
+              <p className="ant-upload-hint">
+              </p>
+            </Dragger>
+          </>
+        ) : null
+      }
     </div>
   )
 }

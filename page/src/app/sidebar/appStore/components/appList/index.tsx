@@ -32,10 +32,11 @@ interface AppListProps {
 	userId?: number;
 	installedApps: T_App[];
 	allApps: T_App[];
+	systemConfig: any;
 }
 
 const AppList: FC<AppListProps> = props => {
-	const { loading, installedApps, allApps, userId } = props
+	const { loading, installedApps, allApps, userId, systemConfig } = props
 	const [type, setType] = useState<'installed' | 'all'>('installed')
 	const [currentUpgrade, setCurrentUpgrade] = useState('')
 	const appList = useMemo(() => {
@@ -174,27 +175,32 @@ const AppList: FC<AppListProps> = props => {
 					)}
 				</Spin>
 			</div>
-			<div>
-				<p style={{height: 32, fontSize: 16, fontWeight: 'bold'}}>
-					离线更新&nbsp;
-					<Popover
-						content={'不需要能够访问公网环境，拖入应用安装包即可上传进行应用更新'}
-						trigger="hover"
-					>
-						<QuestionCircleOutlined />
-					</Popover>
-				</p>
-			<Dragger 
-				{...uploadProps}
-			>
-				<p className="ant-upload-drag-icon">
-					<InboxOutlined />
-				</p>
-				<p className="ant-upload-text">拖拽 应用安装包 至此</p>
-				<p className="ant-upload-hint">
-				</p>
-			</Dragger>
-			</div>
+			{
+				!systemConfig?.closeOfflineUpdate ? 
+				(
+					<div>
+						<p style={{height: 32, fontSize: 16, fontWeight: 'bold'}}>
+							离线更新&nbsp;
+							<Popover
+								content={'不需要能够访问公网环境，拖入应用安装包即可上传进行应用更新'}
+								trigger="hover"
+							>
+								<QuestionCircleOutlined />
+							</Popover>
+						</p>
+						<Dragger 
+							{...uploadProps}
+						>
+							<p className="ant-upload-drag-icon">
+								<InboxOutlined />
+							</p>
+							<p className="ant-upload-text">拖拽 应用安装包 至此</p>
+							<p className="ant-upload-hint">
+							</p>
+						</Dragger>
+					</div>
+				) : null
+			}
 		</div>
 	)
 }

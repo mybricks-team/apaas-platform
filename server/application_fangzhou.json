@@ -2,7 +2,7 @@
   "installApps": [
     {
       "type": "npm",
-      "path": "@fangzhou/apaas-server-extend@0.0.5"
+      "path": "@fangzhou/apaas-server-extend@0.0.12"
     },
     {
       "type": "npm",

@@ -28,7 +28,7 @@ const AppStore = () => {
 	}, []);
 	
 	return (
-		<AppList installedApps={installedApps} userId={appCtx.user?.id} allApps={allApps} loading={loading}/>
+		<AppList installedApps={installedApps} userId={appCtx.user?.id} allApps={allApps} loading={loading} systemConfig={appCtx.systemConfig} />
 	)
 }
 
