@@ -1,5 +1,6 @@
 import { Logger } from "@mybricks/rocker-commons";
 import * as path from "path";
+const env = require('../../env.js')
 
 export default {
   isDev() {
@@ -18,7 +19,6 @@ export default {
     return process.env.PLATFORM_HOSTNAME === 'FANGZHOU';
   },
   getAppInstallFolder() {
-    const APPS_BASE_FOLDER = process.env.PLATFORM_HOSTNAME === 'FANGZHOU' ? '/kwaishop-fangzhou-apaas-platform-service/apaas/_apps' : path.join(process.cwd(), "../_apps");
-    return APPS_BASE_FOLDER
+    return env.APPS_BASE_FOLDER
   }
 };
