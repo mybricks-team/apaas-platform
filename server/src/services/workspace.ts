@@ -647,8 +647,7 @@ export default class WorkspaceService {
     return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total };
   }
 
-    // TODO: wf确定查询参数，需要哪些条件去查询
-  // 和之前的接口一样，
+  // 和之前的接口参数一样
   @Get('/workspace/save/versionsAndLogs')
   async getSaveVersionsAndLogs(
     @Query() query
@@ -656,19 +655,25 @@ export default class WorkspaceService {
     const { fileId, pageIndex, pageSize } = query;
 
     try {
-      const data = await this.fileContentDao.getContentVersionsAndLog({
+      const data = await this.fileContentDao.getContentVersions({
         fileId,
         limit: Number(pageSize),
         offset: (Number(pageIndex) - 1) * Number(pageSize),
       });
-      // console.log('getSaveVersionsAndLogs', data)
-      // total可以复用
+      const saveFileIds = data.map(item => item.id)
+      const operateLogs = await this.logService.getPageSaveOperateListsByFileIds({ fileIds: saveFileIds})
+
+      let mapFileIdToLog = {};
+       operateLogs.list.forEach(element => {
+        mapFileIdToLog[String(element.relation_token) || ''] = element.log_content
+      });
+
       const total = await this.fileContentDao.getContentVersionsCount({ fileId })
 
-      return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total };
+      return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail, logContent: mapFileIdToLog[String(item.id)] || undefined })), total };
 
     } catch (e) {
-      Logger.info(`[getPageSaveLogList]: 获取内容失败: ${e.message}`)
+      Logger.info(`[getSaveVersionsAndLogs]: 获取保存版本列表失败: ${e.message}`)
       return {
         code: -1,
         msg: e.message || '获取失败'

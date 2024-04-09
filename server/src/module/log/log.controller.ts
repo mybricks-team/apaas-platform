@@ -10,7 +10,6 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import FileContentDao from "../../dao/FileContentDao";
 import LogService from './log.service';
 import { Logger } from '@mybricks/rocker-commons';
 const cp = require('child_process')
@@ -23,10 +22,9 @@ import { readLastNLinesOfFile } from '../../utils/logger';
 @Controller('/paas/api/log')
 export default class LogsController {
   logService: LogService;
-  fileContentDao: FileContentDao;
+
   constructor() {
-    this.logService = new LogService();
-    this.fileContentDao = new FileContentDao();
+    this.logService = new LogService()
   }
 
   @Post('/runtimeLog/search')
@@ -200,32 +198,6 @@ export default class LogsController {
         data: {
           list,
           total
-        }
-      }
-    } catch (e) {
-      Logger.info(`[getChatLogList]: 获取内容失败: ${e.message}`)
-      return {
-        code: -1,
-        msg: e.message || '获取失败'
-      }
-    }
-  }
-
-  @Post('/getPageLogList')
-  async getPageLogList(
-    @Body('pageSize') pageSize: string,
-    @Body('pageNum') pageNum: string,
-    @Body('date') date: string 
-  ) {
-    try {
-      const curPageNum = pageNum ? Number(pageNum) : 1;
-      const curPageSize = pageSize ? Number(pageSize) : 20;
-      const list = await this.logService.getPageSaveOperateLog({ limit: curPageSize, offset: curPageSize * (curPageNum - 1), date })
-      return {
-        code: 1,
-        data: {
-          list,
-          total: list?.total || 0
         }
       }
     } catch (e) {

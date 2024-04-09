@@ -97,6 +97,13 @@ export default class LogService {
       list
     }
   }
+
+  async getPageSaveOperateListsByFileIds(param: { fileIds: number[] }) {
+    const list = await this.userLogDao.queryPageSaveOperateList({ fileIds: param.fileIds, type: USER_LOG_TYPE.PAGE_CHANGE_LOG })
+    return {
+      list
+    }
+  }
   
   async getOperateLog(param: { limit: number, offset: number }) {
     const [total, list] = await Promise.all([

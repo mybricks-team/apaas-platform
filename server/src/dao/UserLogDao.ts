@@ -110,4 +110,8 @@ export default class UserLogDao extends DOBase {
     const res = await this.exe<Array<{ total: number }>>('apaas_user_log:queryTotalOfAll', params);
     return res ? res[0].total : 0;
   }
+
+  async queryPageSaveOperateList(params: { fileIds: number[], type }) {
+    return await this.exe<any[]>('apaas_user_log:queryPageSaveLogsByRelateId', params);
+  }
 }
