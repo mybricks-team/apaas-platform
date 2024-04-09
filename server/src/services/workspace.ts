@@ -315,7 +315,7 @@ export default class WorkspaceService {
       if (content) {
         const contentItem = (await this.fileContentDao.queryLatestByFileId<FileContentDO>(fileId)) as any;
         const nextVersion = contentItem?.version ? getNextVersion(contentItem?.version) : "1.0.0"
-        await this.fileContentDao.create({
+        const id = await this.fileContentDao.create({
           fileId,
           // 兼容某些场景下保存内容被防火墙拦截
           content: isEncode ? decodeURIComponent(Buffer.from(content, 'base64').toString()) : content,
@@ -324,7 +324,9 @@ export default class WorkspaceService {
           creatorId: userId
         });
 
+        // TODO:保存后文件内容id
         data.version = nextVersion
+        data.id = id
       }
 
       return {
@@ -621,8 +623,23 @@ export default class WorkspaceService {
     }
   }
 
+  // TODO: 接口变不变
   @Get("/workspace/save/versions")
   async getSaveVersions(@Query() query) {
+    const { fileId, pageIndex, pageSize } = query;
+    const data = await this.fileContentDao.getContentVersions({
+      fileId,
+      limit: Number(pageSize),
+      offset: (Number(pageIndex) - 1) * Number(pageSize),
+    });
+    const total = await this.fileContentDao.getContentVersionsCount({fileId})
+
+    return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total };
+  }
+
+  // TODO：wf新的查询保存记录列表放这里还是log里面
+  @Get("/workspace/save/versionsAndOperations")
+  async getSaveVersionsIncludeOperations(@Query() query) {
     const { fileId, pageIndex, pageSize } = query;
     const data = await this.fileContentDao.getContentVersions({
       fileId,

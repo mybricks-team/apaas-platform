@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
+import FileContentDao from "../../dao/FileContentDao";
 import LogService from './log.service';
 import { Logger } from '@mybricks/rocker-commons';
 const cp = require('child_process')
@@ -22,7 +23,7 @@ import { readLastNLinesOfFile } from '../../utils/logger';
 @Controller('/paas/api/log')
 export default class LogsController {
   logService: LogService;
-
+  fileContentDao: FileContentDao;
   constructor() {
     this.logService = new LogService()
   }
@@ -207,5 +208,78 @@ export default class LogsController {
         msg: e.message || '获取失败'
       }
     }
+  }
+
+   @Post('/pageLog/savePageOperateLog')
+   async savePageOperateLog(
+     @Body() body
+   ) {
+    const { content, userId,  relation_token } = body;
+    if (!content || !userId || !relation_token) {
+      return {
+        code: -1,
+        message: "error",
+      };
+    }
+     try {
+      await this.logService.savePageOperateLog({ content, userId, relation_token })
+      return {
+        code: 1,
+        msg: '插入成功'
+      }
+     } catch(e) {
+       Logger.info(`[savePageOperateLog]: 日志分析失败: ${e.message}`)
+       return {
+         code: -1,
+         msg: e.message || '分析失败'
+       }
+     }
+   }
+
+  // TODO: wf确定查询参数，需要哪些条件去查询
+  // 和之前的接口一样，
+  @Post('/pageLog/getPageSaveLogList')
+  async getPageLogList(
+    @Body() body
+  ) {
+    try {
+
+      return {
+        code: 1,
+        data: {
+          list: [],
+          total: 0
+        }
+      }
+    } catch(e) {
+      Logger.info(`[getPageSaveLogList]: 获取内容失败: ${e.message}`)
+      return {
+        code: -1,
+        msg: e.message || '获取失败'
+      }
+    }
+  }
+
+  // TODO:查询单个版本的操作记录
+  @Get("/pageLog/save/version/operations")
+  async getSaveVersionOperations(@Query() query) {
+    const { id, } = query;
+    const data = await this.fileContentDao.queryById({
+      id,
+    });
+
+    let content = null;
+    if (Array.isArray(data)) {
+      content = data[0].content;
+    }
+
+    let operationList = [];
+    try {
+      operationList = JSON.parse(content).operationList
+    } catch {
+      return { code: -1, msg: '未查询到保存版本的信息' };
+    }
+
+    return { code: 1, data: operationList };
   }
 }

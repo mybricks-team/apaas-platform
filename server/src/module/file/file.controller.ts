@@ -319,6 +319,7 @@ export default class FileController {
       }
     }
 
+    // TODO:getContentVersions 替换为新接口后是否下掉
     const [file, versions] = await Promise.all([
       await this.fileDao.queryById(fileId),
       await this.fileContentDao.getContentVersions({

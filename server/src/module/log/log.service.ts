@@ -76,6 +76,16 @@ export default class LogService {
     }
   }
 
+  async savePageOperateLog(param: { content: string, userId: string, relation_token: number }) {
+    const res = this.userLogDao.insertLog({ 
+      type: USER_LOG_TYPE.PAGE_CHANGE_LOG as number,
+      logContent: param.content,
+      userId: param.userId || '0',
+      relation_token: param.relation_token
+     })
+     return res
+  }
+
   async getOperateLog(param: { limit: number, offset: number }) {
     const [total, list] = await Promise.all([
       this.userLogDao.queryTotalOfAll({ type: [USER_LOG_TYPE.APPS_INSTALL_LOG, USER_LOG_TYPE.PLATOFRM_INSTALL_LOG, USER_LOG_TYPE.APPS_UNINSTALL_LOG] }),
