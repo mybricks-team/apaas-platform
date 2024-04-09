@@ -328,9 +328,7 @@ export default class WorkspaceService {
         });
 
         data.version = nextVersion
-        data.id = createRes.id
         if(operationList) {
-
           try {
            await this.logService.savePageOperateLog({ userId, content: operationList, relation_token: createRes.id })
           } catch (e) {
