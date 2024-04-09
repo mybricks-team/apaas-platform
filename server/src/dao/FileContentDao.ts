@@ -154,6 +154,15 @@ export default class FileContentDao extends DOBase {
 	  return await this.exe<FileContentDO[]>('apaas_file_content:getContentVersions', params) as any;
   }
 
+  @Mapping(FileContentDO)
+  public async getContentVersionsAndLog(params: {
+    fileId: number;
+	  limit: number;
+	  offset: number;
+  }): Promise<FileContentDO[]> {
+	  return await this.exe<FileContentDO[]>('apaas_file_content:getContentVersionsAndLog', params) as any;
+  }
+
   public async getContentVersionsCount(params: {
     fileId: number;
   }): Promise<number> {

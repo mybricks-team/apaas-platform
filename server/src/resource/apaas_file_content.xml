@@ -184,6 +184,26 @@
       limit #{limit} offset #{offset};
   </select>
 
+  <select id="getContentVersionsAndLog">
+    SELECT
+      apaas_file_content.id,
+      apaas_file_content.file_id,
+      apaas_file_content.creator_id,
+      apaas_file_content.create_time,
+      apaas_file_content.update_time,
+      apaas_user.name as creator_name,
+      apaas_user.email as creator_email,
+      apaas_file_content.version,
+      apaas_user_log.log_content
+    FROM apaas_file_content
+    JOIN apaas_user ON apaas_file_content.creator_id = apaas_user.id
+    LEFT JOIN apaas_user_log ON apaas_file_content.id = apaas_user_log.relation_token
+    WHERE
+        file_id = #{fileId}
+    ORDER BY update_time DESC
+    LIMIT #{limit} OFFSET #{offset};
+  </select>
+
   <select id="getContentVersionsCount">
       select
       count(*) as total

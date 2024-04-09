@@ -72,7 +72,8 @@
         user_id,
         user_email,
         log_content,
-        create_time
+        create_time,
+        relation_token
         )
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             #{id},
@@ -80,7 +81,8 @@
             #{userId},
             #{userEmail},
             #{logContent},
-            #{createTime}
+            #{createTime},
+            #{relation_token}
         </trim>
     </insert>
 </mapper>

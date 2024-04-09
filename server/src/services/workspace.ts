@@ -15,6 +15,7 @@ import UploadService from '../module/upload/upload.service';
 import UserService from '../module/user/user.service';
 import { getAdminInfoByProjectId } from '../utils/index'
 import { Logger } from '@mybricks/rocker-commons';
+import LogService from "../module/log/log.service";
 
 const fs = require('fs');
 const path = require('path');
@@ -30,6 +31,7 @@ export default class WorkspaceService {
   filePubDao: FilePubDao;
   fileService: FileService;
   userService: UserService;
+  logService: LogService
   userDao: UserDao;
   userGroupDao: UserGroupDao;
   uploadService: UploadService;
@@ -41,6 +43,7 @@ export default class WorkspaceService {
     this.configDao = new ConfigDao();
     this.fileService = new FileService();
     this.userService = new UserService();
+    this.logService = new LogService()
     this.userDao = new UserDao();
     this.userGroupDao = new UserGroupDao();
     this.uploadService = new UploadService()
@@ -243,7 +246,7 @@ export default class WorkspaceService {
   @Post("/workspace/saveFile")
   async updateFile(@Body() body) {
     try {
-      let { userId: originUserId, fileId, shareType, name, content, icon, namespace, type, isEncode } = body;
+      let { userId: originUserId, fileId, shareType, name, content, operationList, icon, namespace, type, isEncode } = body;
       const userId = await this.userService.getCurrentUserId(originUserId);
 
       if (!userId) {
@@ -315,7 +318,7 @@ export default class WorkspaceService {
       if (content) {
         const contentItem = (await this.fileContentDao.queryLatestByFileId<FileContentDO>(fileId)) as any;
         const nextVersion = contentItem?.version ? getNextVersion(contentItem?.version) : "1.0.0"
-        const id = await this.fileContentDao.create({
+        const createRes = await this.fileContentDao.create({
           fileId,
           // 兼容某些场景下保存内容被防火墙拦截
           content: isEncode ? decodeURIComponent(Buffer.from(content, 'base64').toString()) : content,
@@ -324,9 +327,16 @@ export default class WorkspaceService {
           creatorId: userId
         });
 
-        // TODO:保存后文件内容id
         data.version = nextVersion
-        data.id = id
+        data.id = createRes.id
+        if(operationList) {
+
+          try {
+           await this.logService.savePageOperateLog({ userId, content: operationList, relation_token: createRes.id })
+          } catch (e) {
+            Logger.info(`[savePageOperateLog]: 保存页面日志失败: ${e.message}`)
+          }
+        }
       }
 
       return {
@@ -623,7 +633,7 @@ export default class WorkspaceService {
     }
   }
 
-  // TODO: 接口变不变
+  // TODO: 接口变不变,wf新的查询保存记录列表放这里还是log里面
   @Get("/workspace/save/versions")
   async getSaveVersions(@Query() query) {
     const { fileId, pageIndex, pageSize } = query;
@@ -637,19 +647,35 @@ export default class WorkspaceService {
     return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total };
   }
 
-  // TODO：wf新的查询保存记录列表放这里还是log里面
-  @Get("/workspace/save/versionsAndOperations")
-  async getSaveVersionsIncludeOperations(@Query() query) {
+    // TODO: wf确定查询参数，需要哪些条件去查询
+  // 和之前的接口一样，
+  @Get('/workspace/save/versionsAndLogs')
+  async getSaveVersionsAndLogs(
+    @Query() query
+  ) {
     const { fileId, pageIndex, pageSize } = query;
-    const data = await this.fileContentDao.getContentVersions({
-      fileId,
-      limit: Number(pageSize),
-      offset: (Number(pageIndex) - 1) * Number(pageSize),
-    });
-    const total = await this.fileContentDao.getContentVersionsCount({fileId})
 
-    return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total };
+    try {
+      const data = await this.fileContentDao.getContentVersionsAndLog({
+        fileId,
+        limit: Number(pageSize),
+        offset: (Number(pageIndex) - 1) * Number(pageSize),
+      });
+      // console.log('getSaveVersionsAndLogs', data)
+      // total可以复用
+      const total = await this.fileContentDao.getContentVersionsCount({ fileId })
+
+      return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total };
+
+    } catch (e) {
+      Logger.info(`[getPageSaveLogList]: 获取内容失败: ${e.message}`)
+      return {
+        code: -1,
+        msg: e.message || '获取失败'
+      }
+    }
   }
+
 
   @Get("/workspace/save/version/operations")
   async getSaveVersionOperations(@Query() query) {

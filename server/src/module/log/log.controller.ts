@@ -25,7 +25,8 @@ export default class LogsController {
   logService: LogService;
   fileContentDao: FileContentDao;
   constructor() {
-    this.logService = new LogService()
+    this.logService = new LogService();
+    this.fileContentDao = new FileContentDao();
   }
 
   @Post('/runtimeLog/search')
@@ -80,19 +81,19 @@ export default class LogsController {
   @Post('/runtimeLog/monitor/interfacePerformanceList')
   interfacePerformanceList() {
     try {
-    if(fs.existsSync(env.FILE_ANALYSIS_PERFORMANCE_FOLDER) === false) {
-      return {
-        code: -1,
-        msg: '数据生产中（T+1生效）'
+      if (fs.existsSync(env.FILE_ANALYSIS_PERFORMANCE_FOLDER) === false) {
+        return {
+          code: -1,
+          msg: '数据生产中（T+1生效）'
+        }
       }
-    }
-    const list = fs.readdirSync(env.FILE_ANALYSIS_PERFORMANCE_FOLDER)
-    const data = [];
-    list.forEach((item) => {
-      if(item?.indexOf('.json') !== -1) {
-        data.push(item.replace('.json', ''))
-      }
-    })
+      const list = fs.readdirSync(env.FILE_ANALYSIS_PERFORMANCE_FOLDER)
+      const data = [];
+      list.forEach((item) => {
+        if (item?.indexOf('.json') !== -1) {
+          data.push(item.replace('.json', ''))
+        }
+      })
 
       return {
         code: 1,
@@ -115,15 +116,15 @@ export default class LogsController {
       const data = JSON.parse(fileData);
       let averageCost = 0;
       const map = {}
-      for(let api of data) {
-        if(!map[api.url]) {
+      for (let api of data) {
+        if (!map[api.url]) {
           map[api.url] = api.cost
         } else {
           map[api.url] = (map[api.url] + api.cost) * 0.5
         }
         averageCost += api.cost
       }
-      if(data.length > 0) {
+      if (data.length > 0) {
         averageCost = averageCost / data.length
       }
       return {
@@ -154,7 +155,7 @@ export default class LogsController {
         code: 1,
         msg: '分析成功'
       }
-    } catch(e) {
+    } catch (e) {
       Logger.info(`[analyzeLogTask]: 日志分析失败: ${e.message}`)
       return {
         code: -1,
@@ -165,7 +166,7 @@ export default class LogsController {
 
   @Post('/ai/chatToPage')
   async chatToPage(
-    @Body('content') content: string, 
+    @Body('content') content: string,
     @Body('userId') userId: string
   ) {
     try {
@@ -174,7 +175,7 @@ export default class LogsController {
         code: 1,
         msg: '插入成功'
       }
-    } catch(e) {
+    } catch (e) {
       Logger.info(`[chatToPage]: 日志分析失败: ${e.message}`)
       return {
         code: -1,
@@ -185,7 +186,7 @@ export default class LogsController {
 
   @Post('/ai/getChatLogList')
   async getChatLogList(
-    @Body('pageSize') pageSize: string, 
+    @Body('pageSize') pageSize: string,
     @Body('pageNum') pageNum: string,
     @Body('date') date: string // wg: 2023-01-01
   ) {
@@ -201,7 +202,7 @@ export default class LogsController {
           total
         }
       }
-    } catch(e) {
+    } catch (e) {
       Logger.info(`[getChatLogList]: 获取内容失败: ${e.message}`)
       return {
         code: -1,
@@ -210,76 +211,29 @@ export default class LogsController {
     }
   }
 
-   @Post('/pageLog/savePageOperateLog')
-   async savePageOperateLog(
-     @Body() body
-   ) {
-    const { content, userId,  relation_token } = body;
-    if (!content || !userId || !relation_token) {
-      return {
-        code: -1,
-        message: "error",
-      };
-    }
-     try {
-      await this.logService.savePageOperateLog({ content, userId, relation_token })
-      return {
-        code: 1,
-        msg: '插入成功'
-      }
-     } catch(e) {
-       Logger.info(`[savePageOperateLog]: 日志分析失败: ${e.message}`)
-       return {
-         code: -1,
-         msg: e.message || '分析失败'
-       }
-     }
-   }
-
-  // TODO: wf确定查询参数，需要哪些条件去查询
-  // 和之前的接口一样，
-  @Post('/pageLog/getPageSaveLogList')
+  @Post('/getPageLogList')
   async getPageLogList(
-    @Body() body
+    @Body('pageSize') pageSize: string,
+    @Body('pageNum') pageNum: string,
+    @Body('date') date: string 
   ) {
     try {
-
+      const curPageNum = pageNum ? Number(pageNum) : 1;
+      const curPageSize = pageSize ? Number(pageSize) : 20;
+      const list = await this.logService.getPageSaveOperateLog({ limit: curPageSize, offset: curPageSize * (curPageNum - 1), date })
       return {
         code: 1,
         data: {
-          list: [],
-          total: 0
+          list,
+          total: list?.total || 0
         }
       }
-    } catch(e) {
-      Logger.info(`[getPageSaveLogList]: 获取内容失败: ${e.message}`)
+    } catch (e) {
+      Logger.info(`[getChatLogList]: 获取内容失败: ${e.message}`)
       return {
         code: -1,
         msg: e.message || '获取失败'
       }
     }
-  }
-
-  // TODO:查询单个版本的操作记录
-  @Get("/pageLog/save/version/operations")
-  async getSaveVersionOperations(@Query() query) {
-    const { id, } = query;
-    const data = await this.fileContentDao.queryById({
-      id,
-    });
-
-    let content = null;
-    if (Array.isArray(data)) {
-      content = data[0].content;
-    }
-
-    let operationList = [];
-    try {
-      operationList = JSON.parse(content).operationList
-    } catch {
-      return { code: -1, msg: '未查询到保存版本的信息' };
-    }
-
-    return { code: 1, data: operationList };
   }
 }
