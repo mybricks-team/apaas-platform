@@ -631,7 +631,6 @@ export default class WorkspaceService {
     }
   }
 
-  // TODO: 接口变不变,wf新的查询保存记录列表放这里还是log里面
   @Get("/workspace/save/versions")
   async getSaveVersions(@Query() query) {
     const { fileId, pageIndex, pageSize } = query;

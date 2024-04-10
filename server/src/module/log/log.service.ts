@@ -77,7 +77,6 @@ export default class LogService {
   }
 
   async savePageOperateLog(param: { content: string, userId: string, relation_token: number }) {
-    // TODO:wf console.log('savePageOperateLog', param)
     const res = this.userLogDao.insertLog({ 
       type: USER_LOG_TYPE.PAGE_CHANGE_LOG as number,
       logContent: param.content,
@@ -85,17 +84,6 @@ export default class LogService {
       relation_token: param.relation_token
      })
      return res
-  }
-
-  async getPageSaveOperateLog(param: { limit: number, offset: number }) {
-    const [total, list] = await Promise.all([
-      this.userLogDao.queryTotalOfAll({ type: [USER_LOG_TYPE.PAGE_CHANGE_LOG] }),
-      this.userLogDao.queryDetailOfAll({...param, type: [USER_LOG_TYPE.PAGE_CHANGE_LOG]})
-    ]);
-    return {
-      total,
-      list
-    }
   }
 
   async getPageSaveOperateListsByFileIds(param: { fileIds: number[] }) {
