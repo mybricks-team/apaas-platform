@@ -67,7 +67,7 @@ export const USER_LOG_TYPE = {
   APPS_UNINSTALL_LOG: 30, // 应用卸载日志
   PLATOFRM_INSTALL_LOG: 10, // 平台安装日志
   AI_CHATTOPAGE_LOG: 20, // AI生成页面日志
-  PAGE_CHANGE_LOG: 16, // 页面保存日志
+  PAGE_CHANGE_LOG: 40, // 页面保存日志
 }
 
 export const TIMEOUT_TIME = 60 * 1000;

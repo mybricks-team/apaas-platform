@@ -76,12 +76,12 @@ export default class LogService {
     }
   }
 
-  async savePageOperateLog(param: { content: string, userId: string, relation_token: number }) {
+  async savePageOperateLog(param: { content: string, userId: string, relationToken: number }) {
     const res = this.userLogDao.insertLog({ 
       type: USER_LOG_TYPE.PAGE_CHANGE_LOG as number,
       logContent: param.content,
       userId: param.userId || '0',
-      relation_token: param.relation_token
+      relationToken: param.relationToken
      })
      return res
   }

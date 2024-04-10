@@ -330,7 +330,7 @@ export default class WorkspaceService {
         data.version = nextVersion
         if(operationList) {
           try {
-           await this.logService.savePageOperateLog({ userId, content: operationList, relation_token: createRes.id })
+           await this.logService.savePageOperateLog({ userId, content: operationList, relationToken: createRes.id })
           } catch (e) {
             Logger.info(`[savePageOperateLog]: 保存页面日志失败: ${e.message}`)
           }
@@ -658,12 +658,13 @@ export default class WorkspaceService {
         offset: (Number(pageIndex) - 1) * Number(pageSize),
       });
       const saveFileIds = data.map(item => item.id)
-      const operateLogs = await this.logService.getPageSaveOperateListsByFileIds({ fileIds: saveFileIds})
-
       let mapFileIdToLog = {};
-       operateLogs.list.forEach(element => {
-        mapFileIdToLog[String(element.relation_token) || ''] = element.log_content
-      });
+      if(saveFileIds.length > 0) {
+        const operateLogs = await this.logService.getPageSaveOperateListsByFileIds({ fileIds: saveFileIds})
+         operateLogs.list.forEach(element => {
+          mapFileIdToLog[String(element.relation_token) || ''] = element.log_content
+        });
+      }
 
       const total = await this.fileContentDao.getContentVersionsCount({ fileId })
 

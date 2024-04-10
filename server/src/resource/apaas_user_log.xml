@@ -93,7 +93,7 @@
             #{userEmail},
             #{logContent},
             #{createTime},
-            #{relation_token}
+            #{relationToken}
         </trim>
     </insert>
 </mapper>
