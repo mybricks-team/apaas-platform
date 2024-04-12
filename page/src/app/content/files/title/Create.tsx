@@ -17,7 +17,7 @@ import AppCtx, { T_App } from '../../../AppCtx'
 import { getApiUrl, getUrlQuery } from '../../../../utils'
 
 import css from './Create.less'
-import TemplateChooseModal from './PageChooseModal'
+import TemplateChooseModal from './templateChooseModal'
 import PageChooseModal from './PageChooseModal'
 
 let chooseApp = null
