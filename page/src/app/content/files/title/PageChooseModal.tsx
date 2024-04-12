@@ -35,10 +35,11 @@ const PageChooseModal = props => {
         title="模板页面选择"
         destroyOnClose
         width={942}
-        onOk={onOk}
-        onCancel={onCancel}
-        cancelText="取消"
-        okText="选择空模板"
+        footer={[
+          <Button key="cancel" onClick={onCancel}>
+            取消
+          </Button>
+        ]}
       >
         {/* display: 'flex', flexFlow: 'wrap' */}
         <div style={{ maxHeight: 716, overflow: 'auto' }}>
