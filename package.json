@@ -35,9 +35,7 @@
   },
   "author": "MyBricks Team",
   "license": "ISC",
-  "dependencies": {
-    "javascript-obfuscator": "^4.1.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "axios": "^1.4.0",
     "jszip": "^3.10.1"
