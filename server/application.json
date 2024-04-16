@@ -46,9 +46,9 @@
     },
     {
       "namespace": "mybricks-app-pcspa",
-      "version": "1.2.74",
+      "version": "1.3.17",
       "type": "oss",
-      "path": "asset-center/asset/app/mybricks-app-pcspa/1.2.75/mybricks-app-pcspa.zip"
+      "path": "asset-center/asset/app/mybricks-app-pcspa/1.3.17/mybricks-app-pcspa.zip"
     }
   ],
   "platformVersion": "0.0.71"

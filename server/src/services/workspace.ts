@@ -15,6 +15,7 @@ import UploadService from '../module/upload/upload.service';
 import UserService from '../module/user/user.service';
 import { getAdminInfoByProjectId } from '../utils/index'
 import { Logger } from '@mybricks/rocker-commons';
+import LogService from "../module/log/log.service";
 
 const fs = require('fs');
 const path = require('path');
@@ -30,6 +31,7 @@ export default class WorkspaceService {
   filePubDao: FilePubDao;
   fileService: FileService;
   userService: UserService;
+  logService: LogService
   userDao: UserDao;
   userGroupDao: UserGroupDao;
   uploadService: UploadService;
@@ -41,6 +43,7 @@ export default class WorkspaceService {
     this.configDao = new ConfigDao();
     this.fileService = new FileService();
     this.userService = new UserService();
+    this.logService = new LogService()
     this.userDao = new UserDao();
     this.userGroupDao = new UserGroupDao();
     this.uploadService = new UploadService()
@@ -243,7 +246,7 @@ export default class WorkspaceService {
   @Post("/workspace/saveFile")
   async updateFile(@Body() body) {
     try {
-      let { userId: originUserId, fileId, shareType, name, content, icon, namespace, type, isEncode } = body;
+      let { userId: originUserId, fileId, shareType, name, content, operationList, icon, namespace, type, isEncode } = body;
       const userId = await this.userService.getCurrentUserId(originUserId);
 
       if (!userId) {
@@ -315,7 +318,7 @@ export default class WorkspaceService {
       if (content) {
         const contentItem = (await this.fileContentDao.queryLatestByFileId<FileContentDO>(fileId)) as any;
         const nextVersion = contentItem?.version ? getNextVersion(contentItem?.version) : "1.0.0"
-        await this.fileContentDao.create({
+        const createRes = await this.fileContentDao.create({
           fileId,
           // 兼容某些场景下保存内容被防火墙拦截
           content: isEncode ? decodeURIComponent(Buffer.from(content, 'base64').toString()) : content,
@@ -325,6 +328,13 @@ export default class WorkspaceService {
         });
 
         data.version = nextVersion
+        if(operationList) {
+          try {
+           await this.logService.savePageOperateLog({ userId, content: operationList, relationToken: createRes.id })
+          } catch (e) {
+            Logger.info(`[savePageOperateLog]: 保存页面日志失败: ${e.message}`)
+          }
+        }
       }
 
       return {
@@ -633,6 +643,42 @@ export default class WorkspaceService {
 
     return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail })), total };
   }
+
+  // 和之前的接口参数一样
+  @Get('/workspace/save/versionsAndLogs')
+  async getSaveVersionsAndLogs(
+    @Query() query
+  ) {
+    const { fileId, pageIndex, pageSize } = query;
+
+    try {
+      const data = await this.fileContentDao.getContentVersions({
+        fileId,
+        limit: Number(pageSize),
+        offset: (Number(pageIndex) - 1) * Number(pageSize),
+      });
+      const saveFileIds = data.map(item => item.id)
+      let mapFileIdToLog = {};
+      if(saveFileIds.length > 0) {
+        const operateLogs = await this.logService.getPageSaveOperateListsByFileIds({ fileIds: saveFileIds})
+         operateLogs.list.forEach(element => {
+          mapFileIdToLog[String(element.relation_token) || ''] = element.log_content
+        });
+      }
+
+      const total = await this.fileContentDao.getContentVersionsCount({ fileId })
+
+      return { code: 1, data: data.map(item => ({ ...item, creatorName: item.creatorName || item.creatorEmail, logContent: mapFileIdToLog[String(item.id)] || undefined })), total };
+
+    } catch (e) {
+      Logger.info(`[getSaveVersionsAndLogs]: 获取保存版本列表失败: ${e.message}`)
+      return {
+        code: -1,
+        msg: e.message || '获取失败'
+      }
+    }
+  }
+
 
   @Get("/workspace/save/version/operations")
   async getSaveVersionOperations(@Query() query) {

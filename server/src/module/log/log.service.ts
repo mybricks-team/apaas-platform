@@ -76,6 +76,23 @@ export default class LogService {
     }
   }
 
+  async savePageOperateLog(param: { content: string, userId: string, relationToken: number }) {
+    const res = this.userLogDao.insertLog({ 
+      type: USER_LOG_TYPE.PAGE_CHANGE_LOG as number,
+      logContent: param.content,
+      userId: param.userId || '0',
+      relationToken: param.relationToken
+     })
+     return res
+  }
+
+  async getPageSaveOperateListsByFileIds(param: { fileIds: number[] }) {
+    const list = await this.userLogDao.queryPageSaveOperateList({ fileIds: param.fileIds, type: USER_LOG_TYPE.PAGE_CHANGE_LOG })
+    return {
+      list
+    }
+  }
+  
   async getOperateLog(param: { limit: number, offset: number }) {
     const [total, list] = await Promise.all([
       this.userLogDao.queryTotalOfAll({ type: [USER_LOG_TYPE.APPS_INSTALL_LOG, USER_LOG_TYPE.PLATOFRM_INSTALL_LOG, USER_LOG_TYPE.APPS_UNINSTALL_LOG] }),

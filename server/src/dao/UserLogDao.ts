@@ -56,11 +56,12 @@ export default class UserLogDao extends DOBase {
     return result.insertId
   }
 
-  public async insertLog(params: { type: number, logContent: string; userEmail?: string; userId?: string }): Promise<number> {
+  public async insertLog(params: { type: number, logContent: string; userEmail?: string; userId?: string, relationToken?: number }): Promise<number> {
     const result = await this.exe<any>('apaas_user_log:insert', {
         ...params,
         userId: String(params.userId || ''),
         userEmail: params.userEmail || '',
+        relationToken: params.relationToken || null,
         id: genMainIndexOfDB(),
         createTime: Date.now()
       }
@@ -108,5 +109,9 @@ export default class UserLogDao extends DOBase {
   async queryTotalOfAll(params: { type: number[] }) {
     const res = await this.exe<Array<{ total: number }>>('apaas_user_log:queryTotalOfAll', params);
     return res ? res[0].total : 0;
+  }
+
+  async queryPageSaveOperateList(params: { fileIds: number[], type }) {
+    return await this.exe<any[]>('apaas_user_log:queryPageSaveLogsByRelateId', params);
   }
 }
