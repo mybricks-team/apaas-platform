@@ -1,20 +1,16 @@
-import React, {
-  useRef,
-  useMemo,
-  useState,
-  useEffect,
-  useCallback
-} from 'react'
+import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 
 import axios from 'axios'
 import { observe } from '@mybricks/rxui'
 import { message, Modal, Form, Input, Radio, Select } from 'antd'
+import { ExclamationCircleOutlined } from '@ant-design/icons'
 
 import { Icon } from '../../../components'
 import Ctx, { folderExtnames } from '../Ctx'
 import { useDebounceFn } from '../../../hooks'
 import AppCtx, { T_App } from '../../../AppCtx'
 import { getApiUrl, getUrlQuery } from '../../../../utils'
+import { getdir } from '../../../../utils/fileSystemHandle'
 
 import css from './Create.less'
 import TemplateChooseModal from './templateChooseModal'
@@ -22,29 +18,40 @@ import PageChooseModal from './PageChooseModal'
 
 let chooseApp = null
 let chooseTemplate = null
+
+const { confirm } = Modal
+
 /** 创建项目 */
 export function Create(): JSX.Element {
   const ctx = observe(Ctx, { from: 'parents' })
   const appCtx = observe(AppCtx, { from: 'parents' })
   const [createApp, setCreateApp] = useState(null)
-  const [chooseTemplateModalVisible, setChooseTemplateModalVisible] = useState(false)
+  const [chooseTemplateModalVisible, setChooseTemplateModalVisible] =
+    useState(false)
   const [pageChooseModalVisible, setPageChooseModalVisible] = useState(false)
   const [targetPageId, setTargetPageId] = useState(0) // pc模板要操作的目标页面
+
+  const dirHandle = useRef(null) // 获取文件夹句柄
 
   /** 点击新建 */
   const newProject: (app: any) => void = useCallback(async (app: T_App) => {
     console.log(`创建app:`, app)
-    const currentUserSystemConfig = appCtx.getCurrentUserSystemConfig();
+    console.log(dirHandle.current)
+
+    const currentUserSystemConfig = appCtx.getCurrentUserSystemConfig()
     // @ts-ignore
     if (currentUserSystemConfig?.createFileCount) {
       // @ts-ignore
-      const appMaxCreateFleCount = currentUserSystemConfig?.createFileCount?.[app.extName];
+      const appMaxCreateFleCount =
+        currentUserSystemConfig?.createFileCount?.[app.extName]
       if (appMaxCreateFleCount) {
-        const rtn = (await axios({
-          method: 'post',
-          url: getApiUrl('/paas/api/file/getCountOfUserAndExt'),
-          data: { userId: appCtx.user.id, extName: app.extName }
-        })).data;
+        const rtn = (
+          await axios({
+            method: 'post',
+            url: getApiUrl('/paas/api/file/getCountOfUserAndExt'),
+            data: { userId: appCtx.user.id, extName: app.extName },
+          })
+        ).data
         if (rtn.code === 1) {
           if (appMaxCreateFleCount <= rtn.data) {
             message.error('当前账号此类型文件数量已达上限，禁止新建')
@@ -54,27 +61,52 @@ export function Create(): JSX.Element {
       }
     }
     // 开启了基于模板新建
-    if (appCtx?.systemConfig?.createBasedOnTemplate && appCtx?.systemConfig?.createBasedOnTemplate?.indexOf(app.namespace) !== -1) {
+    if (
+      appCtx?.systemConfig?.createBasedOnTemplate &&
+      appCtx?.systemConfig?.createBasedOnTemplate?.indexOf(app.namespace) !== -1
+    ) {
       // 基于模板新建
       setChooseTemplateModalVisible(true)
       chooseApp = app
     } else if (app.namespace === 'mybricks-app-pc-template') {
       setPageChooseModalVisible(true)
       chooseApp = app
+    } else if (app.namespace === 'mybricks-app-pc-comgen') {
+      // 本地出码走选择本地目录模式
+      try {
+        if (dirHandle.current) {
+          setCreateApp(app)
+        } else {
+          confirm({
+            title: '请选择一个文件夹作为工作目录',
+            icon: <ExclamationCircleOutlined />,
+            async onOk() {
+              try {
+                const b = await getdir()
+                dirHandle.current = b
+                console.log(dirHandle.current)
+                setCreateApp(app)
+              } catch (e) {
+                console.log(e)
+              }
+            },
+            onCancel() {
+              console.log('Cancel')
+            },
+          })
+        }
+      } catch (e) {
+        console.log(e)
+      }
     } else {
       // 直接新建
       setCreateApp(app)
     }
-
-  }, []);
+  }, [])
 
   const FolderList: JSX.Element = useMemo(() => {
-    return designAPPSFilter(appCtx.FolderAPPS, ctx.path).map(app => {
-      const {
-        icon,
-        title,
-        description
-      } = app;
+    return designAPPSFilter(appCtx.FolderAPPS, ctx.path).map((app) => {
+      const { icon, title, description } = app
       return (
         <div
           key={app.type}
@@ -92,22 +124,16 @@ export function Create(): JSX.Element {
             <label>{title}</label>
             <p>{description}</p>
           </div>
-          <div className={css.snap}>
-
-          </div>
+          <div className={css.snap}></div>
         </div>
-      );
+      )
     })
   }, [ctx.path])
 
   /** 搭建应用列表 */
   const AppList: JSX.Element[] = useMemo(() => {
-    return appCtx.DesignAPPS.map(app => {
-      const {
-        icon,
-        title,
-        description
-      } = app;
+    return appCtx.DesignAPPS.map((app) => {
+      const { icon, title, description } = app
       return (
         <div
           key={app.type}
@@ -125,115 +151,134 @@ export function Create(): JSX.Element {
             <label>{title}</label>
             <p>{description}</p>
           </div>
-          <div className={css.snap}>
-
-          </div>
+          <div className={css.snap}></div>
         </div>
-      );
+      )
     })
-  }, []);
+  }, [])
 
-  const modalOk = useCallback((values, app) => {
-    return new Promise(async (resolve, reject) => {
-      const item = ctx.path[ctx.path.length - 1];
-      const isGroup = !!!item.extName && !!item.id
-      const { fileName, componentType } = values
-      const { extName, isSystem } = app
-      const params: any = {
-        extName,
-        userId: appCtx.user.id,
-        userName: appCtx.user.name || appCtx.user.email,
-      }
-
-      if (isGroup) {
-        params.groupId = item.id
-      } else {
-        params.parentId = item.id
-        params.groupId = item.groupId
-      }
-
-      // const check = await axios({
-      //   method: 'get',
-      //   url: getApiUrl('/paas/api/file/checkFileCanCreate'),
-      //   params: {
-      //     ...params,
-      //     fileName,
-      //     isCreate: true
-      //   }
-      // })
-      // 暂时放开同名文件检测
-      const check = { data: { data: { next: true } } }
-
-      if (check.data?.data?.next) {
-        if (isSystem) {
-          params.type = 'system'
+  const modalOk = useCallback(
+    (values, app) => {
+      return new Promise(async (resolve, reject) => {
+        const item = ctx.path[ctx.path.length - 1]
+        const isGroup = !!!item.extName && !!item.id
+        const { fileName, componentType } = values
+        const { extName, isSystem } = app
+        const params: any = {
+          extName,
+          userId: appCtx.user.id,
+          userName: appCtx.user.name || appCtx.user.email,
         }
 
-        if (chooseTemplate) {
-          axios({
-            method: 'post',
-            url: getApiUrl('/paas/api/file/createFileBaseTemplate'),
-            data: { ...params, name: fileName, templateId: chooseTemplate.fileId, dumpJSON: chooseTemplate.dumpJSON }
-          }).then(async ({ data }) => {
-            if (data.code === 1) {
-              const appReg = appCtx.APPSMap[extName]
-              const { homepage } = appReg
-
-              ctx.getAll(getUrlQuery())
-
-              if (typeof homepage === 'string') {
-                setTimeout(() => {
-                  window.open(`${homepage}?id=${data.data.id}`);
-                }, 0);
-              }
-
-              if (folderExtnames.includes(extName)) {
-                await appCtx.refreshSidebar()
-              }
-
-              resolve('创建成功！')
-            } else {
-              reject(`创建文件错误：${data.message}`)
-            }
-          })
+        if (isGroup) {
+          params.groupId = item.id
         } else {
-          axios({
-            method: 'post',
-            url: getApiUrl('/paas/api/workspace/createFile'),
-            data: { ...params, name: fileName, componentType }
-          }).then(async ({ data }) => {
-            if (data.code === 1) {
-              const appReg = appCtx.APPSMap[extName]
-              const { homepage } = appReg
-
-              if (typeof homepage === 'string') {
-                const { id: fileId } = data.data
-                if (app.extName === 'pc-template') {
-                  setTimeout(() => {
-                    window.open(`${homepage}?id=${fileId}&targetPageId=${targetPageId}`);
-                  }, 0);
-                } else {
-                  setTimeout(() => {
-                    window.open(`${homepage}?id=${data.data.id}`);
-                  }, 0);
-                }
-              }
-
-              if (folderExtnames.includes(extName)) {
-                await appCtx.refreshSidebar()
-              }
-
-              resolve('创建成功！')
-            } else {
-              reject(`创建文件错误：${data.message}`)
-            }
-          })
+          params.parentId = item.id
+          params.groupId = item.groupId
         }
-      } else {
-        reject(check.data?.data?.message || '相同路径下不允许创建同名文件！')
-      }
-    })
-  }, [targetPageId])
+
+        // const check = await axios({
+        //   method: 'get',
+        //   url: getApiUrl('/paas/api/file/checkFileCanCreate'),
+        //   params: {
+        //     ...params,
+        //     fileName,
+        //     isCreate: true
+        //   }
+        // })
+        // 暂时放开同名文件检测
+        const check = { data: { data: { next: true } } }
+
+        if (check.data?.data?.next) {
+          if (isSystem) {
+            params.type = 'system'
+          }
+
+          if (chooseTemplate) {
+            axios({
+              method: 'post',
+              url: getApiUrl('/paas/api/file/createFileBaseTemplate'),
+              data: {
+                ...params,
+                name: fileName,
+                templateId: chooseTemplate.fileId,
+                dumpJSON: chooseTemplate.dumpJSON,
+              },
+            }).then(async ({ data }) => {
+              if (data.code === 1) {
+                const appReg = appCtx.APPSMap[extName]
+                const { homepage } = appReg
+
+                ctx.getAll(getUrlQuery())
+
+                if (typeof homepage === 'string') {
+                  setTimeout(() => {
+                    window.open(`${homepage}?id=${data.data.id}`)
+                  }, 0)
+                }
+
+                if (folderExtnames.includes(extName)) {
+                  await appCtx.refreshSidebar()
+                }
+
+                resolve('创建成功！')
+              } else {
+                reject(`创建文件错误：${data.message}`)
+              }
+            })
+          } else {
+            axios({
+              method: 'post',
+              url: getApiUrl('/paas/api/workspace/createFile'),
+              data: { ...params, name: fileName, componentType },
+            }).then(async ({ data }) => {
+              if (data.code === 1) {
+                const appReg = appCtx.APPSMap[extName]
+                const { homepage } = appReg
+
+                if (typeof homepage === 'string') {
+                  const { id: fileId } = data.data
+                  if (app.extName === 'pc-comgen') {
+                    // Todo 本地目录重名判断
+                    const subDir = await dirHandle.current.getDirectoryHandle(
+                      fileName,
+                      {
+                        create: true,
+                      }
+                    )
+                    setTimeout(() => {
+                      window.open(`${homepage}?id=${fileId}`)
+                    }, 0)
+                  } else if (app.extName === 'pc-template') {
+                    setTimeout(() => {
+                      window.open(
+                        `${homepage}?id=${fileId}&targetPageId=${targetPageId}`
+                      )
+                    }, 0)
+                  } else {
+                    setTimeout(() => {
+                      window.open(`${homepage}?id=${fileId}`)
+                    }, 0)
+                  }
+                }
+
+                if (folderExtnames.includes(extName)) {
+                  await appCtx.refreshSidebar()
+                }
+
+                resolve('创建成功！')
+              } else {
+                reject(`创建文件错误：${data.message}`)
+              }
+            })
+          }
+        } else {
+          reject(check.data?.data?.message || '相同路径下不允许创建同名文件！')
+        }
+      })
+    },
+    [targetPageId]
+  )
 
   const modalCancel = useCallback(() => {
     setCreateApp(null)
@@ -245,6 +290,7 @@ export function Create(): JSX.Element {
         app={createApp}
         onOk={modalOk}
         onCancel={modalCancel}
+        dirHandle={dirHandle}
       />
     )
   }, [createApp])
@@ -268,7 +314,7 @@ export function Create(): JSX.Element {
             setCreateApp(chooseApp)
           }}
         />
-      );
+      )
     } else {
       return null
     }
@@ -293,48 +339,58 @@ export function Create(): JSX.Element {
             setCreateApp(chooseApp)
           }}
         />
-      );
+      )
     } else {
       return null
     }
   }
 
   return (
-    <div className={css.createContainer} style={{ display: !ctx.popCreate ? 'none' : '' }}>
+    <div
+      className={css.createContainer}
+      style={{ display: !ctx.popCreate ? 'none' : '' }}
+    >
       {RenderCreateAppModal}
       {renderPageChooseModal()}
       {renderTemplateChooseModal()}
-      <div className={css.news}>
-        {FolderList}
-      </div>
+      <div className={css.news}>{FolderList}</div>
       <div className={css.divider} />
-      <div className={css.news}>
-        {AppList}
-      </div>
+      <div className={css.news}>{AppList}</div>
     </div>
   )
 }
 
-function CreateFileModal({ app, onOk, onCancel }) {
+function CreateFileModal({ app, onOk, onCancel, dirHandle }) {
   const [context] = useState({
-    submittable: true
+    submittable: true,
   })
   const [form] = Form.useForm()
   const [btnLoading, setBtnLoading] = useState(false)
   const ref = useRef()
 
-  const { run: ok } = useDebounceFn(() => {
-    form.validateFields().then((values) => {
-      setBtnLoading(true)
-      onOk(values, app).then((msg) => {
-        message.success(msg)
-        cancel()
-      }).catch((e) => {
-        setBtnLoading(false)
-        message.warn(e)
+  let title = `新建${app?.title}`
+
+  if (dirHandle.current) {
+    title = `${title}（当前文件夹：${dirHandle.current.name}）`
+  }
+
+  const { run: ok } = useDebounceFn(
+    () => {
+      form.validateFields().then((values) => {
+        setBtnLoading(true)
+        onOk(values, app)
+          .then((msg) => {
+            message.success(msg)
+            cancel()
+          })
+          .catch((e) => {
+            setBtnLoading(false)
+            message.warn(e)
+          })
       })
-    })
-  }, { wait: 200 });
+    },
+    { wait: 200 }
+  )
 
   const cancel = useCallback(() => {
     onCancel()
@@ -346,7 +402,7 @@ function CreateFileModal({ app, onOk, onCancel }) {
   useEffect(() => {
     if (app && ref.current) {
       setTimeout(() => {
-        (ref.current as any).focus()
+        ;(ref.current as any).focus()
         if (chooseTemplate?.title) {
           setTimeout(() => {
             form.setFieldValue('fileName', `${chooseTemplate.title}(来自分享)`)
@@ -359,7 +415,7 @@ function CreateFileModal({ app, onOk, onCancel }) {
   return (
     <Modal
       open={!!app}
-      title={`新建${app?.title}`}
+      title={title}
       okText={btnLoading ? '校验中...' : '确认'}
       cancelText={'取消'}
       centered={true}
@@ -367,7 +423,7 @@ function CreateFileModal({ app, onOk, onCancel }) {
       onCancel={cancel}
       confirmLoading={btnLoading}
       bodyStyle={{
-        minHeight: 104
+        minHeight: 104,
       }}
     >
       <Form
@@ -377,19 +433,21 @@ function CreateFileModal({ app, onOk, onCancel }) {
         className={css.createForm}
       >
         <Form.Item
-          label='名称'
+          label="名称"
           name="fileName"
-          rules={[{
-            required: true, message: `请输入${app?.title}名称`, validator(rule, value) {
-              return new Promise((resolve, reject) => {
-                if (!value.trim()) {
-                  reject(rule.message)
-                } else[
-                  resolve(true)
-                ]
-              })
-            }
-          }]}
+          rules={[
+            {
+              required: true,
+              message: `请输入${app?.title}名称`,
+              validator(rule, value) {
+                return new Promise((resolve, reject) => {
+                  if (!value.trim()) {
+                    reject(rule.message)
+                  } else [resolve(true)]
+                })
+              },
+            },
+          ]}
         >
           <Input
             onCompositionStart={() => {
@@ -405,11 +463,11 @@ function CreateFileModal({ app, onOk, onCancel }) {
           />
         </Form.Item>
         {['cloud-com', 'theme'].includes(app?.extName) ? (
-          <Form.Item label='类型' name="componentType" initialValue="PC">
+          <Form.Item label="类型" name="componentType" initialValue="PC">
             <Select
               options={[
                 { value: 'PC', label: 'PC' },
-                { value: 'H5', label: 'H5' }
+                { value: 'H5', label: 'H5' },
               ]}
             />
           </Form.Item>
@@ -444,7 +502,9 @@ function CreateFileModal({ app, onOk, onCancel }) {
 
 function designAPPSFilter(apps, path) {
   let finalApps = apps
-  const inFolderProjectAndModule = !!path.find((item) => ['folder-project', 'folder-module'].includes(item.extName))
+  const inFolderProjectAndModule = !!path.find((item) =>
+    ['folder-project', 'folder-module'].includes(item.extName)
+  )
   /**
    * 项目文件夹、模块文件夹下无法创建项目文件夹
    */
