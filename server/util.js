@@ -78,7 +78,7 @@ function injectAppConfigScript(appConfig) {
 }
 
 function travelDom(domAst, { ajaxScriptStr, appConfigScriptStr, rawHtmlStr }) {
-  let headTag = domAst.childNodes?.[1]?.childNodes?.[0]
+  let headTag = domAst.childNodes.find(node => node?.nodeName === 'html')?.childNodes?.[0];
   if(headTag.nodeName === 'head') {
     let ajaxNode = {
       nodeName: 'script',
