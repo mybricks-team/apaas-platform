@@ -9,13 +9,13 @@ function mergeToApplication() {
       "installApps": [
         {
           "type": "oss",
-          "version": "0.2.21",
+          "version": "0.2.35",
           "namespace": "mybricks-material",
-          "path": "asset-center/asset/app/mybricks-material/0.2.21/mybricks-material.zip"
+          "path": "asset-center/asset/app/mybricks-material/0.2.35/mybricks-material.zip"
         },
         {
           "type": "oss",
-          "version": "1.2.74",
+          "version": "1.3.31",
           "namespace": "mybricks-app-pcspa",
           "path": "asset-center/asset/app/mybricks-app-pcspa/1.2.74/mybricks-app-pcspa.zip"
         },
@@ -31,15 +31,15 @@ function mergeToApplication() {
         // },
         {
           "type": "oss",
-          "version": "1.0.46",
+          "version": "1.0.47",
           "namespace": "mybricks-app-th5",
-          "path": "asset-center/asset/app/mybricks-app-th5/1.0.46/mybricks-app-th5.zip"
+          "path": "asset-center/asset/app/mybricks-app-th5/1.0.47/mybricks-app-th5.zip"
         },
         {
           "type": "oss",
-          "version": "0.0.94",
+          "version": "0.1.13",
           "namespace": "mybricks-app-theme",
-          "path": "asset-center/asset/app/mybricks-app-theme/0.0.94/mybricks-app-theme.zip"
+          "path": "asset-center/asset/app/mybricks-app-theme/0.1.13/mybricks-app-theme.zip"
         }
       ],
       "platformVersion": require(path.join(__dirname, '../package.json')).version
