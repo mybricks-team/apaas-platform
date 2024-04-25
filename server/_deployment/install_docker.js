@@ -15,7 +15,7 @@ function mergeToApplication() {
         //   "type": "oss",
         //   "version": "0.0.8",
         //   "namespace": "mybricks-app-login",
-        //   "path": "mybricks-app-login@0.0.13"
+        //   "path": "mybricks-app-login@0.0.14" // 没有验证码版本
         // },
         {
           "type": "oss",
