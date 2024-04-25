@@ -8,32 +8,41 @@ function mergeToApplication() {
     let appConfig = {
       "installApps": [
         {
-          "type": "oss",
-          "version": "0.2.35",
-          "namespace": "mybricks-material",
-          "path": "asset-center/asset/app/mybricks-material/0.2.35/mybricks-material.zip"
-        },
-        {
-          "type": "oss",
-          "version": "1.3.31",
-          "namespace": "mybricks-app-pcspa",
-          "path": "asset-center/asset/app/mybricks-app-pcspa/1.2.74/mybricks-app-pcspa.zip"
-        },
-        {
           "type": "npm",
           "path": "mybricks-hainiu-login@0.0.4"
         },
         // {
         //   "type": "oss",
-        //   "version": "0.0.8",
+        //   "version": "0.0.13",
         //   "namespace": "mybricks-app-login",
-        //   "path": "mybricks-app-login@0.0.5"
+        //   "path": "mybricks-app-login@0.0.13"
         // },
         {
           "type": "oss",
-          "version": "1.0.47",
-          "namespace": "mybricks-app-th5",
-          "path": "asset-center/asset/app/mybricks-app-th5/1.0.47/mybricks-app-th5.zip"
+          "namespace": "mybricks-app-mpsite",
+          "version": "0.3.30",
+          "path": "asset-center/asset/app/mybricks-app-mpsite/0.3.30/mybricks-app-mpsite.zip"
+        },
+        {
+          "type": "oss",
+          "path": "asset-center/asset/app/mybricks-app-pc-cdm/1.0.50/mybricks-app-pc-cdm.zip",
+          "namespace": "mybricks-app-pc-cdm",
+          "version": "1.0.50",
+          "installType": "local"
+        },
+        {
+          "type": "oss",
+          "version": "0.2.35",
+          "namespace": "mybricks-material",
+          "path": "asset-center/asset/app/mybricks-material/0.2.35/mybricks-material.zip",
+          "installType": "local"
+        },
+        {
+          "type": "oss",
+          "version": "1.3.31",
+          "namespace": "mybricks-app-pcspa",
+          "path": "asset-center/asset/app/mybricks-app-pcspa/1.3.31/mybricks-app-pcspa.zip",
+          "installType": "local"
         },
         {
           "type": "oss",
