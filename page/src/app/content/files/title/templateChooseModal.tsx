@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { useEffect, useState, useRef } from 'react'
-import { Modal, Button } from 'antd'
+import { Modal, Button, message } from 'antd'
 import { Icon } from '@/app/components';
 import { observe } from '@mybricks/rxui';
 import AppCtx from '@/app/AppCtx';
@@ -21,7 +21,7 @@ const CommonTemplateChooseModal = props => {
   const appCtx = observe(AppCtx, { from: 'parents' });
   const { extName, onChoose, onCancel, onOk, modalVisible } = props;
   // const [templateList, setTemplateList] = useState([]);
-  const [{staticTemplateList, dynamicTemplateList}, setTemplateList] = useState({staticTemplateList: [], dynamicTemplateList: extName === "pc-page" ? [] : null})
+  const [{ staticTemplateList, dynamicTemplateList }, setTemplateList] = useState({ staticTemplateList: [], dynamicTemplateList: extName === "pc-page" ? [] : null })
   const [currentHoverIndex, setCurrentHoverIndex] = useState(-1);
   const { APPSMap } = appCtx;
   const appReg = APPSMap[extName];
@@ -46,7 +46,7 @@ const CommonTemplateChooseModal = props => {
           pageSize: 1000
         })
           .then(({ data }) => {
-            if(data.code === 1) {
+            if (data.code === 1) {
               resolve(data.data?.list ?? [])
             }
           })
@@ -59,7 +59,7 @@ const CommonTemplateChooseModal = props => {
             pageSize: 1000
           })
             .then(({ data }) => {
-              if(data.code === 1) {
+              if (data.code === 1) {
                 resolve(data.data?.list ?? [])
               }
             })
@@ -80,7 +80,7 @@ const CommonTemplateChooseModal = props => {
     if (iframeRef.current?.contentWindow && (event.source === iframeRef.current?.contentWindow) && event.data?.content) {
       iframeListener = false
       window.removeEventListener('message', handleDynamicTemplateMessage);
-      onChoose({dumpJSON: event.data, ...dynamicTemplateModalInfo})
+      onChoose({ dumpJSON: event.data, ...dynamicTemplateModalInfo })
     }
   }
 
@@ -110,10 +110,10 @@ const CommonTemplateChooseModal = props => {
         maskClosable={false}
         keyboard={false}
       >
-        <div style={{height: 769}}>
+        <div style={{ height: 769 }}>
           <iframe
             ref={iframeRef}
-            style={{width: '100%', height: '100%', border: 'none'}}
+            style={{ width: '100%', height: '100%', border: 'none' }}
             src={`/mfs/files/${dynamicTemplateModalInfo.fileId}/publish.html`}
           />
         </div>
@@ -134,7 +134,7 @@ const CommonTemplateChooseModal = props => {
         okText="选择空模板"
       >
         {/* display: 'flex', flexFlow: 'wrap' */}
-        <div style={{maxHeight: 716, overflow: 'auto'}}>
+        <div style={{ maxHeight: 716, overflow: 'auto' }}>
           {dynamicTemplateList?.length ? <div>
             <div style={templateTypeStyle}>动态模板</div>
             {
@@ -176,7 +176,26 @@ const CommonTemplateChooseModal = props => {
   )
 };
 
-function TemplateItem ({ template, appReg, currentHoverIndex, setCurrentHoverIndex, onChoose }) {
+
+function TemplateItem({ template, appReg, currentHoverIndex, setCurrentHoverIndex, onChoose }) {
+
+  const onPreview = async (templateId) => {
+    return axios.get(`/mybricks-app-pcspa/paas/api/workspace/getFullFile?fileId=${templateId}`).then(res => {
+      const fileContent = JSON.parse(res.data?.data?.content) || {}
+      const { targetPageId = 0 } = fileContent?.pageData || {}
+      if (!targetPageId) {
+        message.error(`没有关联模板页面！`)
+        return
+      } else {
+        window.open(`/mybricks-app-pcspa/index.html?id=${targetPageId}`, '_blank')
+        return
+      }
+    }).catch(e => {
+      console.error(`预览页面失败`, e)
+      message.error(`预览页面失败`)
+    });
+  }
+
   return (
     <div
       style={{
@@ -213,18 +232,18 @@ function TemplateItem ({ template, appReg, currentHoverIndex, setCurrentHoverInd
           position: 'relative'
         }}
       >
-        <Icon icon={template.icon || appReg?.icon} width={template.icon ? 140 : 32} height={template.icon ? '100%' : 32}/>
+        <Icon icon={template.icon || appReg?.icon} width={template.icon ? 140 : 32} height={template.icon ? '100%' : 32} />
       </div>
       <p
         style={{
-          textAlign:'center',
+          textAlign: 'center',
           fontWeight: 800,
           lineHeight: '30px',
           overflow: 'hidden',
           whiteSpace: 'nowrap',
           textOverflow: 'ellipsis',
           padding: 5
-      }}>
+        }}>
         {template.name}
       </p>
       {
@@ -235,7 +254,7 @@ function TemplateItem ({ template, appReg, currentHoverIndex, setCurrentHoverInd
               position: 'absolute',
               left: 0, top: 0,
               width: '100%', height: '100%',
-              backgroundColor:'#1f232980',
+              backgroundColor: '#1f232980',
               alignItems: 'center',
               justifyContent: 'center',
               display: 'flex',
@@ -244,6 +263,11 @@ function TemplateItem ({ template, appReg, currentHoverIndex, setCurrentHoverInd
             <Button type="primary" onClick={() => onChoose({ fileId: template.id, title: template.name })}>
               使用
             </Button>
+            {template?.extName === "pc-template" && <Button style={{
+              marginLeft: 8
+            }} onClick={() => onPreview(template.id)}>
+              预览
+            </Button>}
           </div>
           : null
       }
