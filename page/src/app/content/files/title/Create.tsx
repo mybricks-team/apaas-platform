@@ -206,6 +206,7 @@ export function Create(): JSX.Element {
               const appReg = appCtx.APPSMap[extName]
               const { homepage } = appReg
 
+              ctx.getAll(getUrlQuery())
               if (typeof homepage === 'string') {
                 const { id: fileId } = data.data
                 if (app.extName === 'pc-template') {
@@ -223,7 +224,7 @@ export function Create(): JSX.Element {
                 await appCtx.refreshSidebar()
               }
 
-              resolve('创建成功！')
+              resolve('新建成功')
             } else {
               reject(`创建文件错误：${data.message}`)
             }
