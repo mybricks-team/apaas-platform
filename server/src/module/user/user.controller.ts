@@ -550,7 +550,7 @@ export default class UserController {
   async sendCode(@Body() body) {
     const { email, isRegister } = body;
 
-    if (!email || !email.match(/^\w{3,}(\.\w+)*@[A-z0-9]+(\.[A-z]{2,5}){1,2}$/)) {
+    if (!email) {
       return { code: -1, msg: '邮箱格式错误' };
     }
 
