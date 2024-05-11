@@ -5,14 +5,14 @@
 <mapper namespace="material">
     <select id="getMaterials">
         select
-        material_info.*,
-        if(apaas_user.name is null, material_info.creator_name, apaas_user.name) as creator_name
+        material_info.*, GROUP_CONCAT(material_tag.title) AS tags,
+        if(apaas_user.name is null, material_info.creator_name, apaas_user.name) as creator_name,
+        max(material_info.update_time) as max_update_time
         from
         material_info
         left join apaas_user on apaas_user.id = material_info.creator_id
-        <if test="tags">
-            , material_tag_relation
-        </if>
+        left join material_tag_relation on material_info.id = material_tag_relation.material_id
+        left join material_tag on material_tag.id = material_tag_relation.tag_id
         where
         1 = 1
         <choose>
@@ -57,12 +57,13 @@
             </foreach>
         </if>
         <if test="scene">
-            and scene_id = #{scene}
+            and material_info.scene_id = #{scene}
         </if>
         <if test="keyword">
-            and (title like '%${keyword}%' or description like '%${keyword}%' or namespace like '%${keyword}%')
+            and (material_info.title like '%${keyword}%' or material_info.description like '%${keyword}%' or material_info.namespace like '%${keyword}%')
         </if>
-        order by update_time DESC
+        GROUP BY material_info.id
+        order by max_update_time DESC
         limit #{pageSize} offset #{offset};
     </select>
 
@@ -221,6 +222,8 @@
         <foreach collection="components" item="item" open="" close="" separator=" OR " index="index">
             (material_info.namespace = #{item.namespace} AND material_pub_info.version = #{item.version})
         </foreach>
+        and material_pub_info.status = 1
+        and material_info.status = 1
     </select>
 
     <select id="getMaterialPubInfoByIds">
@@ -292,9 +295,8 @@
         <foreach collection="namespaces" item="item" open="( " separator="," close=" )" index="index">
             #{item}
         </foreach>
-        <if test="status != undefined">
-            and status = #{status}
-        </if>
+        and material_info.status = 1
+        and material_pub_info.status = 1
         and material_pub_info.material_id = material_info.id
         and material_pub_info.version = material_info.version
     </select>
@@ -328,7 +330,9 @@
         select
         material_info.*,
         material_pub_info.material_id,
-        material_pub_info.content
+        material_pub_info.content,
+        material_pub_info.version as version,
+        material_pub_info.id as material_pub_id
         from
         material_pub_info,
         material_info
@@ -336,6 +340,8 @@
         material_info.id = material_pub_info.material_id
         and material_info.namespace = #{namespace}
         and material_pub_info.version = #{version}
+        and material_pub_info.status = 1
+        and material_info.status = 1
     </select>
 
     <insert id="createPub">
@@ -472,11 +478,14 @@
         material_info.type,
         material_pub_info.version,
         material_pub_info.creator_id,
-        if(apaas_user.name is null, material_pub_info.creator_name, apaas_user.name) as creator_name,
+        if(apaas_user.name is null, apaas_user.email, apaas_user.name) as creator_name,
         material_pub_info.create_time,
         material_pub_info.id as material_pub_id,
         material_pub_info.material_id,
         material_pub_info.commit_info,
+        <if test="needContent">
+            material_pub_info.content,
+        </if>
         CAST(SUBSTRING_INDEX(material_pub_info.version, '.', 1) AS UNSIGNED) major_version,
         CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(material_pub_info.version, '.', 2), '.', -1) AS UNSIGNED) minor_version,
         CAST(REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(material_pub_info.version, '.', 3), '.', -1), '-beta', '') AS UNSIGNED) patch_version,
@@ -506,11 +515,11 @@
     </select>
 
     <select id="getMaterialByNamespace">
-        select * from material_info where namespace = #{namespace};
+        select * from material_info where namespace = #{namespace} and status = 1;
     </select>
 
     <select id="getMaterialByNamespaces">
-        select * from material_info where namespace in
+        select * from material_info where status = 1 and namespace in
         <foreach collection="namespaces" item="item" open="( " separator="," close=" )" index="index">
             #{item}
         </foreach>
