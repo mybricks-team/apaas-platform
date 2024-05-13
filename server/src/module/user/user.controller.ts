@@ -364,61 +364,57 @@ export default class UserController {
    * 已登录用户
    */
   @Post('/signed')
-  async signed(@Body() body, @Headers('username') us: string, @Request() request) {
+  async signed(@Body() body, @Request() request) {
     try {
       const { fileId, HAINIU_UserInfo } = body;
       let userEmail;
  
-      if(us) {
-        userEmail = `${us}@kuaishou.com`;
-      } else {
-        if(request?.cookies?.['HAINIU_UserInfo']) {
-          try {
-            const hainiuCookie = request?.cookies?.['HAINIU_UserInfo']
-            const userCookie = JSON.parse(hainiuCookie)
-            userEmail = userCookie?.data?.userInfo?.nick
-          } catch(e) {
-            Logger.info(e.message)
-            Logger.info(e?.stack?.toString())
-          }
-        } else if(request?.cookies?.['mybricks-login-user']) {
-          const userCookie = JSON.parse(request?.cookies?.['mybricks-login-user'])
-          userEmail = userCookie?.email
-          // 单点
-          if(userCookie?.fingerprint) {
-            const sess = await this.userSessionDao.queryByUserId({ userId: userCookie.id })
-            if(sess?.fingerprint !== userCookie.fingerprint) {
-              return {
-                code: -1,
-                msg: '当前账号已在其他设备登录，请重新登录'
-              }
+      if(request?.cookies?.['HAINIU_UserInfo']) {
+        try {
+          const hainiuCookie = request?.cookies?.['HAINIU_UserInfo']
+          const userCookie = JSON.parse(hainiuCookie)
+          userEmail = userCookie?.data?.userInfo?.nick
+        } catch(e) {
+          Logger.info(e.message)
+          Logger.info(e?.stack?.toString())
+        }
+      } else if(request?.cookies?.['mybricks-login-user']) {
+        const userCookie = JSON.parse(request?.cookies?.['mybricks-login-user'])
+        userEmail = userCookie?.email
+        // 单点
+        if(userCookie?.fingerprint) {
+          const sess = await this.userSessionDao.queryByUserId({ userId: userCookie.id })
+          if(sess?.fingerprint !== userCookie.fingerprint) {
+            return {
+              code: -1,
+              msg: '当前账号已在其他设备登录，请重新登录'
             }
           }
-        } else if(HAINIU_UserInfo) {
-          const userCookie = JSON.parse(HAINIU_UserInfo)
-          userEmail = userCookie?.email
-          try {
-            userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.nick
-          } catch(e) {
-            Logger.info(e.message)
-            Logger.info(e?.stack?.toString())
-          }
-        } else {
-          // 都没带的情况下，才是游客，直接判断
-          if(request?.headers?.referer?.indexOf('.html') > -1 && request?.headers?.referer?.indexOf('id=') > -1) {
-            const temp = require('url').parse(request?.headers?.referer, true)
-            const fileId = temp.query?.id
-            if(fileId) {
-              const fileInfo = await this.fileDao.queryById(fileId)
-              if([10, 11].includes(+fileInfo?.shareType)) {
-                Logger.info(`[signed] 命中访客模式，直接返回`);
-                return {
-                  code: 1,
-                  data: {
-                    name: '游客',
-                    email: 'guest@mybricks.world'
-                  },
-                }
+        }
+      } else if(HAINIU_UserInfo) {
+        const userCookie = JSON.parse(HAINIU_UserInfo)
+        userEmail = userCookie?.email
+        try {
+          userEmail = JSON.parse(HAINIU_UserInfo)?.userInfo?.nick
+        } catch(e) {
+          Logger.info(e.message)
+          Logger.info(e?.stack?.toString())
+        }
+      } else {
+        // 都没带的情况下，才是游客，直接判断
+        if(request?.headers?.referer?.indexOf('.html') > -1 && request?.headers?.referer?.indexOf('id=') > -1) {
+          const temp = require('url').parse(request?.headers?.referer, true)
+          const fileId = temp.query?.id
+          if(fileId) {
+            const fileInfo = await this.fileDao.queryById(fileId)
+            if([10, 11].includes(+fileInfo?.shareType)) {
+              Logger.info(`[signed] 命中访客模式，直接返回`);
+              return {
+                code: 1,
+                data: {
+                  name: '游客',
+                  email: 'guest@mybricks.world'
+                },
               }
             }
           }
