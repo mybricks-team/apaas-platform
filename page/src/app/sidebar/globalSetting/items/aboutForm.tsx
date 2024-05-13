@@ -252,98 +252,6 @@ const UpgradeTab = ({ currentPlatformVersion, appCtx }) => {
   )
 }
 
-const LicenseTab = ({ appCtx }) => {
-  const [activateInfoLoading, setActivateInfoLoading] = useState(false)
-  const [isActivated, setIsActivated] = useState(false)
-  const [activateInfo, setActivateInfo] = useState({} as any)
-  const [licenseCode, setLicenseCode] = useState('')
-
-  const _getLicenseInfo = useCallback(async () => {
-    setActivateInfoLoading(true)
-    axios({
-      method: 'post',
-      url: getApiUrl('/paas/api/license/getActivateInfo'),
-    }).then(({ data }) => {
-      if(data.code === 1) {
-        setActivateInfo(data.data)
-        setIsActivated(true)
-      } else {
-        setIsActivated(false)
-      }
-    }).finally(() => {
-      setActivateInfoLoading(false)
-    })
-  }, [])
-
-  useEffect(() => {
-    _getLicenseInfo()
-  }, [])
-
-  const submitLicense = useCallback(async () => {
-    const res: any = await axios({
-      method: 'post',
-      url: getApiUrl('/paas/api/license/activate'),
-      data: {
-        userId: appCtx.user.id,
-        licenseCode: licenseCode,
-      },
-    })
-
-    const { code, msg } = res?.data || {}
-    if (code === 1) {
-      message.success(msg || '激活成功')
-    } else {
-      message.error(msg)
-    }
-    await _getLicenseInfo()
-  }, [licenseCode])
-
-  if(activateInfoLoading) {
-    return (
-      <div>
-        <p>查询中，请稍后... <LoadingOutlined /></p>
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      {
-        isActivated ? (
-          <div>
-            <p style={{textAlign: 'center', fontSize: '20px', fontWeight: 'bold', marginBottom: '6px'}}>{activateInfo.status}</p>
-            <p style={{textAlign: 'center'}}>您当前使用的版本为：<span style={{ fontWeight: 'bold', fontSize: 18 }}>{activateInfo.type}</span>，有效期至 <span style={{ fontWeight: 'bold', fontSize: 18 }}>{activateInfo.expiredDate}</span></p>
-            <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
-              <Button icon={<EnterOutlined />} type="primary" onClick={() => {
-                setIsActivated(false)
-              }} >重新激活</Button>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <p style={{textAlign: 'center', fontSize: '20px', fontWeight: 'bold', marginBottom: '6px'}}>未激活</p>
-            <Input.TextArea 
-              rows={8} 
-              value={licenseCode} 
-              onChange={(e) => {
-                // console.log(e.target.value); 
-                setLicenseCode(e.target.value)
-                console.log(licenseCode)
-              }} 
-              placeholder='请输入秘钥'
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
-              <Button target='blank' type='link' href='https://www.mybricks.world/' icon={<MessageOutlined />}>联系客服获取秘钥</Button>
-              <Button icon={<EnterOutlined />} type="primary" onClick={submitLicense} >激活</Button>
-            </div>
-          </div>
-        )
-      }
-    </div>
-  )
-
-}
-
 const AboutForm = ({ currentPlatformVersion }) => {
   const appCtx = observe(AppCtx, {from: 'parents'})
 
@@ -357,11 +265,6 @@ const AboutForm = ({ currentPlatformVersion }) => {
       key: 'upgrade',
       label: '升级',
       children: <UpgradeTab currentPlatformVersion={currentPlatformVersion} appCtx={appCtx} />
-    },
-    {
-      key: 'license',
-      label: '我的许可',
-      children: <LicenseTab appCtx={appCtx} />,
     }
   ];
 

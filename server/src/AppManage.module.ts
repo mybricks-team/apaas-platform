@@ -28,8 +28,6 @@ import LogModule from './module/log/log.module'
 import ConfigModule from "./module/config/config.module";
 import AppModule from "./module/app/app.module";
 import { DiscoveryService, Reflector } from "@nestjs/core";
-import GPTModule from './module/gpt/gpt.module';
-import LicenseModule from "./module/license/license.module";
 
 const MethodMap = {
   0: 'GET',
@@ -54,8 +52,6 @@ const MethodMap = {
     LogModule,
     ConfigModule,
     AppModule,
-    GPTModule,
-    LicenseModule,
     ScheduleModule.forRoot(),
     ...loadModule().modules,
   ],
