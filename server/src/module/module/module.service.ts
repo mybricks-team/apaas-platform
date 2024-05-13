@@ -3,14 +3,12 @@ import * as axios from "axios";
 import ModuleDao from './../../dao/ModuleDao'
 import ModulePubDao from './../../dao/ModulePubDao';
 import {getNextVersion, getRealDomain} from "../../utils";
-import DomainService from "../domain/domain.service";
 import FlowService from "../flow/flow.service";
 
 @Injectable()
 export default class ModuleService {
   private readonly moduleDao = new ModuleDao();
   private readonly modulePubDao = new ModulePubDao();
-  private readonly domainService = new DomainService();
   private readonly flowService = new FlowService();
 
   async create(param) {

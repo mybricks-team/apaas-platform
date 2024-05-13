@@ -1,11 +1,11 @@
 {
   "database": {
     "dbType": "MYSQL",
-    "host": "47.111.7.45",
-    "user": "test-test",
-    "password": "Amf658ikcRyEDwRZ",
+    "host": "",
+    "user": "",
+    "password": "",
     "port": 3306,
-    "databaseName": "test-test",
+    "databaseName": "",
     "sqlPath": "./resource"
   },
   "platformConfig": {

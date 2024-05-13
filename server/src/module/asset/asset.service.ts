@@ -22,7 +22,6 @@ export enum AssetType {
 @Injectable()
 export default class AssetService {
   uploadService: UploadService;
-  flowService: FlowService;
   appDao: AppDao
 
   constructor() {

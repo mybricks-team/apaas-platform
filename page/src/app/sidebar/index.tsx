@@ -232,45 +232,6 @@ function User() {
 function SystemMenus() {
   const appCtx = observe(AppCtx, { from: 'parents' })
   const { isAdministrator } = appCtx
-  const [messages, setMessages] = useState([])
-
-  useEffect(() => {
-    if (isAdministrator) {
-      // 检查消息通道
-      axios.post(getApiUrl('/paas/api/system/channel'), {
-        userId: appCtx.user?.id,
-        type: "getLatestNoticeList",
-        isAdministrator: true
-      }).then(({ data }) => {
-        if (data.code === 1) {
-          let alreadyReadStr = localStorage.getItem(LOCALSTORAGE_MESSAGE_KEY) || '{}';
-          if (alreadyReadStr) {
-            let alreadyReadObj = JSON.parse(alreadyReadStr)
-            let filterList = []
-            data?.data?.forEach((item) => {
-              if (!alreadyReadObj[item.id] || alreadyReadObj[item.id]?.updateTime !== item.updateTime) {
-                filterList.push(item)
-              }
-            })
-            setMessages(filterList)
-          } else {
-            setMessages(data.data);
-          }
-        }
-      })
-    }
-  }, []);
-
-  const onDeleteMessage = ({ id, updateTime, index }) => {
-    let alreadyReadStr = localStorage.getItem(LOCALSTORAGE_MESSAGE_KEY) || '{}';
-    let alreadyReadObj = JSON.parse(alreadyReadStr)
-    alreadyReadObj[id] = { id, updateTime }
-    localStorage.setItem(LOCALSTORAGE_MESSAGE_KEY, JSON.stringify(alreadyReadObj))
-
-    const newMessage = [...messages]
-    newMessage.splice(index, 1)
-    setMessages(newMessage)
-  }
 
   return (
     <>
@@ -280,21 +241,6 @@ function SystemMenus() {
             icon="./image/icon_myapp.png"
             title="我的应用"
             modal={{ content: <AppStore /> }}
-          />
-          <Item
-            icon={<PlatformMessage width={20} height={20} />}
-            title={
-              messages.length ? (
-                <Badge count={messages.length} overflowCount={9} size='small' style={{ position: 'absolute', left: 38, top: -2, width: 30 }} >
-                  消息通知
-                </Badge>
-              ) : '消息通知'
-            }
-            modal={{
-              title: '消息通知',
-              // @ts-ignore
-              content: <MessageModal messages={messages} appsMap={appCtx.APPSMap} onDelete={onDeleteMessage} />
-            }}
           />
           <Item
             icon={<OperateLogIcon width={20} height={20} />}
