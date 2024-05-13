@@ -372,7 +372,16 @@ export default class UserController {
       if(us) {
         userEmail = `${us}@kuaishou.com`;
       } else {
-        if(request?.cookies?.['mybricks-login-user']) {
+        if(request?.cookies?.['HAINIU_UserInfo']) {
+          try {
+            const hainiuCookie = request?.cookies?.['HAINIU_UserInfo']
+            const userCookie = JSON.parse(hainiuCookie)
+            userEmail = userCookie?.data?.userInfo?.nick
+          } catch(e) {
+            Logger.info(e.message)
+            Logger.info(e?.stack?.toString())
+          }
+        } else if(request?.cookies?.['mybricks-login-user']) {
           const userCookie = JSON.parse(request?.cookies?.['mybricks-login-user'])
           userEmail = userCookie?.email
           // 单点

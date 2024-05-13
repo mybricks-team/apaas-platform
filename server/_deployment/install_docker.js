@@ -7,16 +7,16 @@ function mergeToApplication() {
     const appConfigPath = path.join(__dirname, '../application.json')
     let appConfig = {
       "installApps": [
-        {
-          "type": "npm",
-          "path": "mybricks-hainiu-login@0.0.4"
-        },
         // {
-        //   "type": "oss",
-        //   "version": "0.0.8",
-        //   "namespace": "mybricks-app-login",
-        //   "path": "mybricks-app-login@0.0.14" // 没有验证码版本
+        //   "type": "npm",
+        //   "path": "mybricks-hainiu-login@0.0.4"
         // },
+        {
+          "type": "oss",
+          "version": "0.0.8",
+          "namespace": "mybricks-app-login",
+          "path": "mybricks-app-login@0.0.14" // 没有验证码版本
+        },
         {
           "type": "oss",
           "namespace": "mybricks-app-mpsite",
