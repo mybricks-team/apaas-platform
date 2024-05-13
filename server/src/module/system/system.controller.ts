@@ -609,19 +609,7 @@ export default class SystemController {
         }
         case 'downloadPlatform': {
           const systemConfig = await this.configService.getConfigByScope(['system'])
-          try {
-            if(systemConfig?.system?.config?.openConflictDetection) {
-              Logger.info('开启了冲突检测')
-              await lockUpgrade()
-            }
-          } catch(e) {
-            Logger.info(e.message)
-            Logger.info(e?.stack?.toString())
-            return {
-              code: -1,
-              msg: '当前已有升级任务，请稍后重试'
-            }
-          }
+
           const appJSON = fs.readFileSync(path.join(__dirname, '../../../application.json'), 'utf-8')
           const { platformVersion: prePlatformVersion } = JSON.parse(appJSON)
           const res = (await (axios as any).post(
@@ -656,21 +644,11 @@ export default class SystemController {
                 content: `更新平台，版本从 ${prePlatformVersion} 到 ${version}, 服务已更新`,
               })
             });
-            if(systemConfig?.system?.config?.openConflictDetection) {
-              Logger.info("解锁成功，可继续升级应用");
-              // 解锁
-              await unLockUpgrade({ force: true })
-            }
             return {
               code: 1,
               msg: log?.toString() || '升级成功'
             }
           } else {
-            if(systemConfig?.system?.config?.openConflictDetection) {
-              Logger.info("解锁成功，可继续升级应用");
-              // 解锁
-              await unLockUpgrade({ force: true })
-            }
             return {
               code: -1,
               msg: '下载失败，请重试'
@@ -753,19 +731,6 @@ export default class SystemController {
   @UseInterceptors(FileInterceptor('file'))
   async systemOfflineUpdate(@Req() req, @Body() body, @UploadedFile() file) {
     const systemConfig = await this.configService.getConfigByScope(['system'])
-    try {
-      if(systemConfig?.system?.config?.openConflictDetection) {
-        Logger.info('开启了冲突检测')
-        await lockUpgrade()
-      }
-    } catch(e) {
-      Logger.info(e)
-      Logger.info(e?.stack?.toString())
-      return {
-        code: -1,
-        msg: '当前已有升级任务，请稍后重试'
-      }
-    }
     const tempFolder = path.join(process.cwd(), '../_temp_')
     try {
       if(!fs.existsSync(tempFolder)) {
@@ -837,11 +802,6 @@ export default class SystemController {
       fse.removeSync(tempFolder)
     }
     
-    if(systemConfig?.system?.config?.openConflictDetection) {
-      Logger.info("解锁成功，可继续升级应用");
-      // 解锁
-      await unLockUpgrade({ force: true })
-    }
     return { code: 1, message: "安装成功" };
   }
 

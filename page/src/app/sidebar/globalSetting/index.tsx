@@ -50,9 +50,6 @@ const SystemConfigItems = [
   { title: '系统诊断', namespace: 'mybricks-diagnostics', icon: <DiagnosticsIcon /> },
   { title: '更多', namespace: 'about', icon: <EllipsisOutlined /> }
 ]
-if(location.href.indexOf('mybricks.world') !== -1 || location.href.indexOf('localhost') !== -1) {
-  SystemConfigItems.splice(SystemConfigItems.length - 1, 0, { title: '监控与统计', namespace: 'mybricks-monitor', icon: <MonitorIcon />})
-}
 
 const Tabs = ({ onClick, activeKey, items = [], style }: TabsProps) => {
   if (!Array.isArray(items)) {

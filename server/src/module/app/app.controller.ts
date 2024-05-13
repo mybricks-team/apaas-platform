@@ -8,7 +8,6 @@ import AppDao from '../../dao/AppDao';
 import * as axios from 'axios';
 import env from '../../utils/env'
 import UserLogDao from '../../dao/UserLogDao';
-import { lockUpgrade, unLockUpgrade } from '../../utils/lock';
 import ConfigService from '../config/config.service';
 import AppService from './app.service';
 import { USER_LOG_TYPE } from '../../constants'
@@ -147,10 +146,6 @@ export default class AppController {
     const logPrefix = `[安装应用 ${namespace}@${version}]：`;
     const systemConfig = await this.configService.getConfigByScope(['system'])
     try {
-      if(systemConfig?.system?.config?.openConflictDetection) {
-        Logger.info(logPrefix + '开启了冲突检测')
-        await lockUpgrade()
-      }
     } catch(e) {
       Logger.info(logPrefix + e.message)
       Logger.info(logPrefix + e?.stack?.toString())
@@ -364,12 +359,6 @@ export default class AppController {
       Logger.info(logPrefix + e.message);
       Logger.info(logPrefix + e?.stack?.toString())
     }
-
-    if(systemConfig?.system?.config?.openConflictDetection) {
-      Logger.info(logPrefix + "解锁成功，可继续升级应用");
-      // 解锁
-      await unLockUpgrade({ force: true })
-    }
     return { code: 1, data: null, message: "安装成功" };
   }
 
@@ -378,19 +367,6 @@ export default class AppController {
     const { namespace, userId, name } = body;
     const logPrefix = `[卸载应用 ${namespace}]：`;
     const systemConfig = await this.configService.getConfigByScope(['system'])
-    try {
-      if(systemConfig?.system?.config?.openConflictDetection) {
-        Logger.info(logPrefix + '开启了冲突检测')
-        await lockUpgrade()
-      }
-    } catch(e) {
-      Logger.info(logPrefix + e.message)
-      Logger.info(logPrefix + e?.stack?.toString())
-      return {
-        code: -1,
-        msg: '当前已有系统任务，请稍后重试'
-      }
-    }
     const applications = require(path.join(process.cwd(), './application.json'));
     const originApplications = JSON.parse(JSON.stringify(applications));
 
@@ -450,12 +426,6 @@ export default class AppController {
       Logger.info(logPrefix + e?.stack?.toString())
     }
 
-    if(systemConfig?.system?.config?.openConflictDetection) {
-      Logger.info(logPrefix + "解锁成功，可继续处理系统任务");
-      // 解锁
-      await unLockUpgrade({ force: true })
-    }
-
     return { code: 1, data: null, message: '卸载成功' };
   }
 
@@ -484,19 +454,7 @@ export default class AppController {
   @UseInterceptors(FileInterceptor('file'))
   async appOfflineUpdate(@Req() req, @Body() body, @UploadedFile() file) {
     const systemConfig = await this.configService.getConfigByScope(['system'])
-    try {
-      if(systemConfig?.system?.config?.openConflictDetection) {
-        Logger.info('[offlineUpdate]: 开启了冲突检测')
-        await lockUpgrade()
-      }
-    } catch(e) {
-      Logger.info(e)
-      Logger.info(e?.stack?.toString())
-      return {
-        code: -1,
-        msg: '当前已有升级任务，请稍后重试'
-      }
-    }
+
     const tempFolder = path.join(process.cwd(), '../_tempapp_')
     try {
       if(!fs.existsSync(tempFolder)) {
@@ -620,12 +578,7 @@ export default class AppController {
       Logger.info(`[offlineUpdate]: ${e?.stack?.toString()}`)
       fse.removeSync(tempFolder)
     }
-    
-    if(systemConfig?.system?.config?.openConflictDetection) {
-      Logger.info("[offlineUpdate]: 解锁成功，可继续升级应用");
-      // 解锁
-      await unLockUpgrade({ force: true })
-    }
+
     return { code: 1, message: "安装成功" };
   }
 

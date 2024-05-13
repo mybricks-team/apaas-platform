@@ -2,7 +2,6 @@ import { ScheduleModule, SchedulerRegistry } from "@nestjs/schedule";
 import { Module, OnModuleInit } from "@nestjs/common";
 import * as path from 'path';
 
-import Task from './task/task';
 import WorkspaceService from "./services/workspace";
 import FileDao from "./dao/FileDao";
 import FileTaskDao from "./dao/FileTaskDao";
@@ -67,7 +66,6 @@ const MethodMap = {
     HomeService
   ],
   providers: [
-    Task,
     SchedulerRegistry,
     FileDao,
     FileTaskDao,

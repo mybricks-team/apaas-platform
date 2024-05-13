@@ -18,7 +18,6 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [openSystemWhiteListSwitch, setOpenSystemWhiteListSwitch] = useState(initialValues?.openSystemWhiteList)
   const [openLogoutSwitch, setOpenLogoutSwitch] = useState(initialValues?.openLogout)
   const [openUserInfoSettingSwitch, setOpenUserInfoSettingSwitch] = useState(initialValues?.openUserInfoSetting)
-  const [openConflictDetectionSwitch, setOpenConflictDetectionSwitch] = useState(initialValues?.openConflictDetection)
   const [closeOfflineUpdate, setCloseOfflineUpdate] = useState(initialValues?.closeOfflineUpdate)
   const [isPureIntranet, setIsPureIntranet] = useState(initialValues?.isPureIntranet)
   const appCtx = observe(AppCtx, {from: 'parents'})
@@ -122,18 +121,6 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
             >
               <Switch checked={openUserInfoSettingSwitch} onChange={() => {
                 setOpenUserInfoSettingSwitch(!openUserInfoSettingSwitch)
-              }} />
-            </Form.Item>
-            <Form.Item
-              style={{ minWidth: '50%' }}
-              labelCol={{ span: 8 }}
-              wrapperCol={{ span: 6 }}
-              initialValue=''
-              label="升级冲突检测"
-              name="openConflictDetection"
-            >
-              <Switch checked={openConflictDetectionSwitch} onChange={() => {
-                setOpenConflictDetectionSwitch(!openConflictDetectionSwitch)
               }} />
             </Form.Item>
             <Form.Item
