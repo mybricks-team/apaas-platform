@@ -15,7 +15,6 @@ import { checkHealthMiddleware } from './middleware/checkHealth.middleware';
 import { loadModule } from "./module-loader";
 import { enhanceApp } from "./enhance";
 import init from "./init";
-import ValidationPipe from "./pipe/validationPipe";
 import { runtimeLogger } from './middleware/log.middleware';
 import { assetAdapterMiddleware } from './middleware/asset.middleware';
 import { liceneseMiddleware } from './middleware/license.middleware'
@@ -62,7 +61,6 @@ async function bootstrap() {
   enhanceApp(app, {
     appNamespaceList: loadedModule.namespace,
   });
-  app.useGlobalPipes(new ValidationPipe());
   app.use(checkHealthMiddleware);
 
   app.enableCors({
