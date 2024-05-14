@@ -3,8 +3,9 @@ const path = require('path');
 const mysql = require('mysql2');
 const childProcess = require('child_process');
 
-
-const EXTERNAL_FILE_STORAGE = path.join(__dirname, '../../')
+/** _localstorage、_apps 等需要外挂的目录根路径 */
+const EXTERNAL_FILE_STORAGE = process.env.EXTERNAL_FILE_STORAGE ? process.env.EXTERNAL_FILE_STORAGE : path.join(__dirname, '../../')
+const EXTERNAL_CONFIG_PATH= process.env.EXTERNAL_CONFIG_PATH ? process.env.EXTERNAL_CONFIG_PATH : path.join(__dirname, '../../')
 let MYSQL_CONNECTION = null
 let UserInputConfig = {};
 
@@ -122,7 +123,7 @@ function injectPLatformConfig() {
 async function syncLocalFileToExternal() {
   const localPath = path.join(__dirname, '../../localstorage')
   if(fs.existsSync(localPath)) {
-    const externalPath = path.join(__dirname, '../../_localstorage')
+    const externalPath = path.join(EXTERNAL_FILE_STORAGE, './_localstorage')
     if(!fs.existsSync(externalPath)) {
       fs.mkdirSync(externalPath)
     }
@@ -134,7 +135,7 @@ async function syncLocalFileToExternal() {
 
 async function syncAppsFromDockerToExternal() {
   const localAppsFolder = path.join(__dirname, '../../apps')
-  const externalAppsPath = path.join(__dirname, '../../_apps')
+  const externalAppsPath = path.join(EXTERNAL_FILE_STORAGE, './_apps')
   if(fs.existsSync(localAppsFolder)) {
     const localApps = fs.readdirSync(localAppsFolder) || []
     let externalApps = []
@@ -164,7 +165,7 @@ async function startInstall() {
 }
 
 async function startInstallServer() {
-  const externalConfigPath = path.join(EXTERNAL_FILE_STORAGE, './external/PlatformConfig.json')
+  const externalConfigPath = path.join(EXTERNAL_CONFIG_PATH, './external/PlatformConfig.json')
   if(fs.existsSync(externalConfigPath)) {
     console.log('[install] 已找到外部配置文件，将使用外部配置文件')
     try {
