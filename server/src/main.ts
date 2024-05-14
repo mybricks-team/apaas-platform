@@ -19,6 +19,7 @@ import ValidationPipe from "./pipe/validationPipe";
 import { runtimeLogger } from './middleware/log.middleware';
 import { assetAdapterMiddleware } from './middleware/asset.middleware';
 import { liceneseMiddleware } from './middleware/license.middleware'
+import {apiAuth} from './middleware/auth.middleware'
 import { TIMEOUT_TIME } from './constants';
 
 const env = require('../env.js')
@@ -30,6 +31,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppManage);
   app.use(assetAdapterMiddleware);
+  app.use(apiAuth());
   app.use(liceneseMiddleware());
   app.useStaticAssets(path.join(__dirname, "../_assets/"), {
     prefix: "/",

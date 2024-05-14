@@ -3,7 +3,9 @@ import * as fs from "fs";
 import env from './utils/env'
 import { isDirectory } from './utils/index'
 import UserDao from './dao/UserDao';
+import ConfigDao from './dao/config.dao';
 const userDao = new UserDao();
+const configDao = new ConfigDao();
 import { Logger } from "@mybricks/rocker-commons";
 
 const scanDir = (dirFullPath: string) => {
@@ -30,7 +32,7 @@ const scanDir = (dirFullPath: string) => {
             }
             if(fs.existsSync(middlewarePath)) {
               const fn = require(middlewarePath).default
-              const wrapperFn = fn({ userDao, Logger })
+              const wrapperFn = fn({ userDao, Logger, configDao })
               middleware.push(wrapperFn)
             }
             if(fs.existsSync(interceptorPath)) {

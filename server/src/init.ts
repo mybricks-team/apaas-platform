@@ -37,7 +37,7 @@ export default function init() {
   configDao.getConfig({ namespace: ['system'] })
     .then(systemConfig => {
       const [system] = systemConfig;
-
+      global.SYSTEM_CONFIG = system.config
       /** 初始化离线判断标识 */
       global.IS_PURE_INTRANET = (system.config as any)?.isPureIntranet;
     });

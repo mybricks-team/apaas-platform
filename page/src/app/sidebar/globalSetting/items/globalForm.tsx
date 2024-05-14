@@ -20,6 +20,7 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
   const [openUserInfoSettingSwitch, setOpenUserInfoSettingSwitch] = useState(initialValues?.openUserInfoSetting)
   const [openConflictDetectionSwitch, setOpenConflictDetectionSwitch] = useState(initialValues?.openConflictDetection)
   const [closeOfflineUpdate, setCloseOfflineUpdate] = useState(initialValues?.closeOfflineUpdate)
+  const [interfaceAuth, setInterfaceAuth] = useState(initialValues?.interfaceAuth)
   const [isPureIntranet, setIsPureIntranet] = useState(initialValues?.isPureIntranet)
   const appCtx = observe(AppCtx, {from: 'parents'})
   const [appOptions, setAppOptions] = useState([])
@@ -146,6 +147,18 @@ const GlobalForm = ({ initialValues, onSubmit, style }) => {
             >
               <Switch checked={closeOfflineUpdate} onChange={() => {
                 setCloseOfflineUpdate(!closeOfflineUpdate)
+              }} />
+            </Form.Item>
+            <Form.Item
+              style={{ minWidth: '50%' }}
+              labelCol={{ span: 8 }}
+              wrapperCol={{ span: 6 }}
+              initialValue=''
+              label="接口鉴权"
+              name="interfaceAuth"
+            >
+              <Switch checked={interfaceAuth} onChange={() => {
+                setInterfaceAuth(!interfaceAuth)
               }} />
             </Form.Item>
             {/* <Form.Item
