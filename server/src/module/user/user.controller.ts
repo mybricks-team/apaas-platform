@@ -376,7 +376,8 @@ export default class UserController {
           try {
             const hainiuCookie = request?.cookies?.['HAINIU_UserInfo']
             const userCookie = JSON.parse(hainiuCookie)
-            userEmail = userCookie?.data?.userInfo?.nick
+            console.log(userCookie)
+            userEmail = userCookie?.data?.nick
           } catch(e) {
             Logger.info(e.message)
             Logger.info(e?.stack?.toString())
