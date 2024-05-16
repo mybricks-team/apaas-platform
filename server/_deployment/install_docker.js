@@ -9,14 +9,18 @@ function mergeToApplication() {
       "installApps": [
         // {
         //   "type": "npm",
-        //   "path": "mybricks-hainiu-login@0.0.4"
+        //   "path": "mybricks-hainiu-login@0.0.4" // 登录态local
         // },
         {
-          "type": "oss",
-          "version": "0.0.8",
-          "namespace": "mybricks-app-login",
-          "path": "mybricks-app-login@0.0.14" // 没有验证码版本
+          "type": "npm",
+          "path": "mybricks-hainiu-login@1.0.0" // 登录态cookie
         },
+        // {
+        //   "type": "oss",
+        //   "version": "0.0.8",
+        //   "namespace": "mybricks-app-login",
+        //   "path": "mybricks-app-login@0.0.14" // 没有验证码版本
+        // },
         {
           "type": "oss",
           "namespace": "mybricks-app-mpsite",
