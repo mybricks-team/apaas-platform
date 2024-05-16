@@ -137,12 +137,13 @@ export function Create(): JSX.Element {
     return new Promise(async (resolve, reject) => {
       const item = ctx.path[ctx.path.length - 1];
       const isGroup = !!!item.extName && !!item.id
-      const { fileName, componentType } = values
+      const { fileName, componentType, type } = values
       const { extName, isSystem } = app
       const params: any = {
         extName,
         userId: appCtx.user.id,
         userName: appCtx.user.name || appCtx.user.email,
+        type
       }
 
       if (isGroup) {
@@ -411,6 +412,16 @@ function CreateFileModal({ app, onOk, onCancel }) {
               options={[
                 { value: 'PC', label: 'PC' },
                 { value: 'H5', label: 'H5' }
+              ]}
+            />
+          </Form.Item>
+        ) : null}
+        {['pc-cdm'].includes(app?.extName) ? (
+          <Form.Item label='类型' name="type" initialValue="UI">
+            <Select
+              options={[
+                { value: 'UI', label: 'UI' },
+                { value: 'JS', label: 'JS' }
               ]}
             />
           </Form.Item>
