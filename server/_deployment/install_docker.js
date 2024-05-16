@@ -24,7 +24,7 @@ function mergeToApplication() {
         {
           "type": "oss",
           "namespace": "mybricks-app-mpsite",
-          "version": "0.3.30",
+          "version": "0.3.43",
           "path": "asset-center/asset/app/mybricks-app-mpsite/0.3.30/mybricks-app-mpsite.zip"
         },
         {
@@ -36,7 +36,7 @@ function mergeToApplication() {
         },
         {
           "type": "oss",
-          "version": "0.2.35",
+          "version": "0.2.37",
           "namespace": "mybricks-material",
           "path": "asset-center/asset/app/mybricks-material/0.2.35/mybricks-material.zip",
           "installType": "local"
