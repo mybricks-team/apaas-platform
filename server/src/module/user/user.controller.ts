@@ -135,7 +135,7 @@ export default class UserController {
 
     if (
       !email ||
-      !email.match(/^\w{3,}(\.\w+)*@[A-z0-9]+(\.[A-z]{2,5}){1,2}$/) ||
+      !email.match(/^[a-zA-Z\d.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z\d](?:[a-zA-Z\d-]{0,61}[a-zA-Z\d])?(?:\.[a-zA-Z\d](?:[a-zA-Z\d-]{0,61}[a-zA-Z\d])?)*$/) ||
       !psd ||
       /** 存在环境变量，代表使用邮箱验证码校验 */
       (process.env.MYBRICKS_EMAIL_ACCESS_KEY_ID ? !captcha : false)
@@ -560,7 +560,7 @@ export default class UserController {
   async sendCode(@Body() body) {
     const { email, isRegister } = body;
 
-    if (!email) {
+    if (!email || !email.match(/^[a-zA-Z\d.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z\d](?:[a-zA-Z\d-]{0,61}[a-zA-Z\d])?(?:\.[a-zA-Z\d](?:[a-zA-Z\d-]{0,61}[a-zA-Z\d])?)*$/)) {
       return { code: -1, msg: '邮箱格式错误' };
     }
 
@@ -733,7 +733,7 @@ export default class UserController {
   async findPassword(@Body() body) {
     const { email, password, confirmPassword, captcha } = body;
 
-    if (!email || !email.match(/^\w{3,}(\.\w+)*@[A-z0-9]+(\.[A-z]{2,5}){1,2}$/)) {
+    if (!email || !email.match(/^[a-zA-Z\d.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z\d](?:[a-zA-Z\d-]{0,61}[a-zA-Z\d])?(?:\.[a-zA-Z\d](?:[a-zA-Z\d-]{0,61}[a-zA-Z\d])?)*$/)) {
       return { code: -1, msg: '邮箱格式错误' };
     } else if (!password || password !== confirmPassword) {
       return { code: -1, msg: '两次密码不一致，请检查密码' };
