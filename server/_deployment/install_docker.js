@@ -13,7 +13,7 @@ function mergeToApplication() {
         // },
         {
           "type": "npm",
-          "path": "mybricks-hainiu-login@1.0.0" // 登录态cookie
+          "path": "mybricks-hainiu-login@1.0.1" // 登录态cookie
         },
         // {
         //   "type": "oss",
