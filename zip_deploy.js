@@ -86,7 +86,7 @@ fs.readdirSync(path.join(__dirname, './_localstorage')).forEach(filename => {
 });
 
 read(zipRootFolder.folder('server'), filesPlatform, path.join(__dirname, './server'));
-read(zipRootFolder.folder('server-runtime'), filesRuntime, path.join(__dirname, './server-runtime'));
+// read(zipRootFolder.folder('server-runtime'), filesRuntime, path.join(__dirname, './server-runtime'));
 read(zipRootFolder.folder('_localstorage'), filesLocalStorage, path.join(__dirname, './_localstorage'));
 
 zipRootFolder.file('upgrade_platform.sh', fs.readFileSync(path.join(__dirname, './upgrade_platform.sh')));
