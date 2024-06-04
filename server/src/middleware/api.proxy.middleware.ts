@@ -1,7 +1,6 @@
-import { NextFunction, Request } from "express";
+import { NextFunction, Request } from 'express';
 import { TIMEOUT_TIME } from '../constants';
 const proxy = require('express-http-proxy');
-const URL = require('url');
 
 interface Option {
   proxyTarget?: string;
@@ -29,17 +28,9 @@ export function apiProxy(option: Option = {}) {
         limit: '100mb',
         timeout: TIMEOUT_TIME,
         proxyReqPathResolver: req => {
-          const parse = URL.parse(req.url, true);
-          parse.query = { ...(parse.query || {}), ...req.query };
-          let url = req.url.split('?')[0];
+          const queryStr = req.originalUrl.split('?')[1] ?? '';
 
-          if (Object.keys(parse.query).length) {
-            Object.keys(req.query).forEach(key => {
-              url += `${url.includes('?') ? '&' : '?'}${key}=${encodeURIComponent(req.query[key])}`;
-            });
-          }
-
-          return url;
+          return req.url.split('?')[0] + (queryStr ? `?${queryStr}` : '');
         },
         proxyErrorHandler: function(err, res, next) {
           switch (err && err.code) {
