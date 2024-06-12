@@ -18,7 +18,8 @@ const PageChooseModal = props => {
     axios.post('/paas/api/share/getAll', {
       extName: extName,
       page: 0,
-      pageSize: 1000
+      pageSize: 1000,
+      onlyPublished: 1,
     })
       .then(({ data }) => {
         if (data.code === 1) {
@@ -35,6 +36,7 @@ const PageChooseModal = props => {
         title="模板页面选择"
         destroyOnClose
         width={942}
+        onCancel={onCancel}
         footer={[
           <Button key="cancel" onClick={onCancel}>
             取消
