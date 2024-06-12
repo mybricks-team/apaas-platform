@@ -179,7 +179,7 @@ export default class SystemController {
       if(fileIds?.length !== 0) {
         pubContentList =  await this.filePubDao.getLatestPubByIds({
           ids: fileIds,
-          envType: 'prod',
+          // envType: 'prod',
         });
       }
 
@@ -260,7 +260,7 @@ export default class SystemController {
 			if(fileIds?.length !== 0) {
 				pubContentList =  await this.filePubDao.getLatestPubByIds({
 					ids: fileIds,
-					envType: 'test',
+					// envType: 'test',
 				});
 			}
 			
