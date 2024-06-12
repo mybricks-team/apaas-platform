@@ -176,6 +176,7 @@ export default class FileController {
         parentId: fileInfo.parentId, 
         groupId: fileInfo.groupId,
         name, 
+        type: fileInfo.type,
         extName: fileInfo.extName, 
         icon: fileInfo.icon, 
         creatorId: userId,
